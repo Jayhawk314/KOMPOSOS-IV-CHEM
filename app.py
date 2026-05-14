@@ -126,6 +126,41 @@ def render_detail(entry):
         for i, (name, conf) in enumerate(entry["votes"]):
             vote_cols[i % len(vote_cols)].metric(name, f"{conf:.2f}")
 
+    # Show binding evidence when binding_evidence strategy voted
+    binding_vote = [c for n, c in entry["votes"] if n == "binding_evidence"]
+    if binding_vote:
+        st.markdown("**Binding Evidence**")
+        try:
+            from abpp_bridge import ABPPBridge
+            from data.drugs.drug_properties import get_drug_likeness, is_antibody
+            abpp = ABPPBridge()
+            drug = entry["drug"]
+            ic50_rows = []
+            seen = set()
+            for chain in entry.get("chains", []):
+                for edge in chain.get("edges", []):
+                    protein = edge.get("target", "")
+                    if protein in seen:
+                        continue
+                    seen.add(protein)
+                    result = abpp.check_abpp(drug, protein)
+                    if result and result.validated and result.ic50_um is not None:
+                        ic50_rows.append({
+                            "Target": protein,
+                            "IC50 (\u00b5M)": result.ic50_um,
+                            "Inhibition": f"{result.percent_inhibition:.0f}%",
+                            "Source": result.publication,
+                        })
+            if ic50_rows:
+                st.dataframe(ic50_rows, use_container_width=True, hide_index=True)
+            likeness = get_drug_likeness(drug)
+            if likeness is not None:
+                st.metric("Drug-Likeness (Lipinski)", f"{likeness:.2f}")
+            if is_antibody(drug):
+                st.info(f"{drug} is a monoclonal antibody (not a small molecule)")
+        except Exception:
+            pass
+
     if entry["chains"]:
         st.markdown("**Mechanistic Evidence Chains**")
         for i, chain in enumerate(entry["chains"], 1):
@@ -241,21 +276,25 @@ approved for.
 
 1. **Knowledge Graph**: 78 drugs, 366 proteins, 20 diseases, 1260 edges --
    all with literature citations (PMIDs + ChEMBL IDs)
-2. **7 Inference Strategies**: Each uses a different mathematical lens
+2. **8 Inference Strategies**: Each uses a different mathematical or molecular lens
    (composition, Kan extensions, Yoneda patterns, topos logic, structural holes,
-   fibration lifts, type heuristics)
-3. **Scoring**: Average strategy confidences + path bonus for mechanistic
+   fibration lifts, type heuristics, binding evidence)
+3. **Binding Evidence**: IC50/engagement data from ABPP experiments, Boltz2
+   heuristic binding, drug-likeness (Lipinski), drug-target molecular compatibility
+4. **Scoring**: Average strategy confidences + path bonus for mechanistic
    Drug->Protein->Disease chains
-4. **Evidence**: Every prediction comes with traceable mechanistic paths and
-   literature citations
+5. **Evidence**: Every prediction comes with traceable mechanistic paths,
+   literature citations, and IC50 data where available
 
 ### Validation
 
 | Metric | Value |
 |--------|-------|
-| LOOCV AUROC | 0.974 [95% CI: 0.965-0.983] |
+| LOOCV AUROC | 0.970 |
+| LOOCV AUPRC | 0.533 |
+| Hits@10 | 1.000 |
 | Positives | 44 FDA-approved oncology indications |
-| Strongest baseline | shortest_path 0.931 (margin: +0.043) |
+| Strategies | 8 (incl. binding evidence with IC50 data) |
 | Provenance | 1260/1260 morphisms cited (100%) |
 | ClinicalTrials.gov cross-check | 63% IN_TRIALS, 30% PRECLINICAL, 7% NOVEL |
 

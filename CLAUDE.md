@@ -59,11 +59,11 @@ python validation\repurposing_benchmark.py --view full_typed --protocol loocv
 Add `--ci` for bootstrap 95% confidence intervals, `--baselines` for baseline
 comparisons (random, degree, common-neighbor, shortest-path, path-count).
 
-Current metrics (2026-05-11, post-audit corrections, 44 positives, path bonus tuned):
-- `legacy/as_loaded`: AUROC 0.917, AUPRC 0.536
-- `full_typed/as_loaded`: AUROC 0.890, AUPRC 0.154
-- `full_typed/remove_direct_labels`: AUROC 0.974, AUPRC 0.500
-- `full_typed/loocv`: AUROC 0.974, AUPRC 0.515, Hits@5 1.00, MRR 0.078
+Current metrics (2026-05-13, 8 strategies incl. binding_evidence, 44 positives):
+- `legacy/as_loaded`: AUROC 0.923, AUPRC 0.436
+- `full_typed/as_loaded`: AUROC 0.882, AUPRC 0.133
+- `full_typed/remove_direct_labels`: AUROC 0.933, AUPRC 0.419
+- `full_typed/loocv`: AUROC 0.970, AUPRC 0.533, Hits@5 1.00, Hits@10 1.00, MRR 0.081
 
 Path bonus tuned via LOOCV grid search: min(0.25, 0.10 * composition_count).
 Uniform strategy weights confirmed optimal by calibrate_loocv.py.
@@ -130,13 +130,34 @@ Data expansion:
 - See `DATA_EXPANSION_GUIDE.md` for further expansion recommendations (OpenTargets, STRING)
 - Provenance complete (100%, 2026-05-12)
 
+## Binding Evidence Strategy (2026-05-13)
+
+The 8th oracle strategy (`oracle/binding_strategy.py`) integrates molecular and
+chemistry bridges into the repurposing scoring pipeline:
+
+1. **ABPP Bridge** (`abpp_bridge.py`): 65 experimental IC50/engagement entries
+   with PMIDs for drug-target pairs in tier1.db.
+2. **Boltz2 Bridge** (`boltz2_bridge.py`): heuristic binding prediction (fallback
+   mode, no install needed).
+3. **Drug Properties** (`data/drugs/drug_properties.py`): molecular properties
+   (MW, logP, HBD, HBA, functional groups) for all 78 drugs, plus approximate
+   binding-pocket properties for 50+ protein targets. Computes Lipinski
+   drug-likeness and drug-target molecular compatibility.
+4. **Molecular Bridge** (`molecular_bridge/interaction_scoring.py`): solubility,
+   steric, reactivity scoring via the drug property data.
+5. **Chemistry** (`chemistry/pfam_domain_mapper.py`): kinase domain classification
+   feeds into target property assignments.
+
+Triage reports now show IC50 values, engagement status, and drug-likeness when
+the binding_evidence strategy votes.
+
 ## Track B: Drug Design
 
 Status: long-term goal, not scientifically validated in this repo.
 
-Existing files such as `boltz2_bridge.py` and `abpp_bridge.py` contain
-scaffolding, examples, and fallback behavior. Do not use Track A AUROC to claim
-Track B readiness.
+The ABPP bridge and Boltz2 bridge are now wired into Track A scoring (binding
+evidence strategy). This is a step toward Track B but does not constitute drug
+design capability. Do not use Track A AUROC to claim Track B readiness.
 
 Track B will need:
 - Molecular fragments and scaffold libraries.
@@ -159,10 +180,16 @@ Core layers:
 
 Key code areas:
 - `core/`: fused Category runtime and categorical infrastructure.
-- `oracle/`: prediction/scoring strategies.
+- `oracle/`: prediction/scoring strategies (8 strategies incl. binding_evidence).
+- `oracle/binding_strategy.py`: BindingEvidenceStrategy (ABPP + Boltz2 + drug properties).
 - `domains/bio/`: bio graph loader.
 - `data/store.py`: SQLite store API.
 - `data/drugs/build_tier1.py`: reproducible DB build from manifest.
+- `data/drugs/drug_properties.py`: molecular properties for 78 drugs.
+- `abpp_bridge.py`: 65 experimental IC50 entries for drug-target pairs.
+- `boltz2_bridge.py`: heuristic binding prediction bridge.
+- `chemistry/`: protein structure chemistry (Pfam domains, hydrophobicity, etc.).
+- `molecular_bridge/`: molecular interaction scoring (5 scorers).
 - `validation/`: repurposing validation harnesses and candidate triage CLI.
 - `validation/triage.py`: candidate triage CLI (disease-first, drug-first, pair detail).
 - `tests/`: regression and strategy tests.
@@ -197,7 +224,8 @@ first-100-object behavior is preserved only by
 7. ~~Complete provenance for remaining 302 uncited morphisms.~~ DONE (100%, 2026-05-12).
 8. ~~Ablation studies.~~ DONE (composition is dominant strategy).
 9. ~~ClinicalTrials.gov cross-check.~~ DONE (63% IN_TRIALS, 30% PRECLINICAL, 7% NOVEL).
-8. Expand data sources (ChEMBL SQLite - see `data/drugs/importers/CHEMBL_SETUP.md`).
+10. ~~Wire molecular/chemistry bridges into scoring.~~ DONE (binding_evidence strategy, 2026-05-13).
+11. Expand data sources (ChEMBL SQLite - see `data/drugs/importers/CHEMBL_SETUP.md`).
 
 ## Verification
 
