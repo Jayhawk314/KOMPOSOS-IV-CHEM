@@ -344,8 +344,8 @@ approved for.
 
 | Metric | Value |
 |--------|-------|
-| LOOCV AUROC | 0.970 |
-| LOOCV AUPRC | 0.533 |
+| LOOCV AUROC | 0.974 |
+| LOOCV AUPRC | 0.530 |
 | Hits@10 | 1.000 |
 | Positives | 44 FDA-approved oncology indications |
 | Strategies | 8 (incl. binding evidence with IC50 data) |

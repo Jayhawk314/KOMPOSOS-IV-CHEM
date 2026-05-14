@@ -1,8 +1,8 @@
 # KOMPOSOS-IV-PHARM: Drug Repurposing Case Studies
 
-**Date**: 2026-05-12
+**Date**: 2026-05-13
 **Source**: Categorical AI analysis of 78-drug, 20-disease oncology knowledge graph
-**Validation**: LOOCV AUROC 0.974 [95% CI: 0.965-0.983], 44 FDA-approved positive labels
+**Validation**: LOOCV AUROC 0.974 [95% CI: 0.965-0.983], 44 FDA-approved positive labels, 8 strategies
 **Disclaimer**: Research hypotheses for investigation. Not clinical recommendations.
 
 ---
@@ -13,13 +13,13 @@
 
 **Mechanistic Paths**: The system looks for chains connecting drugs to diseases through protein targets: Drug→Protein→Disease. These are biological mechanisms explaining how a drug might work.
 
-**7 Strategies**: Different mathematical approaches (composition, pattern matching, logic reasoning, etc.) that independently evaluate whether a drug-disease connection makes sense. Think of them as 7 expert opinions using different reasoning methods.
+**8 Strategies**: Different mathematical and molecular approaches (composition, pattern matching, logic reasoning, binding evidence, etc.) that independently evaluate whether a drug-disease connection makes sense. Think of them as 8 expert opinions using different reasoning methods.
 
 **Scoring**: A candidate's overall score combines votes from all strategies plus a bonus for having multiple mechanistic paths. Higher consensus + more pathways = higher score.
 
 ## Understanding the Numbers
 
-**Overall Score (0.9+)**: Combines votes from 7 mathematical strategies plus a bonus for mechanistic Drug→Protein→Disease paths. Higher scores mean stronger consensus across strategies and more supporting evidence chains.
+**Overall Score (0.9+)**: Combines votes from 8 strategies (7 mathematical + 1 molecular binding evidence) plus a bonus for mechanistic Drug→Protein→Disease paths. Higher scores mean stronger consensus across strategies and more supporting evidence chains.
 
 **Individual Edge Confidences (0.5-0.8)**: Biological plausibility of each hop in a mechanistic path (e.g., "Mebendazole inhibits VEGFR2" = 0.68). These are lower because they reflect single relationships, not the combined evidence.
 

@@ -1,7 +1,7 @@
 # KOMPOSOS-IV-PHARM: Technical Overview
 
 **Author**: James Ray Hawkins
-**Date**: 2026-05-12
+**Date**: 2026-05-13
 **License**: Apache 2.0 / Commercial dual license
 **Python**: 3.10+
 
@@ -34,7 +34,7 @@ Layer 1: ORION            Plugin framework (bridges, events, hot-loading)
 | Directory | Purpose |
 |-----------|---------|
 | `core/` | Category runtime: `Category` class, types, enrichment, persistence, hooks |
-| `oracle/` | Prediction strategies: 7 production + optional experimental |
+| `oracle/` | Prediction strategies: 8 production (incl. binding evidence) |
 | `domains/bio/` | `BioDomainLoader` -- loads tier1.db into Category |
 | `data/store.py` | `KomposOSStore` -- SQLite backend API |
 | `data/drugs/` | `build_tier1.py` (reproducible build), `tier1_manifest.json` |
@@ -80,8 +80,8 @@ production graphs.
 
 ## 4. Production Strategies
 
-The benchmark harness uses exactly 7 strategies (`oracle/strategies.py`,
-`make_strategies()`):
+The benchmark harness uses exactly 8 strategies (`oracle/strategies.py`,
+`oracle/binding_strategy.py`, `make_strategies()`):
 
 | # | Strategy | Alone AUROC | Without AUROC | Role |
 |---|----------|----------:|-------------:|------|
@@ -92,9 +92,15 @@ The benchmark harness uses exactly 7 strategies (`oracle/strategies.py`,
 | 5 | **type_heuristic** | 0.500 | 0.974 (0) | Type-based heuristic matching |
 | 6 | **structural_hole** | 0.500 | 0.974 (0) | Burt structural holes |
 | 7 | **fibration_lift** | 0.500 | 0.974 (0) | Cartesian lift in fibrations |
+| 8 | **binding_evidence** | -- | -- | Molecular/chemistry binding evidence |
 
 Strategies 5-7 are inactive on the current graph (contribute zero signal) but
 are retained for future graph expansions.
+
+Strategy 8 (binding_evidence) aggregates 5 molecular bridges: ABPP experimental
+IC50 data, Boltz2 heuristic binding, drug-likeness (Lipinski), drug-target
+molecular compatibility, molecular bridge scorers, and Pfam domain matching.
+Drug properties are PubChem-verified (46/68 drugs corrected 2026-05-13).
 
 Additional experimental strategies exist in `oracle/` (geometric homotopy,
 boundary detection, cellular dynamics, etc.) but are not used in the benchmark
@@ -177,10 +183,10 @@ python validation\repurposing_benchmark.py --view <view> --protocol <protocol>
 
 | View | Protocol | AUROC | AUPRC | Hits@5 | Pairs | Positives |
 |------|----------|------:|------:|-------:|------:|----------:|
-| legacy | as_loaded | 0.917 | 0.536 | -- | 1320 | 36 |
-| full_typed | as_loaded | 0.890 | 0.154 | 0.00 | 1560 | 44 |
-| full_typed | remove_direct_labels | 0.974 | 0.500 | 0.60 | 1560 | 44 |
-| full_typed | loocv | 0.974 | 0.515 | 1.00 | 1560 | 44 |
+| legacy | as_loaded | 0.931 | 0.465 | -- | 1320 | 36 |
+| full_typed | as_loaded | 0.887 | 0.135 | 0.00 | 1560 | 44 |
+| full_typed | remove_direct_labels | 0.940 | 0.431 | 0.60 | 1560 | 44 |
+| full_typed | loocv | 0.974 | 0.530 | 1.00 | 1560 | 44 |
 
 - `legacy`: first 100 objects only (historical hurdle)
 - `full_typed`: all objects loaded, typed
@@ -306,7 +312,9 @@ morphism counts, AUROC values, and manifest SHA256 against the current database.
 | `data/drugs/build_tier1.py` | Reproducible DB build |
 | `data/drugs/tier1_manifest.json` | Canonical graph manifest |
 | `core/category.py` | Category runtime |
-| `oracle/strategies.py` | 7 production scoring strategies |
+| `oracle/strategies.py` | 7 graph-topology scoring strategies |
+| `oracle/binding_strategy.py` | Binding evidence strategy (ABPP, Boltz2, drug props) |
+| `data/drugs/drug_properties.py` | PubChem-verified molecular properties for 78 drugs |
 | `domains/bio/loader.py` | BioDomainLoader |
 | `tests/test_repurposing_benchmark.py` | Regression tests |
 | `CURRENT_STATE.md` | Project status |

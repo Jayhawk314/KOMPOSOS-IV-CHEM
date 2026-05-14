@@ -1,6 +1,6 @@
 # KOMPOSOS-IV-PHARM: Master Technical Guide
 
-**Date**: 2026-05-12 (updated: provenance 100%, audit corrections)
+**Date**: 2026-05-13 (updated: 8 strategies, PubChem-verified drug properties)
 **Author**: James Ray Hawkins
 **License**: Apache 2.0 / Commercial dual license
 
@@ -14,11 +14,11 @@ KOMPOSOS-IV-PHARM is a categorical AI runtime for pharmaceutical discovery.
 
 **Current Status**: Working research prototype with validated metrics
 
-**Core Metrics** (44 FDA-approved indications, post-ChEMBL expansion, audit-corrected 2026-05-11):
+**Core Metrics** (44 FDA-approved indications, 8 strategies, PubChem-verified drug props, 2026-05-13):
 - **LOOCV AUROC**: 0.974 [95% CI: 0.965-0.983]
-- **AUPRC**: 0.516
-- **Hits@5**: 1.00 (100% of true positives in top 5 ranked)
-- **MRR**: 0.078 (mean reciprocal rank)
+- **AUPRC**: 0.530
+- **Hits@5**: 1.00, **Hits@10**: 1.00
+- **MRR**: 0.080 (mean reciprocal rank)
 - **Margin over baselines**: +0.043 (best baseline: shortest_path 0.931)
 
 **Additional Validation** (needs re-run on expanded graph):
@@ -35,7 +35,7 @@ KOMPOSOS-IV-PHARM is a categorical AI runtime for pharmaceutical discovery.
 
 **Architecture Stack**:
 1. Category Theory Runtime (core/) - objects, morphisms, enrichment
-2. Oracle System (oracle/) - 7 production inference strategies
+2. Oracle System (oracle/) - 8 production inference strategies (7 graph + 1 binding)
 3. Mathematical Foundations - OPTIMUS, COG, Yoneda, Kan extensions, Topos logic
 4. Scientific Pipeline - tier1.db, BioDomainLoader, validation benchmarks
 5. Provenance & Audit - reproducible builds, PMID citations, external audit
@@ -118,7 +118,7 @@ OPTIMUS performs self-refinement by discovering better factorizations.
 
 ### 2.1 CategoricalOracle (oracle/__init__.py)
 
-Predicts missing morphisms using 7 production inference strategies.
+Predicts missing morphisms using 8 production inference strategies.
 
 **Pipeline**:
 1. Collect predictions from all strategies
@@ -183,6 +183,17 @@ stats = oracle.get_learning_stats()
 - **Drug→Disease pairs**: ONLY pathway-based (NO direct edge leakage)
 - Other pairs: full logic (direct + Heyting + presheaf + pathway)
 - Uses subobject classifier (sieves = sets of perspectives)
+
+**8. BindingEvidenceStrategy** (oracle/binding_strategy.py)
+- Aggregates 5 molecular/chemistry bridges into 7 weighted scoring components
+- ABPP Bridge: 65 experimental IC50 entries with PMIDs (weight 0.30)
+- Boltz2 Bridge: heuristic binding prediction, fallback mode (weight 0.10)
+- Drug-likeness: Lipinski Rule of Five (weight 0.10)
+- Drug-target compatibility: logP/H-bond matching (weight 0.10)
+- Molecular Bridge scorers: solubility, steric, reactivity (weight 0.10)
+- Pfam domain matching: domain-drug class matching (weight 0.10)
+- Graph edge confidence (weight 0.20)
+- Drug properties PubChem-verified (46/68 corrected 2026-05-13)
 
 **Additional Strategies** (if modules available):
 - SemanticSimilarityStrategy (embeddings)
@@ -294,16 +305,16 @@ auroc = (concordant + 0.5×tied) / (concordant + discordant + tied)
 - Shortest path: 1 / BFS_distance (depth ≤ 3)
 - Path count: number of paths (normalized)
 
-### 3.4 Current Metrics (2026-05-11, audit-corrected, 44 positives, path bonus tuned)
+### 3.4 Current Metrics (2026-05-13, 8 strategies, PubChem-verified, 44 positives)
 
 **Main Benchmarks**:
 
 | View | Protocol | AUROC | 95% CI | AUPRC | Hits@5 | MRR |
 |------|----------|-------|--------|-------|--------|-----|
-| full_typed | loocv | 0.974 | [0.965, 0.983] | 0.515 | 1.00 | 0.078 |
-| full_typed | remove_direct | 0.974 | [0.961, 0.985] | 0.500 | 0.60 | — |
-| full_typed | as_loaded | 0.890 | [0.852, 0.928] | 0.154 | 0.00 | — |
-| legacy | as_loaded | 0.917 | [0.826, 0.990] | 0.536 | — | — |
+| full_typed | loocv | 0.974 | [0.965, 0.983] | 0.530 | 1.00 | 0.080 |
+| full_typed | remove_direct | 0.940 | — | 0.431 | 0.60 | — |
+| full_typed | as_loaded | 0.887 | — | 0.135 | 0.00 | — |
+| legacy | as_loaded | 0.931 | — | 0.465 | — | — |
 
 **LOOCV Baselines** (audit-corrected 2026-05-11):
 - Random: 0.469
@@ -457,11 +468,12 @@ print(f"Baselines: {result.baselines}")
 - Quantale structure allows flexible composition semantics (multiply for AND, add for cost, min for safety)
 - Enables Kan extensions and colimit-based prediction
 
-**Why 7 strategies instead of 1?**
+**Why 8 strategies instead of 1?**
 - No single strategy dominates all cases
 - Diversity reduces overfitting
 - Explainability: users see which strategies agree/disagree
 - Robustness: ensemble AUROC (0.974) >> best single strategy
+- Binding evidence adds molecular/chemistry signal beyond graph topology
 - Trade-off: ~50ms per pair (acceptable for offline ranking)
 
 **Why LOOCV over other protocols?**
@@ -504,9 +516,11 @@ print(f"Baselines: {result.baselines}")
 
 ### 7.2 Track B (Drug Design): SCAFFOLDING ONLY
 
-Files exist (`boltz2_bridge.py`, `abpp_bridge.py`, `geometry/esmfold_*.py`) but NOT validated:
+Files exist (`boltz2_bridge.py`, `abpp_bridge.py`, `geometry/esmfold_*.py`).
+Note: `abpp_bridge.py` and `boltz2_bridge.py` are now wired into Track A via
+the binding_evidence strategy, but Track B drug design remains scaffolding:
 - No AUROC/AUPRC for design tasks
-- Fallback behavior only (mock predictions)
+- Fallback behavior only (mock predictions for design)
 - **Do NOT use Track A metrics to claim Track B readiness**
 
 Track B requires:
@@ -544,7 +558,7 @@ KOMPOSOS-IV-PHARM is a rigorously engineered categorical system for pharmaceutic
 
 **Strengths**:
 - Solid mathematics (category theory, enrichment, Kan extensions, Yoneda, topos logic)
-- Robust prediction (7 production strategies, ensemble scoring, path bonus)
+- Robust prediction (8 production strategies incl. binding evidence, ensemble scoring, path bonus)
 - Rigorous validation (LOOCV, bootstrap CIs, baselines, external/temporal/disease holdouts)
 - Complete provenance (1260/1260 morphisms cited, 44 positives all with PMIDs, reproducible DB build)
 - Explainable (mechanistic paths with PMIDs, strategy votes, evidence chains)
@@ -557,7 +571,7 @@ KOMPOSOS-IV-PHARM is a rigorously engineered categorical system for pharmaceutic
 
 ---
 
-**Document Generated**: 2026-05-06 (updated 2026-05-12)
+**Document Generated**: 2026-05-06 (updated 2026-05-13)
 **Status**: Complete technical reference
 **Audience**: Developers, researchers, auditors, collaborators
 **License**: Apache 2.0 / Commercial dual license

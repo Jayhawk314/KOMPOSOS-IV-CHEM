@@ -1,6 +1,6 @@
 # Cheap Drug Repurposing Candidates
 
-**Generated**: 2026-05-12
+**Generated**: 2026-05-13
 **Source**: KOMPOSOS-IV-PHARM tier1.db
 **Graph**: 1143 objects, 1260 morphisms
 **Validation**: LOOCV AUROC 0.974 [95% CI: 0.965-0.983], full_typed/loocv protocol, 44 positives
@@ -999,13 +999,13 @@ Drugs with mechanistic pathway support for multiple cancers (highest priority fo
 
 ## Methodology
 
-**Scoring**: Categorical AI analysis combining 22 mathematical strategies over the drug-target-disease knowledge graph. Each candidate is scored by averaging strategy votes and adding a path bonus for Drug->Protein->Disease mechanistic chains.
+**Scoring**: Categorical AI analysis combining 8 production strategies (7 mathematical + 1 molecular binding evidence) over the drug-target-disease knowledge graph. Each candidate is scored by averaging strategy votes and adding a path bonus for Drug->Protein->Disease mechanistic chains. The binding evidence strategy integrates ABPP IC50 data, drug-likeness (Lipinski), drug-target compatibility, and Pfam domain matching with PubChem-verified molecular properties.
 
 **Graph Source**: tier1.db
 - 1143 objects: 78 drugs, 366 proteins, 20 diseases, 679 ExternalCompound nodes
 - 1260 morphisms (edges)
 - 44 FDA-approved oncology indications (ground truth labels)
-- 958/1260 morphisms with provenance (76%): 86 PMIDs, 872 ChEMBL/DOI
+- 1260/1260 morphisms with provenance (100%): PMIDs + ChEMBL IDs
 
 **Validation** (audit-reproduced):
 - LOOCV AUROC: 0.974 [95% CI: 0.965-0.983] (full_typed/loocv protocol, 44 positives)
