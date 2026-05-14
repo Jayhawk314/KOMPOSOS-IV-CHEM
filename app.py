@@ -111,6 +111,55 @@ def render_results_table(results):
     st.dataframe(rows, use_container_width=True, hide_index=True)
 
 
+# User-friendly strategy labels for pharma audience
+STRATEGY_DISPLAY = {
+    "kan_extension": {
+        "label": "Drug Analogy",
+        "hint": "Similar drugs treat similar diseases",
+    },
+    "type_heuristic": {
+        "label": "Type Match",
+        "hint": "Drug-protein-disease type compatibility",
+    },
+    "structural_hole": {
+        "label": "Network Closure",
+        "hint": "Fills missing link in drug-target-disease triangle",
+    },
+    "composition": {
+        "label": "Mechanistic Path",
+        "hint": "Drug targets a protein involved in this disease",
+    },
+    "yoneda_pattern": {
+        "label": "Interaction Profile",
+        "hint": "Drug has similar target profile to known treatments",
+    },
+    "fibration_lift": {
+        "label": "Structural Inference",
+        "hint": "Prediction lifted from related biological context",
+    },
+    "topos_logic": {
+        "label": "Evidence Integration",
+        "hint": "Partial evidence combined from multiple sources",
+    },
+    "binding_evidence": {
+        "label": "Binding Evidence",
+        "hint": "Experimental IC50 and molecular compatibility data",
+    },
+}
+
+
+def _strategy_label(name: str) -> str:
+    """Get user-friendly display label for a strategy."""
+    info = STRATEGY_DISPLAY.get(name)
+    return info["label"] if info else name
+
+
+def _strategy_hint(name: str) -> str:
+    """Get short explanation for a strategy."""
+    info = STRATEGY_DISPLAY.get(name)
+    return info["hint"] if info else ""
+
+
 def render_detail(entry):
     """Show detailed evidence for one candidate."""
     label_color = "green" if entry["label"] == "APPROVED" else "orange"
@@ -121,10 +170,15 @@ def render_detail(entry):
     st.metric("Score", f"{entry['score']:.3f}")
 
     if entry["votes"]:
-        st.markdown("**Strategy Votes**")
-        vote_cols = st.columns(min(len(entry["votes"]), 4))
-        for i, (name, conf) in enumerate(entry["votes"]):
-            vote_cols[i % len(vote_cols)].metric(name, f"{conf:.2f}")
+        st.markdown("**Scoring Evidence**")
+        for name, conf in entry["votes"]:
+            label = _strategy_label(name)
+            hint = _strategy_hint(name)
+            col1, col2 = st.columns([2, 1])
+            col1.write(f"**{label}**")
+            col2.metric("Score", f"{conf:.2f}")
+            if hint:
+                st.caption(hint)
 
     # Show binding evidence when binding_evidence strategy voted
     binding_vote = [c for n, c in entry["votes"] if n == "binding_evidence"]

@@ -175,9 +175,21 @@ def _detail_block(entry: dict) -> str:
     lines.append(f"Score: {entry['score']:.3f}")
 
     if entry["votes"]:
-        lines.append("Strategy votes:")
+        lines.append("Scoring evidence:")
+        # Map technical names to user-friendly labels
+        strategy_labels = {
+            "kan_extension": "Drug Analogy",
+            "type_heuristic": "Type Match",
+            "structural_hole": "Network Closure",
+            "composition": "Mechanistic Path",
+            "yoneda_pattern": "Interaction Profile",
+            "fibration_lift": "Structural Inference",
+            "topos_logic": "Evidence Integration",
+            "binding_evidence": "Binding Evidence",
+        }
         for name, conf in entry["votes"]:
-            lines.append(f"  {name:20s} {conf:.2f}")
+            label = strategy_labels.get(name, name)
+            lines.append(f"  {label:25s} {conf:.2f}")
 
     # Show binding evidence detail when binding_evidence strategy voted
     binding_vote = [c for n, c in entry["votes"] if n == "binding_evidence"]
