@@ -49,6 +49,9 @@ class PredictionType(Enum):
     CURVATURE_BRIDGE = "curvature_bridge"
     SAME_REGION = "same_region"
 
+    # From Binding Evidence (ABPP, Boltz2, Pfam domain matching)
+    BINDING_EVIDENCE = "binding_evidence"
+
     # Meta
     ENSEMBLE = "ensemble"  # Combined from multiple strategies
 

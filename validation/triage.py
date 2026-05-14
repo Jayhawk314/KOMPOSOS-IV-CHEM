@@ -179,6 +179,34 @@ def _detail_block(entry: dict) -> str:
         for name, conf in entry["votes"]:
             lines.append(f"  {name:20s} {conf:.2f}")
 
+    # Show binding evidence detail when binding_evidence strategy voted
+    binding_vote = [c for n, c in entry["votes"] if n == "binding_evidence"]
+    if binding_vote:
+        lines.append("")
+        lines.append("Binding evidence:")
+        try:
+            from abpp_bridge import ABPPBridge
+            abpp = ABPPBridge()
+            from data.drugs.drug_properties import get_drug_likeness, is_antibody
+            # Find proteins this drug targets
+            for chain in entry.get("chains", []):
+                for edge in chain.get("edges", []):
+                    protein = edge.get("target", "")
+                    result = abpp.check_abpp(drug, protein)
+                    if result and result.validated and result.ic50_um is not None:
+                        lines.append(
+                            f"  {drug}->{protein}: IC50={result.ic50_um:.3f} uM"
+                            f"  ({result.percent_inhibition:.0f}% inh.)"
+                            f"  [{result.publication}]"
+                        )
+            likeness = get_drug_likeness(drug)
+            if likeness is not None:
+                lines.append(f"  Drug-likeness (Lipinski): {likeness:.2f}")
+            if is_antibody(drug):
+                lines.append(f"  Note: {drug} is a monoclonal antibody (not small molecule)")
+        except Exception:
+            pass  # Binding display is best-effort
+
     if entry["chains"]:
         lines.append("")
         lines.append("Evidence chains:")

@@ -33,6 +33,7 @@ from oracle.strategies import (
     YonedaPatternStrategy,
 )
 from oracle.topos_strategy import ToposLogicStrategy
+from oracle.binding_strategy import BindingEvidenceStrategy
 
 
 DB_PATH = "data/drugs/tier1.db"
@@ -156,6 +157,7 @@ def make_strategies(category: Category):
         YonedaPatternStrategy(category),
         FibrationLiftStrategy(category),
         ToposLogicStrategy(category),
+        BindingEvidenceStrategy(category),
     ]
 
 
