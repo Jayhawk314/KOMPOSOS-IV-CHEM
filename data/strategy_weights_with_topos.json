@@ -1,0 +1,50 @@
+{
+  "calibrations": {
+    "kan_extension": {
+      "name": "kan_extension",
+      "weight": 0.11299435028248588,
+      "precision": 0.05649717514124294,
+      "recall": 0.0,
+      "auroc": 0.7994011976047904,
+      "n_predictions": 177,
+      "n_correct": 10
+    },
+    "composition": {
+      "name": "composition",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 54,
+      "n_correct": 0
+    },
+    "fibration_lift": {
+      "name": "fibration_lift",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 157,
+      "n_correct": 0
+    },
+    "topos_logic": {
+      "name": "topos_logic",
+      "weight": 0.19469026548672566,
+      "precision": 0.09734513274336283,
+      "recall": 0.0,
+      "auroc": 1.0,
+      "n_predictions": 113,
+      "n_correct": 11
+    },
+    "yoneda_pattern": {
+      "name": "yoneda_pattern",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 60,
+      "n_correct": 0
+    }
+  },
+  "n_history": 561
+}

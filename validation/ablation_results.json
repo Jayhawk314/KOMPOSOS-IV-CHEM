@@ -1,0 +1,128 @@
+{
+  "full_system": {
+    "auroc": 0.973787,
+    "auprc": 0.500438,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "no_path_bonus": {
+    "auroc": 0.957311,
+    "auprc": 0.348444,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_kan_extension": {
+    "auroc": 0.496462,
+    "auprc": 0.036275,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_type_heuristic": {
+    "auroc": 0.5,
+    "auprc": 0.024565,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_structural_hole": {
+    "auroc": 0.5,
+    "auprc": 0.024565,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_composition": {
+    "auroc": 0.968668,
+    "auprc": 0.449458,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_yoneda_pattern": {
+    "auroc": 0.520374,
+    "auprc": 0.034896,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_fibration_lift": {
+    "auroc": 0.5,
+    "auprc": 0.024565,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "only_topos_logic": {
+    "auroc": 0.947379,
+    "auprc": 0.285117,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_kan_extension": {
+    "auroc": 0.965519,
+    "auprc": 0.471732,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_type_heuristic": {
+    "auroc": 0.973787,
+    "auprc": 0.500438,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_structural_hole": {
+    "auroc": 0.973787,
+    "auprc": 0.500438,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_composition": {
+    "auroc": 0.928543,
+    "auprc": 0.202437,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_yoneda_pattern": {
+    "auroc": 0.973667,
+    "auprc": 0.501551,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_fibration_lift": {
+    "auroc": 0.973787,
+    "auprc": 0.500438,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "without_topos_logic": {
+    "auroc": 0.96962,
+    "auprc": 0.487557,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "composition_pb_0.0_0.0": {
+    "auroc": 0.970122,
+    "auprc": 0.535942,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "composition_pb_0.05_0.15": {
+    "auroc": 0.970422,
+    "auprc": 0.501408,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "composition_pb_0.1_0.25": {
+    "auroc": 0.968668,
+    "auprc": 0.449458,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "composition_pb_0.15_0.35": {
+    "auroc": 0.96453,
+    "auprc": 0.340896,
+    "positives": 44,
+    "negatives": 1516
+  },
+  "composition_pb_0.2_0.5": {
+    "auroc": 0.958256,
+    "auprc": 0.261246,
+    "positives": 44,
+    "negatives": 1516
+  }
+}

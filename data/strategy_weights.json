@@ -1,0 +1,43 @@
+{
+  "calibrations": {
+    "composition": {
+      "name": "composition",
+      "weight": 1.0,
+      "recall": 0.9772727272727273,
+      "separation": -0.04666666666666641,
+      "n_folds_voted": 43
+    },
+    "fibration_lift": {
+      "name": "fibration_lift",
+      "weight": 1.0,
+      "recall": 0.8409090909090909,
+      "separation": -2.220446049250313e-16,
+      "n_folds_voted": 37
+    },
+    "kan_extension": {
+      "name": "kan_extension",
+      "weight": 1.0,
+      "recall": 0.8863636363636364,
+      "separation": 0.1710453412134081,
+      "n_folds_voted": 39
+    },
+    "topos_logic": {
+      "name": "topos_logic",
+      "weight": 1.0,
+      "recall": 0.9772727272727273,
+      "separation": 0.10554010911240319,
+      "n_folds_voted": 43
+    },
+    "yoneda_pattern": {
+      "name": "yoneda_pattern",
+      "weight": 1.0,
+      "recall": 0.7045454545454546,
+      "separation": 0.6863799283154121,
+      "n_folds_voted": 31
+    }
+  },
+  "method": "loocv_calibration",
+  "best_config": "uniform (baseline)",
+  "best_auroc": 0.9450782561765412,
+  "baseline_auroc": 0.945
+}

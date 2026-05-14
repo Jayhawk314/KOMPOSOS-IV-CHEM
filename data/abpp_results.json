@@ -1,0 +1,68 @@
+[
+  {
+    "drug": "Imatinib",
+    "target": "BCR-ABL",
+    "probe": "kinase-ABPP",
+    "ic50_um": 0.025,
+    "percent_inhibition": 95.0,
+    "test_concentration_um": 1.0,
+    "cell_line": "K562",
+    "validated": true,
+    "publication": "PMID:11423618"
+  },
+  {
+    "drug": "Erlotinib",
+    "target": "EGFR",
+    "probe": "kinase-ABPP",
+    "ic50_um": 0.05,
+    "percent_inhibition": 92.0,
+    "test_concentration_um": 1.0,
+    "cell_line": "A549",
+    "validated": true,
+    "publication": "PMID:15118125"
+  },
+  {
+    "drug": "Gefitinib",
+    "target": "EGFR",
+    "probe": "kinase-ABPP",
+    "ic50_um": 0.08,
+    "percent_inhibition": 88.0,
+    "test_concentration_um": 1.0,
+    "cell_line": "A549",
+    "validated": true,
+    "publication": "PMID:12379850"
+  },
+  {
+    "drug": "Lapatinib",
+    "target": "ERBB2",
+    "probe": "kinase-ABPP",
+    "ic50_um": 0.009,
+    "percent_inhibition": 96.0,
+    "test_concentration_um": 1.0,
+    "cell_line": "BT474",
+    "validated": true,
+    "publication": "PMID:16618952"
+  },
+  {
+    "drug": "Imatinib",
+    "target": "TP53",
+    "probe": "cysteine-ABPP",
+    "ic50_um": null,
+    "percent_inhibition": 5.0,
+    "test_concentration_um": 10.0,
+    "cell_line": "K562",
+    "validated": false,
+    "publication": "PMID:11423618"
+  },
+  {
+    "drug": "Sorafenib",
+    "target": "VEGFR2",
+    "probe": "kinase-ABPP",
+    "ic50_um": 0.09,
+    "percent_inhibition": 85.0,
+    "test_concentration_um": 1.0,
+    "cell_line": "HUVEC",
+    "validated": true,
+    "publication": "PMID:16618952"
+  }
+]

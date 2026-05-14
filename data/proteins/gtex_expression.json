@@ -1,0 +1,58 @@
+{
+  "FLT3": {
+    "Bone_Marrow": 6.5,
+    "Heart": 2.1,
+    "Brain": 1.8,
+    "Liver": 2.5,
+    "Kidney": 2.0
+  },
+  "BCL2": {
+    "Bone_Marrow": 7.0,
+    "Heart": 5.5,
+    "Brain": 4.2,
+    "Liver": 6.0,
+    "Kidney": 5.8
+  },
+  "NRAS": {
+    "Bone_Marrow": 5.5,
+    "Heart": 5.0,
+    "Brain": 5.2,
+    "Liver": 5.3,
+    "Kidney": 5.1
+  },
+  "MYC": {
+    "Bone_Marrow": 7.5,
+    "Heart": 6.8,
+    "Brain": 7.2,
+    "Liver": 7.0,
+    "Kidney": 6.5
+  },
+  "STAT5A": {
+    "Bone_Marrow": 6.0,
+    "Heart": 4.5,
+    "Brain": 4.0,
+    "Liver": 5.0,
+    "Kidney": 4.8
+  },
+  "MAP2K1": {
+    "Bone_Marrow": 5.2,
+    "Heart": 4.8,
+    "Brain": 5.0,
+    "Liver": 5.1,
+    "Kidney": 4.9
+  },
+  "MCL1": {
+    "Bone_Marrow": 7.2,
+    "Heart": 6.0,
+    "Brain": 5.5,
+    "Liver": 6.5,
+    "Kidney": 6.2
+  },
+  "TP53": {
+    "Bone_Marrow": 6.0,
+    "Heart": 5.5,
+    "Brain": 5.8,
+    "Liver": 5.7,
+    "Kidney": 5.6
+  }
+}

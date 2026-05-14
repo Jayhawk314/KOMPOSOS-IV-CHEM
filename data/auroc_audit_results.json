@@ -1,0 +1,1811 @@
+{
+  "metadata": {
+    "database": "data/drugs/tier1.db",
+    "n_objects": 189,
+    "n_morphisms": 333,
+    "n_drugs": 28,
+    "n_diseases": 8,
+    "n_ground_truth": 11,
+    "n_evaluated_pairs": 187,
+    "n_skipped_pairs": 37
+  },
+  "ground_truth_edges": [
+    {
+      "drug": "Bevacizumab",
+      "disease": "Colorectal_Cancer"
+    },
+    {
+      "drug": "Cetuximab",
+      "disease": "Colorectal_Cancer"
+    },
+    {
+      "drug": "Dabrafenib",
+      "disease": "Melanoma"
+    },
+    {
+      "drug": "Erlotinib",
+      "disease": "NSCLC"
+    },
+    {
+      "drug": "Everolimus",
+      "disease": "RCC"
+    },
+    {
+      "drug": "Imatinib",
+      "disease": "CML"
+    },
+    {
+      "drug": "Palbociclib",
+      "disease": "Breast_Cancer"
+    },
+    {
+      "drug": "Sunitinib",
+      "disease": "RCC"
+    },
+    {
+      "drug": "Trametinib",
+      "disease": "Melanoma"
+    },
+    {
+      "drug": "Trastuzumab",
+      "disease": "Breast_Cancer"
+    },
+    {
+      "drug": "Vemurafenib",
+      "disease": "Melanoma"
+    }
+  ],
+  "strategies_used": [
+    "kan_extension",
+    "type_heuristic",
+    "structural_hole",
+    "composition",
+    "yoneda_pattern",
+    "fibration_lift",
+    "topos_logic"
+  ],
+  "strategy_stats": {
+    "kan_extension": {
+      "total": 177,
+      "correct": 10,
+      "precision": 0.05649717514124294
+    },
+    "type_heuristic": {
+      "total": 0,
+      "correct": 0,
+      "precision": 0.0
+    },
+    "structural_hole": {
+      "total": 0,
+      "correct": 0,
+      "precision": 0.0
+    },
+    "composition": {
+      "total": 54,
+      "correct": 0,
+      "precision": 0.0
+    },
+    "yoneda_pattern": {
+      "total": 60,
+      "correct": 0,
+      "precision": 0.0
+    },
+    "fibration_lift": {
+      "total": 157,
+      "correct": 0,
+      "precision": 0.0
+    },
+    "topos_logic": {
+      "total": 110,
+      "correct": 8,
+      "precision": 0.07272727272727272
+    }
+  },
+  "auroc_simple_average": 0.9573446327683616,
+  "auroc_calibrated": 0.7774011299435029,
+  "pairwise_comparisons": {
+    "simple": {
+      "concordant": 1670,
+      "discordant": 51,
+      "tied": 49,
+      "total": 1770
+    },
+    "calibrated": {
+      "concordant": 1304,
+      "discordant": 322,
+      "tied": 144,
+      "total": 1770
+    }
+  },
+  "separation": {
+    "min_true_score": 0.757317266518283,
+    "max_false_score": 0.9,
+    "gap": -0.142682733481717,
+    "perfect_separation": false
+  },
+  "full_rankings": [
+    {
+      "rank": 1,
+      "drug": "Sorafenib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 2,
+      "drug": "Sorafenib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 3,
+      "drug": "Vemurafenib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 4,
+      "drug": "Vemurafenib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 5,
+      "drug": "Dabrafenib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.744444,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 6,
+      "drug": "Dabrafenib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 7,
+      "drug": "Trametinib",
+      "disease": "Melanoma",
+      "label": 1,
+      "simple_score": 0.9,
+      "calibrated_score": 0.9,
+      "n_votes": 1
+    },
+    {
+      "rank": 8,
+      "drug": "Trametinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 9,
+      "drug": "Trametinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 10,
+      "drug": "Trametinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 11,
+      "drug": "Palbociclib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 12,
+      "drug": "Palbociclib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 13,
+      "drug": "Everolimus",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 14,
+      "drug": "Bevacizumab",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 15,
+      "drug": "Bevacizumab",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 16,
+      "drug": "Bevacizumab",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 17,
+      "drug": "Bevacizumab",
+      "disease": "Colorectal_Cancer",
+      "label": 1,
+      "simple_score": 0.9,
+      "calibrated_score": 0.9,
+      "n_votes": 1
+    },
+    {
+      "rank": 18,
+      "drug": "Venetoclax",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 19,
+      "drug": "Venetoclax",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 20,
+      "drug": "Venetoclax",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.744444,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 21,
+      "drug": "Ruxolitinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 22,
+      "drug": "Ruxolitinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 23,
+      "drug": "Ruxolitinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.766667,
+      "calibrated_score": 0.9,
+      "n_votes": 3
+    },
+    {
+      "rank": 24,
+      "drug": "Olaparib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 25,
+      "drug": "Metformin",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.8,
+      "calibrated_score": 0.9,
+      "n_votes": 2
+    },
+    {
+      "rank": 26,
+      "drug": "Dabrafenib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.85,
+      "n_votes": 3
+    },
+    {
+      "rank": 27,
+      "drug": "Ribociclib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 28,
+      "drug": "Temsirolimus",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 29,
+      "drug": "Venetoclax",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.85,
+      "n_votes": 3
+    },
+    {
+      "rank": 30,
+      "drug": "Aspirin",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 31,
+      "drug": "Thalidomide",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 32,
+      "drug": "Thalidomide",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 33,
+      "drug": "Disulfiram",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 34,
+      "drug": "Disulfiram",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 35,
+      "drug": "Niclosamide",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 36,
+      "drug": "Ivermectin",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.775,
+      "calibrated_score": 0.85,
+      "n_votes": 2
+    },
+    {
+      "rank": 37,
+      "drug": "Vemurafenib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.733333,
+      "calibrated_score": 0.8,
+      "n_votes": 3
+    },
+    {
+      "rank": 38,
+      "drug": "Ruxolitinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.733333,
+      "calibrated_score": 0.8,
+      "n_votes": 3
+    },
+    {
+      "rank": 39,
+      "drug": "Thalidomide",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.727778,
+      "calibrated_score": 0.8,
+      "n_votes": 3
+    },
+    {
+      "rank": 40,
+      "drug": "Erlotinib",
+      "disease": "NSCLC",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 41,
+      "drug": "Erlotinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 42,
+      "drug": "Erlotinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.773333,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 43,
+      "drug": "Sorafenib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.76,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 44,
+      "drug": "Sunitinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 45,
+      "drug": "Vemurafenib",
+      "disease": "Melanoma",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 46,
+      "drug": "Vemurafenib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 47,
+      "drug": "Dabrafenib",
+      "disease": "Melanoma",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 48,
+      "drug": "Dabrafenib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.736667,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 49,
+      "drug": "Palbociclib",
+      "disease": "Breast_Cancer",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 50,
+      "drug": "Palbociclib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.733333,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 51,
+      "drug": "Ribociclib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.753333,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 52,
+      "drug": "Everolimus",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.733333,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 53,
+      "drug": "Everolimus",
+      "disease": "RCC",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 54,
+      "drug": "Trastuzumab",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 55,
+      "drug": "Trastuzumab",
+      "disease": "Breast_Cancer",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 56,
+      "drug": "Cetuximab",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.803333,
+      "calibrated_score": 0.78744,
+      "n_votes": 5
+    },
+    {
+      "rank": 57,
+      "drug": "Cetuximab",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 58,
+      "drug": "Cetuximab",
+      "disease": "Colorectal_Cancer",
+      "label": 1,
+      "simple_score": 0.8,
+      "calibrated_score": 0.78744,
+      "n_votes": 2
+    },
+    {
+      "rank": 59,
+      "drug": "Olaparib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.805,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 60,
+      "drug": "Mebendazole",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.78,
+      "calibrated_score": 0.78744,
+      "n_votes": 4
+    },
+    {
+      "rank": 61,
+      "drug": "Imatinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.763708,
+      "calibrated_score": 0.782446,
+      "n_votes": 3
+    },
+    {
+      "rank": 62,
+      "drug": "Lapatinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.774533,
+      "calibrated_score": 0.773932,
+      "n_votes": 5
+    },
+    {
+      "rank": 63,
+      "drug": "Mebendazole",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.74125,
+      "calibrated_score": 0.767742,
+      "n_votes": 4
+    },
+    {
+      "rank": 64,
+      "drug": "Everolimus",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.752925,
+      "calibrated_score": 0.767533,
+      "n_votes": 5
+    },
+    {
+      "rank": 65,
+      "drug": "Gefitinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.76558,
+      "n_votes": 3
+    },
+    {
+      "rank": 66,
+      "drug": "Lapatinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.76558,
+      "n_votes": 3
+    },
+    {
+      "rank": 67,
+      "drug": "Crizotinib",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.76558,
+      "n_votes": 3
+    },
+    {
+      "rank": 68,
+      "drug": "Palbociclib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.720833,
+      "calibrated_score": 0.76558,
+      "n_votes": 4
+    },
+    {
+      "rank": 69,
+      "drug": "Olaparib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.75,
+      "calibrated_score": 0.76558,
+      "n_votes": 3
+    },
+    {
+      "rank": 70,
+      "drug": "Temsirolimus",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.764426,
+      "calibrated_score": 0.763636,
+      "n_votes": 4
+    },
+    {
+      "rank": 71,
+      "drug": "Sunitinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.737307,
+      "calibrated_score": 0.758866,
+      "n_votes": 4
+    },
+    {
+      "rank": 72,
+      "drug": "Trastuzumab",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.709542,
+      "calibrated_score": 0.758012,
+      "n_votes": 5
+    },
+    {
+      "rank": 73,
+      "drug": "Sunitinib",
+      "disease": "RCC",
+      "label": 1,
+      "simple_score": 0.773238,
+      "calibrated_score": 0.757317,
+      "n_votes": 2
+    },
+    {
+      "rank": 74,
+      "drug": "Sorafenib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.746875,
+      "calibrated_score": 0.752266,
+      "n_votes": 4
+    },
+    {
+      "rank": 75,
+      "drug": "Sunitinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.716667,
+      "calibrated_score": 0.75,
+      "n_votes": 3
+    },
+    {
+      "rank": 76,
+      "drug": "Trametinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.716667,
+      "calibrated_score": 0.75,
+      "n_votes": 3
+    },
+    {
+      "rank": 77,
+      "drug": "Venetoclax",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.694444,
+      "calibrated_score": 0.75,
+      "n_votes": 3
+    },
+    {
+      "rank": 78,
+      "drug": "Ruxolitinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.716667,
+      "calibrated_score": 0.75,
+      "n_votes": 3
+    },
+    {
+      "rank": 79,
+      "drug": "Olaparib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.725,
+      "calibrated_score": 0.75,
+      "n_votes": 2
+    },
+    {
+      "rank": 80,
+      "drug": "Erlotinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.729904,
+      "calibrated_score": 0.742201,
+      "n_votes": 4
+    },
+    {
+      "rank": 81,
+      "drug": "Gefitinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.737743,
+      "calibrated_score": 0.738606,
+      "n_votes": 3
+    },
+    {
+      "rank": 82,
+      "drug": "Trastuzumab",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.722438,
+      "calibrated_score": 0.737953,
+      "n_votes": 4
+    },
+    {
+      "rank": 83,
+      "drug": "Cetuximab",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.72671,
+      "calibrated_score": 0.735011,
+      "n_votes": 4
+    },
+    {
+      "rank": 84,
+      "drug": "Mebendazole",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.70875,
+      "calibrated_score": 0.722719,
+      "n_votes": 4
+    },
+    {
+      "rank": 85,
+      "drug": "Gefitinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.76,
+      "calibrated_score": 0.72186,
+      "n_votes": 5
+    },
+    {
+      "rank": 86,
+      "drug": "Gefitinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.73,
+      "calibrated_score": 0.72186,
+      "n_votes": 5
+    },
+    {
+      "rank": 87,
+      "drug": "Lapatinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.751333,
+      "calibrated_score": 0.72186,
+      "n_votes": 5
+    },
+    {
+      "rank": 88,
+      "drug": "Ribociclib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.716667,
+      "calibrated_score": 0.72186,
+      "n_votes": 3
+    },
+    {
+      "rank": 89,
+      "drug": "Ribociclib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.716667,
+      "calibrated_score": 0.72186,
+      "n_votes": 3
+    },
+    {
+      "rank": 90,
+      "drug": "Everolimus",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.695833,
+      "calibrated_score": 0.72186,
+      "n_votes": 4
+    },
+    {
+      "rank": 91,
+      "drug": "Temsirolimus",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.720667,
+      "calibrated_score": 0.72186,
+      "n_votes": 5
+    },
+    {
+      "rank": 92,
+      "drug": "Bevacizumab",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.7575,
+      "calibrated_score": 0.72186,
+      "n_votes": 4
+    },
+    {
+      "rank": 93,
+      "drug": "Sunitinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.71921,
+      "calibrated_score": 0.718126,
+      "n_votes": 4
+    },
+    {
+      "rank": 94,
+      "drug": "Metformin",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.73891,
+      "calibrated_score": 0.717451,
+      "n_votes": 4
+    },
+    {
+      "rank": 95,
+      "drug": "Imatinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.73136,
+      "calibrated_score": 0.717339,
+      "n_votes": 4
+    },
+    {
+      "rank": 96,
+      "drug": "Imatinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.728795,
+      "calibrated_score": 0.711564,
+      "n_votes": 4
+    },
+    {
+      "rank": 97,
+      "drug": "Crizotinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.718848,
+      "calibrated_score": 0.706704,
+      "n_votes": 3
+    },
+    {
+      "rank": 98,
+      "drug": "Niclosamide",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.712609,
+      "calibrated_score": 0.702449,
+      "n_votes": 3
+    },
+    {
+      "rank": 99,
+      "drug": "Mebendazole",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.712125,
+      "calibrated_score": 0.702176,
+      "n_votes": 4
+    },
+    {
+      "rank": 100,
+      "drug": "Lapatinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.716043,
+      "calibrated_score": 0.701346,
+      "n_votes": 5
+    },
+    {
+      "rank": 101,
+      "drug": "Ribociclib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.7,
+      "calibrated_score": 0.7,
+      "n_votes": 2
+    },
+    {
+      "rank": 102,
+      "drug": "Aspirin",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.7,
+      "calibrated_score": 0.7,
+      "n_votes": 2
+    },
+    {
+      "rank": 103,
+      "drug": "Imatinib",
+      "disease": "GIST",
+      "label": 0,
+      "simple_score": 0.83,
+      "calibrated_score": 0.7,
+      "n_votes": 2
+    },
+    {
+      "rank": 104,
+      "drug": "Sunitinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.683333,
+      "calibrated_score": 0.7,
+      "n_votes": 3
+    },
+    {
+      "rank": 105,
+      "drug": "Sunitinib",
+      "disease": "GIST",
+      "label": 0,
+      "simple_score": 0.82,
+      "calibrated_score": 0.7,
+      "n_votes": 2
+    },
+    {
+      "rank": 106,
+      "drug": "Crizotinib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.755,
+      "calibrated_score": 0.7,
+      "n_votes": 4
+    },
+    {
+      "rank": 107,
+      "drug": "Temsirolimus",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.7,
+      "calibrated_score": 0.7,
+      "n_votes": 3
+    },
+    {
+      "rank": 108,
+      "drug": "Temsirolimus",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.7,
+      "calibrated_score": 0.7,
+      "n_votes": 3
+    },
+    {
+      "rank": 109,
+      "drug": "Olaparib",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.7,
+      "calibrated_score": 0.7,
+      "n_votes": 3
+    },
+    {
+      "rank": 110,
+      "drug": "Metformin",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.681667,
+      "calibrated_score": 0.7,
+      "n_votes": 3
+    },
+    {
+      "rank": 111,
+      "drug": "Niclosamide",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.729376,
+      "calibrated_score": 0.695989,
+      "n_votes": 4
+    },
+    {
+      "rank": 112,
+      "drug": "Sorafenib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.722374,
+      "calibrated_score": 0.695577,
+      "n_votes": 5
+    },
+    {
+      "rank": 113,
+      "drug": "Metformin",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.711914,
+      "calibrated_score": 0.694997,
+      "n_votes": 3
+    },
+    {
+      "rank": 114,
+      "drug": "Niclosamide",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.708294,
+      "calibrated_score": 0.688576,
+      "n_votes": 4
+    },
+    {
+      "rank": 115,
+      "drug": "Metformin",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.675845,
+      "calibrated_score": 0.688038,
+      "n_votes": 4
+    },
+    {
+      "rank": 116,
+      "drug": "Niclosamide",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.7174,
+      "calibrated_score": 0.687867,
+      "n_votes": 4
+    },
+    {
+      "rank": 117,
+      "drug": "Thalidomide",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.7009,
+      "calibrated_score": 0.68449,
+      "n_votes": 4
+    },
+    {
+      "rank": 118,
+      "drug": "Aspirin",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.726133,
+      "calibrated_score": 0.68371,
+      "n_votes": 4
+    },
+    {
+      "rank": 119,
+      "drug": "Metformin",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.723748,
+      "calibrated_score": 0.683319,
+      "n_votes": 4
+    },
+    {
+      "rank": 120,
+      "drug": "Trastuzumab",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.701867,
+      "calibrated_score": 0.679083,
+      "n_votes": 4
+    },
+    {
+      "rank": 121,
+      "drug": "Imatinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.68718,
+      "calibrated_score": 0.67416,
+      "n_votes": 4
+    },
+    {
+      "rank": 122,
+      "drug": "Crizotinib",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.682706,
+      "calibrated_score": 0.6708,
+      "n_votes": 3
+    },
+    {
+      "rank": 123,
+      "drug": "Imatinib",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.697442,
+      "calibrated_score": 0.670562,
+      "n_votes": 3
+    },
+    {
+      "rank": 124,
+      "drug": "Mebendazole",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.682643,
+      "calibrated_score": 0.663947,
+      "n_votes": 4
+    },
+    {
+      "rank": 125,
+      "drug": "Atorvastatin",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.696863,
+      "calibrated_score": 0.662842,
+      "n_votes": 4
+    },
+    {
+      "rank": 126,
+      "drug": "Ivermectin",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.691922,
+      "calibrated_score": 0.661242,
+      "n_votes": 3
+    },
+    {
+      "rank": 127,
+      "drug": "Erlotinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.687119,
+      "calibrated_score": 0.658443,
+      "n_votes": 4
+    },
+    {
+      "rank": 128,
+      "drug": "Cetuximab",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.684292,
+      "calibrated_score": 0.652079,
+      "n_votes": 4
+    },
+    {
+      "rank": 129,
+      "drug": "Disulfiram",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.64875,
+      "calibrated_score": 0.650207,
+      "n_votes": 4
+    },
+    {
+      "rank": 130,
+      "drug": "Ivermectin",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.659524,
+      "calibrated_score": 0.65,
+      "n_votes": 3
+    },
+    {
+      "rank": 131,
+      "drug": "Ivermectin",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.678859,
+      "calibrated_score": 0.645467,
+      "n_votes": 3
+    },
+    {
+      "rank": 132,
+      "drug": "Disulfiram",
+      "disease": "Colorectal_Cancer",
+      "label": 0,
+      "simple_score": 0.646,
+      "calibrated_score": 0.644016,
+      "n_votes": 4
+    },
+    {
+      "rank": 133,
+      "drug": "Ivermectin",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.659871,
+      "calibrated_score": 0.640823,
+      "n_votes": 4
+    },
+    {
+      "rank": 134,
+      "drug": "Atorvastatin",
+      "disease": "Melanoma",
+      "label": 0,
+      "simple_score": 0.669295,
+      "calibrated_score": 0.63859,
+      "n_votes": 2
+    },
+    {
+      "rank": 135,
+      "drug": "Bevacizumab",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.69,
+      "calibrated_score": 0.63442,
+      "n_votes": 3
+    },
+    {
+      "rank": 136,
+      "drug": "Disulfiram",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.63916,
+      "calibrated_score": 0.622337,
+      "n_votes": 4
+    },
+    {
+      "rank": 137,
+      "drug": "Gefitinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.647607,
+      "calibrated_score": 0.611541,
+      "n_votes": 3
+    },
+    {
+      "rank": 138,
+      "drug": "Ivermectin",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.63796,
+      "calibrated_score": 0.610336,
+      "n_votes": 4
+    },
+    {
+      "rank": 139,
+      "drug": "Atorvastatin",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.662142,
+      "calibrated_score": 0.60352,
+      "n_votes": 4
+    },
+    {
+      "rank": 140,
+      "drug": "Aspirin",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.657449,
+      "calibrated_score": 0.603037,
+      "n_votes": 3
+    },
+    {
+      "rank": 141,
+      "drug": "Aspirin",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.652891,
+      "calibrated_score": 0.601621,
+      "n_votes": 3
+    },
+    {
+      "rank": 142,
+      "drug": "Erlotinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 143,
+      "drug": "Vemurafenib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 144,
+      "drug": "Dabrafenib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 145,
+      "drug": "Trametinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 146,
+      "drug": "Trametinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.6,
+      "calibrated_score": 0.6,
+      "n_votes": 1
+    },
+    {
+      "rank": 147,
+      "drug": "Palbociclib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 148,
+      "drug": "Everolimus",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 149,
+      "drug": "Trastuzumab",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 150,
+      "drug": "Cetuximab",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 151,
+      "drug": "Bevacizumab",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 152,
+      "drug": "Venetoclax",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 153,
+      "drug": "Ruxolitinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 154,
+      "drug": "Thalidomide",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 155,
+      "drug": "Atorvastatin",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.65,
+      "calibrated_score": 0.6,
+      "n_votes": 2
+    },
+    {
+      "rank": 156,
+      "drug": "Lapatinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.635515,
+      "calibrated_score": 0.591124,
+      "n_votes": 3
+    },
+    {
+      "rank": 157,
+      "drug": "Thalidomide",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.6552,
+      "calibrated_score": 0.5904,
+      "n_votes": 2
+    },
+    {
+      "rank": 158,
+      "drug": "Crizotinib",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.630882,
+      "calibrated_score": 0.583302,
+      "n_votes": 3
+    },
+    {
+      "rank": 159,
+      "drug": "Sorafenib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.70075,
+      "calibrated_score": 0.5815,
+      "n_votes": 2
+    },
+    {
+      "rank": 160,
+      "drug": "Sunitinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.650593,
+      "calibrated_score": 0.567886,
+      "n_votes": 3
+    },
+    {
+      "rank": 161,
+      "drug": "Crizotinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.671709,
+      "calibrated_score": 0.563417,
+      "n_votes": 2
+    },
+    {
+      "rank": 162,
+      "drug": "Gefitinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 163,
+      "drug": "Lapatinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 164,
+      "drug": "Sorafenib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 165,
+      "drug": "Crizotinib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 166,
+      "drug": "Ribociclib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 167,
+      "drug": "Everolimus",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.55,
+      "calibrated_score": 0.55,
+      "n_votes": 1
+    },
+    {
+      "rank": 168,
+      "drug": "Temsirolimus",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 169,
+      "drug": "Olaparib",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 170,
+      "drug": "Metformin",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.55,
+      "calibrated_score": 0.55,
+      "n_votes": 1
+    },
+    {
+      "rank": 171,
+      "drug": "Aspirin",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 172,
+      "drug": "Thalidomide",
+      "disease": "NSCLC",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 173,
+      "drug": "Disulfiram",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 174,
+      "drug": "Mebendazole",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 175,
+      "drug": "Niclosamide",
+      "disease": "CML",
+      "label": 0,
+      "simple_score": 0.625,
+      "calibrated_score": 0.55,
+      "n_votes": 2
+    },
+    {
+      "rank": 176,
+      "drug": "Vemurafenib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.511667,
+      "calibrated_score": 0.513418,
+      "n_votes": 3
+    },
+    {
+      "rank": 177,
+      "drug": "Mebendazole",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.6656,
+      "calibrated_score": 0.5112,
+      "n_votes": 2
+    },
+    {
+      "rank": 178,
+      "drug": "Dabrafenib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.51,
+      "calibrated_score": 0.510604,
+      "n_votes": 3
+    },
+    {
+      "rank": 179,
+      "drug": "Erlotinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.498464,
+      "calibrated_score": 0.491991,
+      "n_votes": 2
+    },
+    {
+      "rank": 180,
+      "drug": "Cetuximab",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.493856,
+      "calibrated_score": 0.486805,
+      "n_votes": 2
+    },
+    {
+      "rank": 181,
+      "drug": "Atorvastatin",
+      "disease": "RCC",
+      "label": 0,
+      "simple_score": 0.557375,
+      "calibrated_score": 0.482182,
+      "n_votes": 4
+    },
+    {
+      "rank": 182,
+      "drug": "Atorvastatin",
+      "disease": "Breast_Cancer",
+      "label": 0,
+      "simple_score": 0.553248,
+      "calibrated_score": 0.472892,
+      "n_votes": 4
+    },
+    {
+      "rank": 183,
+      "drug": "Imatinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.456875,
+      "calibrated_score": 0.445179,
+      "n_votes": 2
+    },
+    {
+      "rank": 184,
+      "drug": "Gefitinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.44232,
+      "calibrated_score": 0.44232,
+      "n_votes": 1
+    },
+    {
+      "rank": 185,
+      "drug": "Atorvastatin",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.44305,
+      "calibrated_score": 0.429617,
+      "n_votes": 2
+    },
+    {
+      "rank": 186,
+      "drug": "Trastuzumab",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.413511,
+      "calibrated_score": 0.413511,
+      "n_votes": 1
+    },
+    {
+      "rank": 187,
+      "drug": "Lapatinib",
+      "disease": "HCC",
+      "label": 0,
+      "simple_score": 0.412759,
+      "calibrated_score": 0.412759,
+      "n_votes": 1
+    }
+  ]
+}

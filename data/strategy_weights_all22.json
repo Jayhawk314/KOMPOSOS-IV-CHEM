@@ -1,0 +1,122 @@
+{
+  "calibrations": {
+    "kan_extension": {
+      "name": "kan_extension",
+      "weight": 0.11299435028248588,
+      "precision": 0.05649717514124294,
+      "recall": 0.0,
+      "auroc": 0.7994011976047904,
+      "n_predictions": 177,
+      "n_correct": 10
+    },
+    "composition": {
+      "name": "composition",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 56,
+      "n_correct": 0
+    },
+    "fibration_lift": {
+      "name": "fibration_lift",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 157,
+      "n_correct": 0
+    },
+    "geometric": {
+      "name": "geometric",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 204,
+      "n_correct": 0
+    },
+    "topological_anomaly": {
+      "name": "topological_anomaly",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 213,
+      "n_correct": 0
+    },
+    "game_theoretic": {
+      "name": "game_theoretic",
+      "weight": 0.10204081632653061,
+      "precision": 0.05102040816326531,
+      "recall": 0.0,
+      "auroc": 0.6655913978494624,
+      "n_predictions": 196,
+      "n_correct": 10
+    },
+    "cubical_gap_filling": {
+      "name": "cubical_gap_filling",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 71,
+      "n_correct": 0
+    },
+    "geometric_homotopy": {
+      "name": "geometric_homotopy",
+      "weight": 0.3333333333333333,
+      "precision": 0.16666666666666666,
+      "recall": 0.0,
+      "auroc": 0.5625,
+      "n_predictions": 48,
+      "n_correct": 8
+    },
+    "topos_logic": {
+      "name": "topos_logic",
+      "weight": 2.0,
+      "precision": 1.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 11,
+      "n_correct": 11
+    },
+    "operadic_decomposition": {
+      "name": "operadic_decomposition",
+      "weight": 2.0,
+      "precision": 1.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 11,
+      "n_correct": 11
+    },
+    "yoneda_pattern": {
+      "name": "yoneda_pattern",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 60,
+      "n_correct": 0
+    },
+    "natural_transformation": {
+      "name": "natural_transformation",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 12,
+      "n_correct": 0
+    },
+    "boundary_detection": {
+      "name": "boundary_detection",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 5,
+      "n_correct": 0
+    }
+  },
+  "n_history": 1221
+}

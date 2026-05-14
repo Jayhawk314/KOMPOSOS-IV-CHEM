@@ -1,0 +1,74 @@
+{
+  "tuning_results": [
+    {
+      "name": "aggressive path bonus",
+      "auroc": 0.968465159510674,
+      "per_path": 0.1,
+      "max_bonus": 0.25,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "boost both",
+      "auroc": 0.9676706044615015,
+      "per_path": 0.05,
+      "max_bonus": 0.1,
+      "comp_weight": 1.2
+    },
+    {
+      "name": "strong path bonus",
+      "auroc": 0.9632930558887023,
+      "per_path": 0.07,
+      "max_bonus": 0.2,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "boost path bonus",
+      "auroc": 0.9603547013672343,
+      "per_path": 0.05,
+      "max_bonus": 0.15,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "BASELINE (current)",
+      "auroc": 0.9450782561765412,
+      "per_path": 0.03,
+      "max_bonus": 0.1,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "cap path bonus low",
+      "auroc": 0.9445010793955385,
+      "per_path": 0.03,
+      "max_bonus": 0.05,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "subtle path bonus",
+      "auroc": 0.9346366035020388,
+      "per_path": 0.02,
+      "max_bonus": 0.08,
+      "comp_weight": 1.0
+    },
+    {
+      "name": "boost path + reduce comp",
+      "auroc": 0.9267210362197169,
+      "per_path": 0.05,
+      "max_bonus": 0.15,
+      "comp_weight": 0.8
+    },
+    {
+      "name": "reduce composition conf",
+      "auroc": 0.8914457903573999,
+      "per_path": 0.03,
+      "max_bonus": 0.1,
+      "comp_weight": 0.8
+    }
+  ],
+  "best_config": {
+    "name": "aggressive path bonus",
+    "auroc": 0.968465159510674,
+    "per_path_bonus": 0.1,
+    "max_bonus": 0.25,
+    "composition_weight": 1.0
+  }
+}
