@@ -37,6 +37,7 @@ Thumbs.db
 
 # Project specific
 *.db
+!data/drugs/tier1.db
 *.sqlite
 *.sqlite3
 *.pkl
