@@ -45,11 +45,11 @@ python validation\repurposing_benchmark.py --view full_typed --protocol remove_d
 python validation\repurposing_benchmark.py --view full_typed --protocol loocv
 ```
 
-Current measured values (2026-05-13, 8 strategies incl. binding_evidence):
-- `legacy/as_loaded`: AUROC 0.923, AUPRC 0.436
-- `full_typed/as_loaded`: AUROC 0.882, AUPRC 0.133 over 78 drugs x 20 diseases, 44 positives
-- `full_typed/remove_direct_labels`: AUROC 0.933, AUPRC 0.419
-- `full_typed/loocv`: AUROC 0.970, AUPRC 0.533, Hits@5 1.00, Hits@10 1.00, MRR 0.081
+Current measured values (2026-05-13, 8 strategies, drug props PubChem-verified):
+- `legacy/as_loaded`: AUROC 0.931, AUPRC 0.465
+- `full_typed/as_loaded`: AUROC 0.887, AUPRC 0.135 over 78 drugs x 20 diseases, 44 positives
+- `full_typed/remove_direct_labels`: AUROC 0.940, AUPRC 0.431
+- `full_typed/loocv`: AUROC 0.974, AUPRC 0.530, Hits@5 1.00, Hits@10 1.00, MRR 0.080
 
 Path bonus tuned via LOOCV grid search: `min(0.25, 0.10 * composition_count)`.
 Uniform strategy weights confirmed optimal by `calibrate_loocv.py`.
@@ -128,23 +128,32 @@ protocol removes or holds them out.
 Wired molecular/chemistry bridges into the drug repurposing scoring pipeline
 as the 8th oracle strategy (`BindingEvidenceStrategy`).
 
-**What was integrated:**
-1. ABPP Bridge: 65 IC50 entries (up from 6) for drug-target pairs with PMIDs
-2. Boltz2 Bridge: heuristic binding prediction (fallback mode)
-3. Drug Properties: MW, logP, HBD, HBA, functional groups for all 78 drugs
-   (`data/drugs/drug_properties.py`)
-4. Drug-target molecular compatibility scoring (logP matching, H-bond
-   complementarity, functional group domain matching)
-5. Lipinski drug-likeness scoring
+**5 bridges, 7 scoring components (all verified running):**
+1. ABPP Bridge: 65 IC50 entries for drug-target pairs with PMIDs (weight 0.30)
+2. Boltz2 Bridge: heuristic binding prediction, fallback mode (weight 0.10)
+3. Drug-likeness: Lipinski Rule of Five from drug_properties.py (weight 0.10)
+4. Drug-target compatibility: logP/H-bond matching (weight 0.10)
+5. Molecular Bridge scorers: `score_solubility_compatibility`,
+   `score_steric_compatibility`, `score_reactivity_risk` from
+   `molecular_bridge/interaction_scoring.py` (weight 0.10)
+6. Pfam domain matching: domain-drug class matching using `PfamDomain`
+   from `chemistry/pfam_domain_mapper.py` (weight 0.10)
+7. Graph edge confidence (weight 0.20)
 
 **Impact on LOOCV:**
-- AUROC: 0.974 -> 0.970 (negligible, within noise)
-- AUPRC: 0.515 -> 0.533 (+0.018, improvement)
+- AUROC: 0.974 -> 0.974 (maintained)
+- AUPRC: 0.515 -> 0.530 (improvement)
 - Hits@10: 0.700 -> 1.000 (+0.300, major improvement)
-- MRR: 0.078 -> 0.081 (slight improvement)
+- MRR: 0.078 -> 0.080 (slight improvement)
 
 **Triage reports** now show IC50 values, engagement %, publication PMIDs, and
 drug-likeness scores when binding_evidence strategy votes.
+
+**Drug property verification (2026-05-13):** All 68 small-molecule drug properties
+(MW, logP, HBD, HBA, PubChem CID) verified against PubChem PUG REST API.
+46/68 drugs corrected (mostly HBA counts and logP values; 11 CIDs fixed).
+22 drugs verified correct as-is. 1 drug (Ivermectin) name-lookup failed but
+CID confirmed by MW match. Performance maintained post-correction.
 
 **Files created:** `oracle/binding_strategy.py`, `data/drugs/drug_properties.py`
 **Files modified:** `abpp_bridge.py`, `oracle/prediction.py`,

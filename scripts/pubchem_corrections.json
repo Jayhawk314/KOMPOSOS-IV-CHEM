@@ -1,0 +1,406 @@
+{
+  "verified_count": 21,
+  "corrections_count": 46,
+  "error_count": 1,
+  "corrections": {
+    "Adagrasib": {
+      "cid": {
+        "old": 155104912,
+        "new": 138611145
+      },
+      "hbd": {
+        "old": 1,
+        "new": 0
+      },
+      "hba": {
+        "old": 8,
+        "new": 9
+      }
+    },
+    "Alectinib": {
+      "logP": {
+        "old": 4.0,
+        "new": 5.2
+      }
+    },
+    "Binimetinib": {
+      "hba": {
+        "old": 6,
+        "new": 7
+      }
+    },
+    "Brigatinib": {
+      "cid": {
+        "old": 68228672,
+        "new": 68165256
+      },
+      "hba": {
+        "old": 8,
+        "new": 9
+      },
+      "logP": {
+        "old": 3.9,
+        "new": 4.6
+      }
+    },
+    "Capmatinib": {
+      "cid": {
+        "old": 53236880,
+        "new": 25145656
+      },
+      "hba": {
+        "old": 5,
+        "new": 6
+      }
+    },
+    "Cobimetinib": {
+      "hbd": {
+        "old": 2,
+        "new": 3
+      },
+      "hba": {
+        "old": 5,
+        "new": 7
+      },
+      "logP": {
+        "old": 3.0,
+        "new": 3.9
+      }
+    },
+    "Crizotinib": {
+      "hba": {
+        "old": 5,
+        "new": 6
+      },
+      "logP": {
+        "old": 2.9,
+        "new": 3.7
+      }
+    },
+    "Dabrafenib": {
+      "hba": {
+        "old": 7,
+        "new": 11
+      },
+      "logP": {
+        "old": 3.2,
+        "new": 4.8
+      }
+    },
+    "Encorafenib": {
+      "hbd": {
+        "old": 2,
+        "new": 3
+      },
+      "hba": {
+        "old": 7,
+        "new": 10
+      },
+      "logP": {
+        "old": 3.4,
+        "new": 2.7
+      }
+    },
+    "Entrectinib": {
+      "cid": {
+        "old": 71720823,
+        "new": 25141092
+      },
+      "hba": {
+        "old": 6,
+        "new": 8
+      },
+      "logP": {
+        "old": 3.2,
+        "new": 5.7
+      }
+    },
+    "Erlotinib": {
+      "logP": {
+        "old": 2.7,
+        "new": 3.3
+      }
+    },
+    "Gefitinib": {
+      "hba": {
+        "old": 7,
+        "new": 8
+      },
+      "logP": {
+        "old": 3.2,
+        "new": 4.1
+      }
+    },
+    "Lapatinib": {
+      "hba": {
+        "old": 7,
+        "new": 9
+      }
+    },
+    "Lorlatinib": {
+      "hbd": {
+        "old": 2,
+        "new": 1
+      },
+      "hba": {
+        "old": 5,
+        "new": 7
+      }
+    },
+    "Osimertinib": {
+      "hba": {
+        "old": 6,
+        "new": 7
+      }
+    },
+    "Palbociclib": {
+      "hba": {
+        "old": 7,
+        "new": 8
+      }
+    },
+    "Pralsetinib": {
+      "hba": {
+        "old": 7,
+        "new": 9
+      },
+      "logP": {
+        "old": 2.0,
+        "new": 3.1
+      }
+    },
+    "Regorafenib": {
+      "hba": {
+        "old": 5,
+        "new": 8
+      }
+    },
+    "Ribociclib": {
+      "hba": {
+        "old": 8,
+        "new": 7
+      }
+    },
+    "Selpercatinib": {
+      "hba": {
+        "old": 6,
+        "new": 9
+      }
+    },
+    "Sorafenib": {
+      "hba": {
+        "old": 4,
+        "new": 7
+      }
+    },
+    "Sotorasib": {
+      "hba": {
+        "old": 6,
+        "new": 7
+      },
+      "logP": {
+        "old": 2.3,
+        "new": 4.0
+      }
+    },
+    "Tepotinib": {
+      "cid": {
+        "old": 25172109,
+        "new": 25171648
+      },
+      "hbd": {
+        "old": 1,
+        "new": 0
+      },
+      "hba": {
+        "old": 6,
+        "new": 7
+      },
+      "logP": {
+        "old": 2.6,
+        "new": 3.4
+      }
+    },
+    "Trametinib": {
+      "hba": {
+        "old": 7,
+        "new": 6
+      },
+      "logP": {
+        "old": 2.7,
+        "new": 3.4
+      }
+    },
+    "Vemurafenib": {
+      "hba": {
+        "old": 5,
+        "new": 7
+      },
+      "logP": {
+        "old": 3.6,
+        "new": 5.0
+      }
+    },
+    "Everolimus": {
+      "logP": {
+        "old": 5.0,
+        "new": 5.9
+      }
+    },
+    "Temsirolimus": {
+      "hbd": {
+        "old": 3,
+        "new": 4
+      }
+    },
+    "Olaparib": {
+      "hba": {
+        "old": 7,
+        "new": 5
+      }
+    },
+    "Carboplatin": {
+      "cid": {
+        "old": 498142,
+        "new": 10339178
+      }
+    },
+    "Cisplatin": {
+      "cid": {
+        "old": 84691,
+        "new": 5460033
+      }
+    },
+    "Oxaliplatin": {
+      "cid": {
+        "old": 9887054,
+        "new": 9887053
+      },
+      "hbd": {
+        "old": 2,
+        "new": 4
+      }
+    },
+    "Fluorouracil": {
+      "hba": {
+        "old": 4,
+        "new": 3
+      }
+    },
+    "Pemetrexed": {
+      "cid": {
+        "old": 135398633,
+        "new": 135410875
+      },
+      "hbd": {
+        "old": 5,
+        "new": 6
+      },
+      "hba": {
+        "old": 8,
+        "new": 7
+      },
+      "logP": {
+        "old": -1.8,
+        "new": 0.2
+      }
+    },
+    "Irinotecan": {
+      "hba": {
+        "old": 7,
+        "new": 8
+      }
+    },
+    "Celecoxib": {
+      "hba": {
+        "old": 4,
+        "new": 7
+      }
+    },
+    "Artesunate": {
+      "cid": {
+        "old": 68827,
+        "new": 6917864
+      }
+    },
+    "Atorvastatin": {
+      "hba": {
+        "old": 5,
+        "new": 6
+      },
+      "logP": {
+        "old": 5.7,
+        "new": 5.0
+      }
+    },
+    "Auranofin": {
+      "cid": {
+        "old": 24199399,
+        "new": 16667669
+      },
+      "hba": {
+        "old": 9,
+        "new": 10
+      }
+    },
+    "Cimetidine": {
+      "hba": {
+        "old": 5,
+        "new": 4
+      }
+    },
+    "Disulfiram": {
+      "hba": {
+        "old": 2,
+        "new": 4
+      }
+    },
+    "Leflunomide": {
+      "hba": {
+        "old": 4,
+        "new": 6
+      }
+    },
+    "Mebendazole": {
+      "cid": {
+        "old": 31464,
+        "new": 4030
+      }
+    },
+    "Metformin": {
+      "hba": {
+        "old": 3,
+        "new": 1
+      }
+    },
+    "Nelfinavir": {
+      "hba": {
+        "old": 5,
+        "new": 6
+      },
+      "logP": {
+        "old": 5.0,
+        "new": 5.7
+      }
+    },
+    "Pirfenidone": {
+      "hba": {
+        "old": 2,
+        "new": 1
+      },
+      "logP": {
+        "old": 0.3,
+        "new": 1.9
+      }
+    },
+    "Suramin": {
+      "logP": {
+        "old": -0.8,
+        "new": 1.5
+      }
+    }
+  },
+  "errors": [
+    "Ivermectin"
+  ]
+}

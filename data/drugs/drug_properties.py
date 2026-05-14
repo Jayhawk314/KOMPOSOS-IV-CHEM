@@ -9,7 +9,8 @@ Molecular properties for the 78 drugs in tier1.db, structured as
 molecular_bridge.molecule_properties.Molecule objects so the molecular
 interaction scorers can operate on them.
 
-Properties sourced from DrugBank, PubChem, and published literature.
+Properties verified against PubChem PUG REST API (2026-05-13).
+Original values from DrugBank; 46/68 drugs corrected via PubChem CID lookup.
 Monoclonal antibodies are flagged separately (is_antibody=True) since
 they are proteins, not small molecules, and molecular scoring does not
 apply.
@@ -35,43 +36,43 @@ from molecular_bridge.molecule_properties import Molecule, MoleculeClass
 
 _DRUG_DATA: Dict[str, dict] = {
     # -- Kinase inhibitors --
-    "Adagrasib":    {"mw": 604.7, "logP": 4.5, "hbd": 1, "hba": 8, "fg": ["pyridine", "piperazine", "fluoride", "chloride"], "cid": 155104912},
+    "Adagrasib":    {"mw": 604.7, "logP": 4.5, "hbd": 0, "hba": 9, "fg": ["pyridine", "piperazine", "fluoride", "chloride"], "cid": 138611145},
     "Afatinib":     {"mw": 485.9, "logP": 3.6, "hbd": 2, "hba": 8, "fg": ["quinazoline", "amine", "amide", "fluoride", "ether"], "cid": 10184653},
-    "Alectinib":    {"mw": 482.6, "logP": 4.0, "hbd": 1, "hba": 5, "fg": ["carbazole", "nitrile", "amine", "carbonyl"], "cid": 49806720},
-    "Binimetinib":  {"mw": 441.2, "logP": 2.7, "hbd": 3, "hba": 6, "fg": ["pyridazine", "amine", "amide", "fluoride", "hydroxyl"], "cid": 10288191},
-    "Brigatinib":   {"mw": 584.7, "logP": 3.9, "hbd": 2, "hba": 8, "fg": ["pyrimidine", "amine", "phosphine_oxide", "chloride"], "cid": 68228672},
-    "Capmatinib":   {"mw": 412.4, "logP": 2.5, "hbd": 1, "hba": 5, "fg": ["quinoline", "pyridine", "amine", "fluoride"], "cid": 53236880},
-    "Cobimetinib":  {"mw": 531.3, "logP": 3.0, "hbd": 2, "hba": 5, "fg": ["piperidine", "amide", "fluoride", "azetidine"], "cid": 16222096},
-    "Crizotinib":   {"mw": 450.3, "logP": 2.9, "hbd": 2, "hba": 5, "fg": ["pyridine", "pyrazole", "amine", "halide", "fluoride"], "cid": 11626560},
-    "Dabrafenib":   {"mw": 519.6, "logP": 3.2, "hbd": 2, "hba": 7, "fg": ["thiazole", "pyrimidine", "amine", "sulfonamide", "fluoride"], "cid": 44462760},
-    "Encorafenib":  {"mw": 540.0, "logP": 3.4, "hbd": 2, "hba": 7, "fg": ["pyrazole", "carbamate", "sulfonamide", "chloride", "fluoride"], "cid": 50922675},
-    "Entrectinib":  {"mw": 560.6, "logP": 3.2, "hbd": 3, "hba": 6, "fg": ["indazole", "pyrazine", "amine", "amide", "fluoride"], "cid": 71720823},
-    "Erlotinib":    {"mw": 393.4, "logP": 2.7, "hbd": 1, "hba": 7, "fg": ["quinazoline", "amine", "ether", "alkyne"], "cid": 176870},
-    "Gefitinib":    {"mw": 446.9, "logP": 3.2, "hbd": 1, "hba": 7, "fg": ["quinazoline", "amine", "ether", "fluoride", "chloride", "morpholine"], "cid": 123631},
+    "Alectinib":    {"mw": 482.6, "logP": 5.2, "hbd": 1, "hba": 5, "fg": ["carbazole", "nitrile", "amine", "carbonyl"], "cid": 49806720},
+    "Binimetinib":  {"mw": 441.2, "logP": 2.7, "hbd": 3, "hba": 7, "fg": ["pyridazine", "amine", "amide", "fluoride", "hydroxyl"], "cid": 10288191},
+    "Brigatinib":   {"mw": 584.7, "logP": 4.6, "hbd": 2, "hba": 9, "fg": ["pyrimidine", "amine", "phosphine_oxide", "chloride"], "cid": 68165256},
+    "Capmatinib":   {"mw": 412.4, "logP": 2.5, "hbd": 1, "hba": 6, "fg": ["quinoline", "pyridine", "amine", "fluoride"], "cid": 25145656},
+    "Cobimetinib":  {"mw": 531.3, "logP": 3.9, "hbd": 3, "hba": 7, "fg": ["piperidine", "amide", "fluoride", "azetidine"], "cid": 16222096},
+    "Crizotinib":   {"mw": 450.3, "logP": 3.7, "hbd": 2, "hba": 6, "fg": ["pyridine", "pyrazole", "amine", "halide", "fluoride"], "cid": 11626560},
+    "Dabrafenib":   {"mw": 519.6, "logP": 4.8, "hbd": 2, "hba": 11, "fg": ["thiazole", "pyrimidine", "amine", "sulfonamide", "fluoride"], "cid": 44462760},
+    "Encorafenib":  {"mw": 540.0, "logP": 2.7, "hbd": 3, "hba": 10, "fg": ["pyrazole", "carbamate", "sulfonamide", "chloride", "fluoride"], "cid": 50922675},
+    "Entrectinib":  {"mw": 560.6, "logP": 5.7, "hbd": 3, "hba": 8, "fg": ["indazole", "pyrazine", "amine", "amide", "fluoride"], "cid": 25141092},
+    "Erlotinib":    {"mw": 393.4, "logP": 3.3, "hbd": 1, "hba": 7, "fg": ["quinazoline", "amine", "ether", "alkyne"], "cid": 176870},
+    "Gefitinib":    {"mw": 446.9, "logP": 4.1, "hbd": 1, "hba": 8, "fg": ["quinazoline", "amine", "ether", "fluoride", "chloride", "morpholine"], "cid": 123631},
     "Imatinib":     {"mw": 493.6, "logP": 3.5, "hbd": 2, "hba": 7, "fg": ["pyrimidine", "pyridine", "amine", "amide", "piperazine"], "cid": 5291},
-    "Lapatinib":    {"mw": 581.1, "logP": 5.4, "hbd": 2, "hba": 7, "fg": ["quinazoline", "amine", "furan", "sulfonyl", "fluoride", "chloride"], "cid": 208908},
+    "Lapatinib":    {"mw": 581.1, "logP": 5.4, "hbd": 2, "hba": 9, "fg": ["quinazoline", "amine", "furan", "sulfonyl", "fluoride", "chloride"], "cid": 208908},
     "Larotrectinib": {"mw": 428.4, "logP": 1.5, "hbd": 2, "hba": 7, "fg": ["pyrazole", "pyridine", "amine", "amide", "fluoride"], "cid": 46188928},
-    "Lorlatinib":   {"mw": 406.4, "logP": 2.0, "hbd": 2, "hba": 5, "fg": ["pyridine", "pyrazole", "amine", "amide", "fluoride", "nitrile"], "cid": 71731823},
-    "Osimertinib":  {"mw": 499.6, "logP": 3.4, "hbd": 2, "hba": 6, "fg": ["pyrimidine", "amine", "amide", "indole", "acrylamide"], "cid": 71496458},
-    "Palbociclib":  {"mw": 447.5, "logP": 1.5, "hbd": 2, "hba": 7, "fg": ["pyridine", "pyrimidine", "amine", "amide", "piperazine", "carbonyl"], "cid": 5330286},
-    "Pralsetinib":  {"mw": 533.6, "logP": 2.0, "hbd": 3, "hba": 7, "fg": ["pyrazole", "pyridine", "amine", "amide", "fluoride"], "cid": 129073603},
-    "Regorafenib":  {"mw": 482.8, "logP": 3.8, "hbd": 3, "hba": 5, "fg": ["pyridine", "urea", "amide", "fluoride", "chloride", "ether"], "cid": 11167602},
-    "Ribociclib":   {"mw": 434.5, "logP": 2.3, "hbd": 2, "hba": 8, "fg": ["pyridine", "pyrimidine", "amine", "piperazine", "carbonyl"], "cid": 44631912},
+    "Lorlatinib":   {"mw": 406.4, "logP": 2.0, "hbd": 1, "hba": 7, "fg": ["pyridine", "pyrazole", "amine", "amide", "fluoride", "nitrile"], "cid": 71731823},
+    "Osimertinib":  {"mw": 499.6, "logP": 3.4, "hbd": 2, "hba": 7, "fg": ["pyrimidine", "amine", "amide", "indole", "acrylamide"], "cid": 71496458},
+    "Palbociclib":  {"mw": 447.5, "logP": 1.5, "hbd": 2, "hba": 8, "fg": ["pyridine", "pyrimidine", "amine", "amide", "piperazine", "carbonyl"], "cid": 5330286},
+    "Pralsetinib":  {"mw": 533.6, "logP": 3.1, "hbd": 3, "hba": 9, "fg": ["pyrazole", "pyridine", "amine", "amide", "fluoride"], "cid": 129073603},
+    "Regorafenib":  {"mw": 482.8, "logP": 3.8, "hbd": 3, "hba": 8, "fg": ["pyridine", "urea", "amide", "fluoride", "chloride", "ether"], "cid": 11167602},
+    "Ribociclib":   {"mw": 434.5, "logP": 2.3, "hbd": 2, "hba": 7, "fg": ["pyridine", "pyrimidine", "amine", "piperazine", "carbonyl"], "cid": 44631912},
     "Ruxolitinib":  {"mw": 306.4, "logP": 2.1, "hbd": 1, "hba": 4, "fg": ["pyrrole", "pyrazole", "nitrile", "amine"], "cid": 25126798},
-    "Selpercatinib": {"mw": 525.6, "logP": 2.2, "hbd": 1, "hba": 6, "fg": ["pyridine", "pyrazine", "amine", "ether", "methoxy"], "cid": 134436906},
-    "Sorafenib":    {"mw": 464.8, "logP": 3.8, "hbd": 3, "hba": 4, "fg": ["pyridine", "urea", "amide", "chloride", "fluoride", "ether"], "cid": 216239},
-    "Sotorasib":    {"mw": 560.6, "logP": 2.3, "hbd": 1, "hba": 6, "fg": ["pyridine", "pyrimidine", "fluoride", "piperazine", "acrylamide"], "cid": 137278711},
+    "Selpercatinib": {"mw": 525.6, "logP": 2.2, "hbd": 1, "hba": 9, "fg": ["pyridine", "pyrazine", "amine", "ether", "methoxy"], "cid": 134436906},
+    "Sorafenib":    {"mw": 464.8, "logP": 3.8, "hbd": 3, "hba": 7, "fg": ["pyridine", "urea", "amide", "chloride", "fluoride", "ether"], "cid": 216239},
+    "Sotorasib":    {"mw": 560.6, "logP": 4.0, "hbd": 1, "hba": 7, "fg": ["pyridine", "pyrimidine", "fluoride", "piperazine", "acrylamide"], "cid": 137278711},
     "Sunitinib":    {"mw": 398.5, "logP": 2.4, "hbd": 3, "hba": 4, "fg": ["indole", "pyrrole", "amine", "amide", "fluoride", "carbonyl"], "cid": 5329102},
-    "Tepotinib":    {"mw": 492.6, "logP": 2.6, "hbd": 1, "hba": 6, "fg": ["pyridine", "pyrimidine", "amine", "ether", "quinoline"], "cid": 25172109},
-    "Trametinib":   {"mw": 615.4, "logP": 2.7, "hbd": 2, "hba": 7, "fg": ["pyrimidine", "pyridone", "amine", "amide", "fluoride", "iodide"], "cid": 11707110},
-    "Vemurafenib":  {"mw": 489.9, "logP": 3.6, "hbd": 2, "hba": 5, "fg": ["pyrrole", "sulfonamide", "fluoride", "chloride", "aromatic"], "cid": 42611257},
+    "Tepotinib":    {"mw": 492.6, "logP": 3.4, "hbd": 0, "hba": 7, "fg": ["pyridine", "pyrimidine", "amine", "ether", "quinoline"], "cid": 25171648},
+    "Trametinib":   {"mw": 615.4, "logP": 3.4, "hbd": 2, "hba": 6, "fg": ["pyrimidine", "pyridone", "amine", "amide", "fluoride", "iodide"], "cid": 11707110},
+    "Vemurafenib":  {"mw": 489.9, "logP": 5.0, "hbd": 2, "hba": 7, "fg": ["pyrrole", "sulfonamide", "fluoride", "chloride", "aromatic"], "cid": 42611257},
 
     # -- mTOR inhibitors --
-    "Everolimus":   {"mw": 958.2, "logP": 5.0, "hbd": 3, "hba": 14, "fg": ["macrolide", "ester", "ether", "hydroxyl", "carbonyl"], "cid": 6442177},
-    "Temsirolimus": {"mw": 1030.3, "logP": 5.5, "hbd": 3, "hba": 16, "fg": ["macrolide", "ester", "ether", "hydroxyl", "carbonyl"], "cid": 6918289},
+    "Everolimus":   {"mw": 958.2, "logP": 5.9, "hbd": 3, "hba": 14, "fg": ["macrolide", "ester", "ether", "hydroxyl", "carbonyl"], "cid": 6442177},
+    "Temsirolimus": {"mw": 1030.3, "logP": 5.5, "hbd": 4, "hba": 16, "fg": ["macrolide", "ester", "ether", "hydroxyl", "carbonyl"], "cid": 6918289},
 
     # -- PARP inhibitor --
-    "Olaparib":     {"mw": 434.5, "logP": 1.5, "hbd": 1, "hba": 7, "fg": ["phthalazinone", "piperazine", "amide", "carbonyl", "fluoride"], "cid": 23725625},
+    "Olaparib":     {"mw": 434.5, "logP": 1.5, "hbd": 1, "hba": 5, "fg": ["phthalazinone", "piperazine", "amide", "carbonyl", "fluoride"], "cid": 23725625},
 
     # -- BCL2 inhibitor --
     "Venetoclax":   {"mw": 868.4, "logP": 7.9, "hbd": 3, "hba": 11, "fg": ["sulfonamide", "amine", "ether", "chloride", "aromatic", "nitro"], "cid": 49846579},
@@ -80,45 +81,45 @@ _DRUG_DATA: Dict[str, dict] = {
     "Thalidomide":  {"mw": 258.2, "logP": 0.3, "hbd": 1, "hba": 4, "fg": ["glutarimide", "phthalimide", "amide", "carbonyl"], "cid": 5426},
 
     # -- Platinum agents --
-    "Carboplatin":  {"mw": 371.3, "logP": -2.3, "hbd": 2, "hba": 6, "fg": ["platinum_complex", "amine", "carboxylate"], "cid": 498142},
-    "Cisplatin":    {"mw": 300.1, "logP": -2.2, "hbd": 2, "hba": 2, "fg": ["platinum_complex", "amine", "chloride"], "cid": 84691},
-    "Oxaliplatin":  {"mw": 397.3, "logP": -1.6, "hbd": 2, "hba": 6, "fg": ["platinum_complex", "amine", "carboxylate"], "cid": 9887054},
+    "Carboplatin":  {"mw": 371.3, "logP": -2.3, "hbd": 2, "hba": 6, "fg": ["platinum_complex", "amine", "carboxylate"], "cid": 10339178},
+    "Cisplatin":    {"mw": 300.1, "logP": -2.2, "hbd": 2, "hba": 2, "fg": ["platinum_complex", "amine", "chloride"], "cid": 5460033},
+    "Oxaliplatin":  {"mw": 397.3, "logP": -1.6, "hbd": 4, "hba": 6, "fg": ["platinum_complex", "amine", "carboxylate"], "cid": 9887053},
 
     # -- Antimetabolites --
-    "Fluorouracil": {"mw": 130.1, "logP": -0.9, "hbd": 2, "hba": 4, "fg": ["pyrimidine", "fluoride", "amide", "carbonyl"], "cid": 3385},
-    "Pemetrexed":   {"mw": 427.4, "logP": -1.8, "hbd": 5, "hba": 8, "fg": ["pyrrole", "pyrimidine", "amine", "carboxyl", "amide"], "cid": 135398633},
+    "Fluorouracil": {"mw": 130.1, "logP": -0.9, "hbd": 2, "hba": 3, "fg": ["pyrimidine", "fluoride", "amide", "carbonyl"], "cid": 3385},
+    "Pemetrexed":   {"mw": 427.4, "logP": 0.2, "hbd": 6, "hba": 7, "fg": ["pyrrole", "pyrimidine", "amine", "carboxyl", "amide"], "cid": 135410875},
 
     # -- Topoisomerase --
-    "Irinotecan":   {"mw": 586.7, "logP": 2.9, "hbd": 1, "hba": 7, "fg": ["camptothecin", "ester", "amine", "lactone", "piperidine"], "cid": 60838},
+    "Irinotecan":   {"mw": 586.7, "logP": 2.9, "hbd": 1, "hba": 8, "fg": ["camptothecin", "ester", "amine", "lactone", "piperidine"], "cid": 60838},
 
     # -- COX inhibitors / NSAIDs --
     "Aspirin":      {"mw": 180.2, "logP": 1.2, "hbd": 1, "hba": 4, "fg": ["ester", "carboxyl", "aromatic"], "cid": 2244},
-    "Celecoxib":    {"mw": 381.4, "logP": 3.5, "hbd": 1, "hba": 4, "fg": ["sulfonamide", "pyrazole", "amine", "fluoride", "aromatic"], "cid": 2662},
+    "Celecoxib":    {"mw": 381.4, "logP": 3.5, "hbd": 1, "hba": 7, "fg": ["sulfonamide", "pyrazole", "amine", "fluoride", "aromatic"], "cid": 2662},
     "Diclofenac":   {"mw": 296.1, "logP": 4.5, "hbd": 2, "hba": 3, "fg": ["amine", "carboxyl", "chloride", "aromatic"], "cid": 3033},
     "Indomethacin": {"mw": 357.8, "logP": 4.3, "hbd": 1, "hba": 4, "fg": ["indole", "ether", "carboxyl", "chloride", "amide", "carbonyl"], "cid": 3715},
 
     # -- Repurposed drugs --
-    "Artesunate":   {"mw": 384.4, "logP": 2.2, "hbd": 1, "hba": 8, "fg": ["endoperoxide", "ester", "lactone", "carboxyl"], "cid": 68827},
-    "Atorvastatin": {"mw": 558.6, "logP": 5.7, "hbd": 4, "hba": 5, "fg": ["pyrrole", "amide", "carboxyl", "hydroxyl", "fluoride", "aromatic"], "cid": 60823},
-    "Auranofin":    {"mw": 678.5, "logP": 3.7, "hbd": 0, "hba": 9, "fg": ["gold_complex", "phosphine", "thiol", "ester", "acetyl"], "cid": 24199399},
+    "Artesunate":   {"mw": 384.4, "logP": 2.2, "hbd": 1, "hba": 8, "fg": ["endoperoxide", "ester", "lactone", "carboxyl"], "cid": 6917864},
+    "Atorvastatin": {"mw": 558.6, "logP": 5.0, "hbd": 4, "hba": 6, "fg": ["pyrrole", "amide", "carboxyl", "hydroxyl", "fluoride", "aromatic"], "cid": 60823},
+    "Auranofin":    {"mw": 678.5, "logP": 3.7, "hbd": 0, "hba": 10, "fg": ["gold_complex", "phosphine", "thiol", "ester", "acetyl"], "cid": 16667669},
     "Bazedoxifene": {"mw": 470.6, "logP": 5.8, "hbd": 2, "hba": 4, "fg": ["indole", "phenol", "amine", "aromatic", "piperidine"], "cid": 154257},
     "Chloroquine":  {"mw": 319.9, "logP": 4.6, "hbd": 1, "hba": 3, "fg": ["quinoline", "amine", "chloride"], "cid": 2719},
-    "Cimetidine":   {"mw": 252.3, "logP": 0.4, "hbd": 3, "hba": 5, "fg": ["imidazole", "amine", "thioether", "guanidine", "nitrile"], "cid": 2756},
+    "Cimetidine":   {"mw": 252.3, "logP": 0.4, "hbd": 3, "hba": 4, "fg": ["imidazole", "amine", "thioether", "guanidine", "nitrile"], "cid": 2756},
     "Clarithromycin": {"mw": 747.9, "logP": 3.2, "hbd": 4, "hba": 14, "fg": ["macrolide", "ester", "ether", "hydroxyl", "amine"], "cid": 84029},
-    "Disulfiram":   {"mw": 296.5, "logP": 3.9, "hbd": 0, "hba": 2, "fg": ["thiocarbamate", "disulfide", "amine"], "cid": 3117},
+    "Disulfiram":   {"mw": 296.5, "logP": 3.9, "hbd": 0, "hba": 4, "fg": ["thiocarbamate", "disulfide", "amine"], "cid": 3117},
     "Doxycycline":  {"mw": 444.4, "logP": -0.5, "hbd": 6, "hba": 9, "fg": ["tetracycline", "amide", "hydroxyl", "amine", "carbonyl", "phenol"], "cid": 54671203},
     "Itraconazole": {"mw": 705.6, "logP": 5.7, "hbd": 0, "hba": 9, "fg": ["triazole", "piperazine", "ether", "chloride", "ketone"], "cid": 55283},
     "Ivermectin":   {"mw": 875.1, "logP": 5.8, "hbd": 3, "hba": 14, "fg": ["macrolide", "ester", "ether", "hydroxyl"], "cid": 6321424},
-    "Leflunomide":  {"mw": 270.2, "logP": 2.5, "hbd": 1, "hba": 4, "fg": ["isoxazole", "amide", "fluoride", "nitrile"], "cid": 3899},
-    "Mebendazole":  {"mw": 295.3, "logP": 2.8, "hbd": 2, "hba": 4, "fg": ["benzimidazole", "carbamate", "amine", "carbonyl"], "cid": 31464},
-    "Metformin":    {"mw": 129.2, "logP": -1.4, "hbd": 3, "hba": 3, "fg": ["guanidine", "amine"], "cid": 4091},
-    "Nelfinavir":   {"mw": 567.8, "logP": 5.0, "hbd": 4, "hba": 5, "fg": ["amine", "hydroxyl", "amide", "thiol", "aromatic", "phenol"], "cid": 64143},
+    "Leflunomide":  {"mw": 270.2, "logP": 2.5, "hbd": 1, "hba": 6, "fg": ["isoxazole", "amide", "fluoride", "nitrile"], "cid": 3899},
+    "Mebendazole":  {"mw": 295.3, "logP": 2.8, "hbd": 2, "hba": 4, "fg": ["benzimidazole", "carbamate", "amine", "carbonyl"], "cid": 4030},
+    "Metformin":    {"mw": 129.2, "logP": -1.4, "hbd": 3, "hba": 1, "fg": ["guanidine", "amine"], "cid": 4091},
+    "Nelfinavir":   {"mw": 567.8, "logP": 5.7, "hbd": 4, "hba": 6, "fg": ["amine", "hydroxyl", "amide", "thiol", "aromatic", "phenol"], "cid": 64143},
     "Niclosamide":  {"mw": 327.1, "logP": 3.9, "hbd": 2, "hba": 4, "fg": ["hydroxyl", "amide", "chloride", "nitro", "aromatic", "phenol"], "cid": 4477},
     "Nitroglycerin": {"mw": 227.1, "logP": 1.6, "hbd": 0, "hba": 9, "fg": ["nitrate", "ester"], "cid": 4510},
-    "Pirfenidone":  {"mw": 185.2, "logP": 0.3, "hbd": 0, "hba": 2, "fg": ["pyridone", "aromatic", "carbonyl"], "cid": 40632},
+    "Pirfenidone":  {"mw": 185.2, "logP": 1.9, "hbd": 0, "hba": 1, "fg": ["pyridone", "aromatic", "carbonyl"], "cid": 40632},
     "Propranolol":  {"mw": 259.3, "logP": 3.5, "hbd": 2, "hba": 3, "fg": ["naphthalene", "ether", "amine", "hydroxyl", "aromatic"], "cid": 4946},
     "Ritonavir":    {"mw": 720.9, "logP": 5.9, "hbd": 4, "hba": 9, "fg": ["thiazole", "amine", "amide", "hydroxyl", "carbamate", "ether", "urea"], "cid": 392622},
-    "Suramin":      {"mw": 1297.3, "logP": -0.8, "hbd": 12, "hba": 23, "fg": ["sulfonyl", "amine", "amide", "carboxyl", "aromatic", "urea"], "cid": 5361},
+    "Suramin":      {"mw": 1297.3, "logP": 1.5, "hbd": 12, "hba": 23, "fg": ["sulfonyl", "amine", "amide", "carboxyl", "aromatic", "urea"], "cid": 5361},
     "Valproic_Acid": {"mw": 144.2, "logP": 2.8, "hbd": 1, "hba": 2, "fg": ["carboxyl"], "cid": 3121},
     "Verapamil":    {"mw": 454.6, "logP": 3.8, "hbd": 0, "hba": 6, "fg": ["amine", "ether", "nitrile", "methoxy", "aromatic"], "cid": 2520},
 

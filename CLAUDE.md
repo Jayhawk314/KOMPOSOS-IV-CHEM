@@ -59,11 +59,11 @@ python validation\repurposing_benchmark.py --view full_typed --protocol loocv
 Add `--ci` for bootstrap 95% confidence intervals, `--baselines` for baseline
 comparisons (random, degree, common-neighbor, shortest-path, path-count).
 
-Current metrics (2026-05-13, 8 strategies incl. binding_evidence, 44 positives):
-- `legacy/as_loaded`: AUROC 0.923, AUPRC 0.436
-- `full_typed/as_loaded`: AUROC 0.882, AUPRC 0.133
-- `full_typed/remove_direct_labels`: AUROC 0.933, AUPRC 0.419
-- `full_typed/loocv`: AUROC 0.970, AUPRC 0.533, Hits@5 1.00, Hits@10 1.00, MRR 0.081
+Current metrics (2026-05-13, 8 strategies, drug props PubChem-verified, 44 positives):
+- `legacy/as_loaded`: AUROC 0.931, AUPRC 0.465
+- `full_typed/as_loaded`: AUROC 0.887, AUPRC 0.135
+- `full_typed/remove_direct_labels`: AUROC 0.940, AUPRC 0.431
+- `full_typed/loocv`: AUROC 0.974, AUPRC 0.530, Hits@5 1.00, Hits@10 1.00, MRR 0.080
 
 Path bonus tuned via LOOCV grid search: min(0.25, 0.10 * composition_count).
 Uniform strategy weights confirmed optimal by calibrate_loocv.py.
@@ -132,23 +132,27 @@ Data expansion:
 
 ## Binding Evidence Strategy (2026-05-13)
 
-The 8th oracle strategy (`oracle/binding_strategy.py`) integrates molecular and
-chemistry bridges into the repurposing scoring pipeline:
+The 8th oracle strategy (`oracle/binding_strategy.py`) integrates 5 molecular and
+chemistry bridges into the repurposing scoring pipeline via 7 weighted components:
 
 1. **ABPP Bridge** (`abpp_bridge.py`): 65 experimental IC50/engagement entries
-   with PMIDs for drug-target pairs in tier1.db.
-2. **Boltz2 Bridge** (`boltz2_bridge.py`): heuristic binding prediction (fallback
-   mode, no install needed).
-3. **Drug Properties** (`data/drugs/drug_properties.py`): molecular properties
-   (MW, logP, HBD, HBA, functional groups) for all 78 drugs, plus approximate
-   binding-pocket properties for 50+ protein targets. Computes Lipinski
-   drug-likeness and drug-target molecular compatibility.
+   with PMIDs for drug-target pairs in tier1.db. (weight 0.30)
+2. **Boltz2 Bridge** (`boltz2_bridge.py`): heuristic binding prediction, fallback
+   mode, drug name suffix matching. (weight 0.10)
+3. **Drug Properties** (`data/drugs/drug_properties.py`): Lipinski drug-likeness
+   (weight 0.10) and drug-target molecular compatibility via logP/H-bond matching
+   (weight 0.10). Molecular properties (MW, logP, HBD, HBA, functional groups) for
+   all 78 drugs plus approximate binding-pocket properties for 50+ protein targets.
+   **PubChem-verified (2026-05-13):** 46/68 drugs corrected via PUG REST API.
 4. **Molecular Bridge** (`molecular_bridge/interaction_scoring.py`): solubility,
-   steric, reactivity scoring via the drug property data.
-5. **Chemistry** (`chemistry/pfam_domain_mapper.py`): kinase domain classification
-   feeds into target property assignments.
+   steric, and reactivity scoring via `score_solubility_compatibility`,
+   `score_steric_compatibility`, `score_reactivity_risk`. (weight 0.10)
+5. **Pfam Domain Matching** (`chemistry/pfam_domain_mapper.py`): domain-drug class
+   matching (kinase inhibitor -> kinase domain, etc.) using `PfamDomain` dataclass
+   and known Pfam accessions. (weight 0.10)
+6. Graph edge confidence from the Category morphism. (weight 0.20)
 
-Triage reports now show IC50 values, engagement status, and drug-likeness when
+Triage reports show IC50 values, engagement status, and drug-likeness when
 the binding_evidence strategy votes.
 
 ## Track B: Drug Design
