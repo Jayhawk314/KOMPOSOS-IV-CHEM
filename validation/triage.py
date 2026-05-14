@@ -402,6 +402,9 @@ def format_markdown(results: list[dict], query_label: str,
                     for edge in chain["edges"]:
                         prov = edge.get("provenance", "unknown")
                         prov_str = prov if prov != "unknown" else "uncited"
+                        if prov_str.startswith("PMID:"):
+                            pmid_id = prov_str.replace("PMID:", "")
+                            prov_str = f"[{prov}](https://pubmed.ncbi.nlm.nih.gov/{pmid_id})"
                         lines.append(f"   - {edge['source']}->{edge['target']}: {prov_str} (confidence: {edge['confidence']:.2f})")
                 lines.append("")
             cited = entry["cited_edges"]

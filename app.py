@@ -29,6 +29,7 @@ from validation.trace_prediction import _build_provenance_index, trace_pair
 from validation.triage import (
     _label_for_pair,
     _provenance_fraction,
+    format_markdown,
     self_check,
     triage_disease,
     triage_drug,
@@ -94,6 +95,19 @@ st.sidebar.markdown(
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
+def _top_trace(chains: list) -> str:
+    """Extract the top compositional trace as a short string."""
+    if not chains:
+        return "-"
+    edges = chains[0].get("edges", [])
+    if not edges:
+        return "-"
+    parts = [edges[0]["source"]]
+    for edge in edges:
+        parts.append(edge["target"])
+    return " \u2192 ".join(parts)
+
+
 def render_results_table(results):
     """Show ranked results as a streamlit table."""
     rows = []
@@ -104,8 +118,9 @@ def render_results_table(results):
             "Disease": r["disease"],
             "Score": round(r["score"], 3),
             "Label": r["label"],
-            "Mech. Paths": r["n_chains"],
-            "Cited Edges": f"{r['cited_edges']}/{r['total_edges']}"
+            "Top Trace": _top_trace(r.get("chains", [])),
+            "Paths": r["n_chains"],
+            "Cited": f"{r['cited_edges']}/{r['total_edges']}"
             if r["total_edges"] > 0 else "-",
         })
     st.dataframe(rows, use_container_width=True, hide_index=True)
@@ -216,7 +231,7 @@ def render_detail(entry):
             pass
 
     if entry["chains"]:
-        st.markdown("**Mechanistic Evidence Chains**")
+        st.markdown("**Compositional Trace** (Drug \u2192 Protein \u2192 Disease)")
         for i, chain in enumerate(entry["chains"], 1):
             parts = [chain["edges"][0]["source"]]
             for edge in chain["edges"]:
@@ -227,6 +242,9 @@ def render_detail(entry):
                 for edge in chain["edges"]:
                     prov = edge.get("provenance", "unknown")
                     prov_display = prov if prov != "unknown" else "uncited"
+                    if prov_display.startswith("PMID:"):
+                        pmid_id = prov_display.replace("PMID:", "")
+                        prov_display = f"[{prov}](https://pubmed.ncbi.nlm.nih.gov/{pmid_id})"
                     st.markdown(
                         f"- **{edge['source']}** -{edge['relation']}-> "
                         f"**{edge['target']}** "
@@ -237,6 +255,15 @@ def render_detail(entry):
     total = entry["total_edges"]
     if total > 0:
         st.progress(cited / total, text=f"Provenance: {cited}/{total} edges cited")
+
+
+def generate_report(results: list[dict], query_label: str) -> str:
+    """Generate downloadable markdown report from current results."""
+    return format_markdown(
+        results, query_label,
+        g["n_objects"], g["n_morphisms"], g["n_positives"],
+        g["check_recovered"], g["check_total"],
+    )
 
 
 # ── Disease-first ────────────────────────────────────────────────────
@@ -253,6 +280,14 @@ if mode == "Disease-first":
                 g["provenance_index"], top_n=top_n,
             )
         render_results_table(results)
+
+        report_md = generate_report(results, f"Disease: {disease}")
+        st.download_button(
+            "Download Report",
+            data=report_md,
+            file_name=f"triage_{disease}.md",
+            mime="text/markdown",
+        )
 
         st.markdown("---")
         st.subheader("Candidate Details")
@@ -275,6 +310,14 @@ elif mode == "Drug-first":
                 g["provenance_index"], top_n=len(g["diseases"]), show_all=True,
             )
         render_results_table(results)
+
+        report_md = generate_report(results, f"Drug: {drug}")
+        st.download_button(
+            "Download Report",
+            data=report_md,
+            file_name=f"triage_{drug}.md",
+            mime="text/markdown",
+        )
 
         st.markdown("---")
         st.subheader("Top Predictions")
@@ -314,6 +357,14 @@ elif mode == "Pair detail":
             }
         render_detail(entry)
 
+        report_md = generate_report([entry], f"Pair: {drug} -> {disease}")
+        st.download_button(
+            "Download Report",
+            data=report_md,
+            file_name=f"report_{drug}_{disease}.md",
+            mime="text/markdown",
+        )
+
 
 # ── About ────────────────────────────────────────────────────────────
 
@@ -340,16 +391,20 @@ approved for.
 5. **Evidence**: Every prediction comes with traceable mechanistic paths,
    literature citations, and IC50 data where available
 
-### Validation
+### Validation (LOOCV, 44 positives, full_typed view)
 
 | Metric | Value |
 |--------|-------|
-| LOOCV AUROC | 0.974 |
-| LOOCV AUPRC | 0.530 |
+| AUROC | 0.974 |
+| AUPRC | 0.530 |
+| Hits@5 | 1.000 |
 | Hits@10 | 1.000 |
+| MRR | 0.080 |
 | Positives | 44 FDA-approved oncology indications |
 | Strategies | 8 (incl. binding evidence with IC50 data) |
 | Provenance | 1260/1260 morphisms cited (100%) |
+| Strongest baseline (shortest-path) | AUROC 0.931 |
+| Margin over baseline | +0.043 |
 | ClinicalTrials.gov cross-check | 63% IN_TRIALS, 30% PRECLINICAL, 7% NOVEL |
 
 ### Limitations
