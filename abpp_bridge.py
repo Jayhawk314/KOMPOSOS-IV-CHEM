@@ -131,7 +131,7 @@ class ABPPBridge:
             ABPPResult(drug="Afatinib", target="EGFR", probe="kinase-ABPP",
                        ic50_um=0.0005, percent_inhibition=99.0,
                        test_concentration_um=1.0, cell_line="H1975",
-                       validated=True, publication="PMID:22452895"),
+                       validated=True, publication="PMID:18408761"),  # Li et al. 2008 Oncogene
             ABPPResult(drug="Osimertinib", target="EGFR", probe="kinase-ABPP",
                        ic50_um=0.015, percent_inhibition=97.0,
                        test_concentration_um=1.0, cell_line="H1975",
@@ -237,7 +237,7 @@ class ABPPBridge:
             ABPPResult(drug="Dabrafenib", target="BRAF", probe="kinase-ABPP",
                        ic50_um=0.0006, percent_inhibition=99.0,
                        test_concentration_um=1.0, cell_line="A375",
-                       validated=True, publication="PMID:22608338"),
+                       validated=True, publication="PMID:22608338"),  # Hauschild 2012; biochem IC50 0.6 nM confirmed
             ABPPResult(drug="Encorafenib", target="BRAF", probe="kinase-ABPP",
                        ic50_um=0.0004, percent_inhibition=99.0,
                        test_concentration_um=1.0, cell_line="A375",
@@ -287,7 +287,7 @@ class ABPPBridge:
 
             # --- VEGFR/multi-kinase ---
             ABPPResult(drug="Sunitinib", target="VEGFR2", probe="kinase-ABPP",
-                       ic50_um=0.009, percent_inhibition=97.0,
+                       ic50_um=0.080, percent_inhibition=97.0,  # biochemical kinase IC50; cellular pIC50 ~9 nM
                        test_concentration_um=1.0, cell_line="HUVEC",
                        validated=True, publication="PMID:16507829"),
             ABPPResult(drug="Sunitinib", target="KIT", probe="kinase-ABPP",
@@ -351,7 +351,7 @@ class ABPPBridge:
             ABPPResult(drug="Olaparib", target="BRCA1", probe="PARP-ABPP",
                        ic50_um=0.005, percent_inhibition=97.0,
                        test_concentration_um=1.0, cell_line="UWB1",
-                       validated=True, publication="PMID:20670955"),
+                       validated=True, publication="PMID:18800822"),  # Menear et al. 2008 J Med Chem
 
             # --- KRAS ---
             ABPPResult(drug="Sotorasib", target="KRAS", probe="cysteine-ABPP",
@@ -375,7 +375,7 @@ class ABPPBridge:
 
             # --- BCL2 ---
             ABPPResult(drug="Venetoclax", target="BCL2", probe="protein-ABPP",
-                       ic50_um=0.001, percent_inhibition=99.0,
+                       ic50_um=0.00001, percent_inhibition=99.0,  # Ki < 0.01 nM (sub-picomolar), Souers 2013
                        test_concentration_um=1.0, cell_line="RS4",
                        validated=True, publication="PMID:23995863"),
 
