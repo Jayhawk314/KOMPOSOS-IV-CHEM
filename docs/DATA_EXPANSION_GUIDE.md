@@ -1,23 +1,24 @@
 # Data Expansion Guide for KOMPOSOS-IV-PHARM
 
-**Date**: 2026-05-10 (updated: ChEMBL expansion deployed)
+**Date**: 2026-05-14 (updated: provenance complete, web research complete)
 **Purpose**: Recommendations for expanding tier1.db with high-quality biomedical data sources
-**Current State**: 464 objects, 1260 morphisms, 44 FDA-approved Drug→Disease labels, 76% provenance coverage
+**Current State**: 1143 objects, 1260 morphisms, 44 FDA-approved Drug→Disease labels, **100% provenance coverage**
 
 ---
 
 ## Current Data Sources in tier1.db
 
-**Existing Sources** (via "noetik_expansion" and other tags):
-- **DrugBank**: FDA-approved drugs, drug-target interactions
-- **ChEMBL**: Bioactivity database (drug properties, assays)
-- **Manual curation**: 44 Drug→Disease treats edges (all with PMIDs)
-- **Literature mining**: Protein-disease associations (partial PMID coverage)
+**Existing Sources**:
+- **ChEMBL**: 679 ExternalCompound nodes, drug-target bioactivity, all with ChEMBL IDs
+- **DrugBank**: 78 FDA-approved drugs (oncology focus)
+- **Manual curation**: 44 Drug→Disease treats edges (all with PMIDs), 366 proteins
+- **Literature mining**: Protein-disease associations (all with PMIDs)
 
-**Provenance Status** (2026-05-10, post-ChEMBL deployment):
-- ✅ 958/1260 morphisms have provenance (76.0%): 86 PMIDs, 872 ChEMBL/DOI
+**Provenance Status** (2026-05-14, complete):
+- ✅ **1260/1260 morphisms have provenance (100.0%)**: PMIDs + ChEMBL IDs
 - ✅ All 44 Drug→Disease treats edges cited (100%)
-- ⚠️ 302/1260 morphisms uncited (24.0%): protein-protein, protein-disease edges
+- ✅ Zero uncited morphisms remain
+- DB SHA256: `0BA4A7E01BBA3E1E52A03CD7765A3E6523618F439AB8A90ED4BD6B4BD95BC8E6`
 
 ---
 
@@ -25,29 +26,25 @@
 
 ### Priority 1: Immediate High-Impact Sources
 
-#### 0. ChEMBL SQLite (chembl.gitbook.io) — ✅ DEPLOYED 2026-05-10
+#### 0. ChEMBL SQLite — ✅ DEPLOYED 2026-05-12 (COMPLETE)
 
-**Status**: ChEMBL expansion deployed as new default tier1.db.
+**Status**: ChEMBL expansion complete. 100% provenance achieved.
 
 **What was done**:
-- Downloaded ChEMBL 36 (5.23 GB) via `chembl-downloader` to `C:\Users\JAMES\.data\chembl\36\chembl_36.db`
+- Downloaded ChEMBL 36 (5.23 GB) via `chembl-downloader`
 - Built importer: `data/drugs/importers/import_chembl_sqlite.py`
-- Imported 989 drug-target associations (from `drug_mechanism` table)
-- **Fixed drug name normalization** (2026-05-10): Added `normalize_drug_name()` to strip
-  pharmaceutical salt suffixes (MESYLATE, HYDROCHLORIDE, DIMALEATE, etc.) and title-case
-  names to match base manifest style
-- Re-normalized existing imports: 17 Drug→Protein edges now connect to base 78 drugs
-- Created and deployed expanded manifest: `data/drugs/tier1_manifest.json` (464 objects, 1260 morphisms)
+- Drug name normalization implemented (salt suffix stripping)
+- **Provenance completion** (2026-05-12): All 1260 morphisms now cited
+- 679 ExternalCompound nodes added as explicit objects (zero missing endpoint rows)
+- 17 new Drug→Protein edges for base drugs
 
 **Impact**:
-- Graph: 195→464 objects, 388→1260 morphisms
-- Provenance: 22.2%→76.0% (958/1260 morphisms cited)
-- LOOCV AUROC: 0.968→0.974 [0.965, 0.983]
-- 17 new mechanistic edges for base drugs (e.g., Imatinib→ABL1/PDGFRB, Doxycycline→MMP1/7/8/13)
+- Graph: 195→1143 objects, 388→1260 morphisms
+- Provenance: 22.2%→**100.0%** (1260/1260 morphisms cited)
+- LOOCV AUROC: 0.968→0.974, AUPRC 0.530, Hits@10 1.000, MRR 0.080
+- All 44 positive-pair mechanistic chains fully cited
 
-**Documentation**: See `CHEMBL_NORMALIZATION_2026-05-10.md` for technical details.
-
-**API**: No API needed — local SQLite queries via `chembl-downloader` package.
+**Next**: Open Targets for target-disease expansion
 
 ---
 
@@ -141,6 +138,45 @@ for ppi in ppi_data:
 - Boost YonedaPatternStrategy (more morphism profiles)
 
 **API**: Free, downloadable bulk files, REST API
+
+---
+
+#### 8. DGIdb (Drug-Gene Interaction Database) - NEW 2026
+
+**Why**: Aggregates 30+ sources into unified drug-gene interactions.
+
+**What it provides**:
+- 70,000+ drug-gene interactions
+- 10,000+ genes, 20,000+ drugs
+- GraphQL API, Python package (DGIpy)
+
+**Expected impact**: +500-2,000 Drug→Gene edges for existing 78 drugs
+
+**API**: Free, GraphQL at `https://dgidb.org/api/graphql`, TSV downloads
+
+**Reference**: [DGIdb 5.0 (NAR 2024)](https://academic.oup.com/nar/article/52/D1/D1227/7416371)
+
+---
+
+#### 9. Pre-built Knowledge Graphs (for validation/benchmarking)
+
+**DRKG** (Drug Repurposing KG):
+- 5.8M triples, 97K entities, pre-trained TransE embeddings
+- GitHub: `https://github.com/gnn4dr/DRKG`
+- Use: Validation reference, import subgraphs
+
+**PrimeKG** (Precision Medicine KG):
+- 4M relationships, 17K diseases, includes contraindications
+- Harvard/Zitnik Lab, via Therapeutics Data Commons
+- Use: Benchmark against TxGNN predictions
+
+**TxGNN** (Foundation Model):
+- Trained on PrimeKG, zero-shot to 17K diseases
+- AUPRC improvement: +49.2% (indications), +35.1% (contraindications)
+- GitHub: `https://github.com/mims-harvard/TxGNN`
+- Use: Compare categorical reasoning vs GNN predictions
+
+**Reference**: [TxGNN (Nature Medicine 2024)](https://www.nature.com/articles/s41591-024-03233-x)
 
 ---
 
@@ -425,23 +461,15 @@ Before adding any source to tier1.db:
 ---
 
 **Author**: Claude (Anthropic AI)
-**Date**: 2026-05-06 (updated 2026-05-06)
-**Status**: ChEMBL integration in progress; other sources pending
+**Date**: 2026-05-14 (web research complete)
+**Status**: ChEMBL complete (100% provenance); Open Targets ready for implementation
 
-## ChEMBL Integration Status
+## Current Status
 
-**ChEMBL 36** has been downloaded (5.23 GB SQLite at `C:\Users\JAMES\.data\chembl\36\chembl_36.db`)
-and an importer built (`data/drugs/importers/import_chembl_sqlite.py`).
+✅ **ChEMBL 36**: Deployed (1143 objects, 1260 morphisms, 100% provenance, AUROC 0.974)
+🎯 **Next**: Open Targets importer (estimated +5,000-30,000 edges for 20 oncology diseases)
+📊 **Web research**: Confirmed Open Targets, STRING, DisGeNET priorities; added DGIdb, DRKG, PrimeKG, TxGNN
 
-**Results**: 989 curated drug-target associations imported into `data/drugs/tier1_manifest_chembl.json`
-(464 objects, 1377 morphisms). Database built as `data/drugs/tier1_chembl.db`.
+**Implementation ready**: `import_opentargets.py` can be written following `import_chembl_sqlite.py` pattern.
 
-**Problem found**: ChEMBL drug names are uppercase with salt forms (e.g., "IMATINIB MESYLATE")
-while our graph uses title-case base names ("Imatinib"). The 989 new edges connect to
-drugs NOT in our 78-drug set, so LOOCV AUROC is unchanged (0.968).
-
-**Next step**: Add a drug name normalization step to the importer that maps ChEMBL names
-to our existing 78 drugs. This would add PMIDs and new protein targets for our current drugs,
-potentially improving mechanistic path coverage and provenance.
-
-**Next step for other sources**: Approve Priority 1 sources, write import scripts
+**Expected impact**: Open Targets will add massive target-disease coverage with genetic evidence scores, potentially improving AUROC via better mechanistic path discovery.
