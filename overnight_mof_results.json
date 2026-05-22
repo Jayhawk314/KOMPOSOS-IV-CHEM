@@ -1,0 +1,1391 @@
+{
+  "candidates": [
+    {
+      "linker_smiles": "Cc1ccc2c(c1)Cc1cc(C=O)ccc1C2=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc(NCNc2ccc(C=O)cc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O-]Cc1ccc(OCCOc2ccccc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 3 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (14 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc(NC(=O)Nc2ccc(C)cc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc(OCCOc2ccccc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc2c(c1)NCNc1cc(C=O)ccc1-2",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(N2[CH]N=C[N]2)c(C)cc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 9 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cncc(Oc2ccc(C(=O)O)c(C)c2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O]N1Cc2ccc3c4c(ccc(c24)C1)C(=O)NC3",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (14 bonds), 56% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc(NC(=O)Nc2ccccc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (19 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C)c(N2[CH]N=C[N]2)cc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 9 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O-]Cc1cc(N2[CH]N=C[N]2)ccc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 8 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1cc(-c2cccc(C(=O)[O-])c2)ccc1O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (19 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1cc(N2[CH]N=C[N]2)ccc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 9 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (14 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C)c(-n2cncn2)cc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (15 bonds), 61% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O-]Cc1ccc(C2=NN=N[N]2)cc1C1=NN=N[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 8 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (18 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc(N2[CH]N=C[N]2)cc1-n1cncn1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 61% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc(Oc2cncc(C=O)c2)cc1C[O-]",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc(N2[CH]N=C[N]2)cc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 9 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (14 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "CC1=CN(Cc2cc(C=O)cc(C[O-])c2)[CH]C=C1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O-]Cc1ccc(N2[CH]N=C[N]2)cc1N1[CH]N=C[N]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 8 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cncc(Oc2ccc(C=O)c(C[O-])c2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C=O)cc(CN2[CH]C=CC(C=O)=C2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (14 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc2c(c1)C(=O)c1cc(C)ccc1C2=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (18 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc(OCCOc2ccc(C)cc2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (14 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C=O)cc(CN2[CH]C=CC(C[O-])=C2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (12 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(Oc2cncc(C[O-])c2)ccc1C=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(Oc2cncc(C=O)c2)ccc1CO",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc(Oc2cncc(C[O-])c2)cc1C=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "COc1ccc(-c2ccc(OC)c(C)c2)cc1C",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (15 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C(=O)[O-])cc(-c2ccc(P[O])cc2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C[O-])cc(C(=O)N2CCCC2C[O-])c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (9 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=C1Nc2ccccc2-c2ccc(C[O-])cc2N1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (18 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc(Oc2cncc(C(=O)[O-])c2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (19 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "CC1=CC=CN(Cc2cc(C)cc(C(=O)[O-])c2)[CH]1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 7 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (13 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Pc1ccc(-c2cc(C[O-])cc(C[O-])c2)cc1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (13 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C)cc(C(=O)N2CCCC2C(=O)[O-])c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (11 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=C1NC(=O)c2ccc3c4c(ccc1c24)CNC3",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 56% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cncc(Oc2ccc(C=O)c(C=O)c2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (18 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1cc(C=O)cc(-c2ccc(P=O)cc2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O]N1Cc2ccc3c4c(ccc(c24)C1=O)CNC3",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (14 bonds), 56% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=C1NCc2ccc3c4c(ccc1c24)CNC3=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 6 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 56% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1cc(Oc2cccnc2)ccc1C(=O)[O-]",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (19 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "CC1CCCN1C(=O)c1cc(C=O)cc(C=O)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "HOLLOW"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.6
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 3,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2717 Limited conjugation (13 bonds); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=Cc1ccc2c(c1)Cc1cc(C=O)ccc1C2",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (16 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1cc(C[O-])cc(-c2ccc([PH]([O])=O)cc2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 3 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (13 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "[O-]Cc1ccc2c(c1)Cc1ccc(C[O-])cc1C2",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 3 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (12 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "Cc1ccc2c(c1)Cc1ccc(C[O-])cc1C2=O",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 4 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (15 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=C([O-])c1cccc(-c2cccc(C(=O)[O-])c2)c1",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (19 bonds), 67% aromatic; \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    },
+    {
+      "linker_smiles": "O=C([O-])c1cc(Oc2cccnc2)ccc1C[O-]",
+      "verdicts": {
+        "synthesizability": "HOLLOW",
+        "toxicity": "AGREE",
+        "stability": "AGREE",
+        "activity": "AGREE",
+        "conductivity": "AGREE"
+      },
+      "verdict_scores": {
+        "synthesizability": 0.6,
+        "toxicity": 0.95,
+        "stability": 0.95,
+        "activity": 0.95,
+        "conductivity": 0.95
+      },
+      "morphism_integrity": 1.0,
+      "zfc_constraints_passed": 4,
+      "reasoning_traces": {
+        "synthesizability": "\u2717 5 bond/hybridization mismatches; \u2713 Resembles known synthesizable patterns",
+        "toxicity": "\u2713 No known toxic groups, no heavy metals; \u2713 Organic aromatic structure (generally safe)",
+        "stability": "\u2713 Strong bonds, aromatic stabilization; \u2713 Extended conjugation enhances stability",
+        "activity": "Generic: \u2713 Aromatic + heteroatoms (versatile linker)",
+        "conductivity": "\u2713 Extended conjugation (17 bonds), 67% aromatic; \u2713 Heteroatom doping (N/S); \u2713 Continuous conjugated pathway"
+      },
+      "overall_viable": false
+    }
+  ],
+  "num_generated": 4927,
+  "num_passed_all": 0,
+  "avg_morphism_integrity": 1.0,
+  "best_morphism_integrity": 1.0,
+  "generation_time_sec": 157.68722867965698,
+  "verdict_statistics": {
+    "synthesizability": {
+      "AGREE": 0,
+      "HOLLOW": 1186,
+      "ORPHAN": 0,
+      "REJECT": 3741
+    },
+    "toxicity": {
+      "AGREE": 4655,
+      "HOLLOW": 0,
+      "ORPHAN": 272,
+      "REJECT": 0
+    },
+    "stability": {
+      "AGREE": 4402,
+      "HOLLOW": 0,
+      "ORPHAN": 255,
+      "REJECT": 270
+    },
+    "activity": {
+      "AGREE": 1186,
+      "HOLLOW": 3471,
+      "ORPHAN": 0,
+      "REJECT": 270
+    },
+    "conductivity": {
+      "AGREE": 2765,
+      "HOLLOW": 1564,
+      "ORPHAN": 0,
+      "REJECT": 598
+    }
+  }
+}

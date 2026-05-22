@@ -118,6 +118,33 @@ class TestKnownBadPairs(unittest.TestCase):
         self.assertFalse(r.compatible)
         self.assertLess(r.score, 0.45)
 
+    def test_al_anode_collector_role_veto(self):
+        """Al foil should not pass just because the anode voltage window is mild."""
+        r = score_collector_compatibility(
+            'Al_foil',
+            'Si',
+            'LiPF6',
+            interface_role='anode_collector',
+        )
+        self.assertFalse(r.compatible)
+        self.assertLess(r.score, 0.4)
+        self.assertEqual(
+            r.details['typed_morphism']['morphism']['relation'],
+            'not_anode_collector_for',
+        )
+
+    def test_stainless_cathode_collector_role_veto(self):
+        """Stainless hardware should not be accepted as a cathode coating collector."""
+        r = score_collector_compatibility(
+            'SS_316',
+            'LFP',
+            'LiPF6',
+            interface_role='cathode_collector',
+        )
+        self.assertFalse(r.compatible)
+        self.assertLess(r.score, 0.5)
+        self.assertEqual(r.details['typed_morphism']['action'], 'veto')
+
 
 class TestElectrochemicalStability(unittest.TestCase):
     """Test electrochemical stability scoring."""

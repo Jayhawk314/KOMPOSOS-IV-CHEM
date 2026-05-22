@@ -32,6 +32,8 @@ from ceramic_bridge.interaction_scoring import (
     score_degradation_penalty,
     ScorerResult,
 )
+from oracle.compatibility_context import CompatibilityContext
+from oracle.typed_morphisms import apply_typed_morphism_adjustment
 
 
 @dataclass
@@ -175,13 +177,15 @@ class CeramicInterfaceValidator:
         if mat_b is None:
             raise ValueError(f"Unknown ceramic: '{ceramic_b}'")
 
-        return self.validate_materials(mat_a, mat_b, conditions)
+        return self.validate_materials(mat_a, mat_b, conditions, ceramic_a, ceramic_b)
 
     def validate_materials(
         self,
         material_a: CeramicMaterial,
         material_b: CeramicMaterial,
         conditions: Optional[CeramicConditions] = None,
+        material_a_key: Optional[str] = None,
+        material_b_key: Optional[str] = None,
     ) -> CeramicInterfaceScore:
         """
         Validate an interface between two CeramicMaterial objects.
@@ -195,6 +199,8 @@ class CeramicInterfaceValidator:
             CeramicInterfaceScore with full breakdown
         """
         conditions = conditions or CeramicConditions()
+        material_a_key = material_a_key or _ceramic_key(material_a)
+        material_b_key = material_b_key or _ceramic_key(material_b)
 
         # Run all five scorers
         s_sint = score_sintering_compatibility(material_a, material_b)
@@ -240,6 +246,61 @@ class CeramicInterfaceValidator:
             'ceramic_b': material_b.formula,
         }
 
+        # Veto check: Large CTE mismatch causes thermal shock cracking
+        # ASM Handbook: ΔCTE > 4 ppm/K = high risk of interfacial failure
+        # Exception: known compatible composites survive CTE mismatch
+        # (e.g., Al2O3-SiC whisker composites, BaTiO3-PZT multilayers)
+        from ceramic_bridge.interaction_scoring import _COMPATIBLE_PAIRS, _get_base_formula
+        from ceramic_bridge.material_properties import CeramicClass
+        is_viable = total >= self.viability_threshold
+        cte_a = material_a.cte_per_K
+        cte_b = material_b.cte_per_K
+        if cte_a is not None and cte_b is not None:
+            cte_diff = abs(cte_a - cte_b)
+            name_a = _get_base_formula(material_a)
+            name_b = _get_base_formula(material_b)
+            pair_known_good = (name_a, name_b) in _COMPATIBLE_PAIRS or (name_b, name_a) in _COMPATIBLE_PAIRS
+            silica_like_a = name_a == "SiO2" or material_a.ceramic_class == CeramicClass.GLASS
+            silica_like_b = name_b == "SiO2" or material_b.ceramic_class == CeramicClass.GLASS
+            silica_glass_family = (
+                not conditions.thermal_cycling
+                and conditions.environment != "furnace"
+                and silica_like_a
+                and silica_like_b
+                and "SiO2" in {name_a, name_b}
+            )
+            if silica_glass_family:
+                all_details['silica_glass_family_exception'] = (
+                    'Ambient silica-network glass family contact; CTE veto is not applied '
+                    'unless thermal cycling/furnace sealing context is requested.'
+                )
+            if cte_diff > 4.0 and not pair_known_good and not silica_glass_family:
+                is_viable = False
+                all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 4 ppm/K: thermal shock cracking risk (ASM Handbook Vol 4)'
+
+        # Veto check: known-bad ceramic pairs with severe degradation
+        if scores['degradation'] < 0.15:
+            is_viable = False
+            total = min(total, 0.35)
+            all_details['veto'] = all_details.get('veto', '') + '; known-bad pairing (degradation veto)'
+
+        morphism_adjustment = apply_typed_morphism_adjustment(
+            total,
+            is_viable,
+            material_a_key,
+            material_b_key,
+            "ceramic",
+            CompatibilityContext(
+                environment=conditions.environment,
+                temperature_C=conditions.temperature_C,
+            ),
+        )
+        if morphism_adjustment.morphism is not None:
+            all_details['typed_morphism'] = morphism_adjustment.to_dict()
+        if morphism_adjustment.action in {"veto", "negative_prior", "positive_prior"}:
+            total = morphism_adjustment.score
+            is_viable = morphism_adjustment.predicted_compatible
+
         return CeramicInterfaceScore(
             total=total,
             sintering_compatibility=scores['sintering'],
@@ -247,7 +308,7 @@ class CeramicInterfaceValidator:
             mechanical_compatibility=scores['mechanical'],
             chemical_compatibility=scores['chemical'],
             degradation_penalty=scores['degradation'],
-            viable=total >= self.viability_threshold,
+            viable=is_viable,
             details=all_details,
         )
 
@@ -334,3 +395,12 @@ def validate_interface(
     """Convenience function for quick interface validation."""
     validator = CeramicInterfaceValidator()
     return validator.validate(ceramic_a, ceramic_b, conditions)
+
+
+def _ceramic_key(material: CeramicMaterial) -> str:
+    from ceramic_bridge.material_properties import ALL_CERAMICS
+
+    for name, candidate in ALL_CERAMICS.items():
+        if candidate is material:
+            return name
+    return material.formula

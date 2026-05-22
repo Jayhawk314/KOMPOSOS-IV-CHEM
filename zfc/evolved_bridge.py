@@ -24,8 +24,8 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from core.category import Category
 
-from .store_adapter import StoreAdapter
-from .bridge import DualEngineBridge, DualResult
+from .category_store_adapter import StoreAdapter
+from .category_bridge import DualEngineBridge, DualResult
 from .meta_kan import System3Oracle, DeltaType
 from .axiom_miner import AxiomMiner
 from .logic import Theory

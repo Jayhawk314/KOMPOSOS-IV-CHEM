@@ -1,0 +1,114 @@
+{
+  "bom_name": "Semiconductor Fab",
+  "total_materials": 10,
+  "pfas_count": 2,
+  "max_urgency": "moderate",
+  "has_pfas": true,
+  "pfas_materials": [
+    {
+      "material_name": "PTFE",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Universal PFAS restriction includes fluoropolymers; possible derogations for critical uses"
+        }
+      ],
+      "replacements": [
+        {
+          "name": "PP (polypropylene)",
+          "use_case": "chemical_resistant_liner",
+          "performance_match": 0.55,
+          "processability": 0.85,
+          "cost_factor": 0.95,
+          "availability": 0.95,
+          "overall_score": 0.77,
+          "advantages": [
+            "Low cost",
+            "Good acid/base resistance",
+            "Easy to fabricate"
+          ],
+          "limitations": [
+            "Poor organic solvent resistance",
+            "Lower max temperature (120C)",
+            "Oxidizer sensitivity"
+          ]
+        },
+        {
+          "name": "HDPE",
+          "use_case": "chemical_resistant_liner",
+          "performance_match": 0.5,
+          "processability": 0.9,
+          "cost_factor": 0.95,
+          "availability": 1.0,
+          "overall_score": 0.77,
+          "advantages": [
+            "Very low cost",
+            "Good acid/base resistance",
+            "Easy to weld/fabricate"
+          ],
+          "limitations": [
+            "Poor organic solvent resistance",
+            "Low max temperature (80C)",
+            "UV degradation"
+          ]
+        },
+        {
+          "name": "PEEK",
+          "use_case": "chemical_resistant_liner",
+          "performance_match": 0.8,
+          "processability": 0.4,
+          "cost_factor": 0.25,
+          "availability": 0.65,
+          "overall_score": 0.58,
+          "advantages": [
+            "Broad chemical resistance",
+            "High temperature",
+            "Excellent mechanical properties"
+          ],
+          "limitations": [
+            "Very expensive (5-10x PTFE)",
+            "Difficult to fabricate as liner"
+          ]
+        }
+      ],
+      "pfas_name": "Polytetrafluoroethylene",
+      "cas_number": "9002-84-0",
+      "bom": "Semiconductor Fab"
+    },
+    {
+      "material_name": "PFA",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Covered by universal PFAS restriction proposal"
+        }
+      ],
+      "replacements": [],
+      "pfas_name": "Perfluoroalkoxy alkane",
+      "cas_number": "26655-00-5",
+      "bom": "Semiconductor Fab"
+    }
+  ],
+  "clean_materials": [
+    "Si",
+    "GaAs",
+    "PEEK",
+    "Epoxy",
+    "Al2O3",
+    "SiO2",
+    "SiC",
+    "GaN"
+  ]
+}

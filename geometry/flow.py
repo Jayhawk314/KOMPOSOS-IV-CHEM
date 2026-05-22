@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
 Discrete Ricci Flow for Knowledge Graph Decomposition
 
@@ -90,17 +97,17 @@ class DiscreteRicciFlow:
     decomposes 3-manifolds into Thurston geometries.
     """
 
-    def __init__(self, category, alpha: float = 0.5):
+    def __init__(self, store, alpha: float = 0.5):
         """
         Initialize Ricci flow.
 
         Args:
-            category: Category with objects and morphisms
+            store: KomposOSStore with objects and morphisms
             alpha: Laziness parameter for curvature computation
         """
-        self.category = category
+        self.store = store
         self.alpha = alpha
-        self.curvature_computer = OllivierRicciCurvature(category, alpha=alpha)
+        self.curvature_computer = OllivierRicciCurvature(store, alpha=alpha)
         self._initialize_weights()
         self.flow_history = []
 
@@ -109,17 +116,17 @@ class DiscreteRicciFlow:
         self.weights = {}
         self.edges = set()
 
-        morphisms = self.category.morphisms()
+        morphisms = self.store.list_morphisms(limit=100000)
         for mor in morphisms:
-            edge = (mor.source, mor.target)
-            reverse_edge = (mor.target, mor.source)
+            edge = (mor.source_name, mor.target_name)
+            reverse_edge = (mor.target_name, mor.source_name)
 
             # Use confidence as initial weight, default 1.0
             weight = mor.confidence if mor.confidence else 1.0
 
             self.weights[edge] = weight
             self.weights[reverse_edge] = weight
-            self.edges.add(tuple(sorted([mor.source, mor.target])))
+            self.edges.add(tuple(sorted([mor.source_name, mor.target_name])))
 
         # Get all nodes
         self.nodes = set()
@@ -440,19 +447,19 @@ class DiscreteRicciFlow:
         return "\n".join(lines)
 
 
-def run_ricci_flow(category, max_steps: int = 50, dt: float = 0.1) -> DecompositionResult:
+def run_ricci_flow(store, max_steps: int = 50, dt: float = 0.1) -> DecompositionResult:
     """
-    Convenience function to run Ricci flow on a category.
+    Convenience function to run Ricci flow on a store.
 
     Args:
-        category: Category with objects and morphisms
+        store: KomposOSStore with objects and morphisms
         max_steps: Maximum flow steps
         dt: Time step size
 
     Returns:
         DecompositionResult with geometric regions
     """
-    flow = DiscreteRicciFlow(category)
+    flow = DiscreteRicciFlow(store)
     return flow.flow(max_steps=max_steps, dt=dt)
 
 

@@ -1,0 +1,147 @@
+functor,material_a,material_b,score,compatible,warnings
+battery_polymer,PVDF,NMC811,0.9815,True,
+battery_polymer,PVDF,LFP,0.9815,True,
+battery_polymer,SBR,Graphite,0.9815,True,
+battery_polymer,PTFE,LFP,0.9635,True,
+battery_polymer,PVDF,Graphite,0.9615,True,
+battery_polymer,PAN,LFP,0.9435,True,
+battery_polymer,PVDF,LCO,0.919,True,
+battery_polymer,PVDF,LTO,0.919,True,
+battery_polymer,PEO,Graphite,0.919,True,
+battery_polymer,PEO,LTO,0.919,True,
+battery_polymer,SBR,LFP,0.919,True,
+battery_polymer,SBR,LTO,0.919,True,
+battery_polymer,EPDM,Graphite,0.919,True,
+battery_polymer,EPDM,LTO,0.919,True,
+battery_polymer,CMC,LTO,0.907,True,
+battery_polymer,PTFE,NMC811,0.901,True,
+battery_polymer,PTFE,LCO,0.901,True,
+battery_polymer,PTFE,Graphite,0.901,True,
+battery_polymer,PTFE,LTO,0.901,True,
+battery_polymer,PTFE,LMO,0.901,True,
+battery_polymer,PAN,LTO,0.901,True,
+battery_polymer,PEEK,LTO,0.901,True,
+battery_polymer,PEO,Si,0.899,True,
+battery_polymer,PVDF,LMO,0.884,True,
+battery_polymer,SBR,LCO,0.884,True,
+battery_polymer,EPDM,LFP,0.884,True,
+battery_polymer,PAN,NMC811,0.881,True,
+battery_polymer,PEEK,Graphite,0.881,True,
+battery_polymer,PEO,LFP,0.8765,True,
+battery_polymer,PAN,LCO,0.866,True,
+ceramic_metal,ZrO2_YSZ,Ti6Al4V,0.866,True,
+battery_polymer,SBR,Si,0.859,True,
+battery_polymer,EPDM,Si,0.859,True,
+battery_polymer,CMC,LCO,0.852,True,
+battery_polymer,CMC,Graphite,0.8495,True,
+battery_polymer,CMC,LFP,0.847,True,
+battery_polymer,PAN,LMO,0.846,True,
+battery_polymer,PEEK,LFP,0.846,True,
+ceramic_metal,Al2O3,Ti6Al4V,0.844,True,
+battery_polymer,PAN,Graphite,0.841,True,
+ceramic_metal,TiN,Ti6Al4V,0.84,True,
+battery_metal,Al_foil,NMC811+LiPF6,0.835,True,
+battery_metal,Al_foil,LFP+LiPF6,0.835,True,
+battery_metal,Al_foil,LCO+LiPF6,0.835,True,
+battery_metal,Cu_foil,Graphite+LiPF6,0.835,True,
+battery_metal,Cu_foil,Si+LiPF6,0.835,True,
+ceramic_metal,ZrO2_YSZ,Inconel_718,0.8315,True,
+ceramic_metal,TiN,Inconel_718,0.8235,True,
+battery_metal,Cu_foil,Li_metal+LiPF6,0.815,True,
+battery_polymer,SBR,LMO,0.814,True,
+battery_polymer,EPDM,NMC811,0.814,True,
+battery_polymer,PEEK,NMC811,0.796,True,
+battery_polymer,PTFE,Si,0.781,True,
+ceramic_metal,Al2O3,Inconel_718,0.781,True,
+ceramic_metal,Si3N4,Ti6Al4V,0.763,True,
+battery_polymer,PVDF,Si,0.749,True,
+battery_polymer,EPDM,LCO,0.744,True,
+battery_polymer,CMC,LMO,0.742,True,
+battery_polymer,CMC,Si,0.737,True,
+battery_polymer,PEEK,LCO,0.726,True,
+battery_polymer,PAN,Si,0.722,True,
+battery_polymer,PEEK,Si,0.722,True,
+battery_metal,Cu_foil,Graphite+LiTFSI,0.715,True,
+battery_metal,Cu_foil,Si+LiTFSI,0.715,True,
+ceramic_metal,SiC,Ti6Al4V,0.711,True,
+battery_metal,Al_foil,Graphite+LiPF6,0.695,True,
+battery_metal,Al_foil,Graphite+LiTFSI,0.695,True,
+battery_metal,Al_foil,Si+LiPF6,0.695,True,
+battery_metal,Al_foil,Si+LiTFSI,0.695,True,
+ceramic_metal,Si3N4,Inconel_718,0.6935,True,
+ceramic_metal,Al2O3,SS_304,0.6855,True,
+ceramic_metal,ZrO2_YSZ,SS_304,0.6835,True,
+ceramic_metal,TiN,SS_304,0.6675,True,
+battery_polymer,EPDM,LMO,0.6565,True,
+ceramic_metal,SiC,Inconel_718,0.6475,True,
+battery_polymer,PEEK,LMO,0.6185,True,
+battery_metal,SS_304,Graphite+LiPF6,0.61,True,
+battery_metal,SS_304,Graphite+LiTFSI,0.61,True,
+battery_metal,SS_304,Si+LiPF6,0.61,True,
+battery_metal,SS_304,Si+LiTFSI,0.61,True,
+ceramic_metal,Si3N4,SS_304,0.5893,True,
+ceramic_metal,SiC,SS_304,0.5615,True,
+ceramic_metal,ZrO2_YSZ,Al_6061,0.4625,False,
+ceramic_metal,TiN,Al_6061,0.4625,False,
+battery_polymer,PEO,NMC811,0.35,False,Chemical veto: PEO is chemically incompatible with NMC811
+battery_polymer,PEO,LCO,0.35,False,Chemical veto: PEO is chemically incompatible with LCO
+battery_polymer,CMC,NMC811,0.35,False,Chemical veto: CMC is chemically incompatible with NMC811
+battery_polymer,SBR,NMC811,0.35,False,Chemical veto: SBR is chemically incompatible with NMC811
+battery_polymer,PEO,LMO,0.25,False,Voltage veto: PEO will decompose at LMO operating voltage
+battery_metal,Al_foil,NMC811+LiTFSI,0.25,False,Known bad combination: Al_foil+NMC811+LiTFSI; Electrochemical veto: Al_foil unstable at NMC811 operating voltage
+battery_metal,Al_foil,LFP+LiTFSI,0.25,False,Known bad combination: Al_foil+LFP+LiTFSI; Electrochemical veto: Al_foil unstable at LFP operating voltage
+battery_metal,Al_foil,LCO+LiTFSI,0.25,False,Electrochemical veto: Al_foil unstable at LCO operating voltage
+battery_metal,Al_foil,Li_metal+LiPF6,0.25,False,Electrochemical veto: Al_foil unstable at Li_metal operating voltage
+battery_metal,Al_foil,Li_metal+LiTFSI,0.25,False,Electrochemical veto: Al_foil unstable at Li_metal operating voltage
+battery_metal,Cu_foil,NMC811+LiPF6,0.25,False,Known bad combination: Cu_foil+NMC811+LiPF6; Electrochemical veto: Cu_foil unstable at NMC811 operating voltage
+battery_metal,Cu_foil,NMC811+LiTFSI,0.25,False,Electrochemical veto: Cu_foil unstable at NMC811 operating voltage
+battery_metal,Cu_foil,LFP+LiPF6,0.25,False,Known bad combination: Cu_foil+LFP+LiPF6; Electrochemical veto: Cu_foil unstable at LFP operating voltage
+battery_metal,Cu_foil,LFP+LiTFSI,0.25,False,Electrochemical veto: Cu_foil unstable at LFP operating voltage
+battery_metal,Cu_foil,LCO+LiPF6,0.25,False,Electrochemical veto: Cu_foil unstable at LCO operating voltage
+battery_metal,Cu_foil,LCO+LiTFSI,0.25,False,Electrochemical veto: Cu_foil unstable at LCO operating voltage
+battery_metal,Cu_foil,Li_metal+LiTFSI,0.25,False,Electrochemical veto: Cu_foil unstable at Li_metal operating voltage
+battery_metal,SS_304,NMC811+LiPF6,0.25,False,Electrochemical veto: SS_304 unstable at NMC811 operating voltage
+battery_metal,SS_304,NMC811+LiTFSI,0.25,False,Electrochemical veto: SS_304 unstable at NMC811 operating voltage
+battery_metal,SS_304,LFP+LiPF6,0.25,False,Electrochemical veto: SS_304 unstable at LFP operating voltage
+battery_metal,SS_304,LFP+LiTFSI,0.25,False,Electrochemical veto: SS_304 unstable at LFP operating voltage
+battery_metal,SS_304,LCO+LiPF6,0.25,False,Electrochemical veto: SS_304 unstable at LCO operating voltage
+battery_metal,SS_304,LCO+LiTFSI,0.25,False,Electrochemical veto: SS_304 unstable at LCO operating voltage
+battery_metal,SS_304,Li_metal+LiPF6,0.25,False,Electrochemical veto: SS_304 unstable at Li_metal operating voltage
+battery_metal,SS_304,Li_metal+LiTFSI,0.25,False,Electrochemical veto: SS_304 unstable at Li_metal operating voltage
+ceramic_metal,Al2O3,Al_6061,0.25,False,CTE veto: Al2O3 (8.1) vs Al_6061 (23.6) x10^-6/K
+ceramic_metal,SiC,Al_6061,0.25,False,CTE veto: SiC (4.0) vs Al_6061 (23.6) x10^-6/K
+ceramic_metal,Si3N4,Al_6061,0.25,False,CTE veto: Si3N4 (3.2) vs Al_6061 (23.6) x10^-6/K
+battery_metal,Ni_foil,NMC811+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,NMC811+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,LFP+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,LFP+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,LCO+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,LCO+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Graphite+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Graphite+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Si+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Si+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Li_metal+LiPF6,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ni_foil,Li_metal+LiTFSI,0.0,False,Unknown metal: Ni_foil
+battery_metal,Ti_pure,NMC811+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,NMC811+LiTFSI,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,LFP+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,LFP+LiTFSI,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,LCO+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,LCO+LiTFSI,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Graphite+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Graphite+LiTFSI,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Si+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Si+LiTFSI,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Li_metal+LiPF6,0.0,False,Unknown metal: Ti_pure
+battery_metal,Ti_pure,Li_metal+LiTFSI,0.0,False,Unknown metal: Ti_pure
+ceramic_metal,Al2O3,Cu_C11000,0.0,False,Unknown metal: Cu_C11000
+ceramic_metal,ZrO2_YSZ,Cu_C11000,0.0,False,Unknown metal: Cu_C11000
+ceramic_metal,TiN,Cu_C11000,0.0,False,Unknown metal: Cu_C11000
+ceramic_metal,SiC,Cu_C11000,0.0,False,Unknown metal: Cu_C11000
+ceramic_metal,Si3N4,Cu_C11000,0.0,False,Unknown metal: Cu_C11000
+ceramic_metal,BN,SS_304,0.0,False,Unknown ceramic: BN
+ceramic_metal,BN,Ti6Al4V,0.0,False,Unknown ceramic: BN
+ceramic_metal,BN,Inconel_718,0.0,False,Unknown ceramic: BN
+ceramic_metal,BN,Al_6061,0.0,False,Unknown ceramic: BN
+ceramic_metal,BN,Cu_C11000,0.0,False,Unknown ceramic: BN

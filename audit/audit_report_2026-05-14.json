@@ -1,0 +1,565 @@
+{
+  "audit_id": "AUDIT-2026-0514-0001",
+  "date": "2026-05-14",
+  "engine_version": "1.2.0",
+  "random_seed": 42,
+  "modules": {
+    "scientific_accuracy": {
+      "pairs_total": 30,
+      "pairs_evaluated": 29,
+      "pairs_skipped": 1,
+      "tp": 21,
+      "tn": 5,
+      "fp": 2,
+      "fn": 1,
+      "accuracy": 0.8966,
+      "precision": 0.913,
+      "recall": 0.9545,
+      "f1": 0.9333,
+      "pass": true,
+      "details": [
+        {
+          "id": 1,
+          "material_a": "NMC811",
+          "material_b": "LiPF6",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": null,
+          "predicted_compatible": null,
+          "expected_compatible": true,
+          "correct": null,
+          "verdict": "SKIP",
+          "error": "cannot import name 'InterfaceScore' from 'battery_bridge.interface_validator' (C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\battery_bridge\\interface_validator.py)"
+        },
+        {
+          "id": 2,
+          "material_a": "LMO",
+          "material_b": "EC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.8975,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 3,
+          "material_a": "LFP",
+          "material_b": "LiTFSI",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7975,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 4,
+          "material_a": "NMC811",
+          "material_b": "DMC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.9575,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 5,
+          "material_a": "Li_metal",
+          "material_b": "EC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.6875,
+          "predicted_compatible": false,
+          "expected_compatible": false,
+          "correct": true,
+          "verdict": "TN"
+        },
+        {
+          "id": 6,
+          "material_a": "LLZO",
+          "material_b": "Li_metal",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7444,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 7,
+          "material_a": "LCO",
+          "material_b": "DEC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.9575,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 8,
+          "material_a": "Si",
+          "material_b": "EC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.6095,
+          "predicted_compatible": false,
+          "expected_compatible": false,
+          "correct": true,
+          "verdict": "TN"
+        },
+        {
+          "id": 9,
+          "material_a": "Graphite",
+          "material_b": "LiPF6",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7775,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 10,
+          "material_a": "LGPS",
+          "material_b": "LCO",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.4475,
+          "predicted_compatible": false,
+          "expected_compatible": false,
+          "correct": true,
+          "verdict": "TN"
+        },
+        {
+          "id": 11,
+          "material_a": "NMC622",
+          "material_b": "EMC",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.9575,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 12,
+          "material_a": "LTO",
+          "material_b": "LiPF6",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7775,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 13,
+          "material_a": "NMC811",
+          "material_b": "LGPS",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.4475,
+          "predicted_compatible": false,
+          "expected_compatible": false,
+          "correct": true,
+          "verdict": "TN"
+        },
+        {
+          "id": 14,
+          "material_a": "LFP",
+          "material_b": "LLZO",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7994,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 15,
+          "material_a": "Li3PS4",
+          "material_b": "NMC811",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.59,
+          "predicted_compatible": true,
+          "expected_compatible": false,
+          "correct": false,
+          "verdict": "FP"
+        },
+        {
+          "id": 16,
+          "material_a": "NMC811",
+          "material_b": "Li_metal",
+          "domain": "battery",
+          "electrolyte": null,
+          "score": 0.7575,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 17,
+          "material_a": "Al2O3",
+          "material_b": "Ti6Al4V",
+          "domain": "ceramic-metal",
+          "electrolyte": null,
+          "score": 0.844,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 18,
+          "material_a": "SiC",
+          "material_b": "Al_6061",
+          "domain": "ceramic-metal",
+          "electrolyte": null,
+          "score": 0.445,
+          "predicted_compatible": false,
+          "expected_compatible": true,
+          "correct": false,
+          "verdict": "FN"
+        },
+        {
+          "id": 19,
+          "material_a": "ZrO2_YSZ",
+          "material_b": "SS_316",
+          "domain": "ceramic-metal",
+          "electrolyte": null,
+          "score": 0.771,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 20,
+          "material_a": "BN_hex",
+          "material_b": "Cu",
+          "domain": "ceramic-metal",
+          "electrolyte": null,
+          "score": 0.559,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 21,
+          "material_a": "Al2O3",
+          "material_b": "SiC",
+          "domain": "ceramic",
+          "electrolyte": null,
+          "score": 0.6199,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 22,
+          "material_a": "GaAs",
+          "material_b": "InP",
+          "domain": "semiconductor",
+          "electrolyte": null,
+          "score": 0.665,
+          "predicted_compatible": false,
+          "expected_compatible": false,
+          "correct": true,
+          "verdict": "TN"
+        },
+        {
+          "id": 23,
+          "material_a": "Si",
+          "material_b": "SiGe",
+          "domain": "semiconductor",
+          "electrolyte": null,
+          "score": 0.7675,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 24,
+          "material_a": "GaN",
+          "material_b": "AlN",
+          "domain": "semiconductor",
+          "electrolyte": null,
+          "score": 0.6135,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 25,
+          "material_a": "PVDF",
+          "material_b": "NMC811",
+          "domain": "battery-polymer",
+          "electrolyte": null,
+          "score": 0.9815,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 26,
+          "material_a": "Cu_foil",
+          "material_b": "Graphite",
+          "domain": "battery-metal",
+          "electrolyte": "LiPF6",
+          "score": 0.835,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 27,
+          "material_a": "Al_foil",
+          "material_b": "NMC811",
+          "domain": "battery-metal",
+          "electrolyte": "LiPF6",
+          "score": 0.835,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 28,
+          "material_a": "SodaLime_Float",
+          "material_b": "Boro_33",
+          "domain": "glass",
+          "electrolyte": null,
+          "score": 0.715,
+          "predicted_compatible": true,
+          "expected_compatible": false,
+          "correct": false,
+          "verdict": "FP"
+        },
+        {
+          "id": 29,
+          "material_a": "PC",
+          "material_b": "ABS",
+          "domain": "polymer",
+          "electrolyte": null,
+          "score": 0.8792,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        },
+        {
+          "id": 30,
+          "material_a": "PEO",
+          "material_b": "LFP",
+          "domain": "battery-polymer",
+          "electrolyte": null,
+          "score": 0.8765,
+          "predicted_compatible": true,
+          "expected_compatible": true,
+          "correct": true,
+          "verdict": "TP"
+        }
+      ]
+    },
+    "computational_integrity": {
+      "checks_total": 11,
+      "checks_passed": 11,
+      "pass": true,
+      "details": [
+        {
+          "check": "identity_exists",
+          "pass": true
+        },
+        {
+          "check": "composition_exists",
+          "pass": true
+        },
+        {
+          "check": "associativity",
+          "pass": true
+        },
+        {
+          "check": "zfc_bridge_runs",
+          "pass": true
+        },
+        {
+          "check": "zfc_valid_classification",
+          "pass": true
+        },
+        {
+          "check": "ds_mass_sums_to_1",
+          "pass": true
+        },
+        {
+          "check": "ds_masses_non_negative",
+          "pass": true
+        },
+        {
+          "check": "ds_conflict_bounded",
+          "pass": true
+        },
+        {
+          "check": "ds_commutativity",
+          "pass": true
+        },
+        {
+          "check": "structure_prediction",
+          "pass": true
+        },
+        {
+          "check": "formation_energy_reproducible",
+          "pass": true
+        }
+      ]
+    },
+    "data_provenance": {
+      "checks_total": 30,
+      "checks_passed": 30,
+      "pass_rate": 1.0,
+      "pass": true,
+      "details": [
+        {
+          "check": "battery_Na+_has_properties",
+          "pass": true
+        },
+        {
+          "check": "battery_NMC622_has_properties",
+          "pass": true
+        },
+        {
+          "check": "battery_LCO_has_properties",
+          "pass": true
+        },
+        {
+          "check": "battery_Si_has_properties",
+          "pass": true
+        },
+        {
+          "check": "battery_Li_metal_has_properties",
+          "pass": true
+        },
+        {
+          "check": "pfas_PTFE_cas",
+          "pass": true
+        },
+        {
+          "check": "pfas_PTFE_regulations",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFNA_cas",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFNA_regulations",
+          "pass": true
+        },
+        {
+          "check": "pfas_Fluorosilicone_cas",
+          "pass": true
+        },
+        {
+          "check": "pfas_Fluorosilicone_regulations",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFHxA_cas",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFHxA_regulations",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFDA_cas",
+          "pass": true
+        },
+        {
+          "check": "pfas_PFDA_regulations",
+          "pass": true
+        },
+        {
+          "check": "mol_CO2_cid",
+          "pass": true
+        },
+        {
+          "check": "mol_FEC_cid",
+          "pass": true
+        },
+        {
+          "check": "mol_Ti_isopropoxide_cid",
+          "pass": true
+        },
+        {
+          "check": "mol_DEC_cid",
+          "pass": true
+        },
+        {
+          "check": "mol_DMC_cid",
+          "pass": true
+        },
+        {
+          "check": "fe_LiNi0.8Mn0.1Co0.1O2",
+          "pass": true
+        },
+        {
+          "check": "fe_Li7La3Zr2O12",
+          "pass": true
+        },
+        {
+          "check": "fe_Li10GeP2S12",
+          "pass": true
+        },
+        {
+          "check": "fe_SiC",
+          "pass": true
+        },
+        {
+          "check": "fe_Fe",
+          "pass": true
+        },
+        {
+          "check": "ceramic_Al2O3_cte",
+          "pass": true
+        },
+        {
+          "check": "ceramic_Borosilicate_cte",
+          "pass": true
+        },
+        {
+          "check": "ceramic_BaTiO3_cte",
+          "pass": true
+        },
+        {
+          "check": "ceramic_Bioglass_cte",
+          "pass": true
+        },
+        {
+          "check": "ceramic_Hydroxyapatite_cte",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "overall_pass": true
+}

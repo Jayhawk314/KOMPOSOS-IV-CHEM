@@ -1,0 +1,6 @@
+id,problem
+demo_1,"Find the number of positive integers $n \le 1000$ that can be expressed as the difference of two squares of integers."
+demo_2,"A quadratic polynomial $x^2 - 5x + 6 = 0$ has two roots. What is the sum of the squares of these roots?"
+demo_3,"What is the smallest positive integer that is a perfect cube and is divisible by 12?"
+demo_4,"How many 3-digit positive integers have digits that are all different?"
+demo_5,"Let $a$ and $b$ be positive integers such that $ab + a + b = 524$ and $\gcd(a,b) = 1$. What is the value of $|a - b|$?"

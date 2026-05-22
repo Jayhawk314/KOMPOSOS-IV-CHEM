@@ -1,16 +1,26 @@
-"""
-KOMPOSOS-III Topology Engine
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
 
-Topological data analysis:
-- Persistent homology (H0, H1) for graph analysis
-- Temporal sheaves for event stream coherence
-- Persistent sheaves: sheaf cohomology over filtered complexes
+"""
+Topological Data Analysis Module
+
+Provides persistent homology and TDA tools for detecting:
+- Feedback loops (H₁ features)
+- Multi-variable cascades (H₂ features)
+- Regime transitions
+- Topological signatures of complex systems
 """
 
-from .persistent_sheaves import (
-    PersistentSheafComputer,
-    PersistentSheafDiagram,
-    FiberedPersistencePair,
-    CellularSheaf,
-    TemporalPersistentSheaf,
+from .persistence import (
+    PersistentHomologyAnalyzer,
+    analyze_persistence
 )
+
+# Backwards-compatible alias: several geometry modules import PersistenceComputer
+PersistenceComputer = PersistentHomologyAnalyzer
+
+__all__ = [
+    'PersistentHomologyAnalyzer',
+    'PersistenceComputer',
+    'analyze_persistence'
+]

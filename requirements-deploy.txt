@@ -1,0 +1,33 @@
+# KOMPOSOS-III-LAMBDA-max-3D-chem  - Deployment Requirements (Render free tier)
+# Excludes heavy deps (rdkit-pypi, pymatgen, mp-api) that need >512MB RAM to install
+# TODO: Re-add rdkit-pypi, mp-api, pymatgen when upgrading to Render paid tier
+#       This enables MOF Designer (page 8) and MP Explorer (page 6)
+# Python >=3.10
+
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+networkx>=3.0
+
+# Data & Storage
+aiosqlite>=0.19.0
+
+# HTTP
+aiohttp>=3.9.0
+
+# Web API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Web UI
+streamlit>=1.30.0
+
+# PDF report generation
+fpdf2>=2.7.0
+
+# Plotting
+matplotlib>=3.7.0
+
+# Testing (needed for CI, harmless in deploy)
+pytest>=7.0.0
+httpx>=0.25.0

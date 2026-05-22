@@ -440,6 +440,9 @@ _KNOWN_BAD_METAL_PAIRS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('Fe', 'Al'): (0.4, 'Moderate galvanic couple; Al corrodes near steel in wet environments'),
     ('Mg', 'Ni'): (0.7, 'Severe galvanic couple'),
     ('Ni', 'Mg'): (0.7, 'Severe galvanic couple'),
+    # Fe + Cu: galvanic couple per MIL-STD-889D (0.35V difference)
+    ('Fe', 'Cu'): (0.5, 'Galvanic corrosion; iron/steel corrodes near copper in wet environments'),
+    ('Cu', 'Fe'): (0.5, 'Galvanic corrosion; iron/steel corrodes near copper in wet environments'),
 }
 
 

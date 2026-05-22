@@ -1,0 +1,5 @@
+build-essential
+libxrender1
+libxext6
+libsm6
+libgomp1

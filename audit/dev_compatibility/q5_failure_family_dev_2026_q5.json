@@ -1,0 +1,70 @@
+{
+  "version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+  "created_at": "2026-05-21",
+  "frozen": false,
+  "description": "Non-blind development cases derived from Q5 external diagnostic miss families. Q5 is spent diagnostic evidence after this file is used.",
+  "selection_policy": "Q5 failure-family cases converted into explicit contextual development rows. Do not report these as fresh blind validation.",
+  "pairs": [
+    {
+      "id": 30401,
+      "material_a": "CMC",
+      "material_b": "LFP",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "expected_compatible": false,
+      "citation": "Bresser et al., Energy & Environmental Science 2018, binder selection by electrode chemistry",
+      "doi": "10.1039/C8EE00640G",
+      "evidence_basis": "CMC is primarily an anode-binder family and is not a default cathode-binder choice for LFP positive-electrode composites.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30402,
+      "material_a": "PAN",
+      "material_b": "PEO",
+      "domain": "polymer",
+      "processing_route": "melt_blend",
+      "expected_compatible": true,
+      "citation": "Utracki, Polymer Blends Handbook, Springer",
+      "manual_source": "Utracki, Polymer Blends Handbook, Springer",
+      "evidence_basis": "PEO and PAN are a known polymer-blend family in ion-conducting and high-polarity matrix applications.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30403,
+      "material_a": "ABS",
+      "material_b": "PTFE",
+      "domain": "polymer",
+      "processing_route": "melt_blend",
+      "expected_compatible": false,
+      "citation": "Hansen, Hansen Solubility Parameters: A User's Handbook, CRC Press",
+      "manual_source": "Hansen, Hansen Solubility Parameters: A User's Handbook, CRC Press",
+      "evidence_basis": "ABS and PTFE do not form a standard miscible engineering-polymer blend and require special formulation to obtain stable interfaces.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30404,
+      "material_a": "PA66",
+      "material_b": "POM",
+      "domain": "polymer",
+      "processing_route": "melt_blend",
+      "compatibilizer": "none",
+      "expected_compatible": false,
+      "citation": "PolymerDatabase.com, polymer blend compatibility and processing-window mismatch notes",
+      "url": "https://polymerdatabase.com/polymer%20physics/Polymer%20Compatibility.html",
+      "evidence_basis": "PA66 and POM have strong chemical and processing mismatch without compatibilization.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30405,
+      "material_a": "AlN",
+      "material_b": "TiN",
+      "domain": "ceramic",
+      "interface_type": "nitride_ceramic_composite",
+      "expected_compatible": true,
+      "citation": "Kingery, Bowen, and Uhlmann, Introduction to Ceramics, 2nd edition",
+      "isbn": "978-0471478607",
+      "evidence_basis": "Aluminum nitride and titanium nitride are compatible refractory nitride materials in coating, thermal-management, and hard-interface applications.",
+      "used_for_tuning": true
+    }
+  ]
+}

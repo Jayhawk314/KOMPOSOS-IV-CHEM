@@ -78,49 +78,18 @@ class ToposLogicStrategy(InferenceStrategy):
         Predict using intuitionistic logic.
 
         Strategy:
-        For Drug->Disease pairs (repurposing task):
-          - ONLY use pathway-based prediction (no direct edge lookup)
-          - This avoids data leakage: the "treats" edge IS the ground truth
-        For all other pairs:
-          - Full logic: direct edge, Heyting algebra, presheaf, pathway
+        1. Check if there's a direct morphism (classical truth)
+        2. If not, check the Heyting algebra for partial truth
+        3. If excluded middle fails for this claim, flag it
+        4. Use presheaf subobject classifier for multi-perspective truth
         """
         predictions = []
-
-        # Detect Drug->Disease pairs to avoid data leakage
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
-        is_repurposing_pair = (
-            source_obj and target_obj
-            and source_obj.type_name == "Drug"
-            and target_obj.type_name == "Disease"
-        )
-
-        if is_repurposing_pair:
-            # For Drug->Disease: ONLY pathway prediction (no leakage)
-            pathway_result = self._check_pathway_support(source, target)
-            if pathway_result:
-                predictions.append(Prediction(
-                    source=source,
-                    target=target,
-                    predicted_relation="pathway_supported",
-                    prediction_type=PredictionType.COMPOSED_MORPHISM,
-                    strategy_name=self.name,
-                    confidence=pathway_result["confidence"],
-                    reasoning=pathway_result["reason"],
-                    evidence={
-                        "truth_type": "pathway",
-                        "num_paths": pathway_result.get("num_paths", 0),
-                        "avg_path_confidence": pathway_result.get("avg_confidence", 0),
-                    },
-                ))
-            return predictions
-
-        # For non-repurposing pairs: full intuitionistic logic
         topos = self._get_topos_logic()
 
-        # Step 1: Check classical truth (direct edge)
+        # Step 1: Check classical truth
         direct = self._has_direct_edge(source, target)
         if direct:
+            # Classical truth holds
             predictions.append(Prediction(
                 source=source,
                 target=target,
@@ -131,6 +100,7 @@ class ToposLogicStrategy(InferenceStrategy):
                 reasoning=f"Direct morphism exists (confidence={direct.confidence:.2f})",
                 evidence={"truth_type": "classical"},
             ))
+            return predictions
 
         # Step 2: Check Heyting algebra for partial truth
         heyting_result = self._check_heyting(source, target, topos)
@@ -281,91 +251,6 @@ class ToposLogicStrategy(InferenceStrategy):
 
         except Exception:
             return None
-
-    def _check_pathway_support(
-        self, source: str, target: str
-    ) -> Dict[str, Any]:
-        """
-        For missing edges, check if pathways exist (Drug→Protein→Disease).
-
-        This provides pathway-based support for repurposing predictions.
-        """
-        # Type filtering: only for Drug→Disease
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
-
-        if not (source_obj and target_obj):
-            return None
-
-        if source_obj.type_name != "Drug" or target_obj.type_name != "Disease":
-            return None
-
-        # Find paths via proteins (up to 3 hops)
-        try:
-            paths = self.category.find_paths(source, target, max_length=4)
-            if not paths:
-                return None
-
-            # Use path weights directly (they're already calculated)
-            # Paths with 2 morphisms (Drug->Protein->Disease) are ideal
-            valid_paths = []
-            confidences = []
-
-            for path in paths:
-                # Path objects have a weight attribute (min confidence along path)
-                if hasattr(path, 'weight') and path.weight > 0:
-                    # Check if path goes through protein intermediates
-                    # Parse morphism_ids to get intermediate nodes
-                    if hasattr(path, 'morphism_ids') and len(path.morphism_ids) >= 2:
-                        # Extract intermediate node from morphism IDs
-                        # Format: "relation:source->target"
-                        first_mor = path.morphism_ids[0]
-                        if '->' in first_mor:
-                            intermediate = first_mor.split('->')[1]
-                            intermediate_obj = self.category.get(intermediate)
-
-                            # Check if intermediate is a protein
-                            protein_types = {
-                                "Receptor", "Signaling", "Transcription", "TumorSuppressor",
-                                "Apoptosis", "Oncogene", "DNARepair", "CellCycle", "Regulator",
-                                "Splicing", "Epigenetic", "Metabolic", "Structural", "Chaperone"
-                            }
-
-                            if intermediate_obj and intermediate_obj.type_name in protein_types:
-                                valid_paths.append(path)
-                                confidences.append(path.weight)
-
-            if not confidences:
-                return None
-
-            avg_confidence = sum(confidences) / len(confidences)
-            max_confidence = max(confidences)
-
-            # Scale cap by path count: more independent paths → higher ceiling
-            path_count_factor = 1.0 + 0.1 * min(len(valid_paths) - 1, 4)
-            final_confidence = min(0.85, avg_confidence * path_count_factor)
-
-            return {
-                "confidence": final_confidence,
-                "reason": (
-                    f"Found {len(valid_paths)} pathway(s) via proteins. "
-                    f"Average pathway confidence: {avg_confidence:.2f}"
-                ),
-                "num_paths": len(valid_paths),
-                "avg_confidence": avg_confidence,
-                "max_confidence": max_confidence,
-            }
-
-        except Exception as e:
-            # Silently fail
-            return None
-
-    def _get_edge(self, source: str, target: str):
-        """Get the morphism between source and target."""
-        for mor in self._get_morphisms():
-            if mor.source == source and mor.target == target:
-                return mor
-        return None
 
     def get_partial_knowledge_zones(self) -> List[Dict[str, Any]]:
         """

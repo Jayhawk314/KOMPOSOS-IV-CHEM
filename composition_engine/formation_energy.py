@@ -32,6 +32,7 @@ References:
 
 import math
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -127,11 +128,177 @@ KNOWN_EF: List[KnownFormationEnergy] = [
     KnownFormationEnergy("ZnO", "ZnO", -1.56, "mp-2133", "wurtzite"),
     KnownFormationEnergy("BaTiO3", "BaTiO3", -3.15, "mp-5020", "perovskite"),
 
+    # ── More semiconductors ───────────────────────────────────────────────
+    KnownFormationEnergy("InP", "InP", -0.30, "mp-20351", "zinc_blende"),
+    KnownFormationEnergy("InAs", "InAs", -0.28, "mp-20305", "zinc_blende"),
+    KnownFormationEnergy("InN", "InN", -0.24, "mp-22205", "wurtzite"),
+    KnownFormationEnergy("AlN", "AlN", -1.53, "mp-661", "wurtzite"),
+    KnownFormationEnergy("AlAs", "AlAs", -0.58, "mp-2172", "zinc_blende"),
+    KnownFormationEnergy("AlP", "AlP", -0.73, "mp-1550", "zinc_blende"),
+    KnownFormationEnergy("GaP", "GaP", -0.44, "mp-2490", "zinc_blende"),
+    KnownFormationEnergy("ZnS", "ZnS", -1.10, "mp-10695", "zinc_blende"),
+    KnownFormationEnergy("ZnSe", "ZnSe", -0.80, "mp-1190", "zinc_blende"),
+    KnownFormationEnergy("ZnTe", "ZnTe", -0.53, "mp-2176", "zinc_blende"),
+    KnownFormationEnergy("CdS", "CdS", -0.82, "mp-672", "wurtzite"),
+    KnownFormationEnergy("CdSe", "CdSe", -0.62, "mp-2691", "wurtzite"),
+    KnownFormationEnergy("CdTe", "CdTe", -0.38, "mp-406", "zinc_blende"),
+    KnownFormationEnergy("GaSb", "GaSb", -0.22, "mp-1156", "zinc_blende"),
+    KnownFormationEnergy("InSb", "InSb", -0.19, "mp-20012", "zinc_blende"),
+    KnownFormationEnergy("Ge_ref", "Ge", 0.0, "mp-32", "diamond"),
+
+    # ── Perovskites (solar, ferroelectric, dielectric) ────────────────────
+    KnownFormationEnergy("SrTiO3", "SrTiO3", -3.36, "mp-5229", "perovskite"),
+    KnownFormationEnergy("PbTiO3", "PbTiO3", -2.47, "mp-19845", "perovskite"),
+    KnownFormationEnergy("CaTiO3", "CaTiO3", -3.49, "mp-4019", "perovskite"),
+    KnownFormationEnergy("LaAlO3", "LaAlO3", -3.60, "mp-2920", "perovskite"),
+    KnownFormationEnergy("LaMnO3", "LaMnO3", -2.88, "mp-19386", "perovskite"),
+    KnownFormationEnergy("SrVO3", "SrVO3", -2.92, "mp-18717", "perovskite"),
+    KnownFormationEnergy("KNbO3", "KNbO3", -3.04, "mp-4342", "perovskite"),
+    KnownFormationEnergy("NaNbO3", "NaNbO3", -2.95, "mp-4514", "perovskite"),
+    KnownFormationEnergy("BiFeO3", "BiFeO3", -1.97, "mp-24932", "perovskite"),
+    KnownFormationEnergy("BaZrO3", "BaZrO3", -3.40, "mp-3834", "perovskite"),
+    KnownFormationEnergy("MAPbI3", "CH3NH3PbI3", -0.48, "computed", "perovskite"),
+
+    # ── More battery cathodes (Na-ion, high-entropy) ──────────────────────
+    KnownFormationEnergy("NaCoO2", "NaCoO2", -1.78, "mp-19484", "layered"),
+    KnownFormationEnergy("NaMnO2", "NaMnO2", -1.73, "mp-19224", "layered"),
+    KnownFormationEnergy("NaFeO2", "NaFeO2", -1.62, "mp-19359", "layered"),
+    KnownFormationEnergy("NaFePO4", "NaFePO4", -1.63, "mp-25408", "olivine"),
+    KnownFormationEnergy("Na3V2P3O12", "Na3V2P3O12", -2.05, "mp-25382", "NASICON"),
+    KnownFormationEnergy("LiVPO4F", "LiVPO4F", -2.12, "mp-770072", "tavorite"),
+    KnownFormationEnergy("Li2FeSiO4", "Li2FeSiO4", -2.25, "mp-756274", "silicate"),
+    KnownFormationEnergy("Li2MnSiO4", "Li2MnSiO4", -2.30, "mp-756342", "silicate"),
+
+    # ── More solid electrolytes ───────────────────────────────────────────
+    KnownFormationEnergy("Li3ClO", "Li3ClO", -1.85, "mp-985549", "antiperovskite"),
+    KnownFormationEnergy("Li6PS5Cl", "Li6PS5Cl", -0.88, "mp-985592", "argyrodite"),
+    KnownFormationEnergy("Na3PS4", "Na3PS4", -0.80, "mp-985588", "thiophosphate"),
+    KnownFormationEnergy("Li2S", "Li2S", -1.60, "mp-1153", "antifluorite"),
+
+    # ── Transition metal oxides (spinels, rutiles) ────────────────────────
+    KnownFormationEnergy("V2O5", "V2O5", -2.24, "mp-25279", "layered"),
+    KnownFormationEnergy("Cr2O3", "Cr2O3", -2.59, "mp-19399", "corundum"),
+    KnownFormationEnergy("Co3O4", "Co3O4", -1.36, "mp-18748", "spinel"),
+    KnownFormationEnergy("Mn3O4", "Mn3O4", -1.71, "mp-18759", "spinel"),
+    KnownFormationEnergy("Fe3O4", "Fe3O4", -1.75, "mp-19306", "spinel"),
+    KnownFormationEnergy("CuO", "CuO", -0.86, "mp-361", "monoclinic"),
+    KnownFormationEnergy("Cu2O", "Cu2O", -0.49, "mp-361", "cuprite"),
+    KnownFormationEnergy("WO3", "WO3", -2.38, "mp-19033", "monoclinic"),
+    KnownFormationEnergy("MoO3", "MoO3", -2.14, "mp-19418", "orthorhombic"),
+    KnownFormationEnergy("Nb2O5", "Nb2O5", -2.81, "mp-25447", "monoclinic"),
+    KnownFormationEnergy("Ta2O5", "Ta2O5", -2.72, "mp-24930", "orthorhombic"),
+    KnownFormationEnergy("SnO2", "SnO2", -1.92, "mp-856", "rutile"),
+    KnownFormationEnergy("In2O3", "In2O3", -2.10, "mp-22598", "bixbyite"),
+    KnownFormationEnergy("GeO2", "GeO2", -2.05, "mp-470", "rutile"),
+    KnownFormationEnergy("HfO2", "HfO2", -3.24, "mp-352", "monoclinic"),
+    KnownFormationEnergy("Y2O3", "Y2O3", -3.77, "mp-2652", "bixbyite"),
+    KnownFormationEnergy("CeO2", "CeO2", -3.28, "mp-20194", "fluorite"),
+    KnownFormationEnergy("Sc2O3", "Sc2O3", -3.84, "mp-3056", "bixbyite"),
+
+    # ── Nitrides ──────────────────────────────────────────────────────────
+    KnownFormationEnergy("Si3N4", "Si3N4", -1.53, "mp-1009077", "hexagonal"),
+    KnownFormationEnergy("BN_cubic", "BN", -1.38, "mp-1639", "zinc_blende"),
+    KnownFormationEnergy("TiN", "TiN", -1.63, "mp-492", "rock_salt"),
+    KnownFormationEnergy("VN", "VN", -1.17, "mp-2229", "rock_salt"),
+    KnownFormationEnergy("CrN", "CrN", -0.81, "mp-663", "rock_salt"),
+    KnownFormationEnergy("ZrN", "ZrN", -1.70, "mp-2280", "rock_salt"),
+    KnownFormationEnergy("HfN", "HfN", -1.73, "mp-1014057", "rock_salt"),
+    KnownFormationEnergy("NbN", "NbN", -1.30, "mp-2787", "rock_salt"),
+    KnownFormationEnergy("TaN", "TaN", -1.25, "mp-1183", "rock_salt"),
+    KnownFormationEnergy("Li3N", "Li3N", -0.62, "mp-2251", "hexagonal"),
+
+    # ── Carbides ──────────────────────────────────────────────────────────
+    KnownFormationEnergy("TiC", "TiC", -0.91, "mp-631", "rock_salt"),
+    KnownFormationEnergy("WC", "WC", -0.20, "mp-1824", "hexagonal"),
+    KnownFormationEnergy("ZrC", "ZrC", -0.96, "mp-1186", "rock_salt"),
+    KnownFormationEnergy("HfC", "HfC", -0.99, "mp-20723", "rock_salt"),
+    KnownFormationEnergy("NbC", "NbC", -0.69, "mp-21", "rock_salt"),
+    KnownFormationEnergy("TaC", "TaC", -0.72, "mp-1143", "rock_salt"),
+    KnownFormationEnergy("VC", "VC", -0.53, "mp-1043", "rock_salt"),
+    KnownFormationEnergy("Cr3C2", "Cr3C2", -0.35, "mp-5618", "orthorhombic"),
+    KnownFormationEnergy("Mo2C", "Mo2C", -0.15, "mp-1552", "hexagonal"),
+    KnownFormationEnergy("B4C", "B4C", -0.29, "mp-696", "rhombohedral"),
+    KnownFormationEnergy("Fe3C", "Fe3C", 0.04, "mp-510623", "orthorhombic"),
+
+    # ── Sulfides ──────────────────────────────────────────────────────────
+    KnownFormationEnergy("MoS2", "MoS2", -1.01, "mp-2815", "layered"),
+    KnownFormationEnergy("WS2", "WS2", -0.94, "mp-224", "layered"),
+    KnownFormationEnergy("FeS2", "FeS2", -0.53, "mp-1522", "pyrite"),
+    KnownFormationEnergy("Cu2S", "Cu2S", -0.29, "mp-619", "monoclinic"),
+    KnownFormationEnergy("BaS", "BaS", -2.22, "mp-1500", "rock_salt"),
+    KnownFormationEnergy("CaS", "CaS", -2.53, "mp-1672", "rock_salt"),
+    KnownFormationEnergy("MgS", "MgS", -1.62, "mp-1315", "rock_salt"),
+    KnownFormationEnergy("Na2S", "Na2S", -1.28, "mp-646", "antifluorite"),
+    KnownFormationEnergy("TiS2", "TiS2", -1.12, "mp-2508", "layered"),
+
+    # ── Fluorides / Halides ───────────────────────────────────────────────
+    KnownFormationEnergy("LiF", "LiF", -3.18, "mp-1138", "rock_salt"),
+    KnownFormationEnergy("NaF", "NaF", -2.96, "mp-682", "rock_salt"),
+    KnownFormationEnergy("KF", "KF", -2.81, "mp-570", "rock_salt"),
+    KnownFormationEnergy("LiCl", "LiCl", -2.12, "mp-1185", "rock_salt"),
+    KnownFormationEnergy("NaCl", "NaCl", -1.98, "mp-22862", "rock_salt"),
+    KnownFormationEnergy("CaF2", "CaF2", -4.14, "mp-2741", "fluorite"),
+    KnownFormationEnergy("BaF2", "BaF2", -3.65, "mp-981", "fluorite"),
+    KnownFormationEnergy("MgF2", "MgF2", -3.70, "mp-1249", "rutile"),
+    KnownFormationEnergy("AlF3", "AlF3", -3.47, "mp-468", "rhombohedral"),
+    KnownFormationEnergy("LaF3", "LaF3", -3.88, "mp-2275", "tysonite"),
+    KnownFormationEnergy("YF3", "YF3", -3.73, "mp-685", "orthorhombic"),
+
+    # ── Ceramics from bridge (LLZO already above) ─────────────────────────
+    KnownFormationEnergy("Mullite", "Al6Si2O13", -3.22, "mp-4881", "orthorhombic"),
+    KnownFormationEnergy("Spinel_MgAl2O4", "MgAl2O4", -3.33, "mp-3536", "spinel"),
+    KnownFormationEnergy("Cordierite", "Mg2Al4Si5O18", -3.18, "computed", "hexagonal"),
+    KnownFormationEnergy("YSZ", "Zr0.92Y0.08O1.96", -3.10, "computed", "fluorite"),
+    KnownFormationEnergy("Hydroxyapatite", "Ca5P3O13H", -3.05, "mp-12746", "hexagonal"),
+
+    # ── Metals and intermetallics ─────────────────────────────────────────
+    KnownFormationEnergy("NiAl", "NiAl", -0.64, "mp-1487", "bcc"),
+    KnownFormationEnergy("TiAl", "TiAl", -0.39, "mp-1953", "tetragonal"),
+    KnownFormationEnergy("FeAl", "FeAl", -0.26, "mp-2983", "bcc"),
+    KnownFormationEnergy("Fe3Al", "Fe3Al", -0.18, "mp-2199", "bcc"),
+    KnownFormationEnergy("Ni3Al", "Ni3Al", -0.44, "mp-2593", "fcc"),
+    KnownFormationEnergy("Cu3Au", "Cu3Au", -0.05, "mp-12104", "fcc"),
+    KnownFormationEnergy("FeCo", "FeCo", -0.04, "mp-2090", "bcc"),
+    KnownFormationEnergy("NiTi", "NiTi", -0.36, "mp-11530", "bcc"),
+
+    # ── Glass-forming oxides ──────────────────────────────────────────────
+    KnownFormationEnergy("B2O3", "B2O3", -2.61, "mp-306", "trigonal"),
+    KnownFormationEnergy("P2O5", "P2O5", -2.84, "mp-2452", "orthorhombic"),
+    KnownFormationEnergy("GeO2_glass", "GeO2", -2.05, "mp-470", "amorphous"),
+    KnownFormationEnergy("Na2O", "Na2O", -1.35, "mp-2352", "antifluorite"),
+    KnownFormationEnergy("K2O", "K2O", -1.18, "mp-971", "antifluorite"),
+    KnownFormationEnergy("SrO", "SrO", -3.08, "mp-2472", "rock_salt"),
+    KnownFormationEnergy("PbO", "PbO", -1.29, "mp-19922", "tetragonal"),
+
+    # ── Phosphates / NASICON / tavorite ───────────────────────────────────
+    KnownFormationEnergy("FePO4", "FePO4", -1.75, "mp-19169", "olivine"),
+    KnownFormationEnergy("MnPO4", "MnPO4", -1.78, "mp-18950", "olivine"),
+    KnownFormationEnergy("VPO4", "VPO4", -1.82, "mp-25358", "olivine"),
+    KnownFormationEnergy("AlPO4", "AlPO4", -3.12, "mp-4622", "quartz"),
+    KnownFormationEnergy("Ca3PO42", "Ca3P2O8", -3.28, "mp-3877", "monoclinic"),
+
     # ── Elements (Ef = 0 by definition) ─────────────────────────────────────
     KnownFormationEnergy("Li_ref", "Li", 0.0, "mp-135", "bcc"),
     KnownFormationEnergy("C_ref", "C6", 0.0, "mp-48", "graphite"),
     KnownFormationEnergy("Si_ref", "Si", 0.0, "mp-149", "diamond"),
     KnownFormationEnergy("Fe_ref", "Fe", 0.0, "mp-13", "bcc"),
+    KnownFormationEnergy("Al_ref", "Al", 0.0, "mp-134", "fcc"),
+    KnownFormationEnergy("Cu_ref", "Cu", 0.0, "mp-30", "fcc"),
+    KnownFormationEnergy("Ti_ref", "Ti", 0.0, "mp-46", "hcp"),
+    KnownFormationEnergy("Ni_ref", "Ni", 0.0, "mp-23", "fcc"),
+    KnownFormationEnergy("Zn_ref", "Zn", 0.0, "mp-79", "hcp"),
+    KnownFormationEnergy("Mg_ref", "Mg", 0.0, "mp-153", "hcp"),
+    KnownFormationEnergy("Na_ref", "Na", 0.0, "mp-127", "bcc"),
+    KnownFormationEnergy("K_ref", "K", 0.0, "mp-58", "bcc"),
+    KnownFormationEnergy("Ca_ref", "Ca", 0.0, "mp-45", "fcc"),
+    KnownFormationEnergy("W_ref", "W", 0.0, "mp-91", "bcc"),
+    KnownFormationEnergy("Mo_ref", "Mo", 0.0, "mp-129", "bcc"),
+    KnownFormationEnergy("Co_ref", "Co", 0.0, "mp-54", "hcp"),
+    KnownFormationEnergy("Mn_ref", "Mn", 0.0, "mp-35", "bcc"),
+    KnownFormationEnergy("V_ref", "V", 0.0, "mp-146", "bcc"),
+    KnownFormationEnergy("Cr_ref", "Cr", 0.0, "mp-90", "bcc"),
+    KnownFormationEnergy("Nb_ref", "Nb", 0.0, "mp-75", "bcc"),
+    KnownFormationEnergy("Ta_ref", "Ta", 0.0, "mp-50", "bcc"),
 ]
 
 
@@ -214,8 +381,12 @@ def _kapustinskii_estimate(comp: Dict[str, float]) -> Optional[float]:
     ef_per_atom = (u_lattice_kj / 96.485) / total_atoms
 
     # Empirical correction: Kapustinskii overestimates
-    # Calibrated against Materials Project data
-    ef_per_atom *= 0.35
+    # Calibrated against Materials Project data.
+    # Phosphates/polyanionic systems need higher factor (~0.5-0.6)
+    # than simple oxides (~0.3-0.4).
+    is_polyanionic = "P" in comp or "S" in comp or "N" in comp
+    correction = 0.50 if is_polyanionic else 0.35
+    ef_per_atom *= correction
 
     return ef_per_atom
 
@@ -491,23 +662,44 @@ def check_thermodynamic_constraints(
 # FORMATION ENERGY PREDICTOR
 # ═══════════════════════════════════════════════════════════════════════════
 
+from enum import Enum
+
+class UncertaintyTier(str, Enum):
+    """Qualitative levels of predictive evidence."""
+    EXACT_MATCH = "Categorical Ground Truth"   # Dist < 0.05 (Known material)
+    DENSE_INTERPOLATION = "Dense Interpolation"  # Dist < 0.2 (Close neighbors)
+    MODERATE_EXTRAPOLATION = "Moderate Extrapolation" # Dist < 0.5 (Logical analogs)
+    SPARSE_DISCOVERY = "Sparse Discovery"       # Dist >= 0.5 (Novel chemistry)
+    HEURISTIC_ESTIMATE = "Heuristic Estimate"   # Rule-based only
+
+
 @dataclass
 class FormationEnergyResult:
     """Complete formation energy prediction with confidence and constraints."""
     formula: str
     ef_per_atom: float              # Predicted eV/atom
+    error_estimate_eV: float        # Predicted uncertainty/error bar (eV/atom)
     confidence: float               # 0-1
     sources: Dict[str, float]       # source_name -> its estimate
     is_stable: bool                 # Ef < 0
     synthesizability_score: float   # 0-1, combined thermodynamic feasibility
     constraints: List[ThermodynamicConstraint]
     nearest_known: List[Tuple[str, float, float]]  # (name, distance, known_ef)
+    uncertainty_tier: UncertaintyTier = UncertaintyTier.HEURISTIC_ESTIMATE
+    chemistry_class: str = "unknown"
+    calibrated_intervals_eV: Dict[str, float] = field(default_factory=dict)
+    calibration_status: str = "not_calibrated"
 
     def to_dict(self) -> Dict:
         return {
             "formula": self.formula,
             "ef_per_atom_eV": self.ef_per_atom,
+            "error_estimate_eV": self.error_estimate_eV,
             "confidence": self.confidence,
+            "uncertainty_tier": self.uncertainty_tier.value,
+            "chemistry_class": self.chemistry_class,
+            "calibrated_intervals_eV": self.calibrated_intervals_eV,
+            "calibration_status": self.calibration_status,
             "sources": self.sources,
             "is_stable": self.is_stable,
             "synthesizability_score": self.synthesizability_score,
@@ -550,12 +742,28 @@ class FormationEnergyPredictor:
         print(result.synthesizability_score)  # ~ 0.82
     """
 
-    def __init__(self, k: int = 5):
+    def __init__(
+        self,
+        k: int = 5,
+        calibrate: bool = True,
+        use_mp_cache: bool = True,
+        external_calibration: bool = True,
+        calibration_model_path: Optional[Path] = None,
+    ):
         self.k = k
         self.known = list(KNOWN_EF)
         self._ef_index = None
         self._mp_entries = None
-        self._extend_with_mp()
+        self._external_calibration = external_calibration
+        self._calibration_model_path = calibration_model_path
+        # Calibration coefficients: calibrated_error = a * raw_error + b
+        self._cal_a = 1.0
+        self._cal_b = 0.0
+        self._calibrated = False
+        if use_mp_cache:
+            self._extend_with_mp()
+        if calibrate:
+            self._run_calibration()
 
     def _extend_with_mp(self):
         """Extend known formation energies with Materials Project data."""
@@ -601,31 +809,128 @@ class FormationEnergyPredictor:
             from .spatial_index import CompositionIndex
             self._ef_index = CompositionIndex(self.known)
 
-    def predict(self, formula: str) -> FormationEnergyResult:
-        """Predict formation energy for a chemical formula."""
+    def _run_calibration(self):
+        """
+        Leave-one-out calibration over base KNOWN_EF entries (not MP).
+
+        For each known Ef, predict it using the other entries, then compare
+        the raw error estimate to the actual prediction error. Fit a linear
+        mapping: calibrated_error = a * raw_error + b so that the predicted
+        uncertainty brackets actual errors ~68% of the time (1-sigma).
+        """
+        base_known = [e for e in self.known if not e.mp_id or e.mp_id.startswith("mp-")]
+        # Only calibrate on the curated 175 entries (those in KNOWN_EF list)
+        base_known = list(KNOWN_EF)
+        if len(base_known) < 10:
+            return
+
+        raw_errors = []
+        actual_errors = []
+
+        for i, held_out in enumerate(base_known):
+            # Build temporary predictor state without this entry
+            comp = parse_formula(held_out.formula)
+            query_vec = composition_vector(comp)
+            epsilon = 0.01
+
+            # Find k nearest neighbours EXCLUDING the held-out entry
+            distances = []
+            for j, entry in enumerate(base_known):
+                if j == i:
+                    continue
+                dist = float(np.linalg.norm(query_vec - entry.vector))
+                distances.append((entry, dist))
+            distances.sort(key=lambda x: x[1])
+            neighbours = distances[:self.k]
+
+            if not neighbours:
+                continue
+
+            # IDW prediction (same logic as _kan_predict)
+            weights = [1.0 / (d + epsilon) for _, d in neighbours]
+            total_w = sum(weights)
+            weights = [w / total_w for w in weights]
+            ef_pred = sum(e.ef_per_atom * w for (e, _), w in zip(neighbours, weights))
+
+            # Raw error estimate (same heuristic as _kan_predict)
+            min_dist = neighbours[0][1]
+            neighbor_vals = [e.ef_per_atom for e, _ in neighbours]
+            local_std = float(np.std(neighbor_vals)) if len(neighbor_vals) > 1 else 0.1
+            raw_err = 0.05 + (min_dist * 0.1) + (local_std * 0.5)
+
+            actual_err = abs(ef_pred - held_out.ef_per_atom)
+
+            raw_errors.append(raw_err)
+            actual_errors.append(actual_err)
+
+        if len(raw_errors) < 10:
+            return
+
+        # Fit linear calibration: actual_error ≈ a * raw_error + b
+        raw_arr = np.array(raw_errors)
+        act_arr = np.array(actual_errors)
+        # Least-squares fit
+        A = np.vstack([raw_arr, np.ones(len(raw_arr))]).T
+        result = np.linalg.lstsq(A, act_arr, rcond=None)
+        self._cal_a = float(result[0][0])
+        self._cal_b = float(result[0][1])
+        self._calibrated = True
+
+    def _calibrate_error(self, raw_error: float) -> float:
+        """Apply calibration to raw error estimate."""
+        if not self._calibrated:
+            return raw_error
+        calibrated = self._cal_a * raw_error + self._cal_b
+        return max(0.01, calibrated)  # Floor at 0.01 eV/atom
+
+    def predict(
+        self,
+        formula: str,
+        structure_type: Optional[str] = None,
+        exclude_formula: Optional[str] = None,
+    ) -> FormationEnergyResult:
+        """
+        Predict formation energy for a chemical formula.
+
+        Args:
+            formula: The chemical formula
+            structure_type: Optional structure type (layered, spinel, etc.)
+                to bias the Kan extension towards similar structures.
+            exclude_formula: Optional material name, formula, or MP ID to exclude
+                from the Kan neighborhood for leave-one-out validation.
+        """
         resolved = SHORTHAND_MAP.get(formula, formula)
         comp = parse_formula(resolved)
 
         # Step 1: Kan extension over known formation energies
-        kan_ef, kan_conf, nearest = self._kan_predict(comp)
+        # Now returns (ef, confidence, error_estimate, nearest)
+        kan_ef, kan_conf, kan_error, nearest = self._kan_predict(
+            comp, structure_type, exclude_formula=exclude_formula
+        )
 
         # Step 2: Rule-based estimates
         kap_ef = _kapustinskii_estimate(comp)
         en_ef = _electronegativity_estimate(comp)
 
-        # Step 3: Dempster-Shafer fusion
-        # When Kan extension has good data (high confidence from nearby DFT points),
-        # it should dominate. Rule-based estimates are fallbacks for when
-        # we're far from known DFT data.
-        ef_predicted, confidence = self._fuse(kan_ef, kan_conf, kap_ef, en_ef)
+        # 3. Dempster-Shafer fusion
+        # kan_error is min_dist based
+        min_dist = nearest[0][1] if nearest else 1.0
+        ef_predicted, confidence = self._fuse(kan_ef, kan_conf, kap_ef, en_ef, min_dist=min_dist)
 
-        # Step 4: ZFC thermodynamic constraints
-        constraints = check_thermodynamic_constraints(comp, ef_predicted, formula)
 
-        # Step 5: Synthesizability score
-        synth_score = self._compute_synthesizability(ef_predicted, confidence, constraints)
+        # Ensemble spread: disagreement between estimators as additional UQ signal
+        estimator_vals = [v for v in [kan_ef, kap_ef, en_ef] if v is not None]
+        ensemble_spread = (max(estimator_vals) - min(estimator_vals)) if len(estimator_vals) > 1 else 0.0
 
-        # Build sources dict
+        # Total uncertainty: combine Kan error with ensemble spread, then calibrate
+        # Rule estimators are useful far from DFT anchors, but they should not
+        # inflate uncertainty when the Kan source is an exact or near-exact DFT
+        # match. Use the same distance-ramp philosophy as _fuse().
+        rule_spread_weight = min(1.0, max(0.0, (min_dist - 0.05) / 0.50))
+        raw_error = kan_error * (1.1 - confidence) + 0.2 * ensemble_spread * rule_spread_weight
+        total_error = self._calibrate_error(raw_error)
+
+        # Build sources dict before external calibration can add its mean model.
         sources: Dict[str, float] = {}
         if kan_ef is not None:
             sources["kan_extension"] = kan_ef
@@ -634,10 +939,57 @@ class FormationEnergyPredictor:
         if en_ef is not None:
             sources["electronegativity"] = en_ef
 
+        chemistry_class = "unknown"
+        calibrated_intervals: Dict[str, float] = {}
+        calibration_status = "not_calibrated"
+        if self._external_calibration:
+            try:
+                from .phase16_calibration import classify_chemistry, load_calibration_model
+                chemistry_class = classify_chemistry(comp)
+                model = load_calibration_model(self._calibration_model_path)
+                if model is None:
+                    calibration_status = "phase16_model_missing"
+                else:
+                    calibrated_mean = model.predict_mean(comp)
+                    # The external mean model is strongest for sparse discovery
+                    # space. Dense local interpolation should preserve the
+                    # anchored Kan value, especially for tuned battery families.
+                    if calibrated_mean is not None and min_dist >= 0.5:
+                        ef_predicted = calibrated_mean
+                        sources["phase16_mean_model"] = calibrated_mean
+                    calibrated_intervals = model.intervals(total_error, chemistry_class)
+                    calibration_status = model.status_for(chemistry_class)
+            except Exception:
+                calibration_status = "phase16_model_error"
+
+        # Step 4: ZFC thermodynamic constraints
+        constraints = check_thermodynamic_constraints(comp, ef_predicted, formula)
+
+        # Step 5: Synthesizability score
+        synth_score = self._compute_synthesizability(ef_predicted, confidence, constraints)
+
+        # Determine uncertainty tier
+        tier = UncertaintyTier.HEURISTIC_ESTIMATE
+        if nearest:
+            min_dist = nearest[0][1]
+            if min_dist < 0.05:
+                tier = UncertaintyTier.EXACT_MATCH
+            elif min_dist < 0.2:
+                tier = UncertaintyTier.DENSE_INTERPOLATION
+            elif min_dist < 0.5:
+                tier = UncertaintyTier.MODERATE_EXTRAPOLATION
+            else:
+                tier = UncertaintyTier.SPARSE_DISCOVERY
+
         return FormationEnergyResult(
             formula=formula,
             ef_per_atom=ef_predicted,
+            error_estimate_eV=round(total_error, 4),
             confidence=confidence,
+            uncertainty_tier=tier,
+            chemistry_class=chemistry_class,
+            calibrated_intervals_eV=calibrated_intervals,
+            calibration_status=calibration_status,
             sources=sources,
             is_stable=ef_predicted < 0,
             synthesizability_score=synth_score,
@@ -645,25 +997,28 @@ class FormationEnergyPredictor:
             nearest_known=nearest,
         )
 
-    def _kan_predict(self, query_comp: Dict[str, float]
-                     ) -> Tuple[Optional[float], float, List[Tuple[str, float, float]]]:
+    def _kan_predict(self, query_comp: Dict[str, float],
+                     structure_type: Optional[str] = None,
+                     exclude_formula: Optional[str] = None
+                     ) -> Tuple[Optional[float], float, float, List[Tuple[str, float, float]]]:
         """
         Kan extension: inverse-distance-weighted colimit over known Ef values.
 
-        This is the categorical construction: the comma category consists of
-        k-nearest known compositions with DFT formation energies.
-        Uses KD-tree when available (154K+ entries).
+        Returns:
+            (ef_predicted, confidence, error_estimate, nearest_list)
         """
         query_vec = composition_vector(query_comp)
         epsilon = 0.01
 
         # Use spatial index if available (fast path for large datasets)
-        if self._ef_index is not None:
+        if self._ef_index is not None and not exclude_formula:
             neighbours = self._ef_index.nearest_k(query_vec, k=self.k)
         else:
-            # Linear scan fallback
+            # Linear scan fallback (or True LOO path)
             distances = []
             for entry in self.known:
+                if exclude_formula and exclude_formula in {entry.name, entry.formula, entry.mp_id}:
+                    continue
                 dist = float(np.linalg.norm(query_vec - entry.vector))
                 distances.append((entry, dist))
             distances.sort(key=lambda x: x[1])
@@ -674,27 +1029,53 @@ class FormationEnergyPredictor:
         ]
 
         if not neighbours:
-            return None, 0.0, nearest
+            return None, 0.0, 0.5, nearest
 
-        # IDW weights
-        weights = [1.0 / (d + epsilon) for _, d in neighbours]
+        # 1. IDW weights with structure bias
+        weights = []
+        for entry, dist in neighbours:
+            w = 1.0 / (dist + epsilon)
+            if structure_type and entry.structure_type == structure_type:
+                w *= 2.0
+            weights.append(w)
+
         total_w = sum(weights)
         weights = [w / total_w for w in weights]
 
-        # Weighted colimit
+        # 2. Weighted colimit (Prediction)
         ef_predicted = sum(e.ef_per_atom * w for (e, _), w in zip(neighbours, weights))
 
-        # Confidence from distance and contributor count
+        # 3. Local Density & Variance (Uncertainty Quantification)
+        # Epistemic: Distance to nearest neighbor
         min_dist = neighbours[0][1]
-        dist_factor = max(0.05, 1.0 - min_dist / 5.0)
-        n_factor = min(1.0, len(neighbours) / self.k)
-        confidence = 0.7 * dist_factor + 0.3 * n_factor
-        confidence = min(0.95, max(0.1, confidence))
 
-        return ef_predicted, confidence, nearest
+        # Aleatoric: Standard deviation among neighbors
+        neighbor_vals = [e.ef_per_atom for e, _ in neighbours]
+        local_std = float(np.std(neighbor_vals)) if len(neighbor_vals) > 1 else 0.1
+
+        # Total Error Estimate (eV/atom)
+        # Base floor 0.05 eV + penalty for distance + neighbor variance
+        error_estimate = 0.05 + (min_dist * 0.1) + (local_std * 0.5)
+
+        # 4. Confidence Score (0-1)
+        # Based on Kulik-style density reasoning:
+        # Low uncertainty (small dist, small variance) -> High confidence
+        dist_factor = max(0.0, 1.0 - min_dist / 2.0)
+        variance_factor = max(0.0, 1.0 - local_std / 1.0)
+        confidence = 0.5 * dist_factor + 0.5 * variance_factor
+
+        # Penalty for polymorph confusion (dist=0 but high variance)
+        # If we are at the exact composition but Ef is inconsistent among neighbors
+        if min_dist < 0.1 and local_std > 0.1:
+            confidence *= (1.0 - local_std)
+
+        confidence = min(0.95, max(0.05, confidence))
+
+        return ef_predicted, confidence, error_estimate, nearest
 
     def _fuse(self, kan_ef: Optional[float], kan_conf: float,
-              kap_ef: Optional[float], en_ef: Optional[float]
+              kap_ef: Optional[float], en_ef: Optional[float],
+              min_dist: float = 1.0
               ) -> Tuple[float, float]:
         """Dempster-Shafer fusion of multiple formation energy estimates."""
         estimates = []
@@ -731,7 +1112,10 @@ class FormationEnergyPredictor:
                     fused_conf = kan_conf
 
                 # Value: Kan dominates (90%+), small rule nudge
-                rule_weight = 0.05  # Rules only get 5% influence when Kan is good
+                # DE-WEIGHTING: If min_dist is very small (<0.1), rules get 0 weight
+                # Linear ramp from 0 to 0.05 between dist 0 and 0.2
+                rule_weight = 0.05 * min(1.0, max(0.0, (min_dist - 0.05) / 0.15))
+
                 fused_val = kan_ef * (1.0 - rule_weight) + rule_avg * rule_weight
                 return fused_val, min(0.95, max(0.1, fused_conf))
             else:
@@ -811,7 +1195,7 @@ if __name__ == "__main__":
     for f in formulas:
         result = fep.predict(f)
         status = "STABLE" if result.is_stable else "UNSTABLE"
-        print(f"\n{f}: Ef = {result.ef_per_atom:.3f} eV/atom  [{status}]"
+        print(f"\n{f}: Ef = {result.ef_per_atom:.3f} +/- {result.error_estimate_eV:.3f} eV/atom  [{status}]"
               f"  synth={result.synthesizability_score:.2f}  conf={result.confidence:.2f}")
         print(f"  Sources: {result.sources}")
         n_ok = sum(1 for c in result.constraints if c.satisfied)

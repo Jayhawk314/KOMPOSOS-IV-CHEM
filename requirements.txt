@@ -1,3 +1,40 @@
-streamlit>=1.30
-numpy>=1.24
-pandas>=1.5
+# KOMPOSOS-III Chemistry - Requirements
+# Python >=3.10
+
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+networkx>=3.0
+
+# Data & Storage
+aiosqlite>=0.19.0
+
+# HTTP
+aiohttp>=3.9.0
+
+# Web API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Web UI
+streamlit>=1.30.0
+
+# PDF report generation
+fpdf2>=2.7.0
+
+# Embeddings (optional -- only needed for Oracle semantic similarity strategy)
+# sentence-transformers>=2.2.0
+
+# Materials Project integration & MOF linker generation (LOCAL USE)
+# Required for: MP Explorer (page 6), MOF Designer (page 8), structure derivation
+# Note: rdkit-pypi is ~500MB -- excluded from requirements-deploy.txt (Render free tier)
+# TODO: Re-add to requirements-deploy.txt when upgrading to Render paid tier
+rdkit-pypi>=2023.9.1
+mp-api>=0.41.0
+pymatgen>=2024.1.26
+matplotlib>=3.7.0
+
+# Development & Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0

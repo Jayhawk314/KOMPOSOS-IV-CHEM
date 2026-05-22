@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - KOMPOSOS_API_KEYS=${KOMPOSOS_API_KEYS:-komposos-demo-key}
+      - KOMPOSOS_RATE_LIMIT=${KOMPOSOS_RATE_LIMIT:-120}
+      - KOMPOSOS_LOG_LEVEL=${KOMPOSOS_LOG_LEVEL:-INFO}
+      - KOMPOSOS_CORS_ORIGINS=${KOMPOSOS_CORS_ORIGINS:-*}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - KOMPOSOS_ADMIN_PASSWORD=${KOMPOSOS_ADMIN_PASSWORD:-komposos-admin}
+      - KOMPOSOS_VOUCHER_CODES=${KOMPOSOS_VOUCHER_CODES:-}
+      - KOMPOSOS_DEMO_LIMIT=${KOMPOSOS_DEMO_LIMIT:-3}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

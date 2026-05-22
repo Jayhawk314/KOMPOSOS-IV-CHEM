@@ -1,0 +1,5335 @@
+{
+  "version": "compatibility_calibration.2026_q4_dev.v1",
+  "created_at": "2026-05-21",
+  "registry_version": "dataset_registry.2026-05-21.v1",
+  "purpose": "Binned reliability calibration for compatibility scores using development and spent diagnostic data only.",
+  "method": "domain-specific binned reliability with global fallback",
+  "exclusion_policy": "Current-blind datasets and datasets with used_for_calibration=false are excluded. Q4 is diagnostic and is not used for calibration.",
+  "dedupe_identities": true,
+  "min_bin_count": 3,
+  "included_sources": [
+    {
+      "version": "external_blind.compatibility.2026_q2.v1",
+      "path": "audit\\external_blind\\compatibility_2026_q2.json",
+      "role": "spent_diagnostic",
+      "sha256": "13502e64980c9815f4533ec9d95d33df3d37ab44db6bb2d9cfcbd681b19ef503",
+      "registry_sha256": "13502e64980c9815f4533ec9d95d33df3d37ab44db6bb2d9cfcbd681b19ef503",
+      "pair_count": 30,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    },
+    {
+      "version": "external_blind.compatibility.2026_q3.v1",
+      "path": "audit\\external_blind\\compatibility_2026_q3.json",
+      "role": "spent_diagnostic",
+      "sha256": "6c4cdaf570f2a69ef3aea62e1d0bcdf516f1838ab2957ea9f9de8e48652ff032",
+      "registry_sha256": "6c4cdaf570f2a69ef3aea62e1d0bcdf516f1838ab2957ea9f9de8e48652ff032",
+      "pair_count": 36,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    },
+    {
+      "version": "dev_compatibility.contextual.2026_q2.v2",
+      "path": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "role": "development",
+      "sha256": "4996fe7b5e7f6b67ded02748e78b16ecb5c29a70fe6985dd032922f27e925de2",
+      "registry_sha256": "4996fe7b5e7f6b67ded02748e78b16ecb5c29a70fe6985dd032922f27e925de2",
+      "pair_count": 14,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    },
+    {
+      "version": "dev_compatibility.failure_families.2026_q2.v1",
+      "path": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "role": "development",
+      "sha256": "efadae678b59d4ecc0aec4cdf7bd2dd0294cd58930419e7ae691a6b7078944c2",
+      "registry_sha256": "efadae678b59d4ecc0aec4cdf7bd2dd0294cd58930419e7ae691a6b7078944c2",
+      "pair_count": 6,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    },
+    {
+      "version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "path": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "role": "development",
+      "sha256": "5630b8d265652e780c08947ec3e07938ebd8727e339578ecaebbe5f94c8a2cc3",
+      "registry_sha256": "5630b8d265652e780c08947ec3e07938ebd8727e339578ecaebbe5f94c8a2cc3",
+      "pair_count": 12,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    },
+    {
+      "version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+      "path": "audit\\dev_compatibility\\q4_failure_family_dev_2026_q4.json",
+      "role": "development",
+      "sha256": "592b20fe5ed72bb7e744191bb764795aaa6913a30b69d0e416348e5e46e6f195",
+      "registry_sha256": "592b20fe5ed72bb7e744191bb764795aaa6913a30b69d0e416348e5e46e6f195",
+      "pair_count": 4,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
+    }
+  ],
+  "excluded_sources": [
+    {
+      "version": "external_blind.compatibility.2026_q4.v1",
+      "path": "audit/external_blind/compatibility_2026_q4.json",
+      "role": "spent_diagnostic",
+      "reason": "current blind or not marked for calibration"
+    }
+  ],
+  "raw_pair_count": 102,
+  "raw_row_count": 102,
+  "calibration_row_count": 93,
+  "duplicate_identity_count": 9,
+  "metrics": {
+    "evaluated": 93,
+    "abstentions": 0,
+    "no_verdict": 0,
+    "coverage": 1.0,
+    "tp": 50,
+    "tn": 43,
+    "fp": 0,
+    "fn": 0,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "specificity": 1.0,
+    "negative_predictive_value": 1.0,
+    "f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "matthews_correlation_coefficient": 1.0,
+    "brier_score": 0.0813,
+    "expected_calibration_error": 0.2001,
+    "score_bins": [
+      {
+        "bin": "0.0-0.1",
+        "lower": 0.0,
+        "upper": 0.1,
+        "n": 0,
+        "mean_score": null,
+        "observed_positive_rate": null,
+        "accuracy": null,
+        "calibration_error": null
+      },
+      {
+        "bin": "0.1-0.2",
+        "lower": 0.1,
+        "upper": 0.2,
+        "n": 10,
+        "mean_score": 0.156,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.156
+      },
+      {
+        "bin": "0.2-0.3",
+        "lower": 0.2,
+        "upper": 0.3,
+        "n": 6,
+        "mean_score": 0.25,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.25
+      },
+      {
+        "bin": "0.3-0.4",
+        "lower": 0.3,
+        "upper": 0.4,
+        "n": 14,
+        "mean_score": 0.3481,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.3481
+      },
+      {
+        "bin": "0.4-0.5",
+        "lower": 0.4,
+        "upper": 0.5,
+        "n": 6,
+        "mean_score": 0.4547,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.4547
+      },
+      {
+        "bin": "0.5-0.6",
+        "lower": 0.5,
+        "upper": 0.6,
+        "n": 6,
+        "mean_score": 0.5399,
+        "observed_positive_rate": 0.1667,
+        "accuracy": 1.0,
+        "calibration_error": 0.3733
+      },
+      {
+        "bin": "0.6-0.7",
+        "lower": 0.6,
+        "upper": 0.7,
+        "n": 9,
+        "mean_score": 0.6466,
+        "observed_positive_rate": 0.7778,
+        "accuracy": 1.0,
+        "calibration_error": 0.1311
+      },
+      {
+        "bin": "0.7-0.8",
+        "lower": 0.7,
+        "upper": 0.8,
+        "n": 5,
+        "mean_score": 0.7356,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.2644
+      },
+      {
+        "bin": "0.8-0.9",
+        "lower": 0.8,
+        "upper": 0.9,
+        "n": 13,
+        "mean_score": 0.8599,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.1401
+      },
+      {
+        "bin": "0.9-1.0",
+        "lower": 0.9,
+        "upper": 1.0,
+        "n": 24,
+        "mean_score": 0.9424,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.0576
+      }
+    ]
+  },
+  "failure_memory": {
+    "dataset": "compatibility_calibration_2026_q4_dev",
+    "episode_count": 0,
+    "include_correct": false,
+    "pattern_counts": {},
+    "verdict_counts": {},
+    "decision_status_counts": {},
+    "delta_distribution": {},
+    "resolution_distribution": {},
+    "episodes": []
+  },
+  "global_calibrator": {
+    "method": "binned_reliability",
+    "num_bins": 10,
+    "min_bin_count": 3,
+    "global_positive_rate": 0.5376,
+    "bins": [
+      {
+        "bin": "0.0-0.1",
+        "lower": 0.0,
+        "upper": 0.1,
+        "n": 0,
+        "mean_score": null,
+        "observed_positive_rate": null,
+        "accuracy": null,
+        "calibration_error": null
+      },
+      {
+        "bin": "0.1-0.2",
+        "lower": 0.1,
+        "upper": 0.2,
+        "n": 10,
+        "mean_score": 0.156,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.156
+      },
+      {
+        "bin": "0.2-0.3",
+        "lower": 0.2,
+        "upper": 0.3,
+        "n": 6,
+        "mean_score": 0.25,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.25
+      },
+      {
+        "bin": "0.3-0.4",
+        "lower": 0.3,
+        "upper": 0.4,
+        "n": 14,
+        "mean_score": 0.3481,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.3481
+      },
+      {
+        "bin": "0.4-0.5",
+        "lower": 0.4,
+        "upper": 0.5,
+        "n": 6,
+        "mean_score": 0.4547,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.4547
+      },
+      {
+        "bin": "0.5-0.6",
+        "lower": 0.5,
+        "upper": 0.6,
+        "n": 6,
+        "mean_score": 0.5399,
+        "observed_positive_rate": 0.1667,
+        "accuracy": 1.0,
+        "calibration_error": 0.3733
+      },
+      {
+        "bin": "0.6-0.7",
+        "lower": 0.6,
+        "upper": 0.7,
+        "n": 9,
+        "mean_score": 0.6466,
+        "observed_positive_rate": 0.7778,
+        "accuracy": 1.0,
+        "calibration_error": 0.1311
+      },
+      {
+        "bin": "0.7-0.8",
+        "lower": 0.7,
+        "upper": 0.8,
+        "n": 5,
+        "mean_score": 0.7356,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.2644
+      },
+      {
+        "bin": "0.8-0.9",
+        "lower": 0.8,
+        "upper": 0.9,
+        "n": 13,
+        "mean_score": 0.8599,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.1401
+      },
+      {
+        "bin": "0.9-1.0",
+        "lower": 0.9,
+        "upper": 1.0,
+        "n": 24,
+        "mean_score": 0.9424,
+        "observed_positive_rate": 1.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.0576
+      }
+    ]
+  },
+  "domain_calibrators": {
+    "battery": {
+      "metrics": {
+        "evaluated": 1,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 0,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 0.0,
+        "balanced_accuracy": 0.5,
+        "matthews_correlation_coefficient": 0.0,
+        "brier_score": 0.2652,
+        "expected_calibration_error": 0.515,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.515,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.515
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.5,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.515,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.515
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      }
+    },
+    "battery-metal": {
+      "metrics": {
+        "evaluated": 21,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 9,
+        "tn": 12,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.0241,
+        "expected_calibration_error": 0.1432,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 9,
+            "mean_score": 0.1533,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1533
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 3,
+            "mean_score": 0.25,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.25
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8475,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1525
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 6,
+            "mean_score": 0.93,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.07
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.4286,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 9,
+            "mean_score": 0.1533,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1533
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 3,
+            "mean_score": 0.25,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.25
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8475,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1525
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 6,
+            "mean_score": 0.93,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.07
+          }
+        ]
+      }
+    },
+    "battery-polymer": {
+      "metrics": {
+        "evaluated": 19,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 13,
+        "tn": 6,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.0343,
+        "expected_calibration_error": 0.1471,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 3,
+            "mean_score": 0.25,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.25
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 3,
+            "mean_score": 0.35,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8707,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1293
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 10,
+            "mean_score": 0.9393,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0607
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.6842,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 3,
+            "mean_score": 0.25,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.25
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 3,
+            "mean_score": 0.35,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8707,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1293
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 10,
+            "mean_score": 0.9393,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0607
+          }
+        ]
+      }
+    },
+    "ceramic": {
+      "metrics": {
+        "evaluated": 13,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 6,
+        "tn": 7,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.1453,
+        "expected_calibration_error": 0.2876,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 1,
+            "mean_score": 0.18,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.18
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 3,
+            "mean_score": 0.3426,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3426
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.497,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.497
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.5337,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4663
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 3,
+            "mean_score": 0.618,
+            "observed_positive_rate": 0.3333,
+            "accuracy": 1.0,
+            "calibration_error": 0.2846
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 1,
+            "mean_score": 0.72,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.28
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8554,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1446
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.4615,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 1,
+            "mean_score": 0.18,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.18
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 3,
+            "mean_score": 0.3426,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3426
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.497,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.497
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.5337,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4663
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 3,
+            "mean_score": 0.618,
+            "observed_positive_rate": 0.3333,
+            "accuracy": 1.0,
+            "calibration_error": 0.2846
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 1,
+            "mean_score": 0.72,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.28
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8554,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1446
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      }
+    },
+    "glass": {
+      "metrics": {
+        "evaluated": 5,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 3,
+        "tn": 2,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.0757,
+        "expected_calibration_error": 0.2307,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 1,
+            "mean_score": 0.3461,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3461
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.404,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.404
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 1,
+            "mean_score": 0.7,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 2,
+            "mean_score": 0.9483,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0517
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.6,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 1,
+            "mean_score": 0.3461,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3461
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.404,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.404
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 1,
+            "mean_score": 0.7,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 2,
+            "mean_score": 0.9483,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0517
+          }
+        ]
+      }
+    },
+    "metal": {
+      "metrics": {
+        "evaluated": 11,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 7,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.1306,
+        "expected_calibration_error": 0.2761,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.4969,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4969
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 3,
+            "mean_score": 0.5613,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.5613
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 2,
+            "mean_score": 0.6579,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3421
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 5,
+            "mean_score": 0.9655,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0345
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.6364,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.4969,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4969
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 3,
+            "mean_score": 0.5613,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.5613
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 2,
+            "mean_score": 0.6579,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3421
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 5,
+            "mean_score": 0.9655,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0345
+          }
+        ]
+      }
+    },
+    "polymer": {
+      "metrics": {
+        "evaluated": 13,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 5,
+        "tn": 8,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.0986,
+        "expected_calibration_error": 0.2995,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 7,
+            "mean_score": 0.35,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.45,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.45
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 2,
+            "mean_score": 0.7189,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.2811
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8562,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1438
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.3846,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 7,
+            "mean_score": 0.35,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 1,
+            "mean_score": 0.45,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.45
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 2,
+            "mean_score": 0.7189,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.2811
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 3,
+            "mean_score": 0.8562,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1438
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          }
+        ]
+      }
+    },
+    "semiconductor": {
+      "metrics": {
+        "evaluated": 10,
+        "abstentions": 0,
+        "no_verdict": 0,
+        "coverage": 1.0,
+        "tp": 7,
+        "tn": 3,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "negative_predictive_value": 1.0,
+        "f1": 1.0,
+        "balanced_accuracy": 1.0,
+        "matthews_correlation_coefficient": 1.0,
+        "brier_score": 0.1151,
+        "expected_calibration_error": 0.3107,
+        "score_bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 2,
+            "mean_score": 0.4402,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4402
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.5069,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.5069
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 3,
+            "mean_score": 0.65,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 2,
+            "mean_score": 0.76,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.24
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 1,
+            "mean_score": 0.8895,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1105
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 1,
+            "mean_score": 0.921,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.079
+          }
+        ]
+      },
+      "calibrator": {
+        "method": "binned_reliability",
+        "num_bins": 10,
+        "min_bin_count": 3,
+        "global_positive_rate": 0.7,
+        "bins": [
+          {
+            "bin": "0.0-0.1",
+            "lower": 0.0,
+            "upper": 0.1,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.1-0.2",
+            "lower": 0.1,
+            "upper": 0.2,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.2-0.3",
+            "lower": 0.2,
+            "upper": 0.3,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.3-0.4",
+            "lower": 0.3,
+            "upper": 0.4,
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
+          },
+          {
+            "bin": "0.4-0.5",
+            "lower": 0.4,
+            "upper": 0.5,
+            "n": 2,
+            "mean_score": 0.4402,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.4402
+          },
+          {
+            "bin": "0.5-0.6",
+            "lower": 0.5,
+            "upper": 0.6,
+            "n": 1,
+            "mean_score": 0.5069,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.5069
+          },
+          {
+            "bin": "0.6-0.7",
+            "lower": 0.6,
+            "upper": 0.7,
+            "n": 3,
+            "mean_score": 0.65,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.35
+          },
+          {
+            "bin": "0.7-0.8",
+            "lower": 0.7,
+            "upper": 0.8,
+            "n": 2,
+            "mean_score": 0.76,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.24
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 1,
+            "mean_score": 0.8895,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1105
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 1,
+            "mean_score": 0.921,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.079
+          }
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": 9101,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery",
+      "material_a": "LATP",
+      "material_b": "Li_metal",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.515,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.515,
+        "predicted_compatible": false,
+        "confidence": 0.368,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9105,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "NMC622",
+      "electrolyte": "LiPF6",
+      "role": null,
+      "context": {
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9106,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "LCO",
+      "electrolyte": "LiTFSI",
+      "role": null,
+      "context": {
+        "electrolyte": "LiTFSI"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9107,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "LTO",
+      "electrolyte": "LiPF6",
+      "role": null,
+      "context": {
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9108,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "NMC622",
+      "electrolyte": "LiPF6",
+      "role": null,
+      "context": {
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.12,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.12,
+        "predicted_compatible": false,
+        "confidence": 0.806,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9109,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PVDF",
+      "material_b": "LCO",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.919,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.919,
+        "predicted_compatible": true,
+        "confidence": 0.8528,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9110,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PEO",
+      "material_b": "NMC622",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": [
+            "role",
+            "role_or_voltage_context"
+          ]
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9111,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "Si",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.8945,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8945,
+        "predicted_compatible": true,
+        "confidence": 0.8234,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9112,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PTFE",
+      "material_b": "NMC811",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.901,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.901,
+        "predicted_compatible": true,
+        "confidence": 0.8312,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9113,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PAN",
+      "material_b": "Graphite",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.841,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.841,
+        "predicted_compatible": true,
+        "confidence": 0.7592,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9114,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Ni_tab",
+      "material_b": "NMC622",
+      "electrolyte": "LiPF6",
+      "role": null,
+      "context": {
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.8425,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8425,
+        "predicted_compatible": true,
+        "confidence": 0.761,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9115,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "SS_316",
+      "material_b": "NMC811",
+      "electrolyte": "LiPF6",
+      "role": null,
+      "context": {
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": [
+            "role"
+          ]
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9116,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "SBR",
+      "material_b": "Si",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.9065,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9065,
+        "predicted_compatible": true,
+        "confidence": 0.8378,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9117,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "LCO",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": [
+            "role"
+          ]
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30011,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "HDPE",
+      "material_b": "PP",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.865,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.865,
+        "predicted_compatible": true,
+        "confidence": 0.788,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9123,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "PE",
+      "material_b": "PET",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": [
+            "compatibilizer"
+          ]
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9125,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "POM",
+      "material_b": "PVC",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9126,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "ABS",
+      "material_b": "PMMA",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.8653,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8653,
+        "predicted_compatible": true,
+        "confidence": 0.7883,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9127,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "PEEK",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.7375,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.7375,
+        "predicted_compatible": true,
+        "confidence": 0.6351,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9128,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "PS",
+      "material_b": "PE",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9132,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "metal",
+      "material_a": "Al",
+      "material_b": "Cu",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.5739,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.5739,
+        "predicted_compatible": false,
+        "confidence": 0.4387,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9134,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "metal",
+      "material_a": "Ti6Al4V",
+      "material_b": "CP_Ti_Gr2",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.9725,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9725,
+        "predicted_compatible": true,
+        "confidence": 0.917,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9135,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "metal",
+      "material_a": "Brass_C260",
+      "material_b": "Bronze_C510",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.9375,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9375,
+        "predicted_compatible": true,
+        "confidence": 0.875,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9136,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "metal",
+      "material_a": "Inconel_625",
+      "material_b": "Inconel_718",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.9725,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9725,
+        "predicted_compatible": true,
+        "confidence": 0.917,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9138,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "metal",
+      "material_a": "Al_2024",
+      "material_b": "Al_7075",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.9725,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9725,
+        "predicted_compatible": true,
+        "confidence": 0.917,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9142,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "SiO2",
+      "material_b": "Soda_Lime",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.5337,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.5337,
+        "predicted_compatible": true,
+        "confidence": 0.3904,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9145,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "LGPS",
+      "material_b": "Al2O3",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.3277,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.3277,
+        "predicted_compatible": false,
+        "confidence": 0.5567,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9146,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "B4C",
+      "material_b": "TiC",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.8625,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8625,
+        "predicted_compatible": true,
+        "confidence": 0.785,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9158,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "semiconductor",
+      "material_a": "CdTe",
+      "material_b": "ZnSe",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.651,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.651,
+        "predicted_compatible": true,
+        "confidence": 0.5312,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9162,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "glass",
+      "material_a": "ZBLAN",
+      "material_b": "FusedSilica",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.404,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.404,
+        "predicted_compatible": false,
+        "confidence": 0.4652,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9201,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "LFP",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9202,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "LMO",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9203,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "Si",
+      "electrolyte": "LiPF6",
+      "role": "anode_collector",
+      "context": {
+        "role": "anode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9204,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "LFP",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.12,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.12,
+        "predicted_compatible": false,
+        "confidence": 0.806,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9205,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "Graphite",
+      "electrolyte": "LiPF6",
+      "role": "anode_collector",
+      "context": {
+        "role": "anode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9206,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Ni_tab",
+      "material_b": "LFP",
+      "electrolyte": "LiPF6",
+      "role": "tab_connector",
+      "context": {
+        "role": "tab_connector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.8575,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8575,
+        "predicted_compatible": true,
+        "confidence": 0.779,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9207,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "NMC811",
+      "electrolyte": "LiTFSI",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiTFSI"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9208,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "LMO",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.12,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.12,
+        "predicted_compatible": false,
+        "confidence": 0.806,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9211,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "PVDF",
+      "material_b": "NMC622",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder",
+        "voltage_context": "high_voltage_cathode"
+      },
+      "score": 0.919,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.919,
+        "predicted_compatible": true,
+        "confidence": 0.8528,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9212,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "PVDF",
+      "material_b": "LFP",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder"
+      },
+      "score": 0.9815,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9815,
+        "predicted_compatible": true,
+        "confidence": 0.9278,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9213,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "LTO",
+      "electrolyte": null,
+      "role": "anode_binder",
+      "context": {
+        "role": "anode_binder"
+      },
+      "score": 0.9445,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9445,
+        "predicted_compatible": true,
+        "confidence": 0.8834,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9214,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "SBR",
+      "material_b": "LTO",
+      "electrolyte": null,
+      "role": "anode_binder",
+      "context": {
+        "role": "anode_binder"
+      },
+      "score": 0.9565,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9565,
+        "predicted_compatible": true,
+        "confidence": 0.8978,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9215,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "PEO",
+      "material_b": "LCO",
+      "electrolyte": null,
+      "role": "polymer_electrolyte",
+      "context": {
+        "role": "polymer_electrolyte",
+        "voltage_context": "high_voltage_cathode"
+      },
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9216,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "NMC811",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder",
+        "voltage_context": "high_voltage_cathode"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9217,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "battery-polymer",
+      "material_a": "PTFE",
+      "material_b": "LFP",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder"
+      },
+      "score": 0.9635,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9635,
+        "predicted_compatible": true,
+        "confidence": 0.9062,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9221,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "ABS",
+      "material_b": "PVC",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend"
+      },
+      "score": 0.8384,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8384,
+        "predicted_compatible": true,
+        "confidence": 0.7561,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30205,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PPS",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "filled_compound"
+      },
+      "score": 0.7003,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.7003,
+        "predicted_compatible": true,
+        "confidence": 0.5904,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30201,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PA6",
+      "material_b": "ABS",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30203,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PVC",
+      "material_b": "PA6",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.45,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.45,
+        "predicted_compatible": false,
+        "confidence": 0.41,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30204,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "Epoxy",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "adhesive_contact"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30221,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "metal",
+      "material_a": "SS_304",
+      "material_b": "Steel_1018",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "mechanical_joining",
+        "environment": "indoor"
+      },
+      "score": 0.6585,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.6585,
+        "predicted_compatible": true,
+        "confidence": 0.5403,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9232,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "metal",
+      "material_a": "Al_5052",
+      "material_b": "Al_6061",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "mechanical_joining"
+      },
+      "score": 0.9725,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9725,
+        "predicted_compatible": true,
+        "confidence": 0.917,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9233,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "metal",
+      "material_a": "Mg",
+      "material_b": "Al_7075",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "environment": "conductive_moisture"
+      },
+      "score": 0.5949,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.5949,
+        "predicted_compatible": false,
+        "confidence": 0.4639,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30223,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "metal",
+      "material_a": "Al_7075",
+      "material_b": "SS_304",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "environment": "conductive_moisture"
+      },
+      "score": 0.4969,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.4969,
+        "predicted_compatible": false,
+        "confidence": 0.3537,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9235,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "metal",
+      "material_a": "Al_2024",
+      "material_b": "Cu",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "environment": "conductive_moisture"
+      },
+      "score": 0.5152,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.5152,
+        "predicted_compatible": false,
+        "confidence": 0.3683,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9241,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "SiC",
+      "material_b": "TiC",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "carbide_composite"
+      },
+      "score": 0.835,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.835,
+        "predicted_compatible": true,
+        "confidence": 0.752,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9242,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "ZrO2_PSZ",
+      "material_b": "Al2O3",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "oxide_composite"
+      },
+      "score": 0.8688,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8688,
+        "predicted_compatible": true,
+        "confidence": 0.7925,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9243,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "BaTiO3",
+      "material_b": "AlN",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "oxide_nitride_dielectric_mismatch"
+      },
+      "score": 0.6244,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.6244,
+        "predicted_compatible": false,
+        "confidence": 0.4992,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30211,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "BN_hex",
+      "material_b": "SiO2",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "nitride_oxide_mismatch"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9251,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "AlAs",
+      "material_b": "AlGaAs",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "iii_v_lattice_matched"
+      },
+      "score": 0.8895,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8895,
+        "predicted_compatible": true,
+        "confidence": 0.8174,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9252,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "AlN",
+      "material_b": "SiC_4H",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "wide_bandgap_epitaxy"
+      },
+      "score": 0.76,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.76,
+        "predicted_compatible": true,
+        "confidence": 0.662,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30231,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "InAs",
+      "material_b": "InP",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "iii_v_buffered_heterostructure"
+      },
+      "score": 0.696,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.696,
+        "predicted_compatible": true,
+        "confidence": 0.5852,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9254,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "ZnO",
+      "material_b": "ZnSe",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "ii_vi_structure_mismatch"
+      },
+      "score": 0.4169,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.4169,
+        "predicted_compatible": false,
+        "confidence": 0.4497,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9261,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "glass",
+      "material_a": "BK7",
+      "material_b": "LAK9",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "optical_glass_assembly"
+      },
+      "score": 0.945,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.945,
+        "predicted_compatible": true,
+        "confidence": 0.884,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9262,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "glass",
+      "material_a": "SodaLime_Container",
+      "material_b": "SodaLime_Tempered",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "same_family_soda_lime"
+      },
+      "score": 0.9515,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9515,
+        "predicted_compatible": true,
+        "confidence": 0.8918,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9263,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "glass",
+      "material_a": "As2S3",
+      "material_b": "BK7",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "chalcogenide_silicate_mismatch"
+      },
+      "score": 0.3461,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.3461,
+        "predicted_compatible": false,
+        "confidence": 0.5347,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30001,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "NMC111",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.93,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.93,
+        "predicted_compatible": true,
+        "confidence": 0.866,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30002,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "LMO",
+      "electrolyte": "LiTFSI",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiTFSI"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30003,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Ni_tab",
+      "material_b": "LCO",
+      "electrolyte": "LiPF6",
+      "role": "tab_connector",
+      "context": {
+        "role": "tab_connector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.8425,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8425,
+        "predicted_compatible": true,
+        "confidence": 0.761,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30004,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Cu_foil",
+      "material_b": "LCO",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.12,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.12,
+        "predicted_compatible": false,
+        "confidence": 0.806,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30005,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PEO",
+      "material_b": "NMC111",
+      "electrolyte": null,
+      "role": "polymer_electrolyte",
+      "context": {
+        "role": "polymer_electrolyte",
+        "voltage_context": "high_voltage_cathode"
+      },
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30006,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "PEO",
+      "material_b": "LFP",
+      "electrolyte": null,
+      "role": "polymer_electrolyte",
+      "context": {
+        "role": "polymer_electrolyte"
+      },
+      "score": 0.8765,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.8765,
+        "predicted_compatible": true,
+        "confidence": 0.8018,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30007,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "LMO",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder",
+        "voltage_context": "high_voltage_cathode"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30008,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "SBR",
+      "material_b": "Graphite",
+      "electrolyte": null,
+      "role": "anode_binder",
+      "context": {
+        "role": "anode_binder"
+      },
+      "score": 0.9815,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9815,
+        "predicted_compatible": true,
+        "confidence": 0.9278,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30009,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "Graphite",
+      "electrolyte": null,
+      "role": "anode_binder",
+      "context": {
+        "role": "anode_binder"
+      },
+      "score": 0.9195,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.9195,
+        "predicted_compatible": true,
+        "confidence": 0.8534,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30010,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "HDPE",
+      "material_b": "PET",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "compatibilizer": false
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30012,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "SS_316",
+      "material_b": "NMC111",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30013,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "Al_foil",
+      "material_b": "Si",
+      "electrolyte": "LiPF6",
+      "role": "anode_collector",
+      "context": {
+        "role": "anode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30014,
+      "dataset_version": "dev_compatibility.contextual.2026_q2.v2",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
+      "domain": "battery-metal",
+      "material_a": "SS_304",
+      "material_b": "LCO",
+      "electrolyte": "LiPF6",
+      "role": "cathode_collector",
+      "context": {
+        "role": "cathode_collector",
+        "electrolyte": "LiPF6"
+      },
+      "score": 0.25,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.25,
+        "predicted_compatible": false,
+        "confidence": 0.65,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30101,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "SiO2",
+      "material_b": "Borosilicate",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "silica_network_family"
+      },
+      "score": 0.6237,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.6237,
+        "predicted_compatible": true,
+        "confidence": 0.4984,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30102,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "SiO2",
+      "material_b": "MgO",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "oxide_ceramic_reactive_pair"
+      },
+      "score": 0.497,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.497,
+        "predicted_compatible": false,
+        "confidence": 0.3536,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30103,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "ceramic",
+      "material_a": "Borosilicate",
+      "material_b": "Soda_Lime",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "silica_network_family_with_cte_warning"
+      },
+      "score": 0.6058,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.6058,
+        "predicted_compatible": false,
+        "confidence": 0.4769,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30111,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "semiconductor",
+      "material_a": "HgCdTe",
+      "material_b": "CdTe",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "ii_vi_buffered_optoelectronic"
+      },
+      "score": 0.921,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.921,
+        "predicted_compatible": true,
+        "confidence": 0.8552,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30112,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "semiconductor",
+      "material_a": "ZnSe",
+      "material_b": "HgCdTe",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "ii_vi_buffered_optoelectronic"
+      },
+      "score": 0.603,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.603,
+        "predicted_compatible": true,
+        "confidence": 0.4736,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30113,
+      "dataset_version": "dev_compatibility.failure_families.2026_q2.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\failure_family_dev_2026_q2.json",
+      "domain": "semiconductor",
+      "material_a": "CdTe",
+      "material_b": "ZnO",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "ii_vi_structure_mismatch"
+      },
+      "score": 0.5069,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.5069,
+        "predicted_compatible": false,
+        "confidence": 0.3583,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30202,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PA66",
+      "material_b": "ABS",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30212,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "BN_hex",
+      "material_b": "Borosilicate",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "nitride_glass_mismatch"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30222,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "metal",
+      "material_a": "SS_316",
+      "material_b": "Steel_4140",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "mechanical_joining",
+        "environment": "indoor"
+      },
+      "score": 0.6573,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.6573,
+        "predicted_compatible": true,
+        "confidence": 0.5388,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30232,
+      "dataset_version": "dev_compatibility.q3_failure_families.2026_q3.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q3_failure_family_dev_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "InAs",
+      "material_b": "GaP",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "iii_v_extreme_lattice_mismatch"
+      },
+      "score": 0.4635,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.4635,
+        "predicted_compatible": false,
+        "confidence": 0.3938,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30301,
+      "dataset_version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q4_failure_family_dev_2026_q4.json",
+      "domain": "ceramic",
+      "material_a": "LLZO",
+      "material_b": "Li3PS4",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "oxide_sulfide_solid_electrolyte"
+      },
+      "score": 0.18,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.18,
+        "predicted_compatible": false,
+        "confidence": 0.734,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30302,
+      "dataset_version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q4_failure_family_dev_2026_q4.json",
+      "domain": "ceramic",
+      "material_a": "PZT",
+      "material_b": "Al2O3",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "piezoelectric_ceramic_substrate"
+      },
+      "score": 0.72,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.72,
+        "predicted_compatible": true,
+        "confidence": 0.614,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30303,
+      "dataset_version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q4_failure_family_dev_2026_q4.json",
+      "domain": "semiconductor",
+      "material_a": "GaN",
+      "material_b": "SiC_6H",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "wide_bandgap_epitaxy"
+      },
+      "score": 0.76,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.76,
+        "predicted_compatible": true,
+        "confidence": 0.662,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30304,
+      "dataset_version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q4_failure_family_dev_2026_q4.json",
+      "domain": "glass",
+      "material_a": "BK7",
+      "material_b": "FusedSilica",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "optical_glass_assembly"
+      },
+      "score": 0.7,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.7,
+        "predicted_compatible": true,
+        "confidence": 0.59,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    }
+  ],
+  "duplicate_rows_excluded": [
+    {
+      "id": 9121,
+      "dataset_version": "external_blind.compatibility.2026_q2.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q2.json",
+      "domain": "polymer",
+      "material_a": "HDPE",
+      "material_b": "PP",
+      "electrolyte": null,
+      "role": null,
+      "context": {},
+      "score": 0.865,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.865,
+        "predicted_compatible": true,
+        "confidence": 0.788,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9223,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PA6",
+      "material_b": "ABS",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9224,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PVC",
+      "material_b": "PA6",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.45,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.45,
+        "predicted_compatible": false,
+        "confidence": 0.41,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9225,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "Epoxy",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "adhesive_contact"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9222,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "polymer",
+      "material_a": "PPS",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "filled_compound"
+      },
+      "score": 0.7003,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.7003,
+        "predicted_compatible": true,
+        "confidence": 0.5904,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9244,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "ceramic",
+      "material_a": "BN_hex",
+      "material_b": "SiO2",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "nitride_oxide_mismatch"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9231,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "metal",
+      "material_a": "SS_304",
+      "material_b": "Steel_1018",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "mechanical_joining"
+      },
+      "score": 0.6585,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.6585,
+        "predicted_compatible": true,
+        "confidence": 0.5403,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 9234,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "metal",
+      "material_a": "Al_7075",
+      "material_b": "SS_304",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "environment": "conductive_moisture"
+      },
+      "score": 0.4969,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.4969,
+        "predicted_compatible": false,
+        "confidence": 0.3537,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 9253,
+      "dataset_version": "external_blind.compatibility.2026_q3.v1",
+      "dataset_role": "spent_diagnostic",
+      "source": "audit\\external_blind\\compatibility_2026_q3.json",
+      "domain": "semiconductor",
+      "material_a": "InAs",
+      "material_b": "InP",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "iii_v_heterostructure"
+      },
+      "score": 0.696,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.696,
+        "predicted_compatible": true,
+        "confidence": 0.5852,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    }
+  ]
+}

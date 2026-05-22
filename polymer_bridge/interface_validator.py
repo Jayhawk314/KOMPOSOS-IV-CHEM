@@ -74,10 +74,10 @@ class PolymerInterfaceScore:
 @dataclass
 class PolymerWeights:
     """Configurable weights for the five scoring components."""
-    solubility: float = 0.30
+    solubility: float = 0.35  # Increased from 0.30 to penalize immiscibility more
     thermal: float = 0.20
     mechanical: float = 0.20
-    chemical_resistance: float = 0.15
+    chemical_resistance: float = 0.10  # Reduced from 0.15
     aging: float = 0.15
 
     def validate(self):
@@ -240,6 +240,26 @@ class PolymerInterfaceValidator:
             'polymer_b': material_b.abbreviation,
         }
 
+        # Veto check: High Flory-Huggins χ indicates immiscibility (phase separation)
+        # Critical χ ≈ 0.04 for many polymer pairs (Krause 1972, Nishi & Wang 1975)
+        is_viable = total >= self.viability_threshold
+        chi = None
+        if material_b.abbreviation in material_a.chi_parameters:
+            chi = material_a.chi_parameters[material_b.abbreviation]
+        elif material_a.abbreviation in material_b.chi_parameters:
+            chi = material_b.chi_parameters[material_a.abbreviation]
+
+        if chi is not None and chi > 0.15:
+            # Chi > 0.15 = strong immiscibility guarantee
+            is_viable = False
+            total = min(total, 0.35)
+            all_details['veto'] = f'Immiscible blend (chi={chi:.3f} >> critical): phase separation expected'
+        elif chi is not None and chi >= 0.04 and scores['solubility'] < 0.4:
+            # Chi >= 0.04 plus low solubility score = incompatible
+            is_viable = False
+            total = min(total, 0.45)
+            all_details['veto'] = f'Immiscible blend (chi={chi:.3f} >= critical 0.04): phase-separated system'
+
         return PolymerInterfaceScore(
             total=total,
             solubility_compatibility=scores['solubility'],
@@ -247,7 +267,7 @@ class PolymerInterfaceValidator:
             mechanical_compatibility=scores['mechanical'],
             chemical_resistance=scores['chemical_resistance'],
             aging_penalty=scores['aging'],
-            viable=total >= self.viability_threshold,
+            viable=is_viable,
             details=all_details,
         )
 

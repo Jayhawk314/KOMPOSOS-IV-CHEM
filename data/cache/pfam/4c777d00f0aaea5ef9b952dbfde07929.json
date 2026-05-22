@@ -1,0 +1,19 @@
+[
+  {
+    "accession": "PF00069",
+    "name": "Pkinase",
+    "description": "Protein kinase domain",
+    "start": 15,
+    "end": 271,
+    "evalue": 1.0,
+    "domain_type": "domain",
+    "active_site_residues": [
+      35,
+      36,
+      37,
+      46,
+      47,
+      48
+    ]
+  }
+]

@@ -25,6 +25,13 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
 
+class InterfaceRole(Enum):
+    """The role/application of the ceramic-metal interface."""
+    COATING = "coating"
+    STRUCTURAL_COMPOSITE = "structural_composite"
+    CONTAINER_CRUCIBLE = "container_crucible"
+
+
 class DepositionMethod(Enum):
     """Ceramic deposition/processing method onto metal substrate."""
     BULK_SINTERING = "bulk_sintering"
@@ -79,6 +86,7 @@ KNOWN_GOOD_PAIRS: List[Tuple[str, str]] = [
     ('TiN', 'Ti6Al4V'),      # TiN on Ti alloy (CTE 9.4 vs 8.6, excellent)
     ('ZrO2_YSZ', 'Inconel_718'),  # Thermal barrier coating
     ('SiC', 'Steel_4140'),   # SiC coating on steel
+    ('SiC', 'Al_6061'),      # SiC/Al MMC - commercially established structural composite
 ]
 
 KNOWN_BAD_PAIRS: List[Tuple[str, str]] = [
@@ -110,6 +118,7 @@ def _score_cte_compatibility(
     ceramic: CeramicMaterial,
     metal: MetalMaterial,
     deposition_method: Optional[DepositionMethod] = None,
+    role: InterfaceRole = InterfaceRole.COATING,
 ) -> Tuple[float, Dict]:
     """
     Score CTE mismatch between ceramic and metal.
@@ -167,6 +176,13 @@ def _score_cte_compatibility(
                 penalty = 0.85  # Thin films tolerate ratio mismatches better
             score *= penalty
             details['ratio_penalty'] = True
+
+        # Structural composites (MMCs): metal matrix accommodates CTE mismatch
+        # via plastic deformation; powder metallurgy processing avoids worst
+        # thermal stress. Floor at 0.35 — even large CTE diff is manageable in MMCs.
+        if role == InterfaceRole.STRUCTURAL_COMPOSITE:
+            score = max(score, 0.35)
+            details['mmc_relaxation'] = True
     else:
         score = 0.5  # Unknown CTE
         details['note'] = 'Missing CTE data'
@@ -178,6 +194,7 @@ def _score_thermal_processing(
     ceramic: CeramicMaterial,
     metal: MetalMaterial,
     deposition_method: Optional[DepositionMethod] = None,
+    role: InterfaceRole = InterfaceRole.COATING,
 ) -> Tuple[float, Dict]:
     """
     Score whether the ceramic can be processed onto the metal substrate.
@@ -186,13 +203,19 @@ def _score_thermal_processing(
     - Bulk sintering: requires sintering_temp < metal melting
     - PVD/CVD: substrate stays below 500C (most ceramics depositable)
     - Plasma spray: substrate stays below 300C
-    - Sol-gel: substrate stays below 600C
 
-    When deposition_method is specified, only that route is evaluated.
-    When None, both bulk sintering and PVD routes are evaluated and the
-    best one is used (current behavior).
+    Structural composites and crucibles often use different processing
+    routes (e.g. powder metallurgy, infiltration) that are less constrained
+     by the coating-on-substrate melting model.
     """
     details = {}
+    details['role'] = role.value
+
+    # Structural composites and crucibles are less sensitive to substrate melting
+    # during coating, as the metal is often the matrix or being melted into it.
+    if role in (InterfaceRole.STRUCTURAL_COMPOSITE, InterfaceRole.CONTAINER_CRUCIBLE):
+        details['note'] = f'Thermal processing constraints relaxed for {role.value}'
+        return 0.85, details
 
     c_sinter = ceramic.sintering_temp_C
     m_melt = metal.melting_point_C
@@ -381,20 +404,20 @@ def _score_chemical_interaction(
     return max(0.0, min(1.0, score)), details
 
 
-def score_coating_compatibility(
+def score_ceramic_metal_compatibility(
     ceramic_name: str,
     metal_name: str,
     deposition_method: Optional[DepositionMethod] = None,
+    role: InterfaceRole = InterfaceRole.COATING,
 ) -> CeramicMetalResult:
     """
-    Score compatibility between a ceramic coating/layer and a metal substrate.
+    Score compatibility between a ceramic and a metal for a given role.
 
     Args:
-        ceramic_name: Name in ceramic_bridge (e.g., 'Al2O3', 'TiN')
-        metal_name: Name in metal_bridge (e.g., 'SS_304', 'Ti6Al4V')
-        deposition_method: Optional processing method. When set, CTE compliance
-            factor is applied for thin-film methods (PVD/CVD/ALD) and only the
-            specified processing route is evaluated for thermal scoring.
+        ceramic_name: Name in ceramic_bridge
+        metal_name: Name in metal_bridge
+        deposition_method: Optional processing method
+        role: The application role (COATING, STRUCTURAL_COMPOSITE, CONTAINER_CRUCIBLE)
 
     Returns:
         CeramicMetalResult with component scores and composite
@@ -422,34 +445,47 @@ def score_coating_compatibility(
         )
 
     # Score each dimension
-    cte_score, cte_details = _score_cte_compatibility(ceramic, metal, deposition_method)
-    tp_score, tp_details = _score_thermal_processing(ceramic, metal, deposition_method)
+    cte_score, cte_details = _score_cte_compatibility(ceramic, metal, deposition_method, role)
+    tp_score, tp_details = _score_thermal_processing(ceramic, metal, deposition_method, role)
     mech_score, mech_details = _score_mechanical_compatibility(ceramic, metal)
     chem_score, chem_details = _score_chemical_interaction(ceramic, metal)
 
-    # Composite: CTE is dominant failure mode
-    composite = (
-        0.35 * cte_score +
-        0.25 * tp_score +
-        0.20 * mech_score +
-        0.20 * chem_score
-    )
-
-    # CTE veto: extreme mismatch
-    if cte_score < 0.15:
-        composite = min(composite, 0.25)
-        warnings.append(
-            f"CTE veto: {ceramic_name} ({ceramic.cte_per_K}) vs "
-            f"{metal_name} ({metal.cte_per_K}) x10^-6/K"
+    # Composite weights depend on role
+    if role == InterfaceRole.COATING:
+        composite = (
+            0.35 * cte_score +
+            0.25 * tp_score +
+            0.20 * mech_score +
+            0.20 * chem_score
+        )
+    elif role == InterfaceRole.STRUCTURAL_COMPOSITE:
+        # Focus more on mechanical match and chemical stability
+        composite = (
+            0.30 * cte_score +
+            0.10 * tp_score +
+            0.30 * mech_score +
+            0.30 * chem_score
+        )
+    else:  # CONTAINER_CRUCIBLE
+        # Focus on chemical inertness
+        composite = (
+            0.15 * cte_score +
+            0.10 * tp_score +
+            0.15 * mech_score +
+            0.60 * chem_score
         )
 
-    # Thermal impossibility veto
+    # Vetoes
+    # Thin film coatings delaminate easily (strict veto)
+    # Structural composites/crucibles can handle more strain (relaxed veto)
+    cte_veto_threshold = 0.15 if role == InterfaceRole.COATING else 0.05
+    if cte_score < cte_veto_threshold:
+        composite = min(composite, 0.25)
+        warnings.append(f"CTE veto: {ceramic_name} vs {metal_name} mismatch (too extreme for {role.value})")
+
     if tp_score < 0.1:
         composite = min(composite, 0.20)
-        warnings.append(
-            f"Thermal veto: {ceramic_name} sintering ({ceramic.sintering_temp_C}C) "
-            f"exceeds {metal_name} melting ({metal.melting_point_C}C)"
-        )
+        warnings.append(f"Thermal veto: Processing temp exceeds metal melting point")
 
     compatible = composite >= 0.50
 
@@ -464,11 +500,23 @@ def score_coating_compatibility(
         metal_name=metal_name,
         warnings=warnings,
         details={
+            'role': role.value,
             'cte': cte_details,
             'thermal_processing': tp_details,
             'mechanical': mech_details,
             'chemical': chem_details,
         },
+    )
+
+
+def score_coating_compatibility(
+    ceramic_name: str,
+    metal_name: str,
+    deposition_method: Optional[DepositionMethod] = None,
+) -> CeramicMetalResult:
+    """Legacy wrapper for backward compatibility."""
+    return score_ceramic_metal_compatibility(
+        ceramic_name, metal_name, deposition_method, role=InterfaceRole.COATING
     )
 
 
@@ -479,19 +527,16 @@ if __name__ == "__main__":
     print()
 
     test_cases = [
-        ('Al2O3', 'SS_304', 'Alumina on stainless steel'),
-        ('TiN', 'Ti6Al4V', 'TiN coating on Ti alloy (excellent)'),
-        ('TiN', 'Steel_4140', 'TiN on tool steel'),
-        ('ZrO2_YSZ', 'Inconel_718', 'Thermal barrier coating'),
-        ('SiO2', 'Al', 'SiO2 on Al (CTE mismatch)'),
-        ('Al2O3', 'Mg', 'Alumina on Mg (bad)'),
-        ('SiC', 'Steel_4140', 'SiC on tool steel'),
+        ('Al2O3', 'SS_304', InterfaceRole.COATING, 'Alumina coating on stainless'),
+        ('TiN', 'Ti6Al4V', InterfaceRole.COATING, 'TiN coating (excellent)'),
+        ('SiC', 'Al_6061', InterfaceRole.COATING, 'SiC coating on Al (Fails thermal)'),
+        ('SiC', 'Al_6061', InterfaceRole.STRUCTURAL_COMPOSITE, 'SiC/Al MMC (Should pass)'),
     ]
 
-    for ceramic, metal, desc in test_cases:
-        r = score_coating_compatibility(ceramic, metal)
+    for ceramic, metal, role, desc in test_cases:
+        r = score_ceramic_metal_compatibility(ceramic, metal, role=role)
         status = "PASS" if r.compatible else "FAIL"
-        print(f"  [{status}] {ceramic}+{metal}: {r.score:.3f}  ({desc})")
+        print(f"  [{status}] {ceramic}+{metal} ({role.value}): {r.score:.3f}  ({desc})")
         if r.warnings:
             for w in r.warnings:
                 print(f"         WARNING: {w}")

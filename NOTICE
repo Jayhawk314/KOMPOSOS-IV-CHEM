@@ -1,0 +1,79 @@
+KOMPOSOS-III NOTICE
+===================
+
+Copyright (c) 2024-2026 James Ray Hawkins
+
+This software is dual-licensed under Apache 2.0 (open source) and a Commercial
+License. See LICENSE and LICENSE-COMMERCIAL files for details.
+
+================================================================================
+THIRD-PARTY COMPONENTS
+================================================================================
+
+This software interfaces with the following third-party components:
+
+--------------------------------------------------------------------------------
+1. ESM-2 Protein Language Model
+--------------------------------------------------------------------------------
+Copyright (c) Meta Platforms, Inc. and affiliates.
+License: MIT License
+Source: https://github.com/facebookresearch/esm
+Used in: data/bio_embeddings.py
+
+ESM-2 model weights are downloaded at runtime and NOT bundled with this software.
+
+Citation: Lin et al. (2023) "Evolutionary-scale prediction of atomic-level
+protein structure with a language model." Science, 379(6637), 1123-1130.
+
+--------------------------------------------------------------------------------
+2. AlphaFold Protein Structure Database
+--------------------------------------------------------------------------------
+Copyright (c) DeepMind Technologies Limited and EMBL-EBI
+License: CC-BY-4.0 (Creative Commons Attribution 4.0 International)
+Source: https://alphafold.ebi.ac.uk
+Used in: data/protein_embeddings.py
+
+AlphaFold structures are accessed via public API and NOT bundled with this software.
+
+Citation: Jumper et al. (2021) "Highly accurate protein structure prediction
+with AlphaFold." Nature, 596(7873), 583-589.
+
+--------------------------------------------------------------------------------
+3. Sentence Transformers
+--------------------------------------------------------------------------------
+Copyright (c) 2019 Nils Reimers
+License: Apache License 2.0
+Source: https://github.com/UKPLab/sentence-transformers
+Used in: data/embeddings.py
+
+Model weights are downloaded at runtime and NOT bundled with this software.
+
+Citation: Reimers & Gurevych (2019) "Sentence-BERT: Sentence Embeddings using
+Siamese BERT-Networks." EMNLP-IJCNLP 2019.
+
+--------------------------------------------------------------------------------
+4. Additional Dependencies
+--------------------------------------------------------------------------------
+- PyTorch (BSD-3-Clause): https://github.com/pytorch/pytorch
+- NumPy (BSD-3-Clause): https://numpy.org
+- SciPy (BSD-3-Clause): https://scipy.org
+- NetworkX (BSD-3-Clause): https://networkx.org
+- transformers by Hugging Face (Apache 2.0): https://huggingface.co/transformers
+
+All dependencies use permissive licenses compatible with Apache 2.0.
+
+================================================================================
+ATTRIBUTION REQUIREMENTS
+================================================================================
+
+When using AlphaFold-derived predictions, cite the AlphaFold papers above as
+required by CC-BY-4.0.
+
+When using ESM-2 embeddings in published work, cite the ESM-2 paper above.
+
+================================================================================
+CONTACT
+================================================================================
+
+For licensing inquiries: jhawk314@gmail.com
+GitHub: https://github.com/Jayhawk314/KOMPOSOS-III-BETA

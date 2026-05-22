@@ -1,0 +1,57 @@
+{
+  "version": "dev_compatibility.q4_failure_families.2026_q4.v1",
+  "created_at": "2026-05-21",
+  "frozen": false,
+  "description": "Non-blind development cases derived from Q4 external diagnostic miss families. Q4 is spent diagnostic evidence after this file is used.",
+  "selection_policy": "Q4 failure-family cases converted into explicit typed-context development rows. Do not report these as fresh blind validation.",
+  "pairs": [
+    {
+      "id": 30301,
+      "material_a": "LLZO",
+      "material_b": "Li3PS4",
+      "domain": "ceramic",
+      "interface_type": "oxide_sulfide_solid_electrolyte",
+      "expected_compatible": false,
+      "citation": "Janek and Zeier, Nature Energy 2016, solid electrolyte interfaces in all-solid-state batteries",
+      "doi": "10.1038/nenergy.2016.141",
+      "evidence_basis": "Oxide/sulfide solid-electrolyte interfaces commonly suffer chemical and impedance mismatch without engineered interlayers.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30302,
+      "material_a": "PZT",
+      "material_b": "Al2O3",
+      "domain": "ceramic",
+      "interface_type": "piezoelectric_ceramic_substrate",
+      "expected_compatible": true,
+      "citation": "Piezoelectric ceramic package and substrate literature for PZT on alumina",
+      "manual_source": "Jaffe, Cook, and Jaffe, Piezoelectric Ceramics, Academic Press",
+      "evidence_basis": "PZT ceramics are commonly integrated with alumina-type ceramic substrates and packages with controlled processing.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30303,
+      "material_a": "GaN",
+      "material_b": "SiC_6H",
+      "domain": "semiconductor",
+      "interface_type": "wide_bandgap_epitaxy",
+      "expected_compatible": true,
+      "citation": "Morkoc, Handbook of Nitride Semiconductors and Devices, 2008",
+      "isbn": "978-3527408375",
+      "evidence_basis": "GaN-on-SiC wide-bandgap heterostructures are standard high-power and high-frequency semiconductor platforms.",
+      "used_for_tuning": true
+    },
+    {
+      "id": 30304,
+      "material_a": "BK7",
+      "material_b": "FusedSilica",
+      "domain": "glass",
+      "interface_type": "optical_glass_assembly",
+      "expected_compatible": true,
+      "citation": "SCHOTT optical glass data sheets and optical glass catalog",
+      "url": "https://www.schott.com/shop/advanced-optics/en/Optical-Glass/c/glass",
+      "evidence_basis": "BK7 and fused silica are standard optical materials used in optically contacted or cemented assemblies under controlled process conditions.",
+      "used_for_tuning": true
+    }
+  ]
+}

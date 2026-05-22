@@ -1,0 +1,357 @@
+{
+  "bom_name": "Industrial Coatings",
+  "total_materials": 9,
+  "pfas_count": 5,
+  "max_urgency": "moderate",
+  "has_pfas": true,
+  "pfas_materials": [
+    {
+      "material_name": "PTFE",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Universal PFAS restriction includes fluoropolymers; possible derogations for critical uses"
+        }
+      ],
+      "replacements": [
+        {
+          "name": "Cast iron (seasoned)",
+          "use_case": "non_stick_coating",
+          "performance_match": 0.45,
+          "processability": 0.9,
+          "cost_factor": 0.95,
+          "availability": 1.0,
+          "overall_score": 0.75,
+          "advantages": [
+            "Zero PFAS",
+            "Extremely durable",
+            "Improves with use"
+          ],
+          "limitations": [
+            "Heavy",
+            "Requires seasoning maintenance",
+            "Reactive with acidic foods"
+          ]
+        },
+        {
+          "name": "Ceramic coating",
+          "use_case": "non_stick_coating",
+          "performance_match": 0.7,
+          "processability": 0.65,
+          "cost_factor": 0.75,
+          "availability": 0.8,
+          "overall_score": 0.72,
+          "advantages": [
+            "PFAS-free",
+            "Higher temperature tolerance",
+            "Scratch-resistant"
+          ],
+          "limitations": [
+            "Less non-stick than PTFE",
+            "Durability degrades faster",
+            "Requires careful thermal management"
+          ]
+        }
+      ],
+      "pfas_name": "Polytetrafluoroethylene",
+      "cas_number": "9002-84-0",
+      "bom": "Industrial Coatings"
+    },
+    {
+      "material_name": "FEP",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Covered by universal PFAS restriction proposal"
+        }
+      ],
+      "replacements": [
+        {
+          "name": "XLPE",
+          "use_case": "wire_insulation",
+          "performance_match": 0.55,
+          "processability": 0.85,
+          "cost_factor": 0.9,
+          "availability": 0.95,
+          "overall_score": 0.76,
+          "advantages": [
+            "Low cost",
+            "Established manufacturing",
+            "Good moisture resistance"
+          ],
+          "limitations": [
+            "Lower max temperature (90C)",
+            "Not suitable for high-temp environments"
+          ]
+        },
+        {
+          "name": "Silicone",
+          "use_case": "wire_insulation",
+          "performance_match": 0.6,
+          "processability": 0.75,
+          "cost_factor": 0.7,
+          "availability": 0.85,
+          "overall_score": 0.7,
+          "advantages": [
+            "Wide temperature range (-60 to 200C)",
+            "Very flexible",
+            "Good dielectric strength"
+          ],
+          "limitations": [
+            "Lower abrasion resistance",
+            "Larger diameter needed for same voltage rating",
+            "Tear-prone"
+          ]
+        },
+        {
+          "name": "PEEK",
+          "use_case": "wire_insulation",
+          "performance_match": 0.7,
+          "processability": 0.5,
+          "cost_factor": 0.3,
+          "availability": 0.65,
+          "overall_score": 0.57,
+          "advantages": [
+            "High temperature rating (260C continuous)",
+            "Excellent flame resistance",
+            "Good dielectric properties"
+          ],
+          "limitations": [
+            "Very expensive",
+            "Harder to extrude",
+            "Less flexible"
+          ]
+        }
+      ],
+      "pfas_name": "Fluorinated ethylene propylene",
+      "cas_number": "25067-11-2",
+      "bom": "Industrial Coatings"
+    },
+    {
+      "material_name": "Nafion",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Universal PFAS restriction; seeking critical-use derogation for fuel cells"
+        }
+      ],
+      "replacements": [
+        {
+          "name": "SPEEK",
+          "use_case": "membrane",
+          "performance_match": 0.65,
+          "processability": 0.6,
+          "cost_factor": 0.7,
+          "availability": 0.55,
+          "overall_score": 0.63,
+          "advantages": [
+            "PFAS-free",
+            "Good proton conductivity (tunable with sulfonation degree)",
+            "Lower methanol permeability"
+          ],
+          "limitations": [
+            "Lower conductivity than Nafion",
+            "Mechanical stability decreases at high sulfonation",
+            "Less commercially mature"
+          ]
+        },
+        {
+          "name": "PBI",
+          "use_case": "membrane",
+          "performance_match": 0.6,
+          "processability": 0.5,
+          "cost_factor": 0.6,
+          "availability": 0.5,
+          "overall_score": 0.56,
+          "advantages": [
+            "Excellent high-temperature operation (120-200C)",
+            "No humidification needed with phosphoric acid doping",
+            "PFAS-free"
+          ],
+          "limitations": [
+            "Requires acid doping",
+            "Lower conductivity at low temperature",
+            "Acid leaching over time"
+          ]
+        }
+      ],
+      "pfas_name": "Nafion (perfluorosulfonic acid membrane)",
+      "cas_number": "31175-20-9",
+      "bom": "Industrial Coatings"
+    },
+    {
+      "material_name": "PVDF",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Universal PFAS restriction; battery sector seeking derogation"
+        }
+      ],
+      "replacements": [
+        {
+          "name": "CMC+SBR",
+          "use_case": "battery_binder",
+          "performance_match": 0.75,
+          "processability": 0.85,
+          "cost_factor": 0.9,
+          "availability": 0.95,
+          "overall_score": 0.84,
+          "advantages": [
+            "Water-based processing (no NMP solvent)",
+            "Lower cost and environmental impact",
+            "Commercially proven for graphite anodes"
+          ],
+          "limitations": [
+            "Lower adhesion on high-voltage cathodes",
+            "Moisture sensitivity during processing",
+            "Not suitable for NMC811 cathodes without modification"
+          ]
+        },
+        {
+          "name": "PAA",
+          "use_case": "battery_binder",
+          "performance_match": 0.7,
+          "processability": 0.8,
+          "cost_factor": 0.85,
+          "availability": 0.8,
+          "overall_score": 0.77,
+          "advantages": [
+            "Water-soluble (green processing)",
+            "Strong adhesion to silicon anodes",
+            "Good cycling stability with Si/C composites"
+          ],
+          "limitations": [
+            "Brittle without plasticizer",
+            "pH-sensitive processing"
+          ]
+        },
+        {
+          "name": "PES",
+          "use_case": "membrane",
+          "performance_match": 0.75,
+          "processability": 0.7,
+          "cost_factor": 0.7,
+          "availability": 0.8,
+          "overall_score": 0.74,
+          "advantages": [
+            "Excellent thermal stability",
+            "Wide pH tolerance",
+            "Good mechanical properties"
+          ],
+          "limitations": [
+            "Hydrophobic (needs surface modification)",
+            "Higher cost than PVDF"
+          ]
+        },
+        {
+          "name": "PAN",
+          "use_case": "membrane",
+          "performance_match": 0.7,
+          "processability": 0.65,
+          "cost_factor": 0.8,
+          "availability": 0.75,
+          "overall_score": 0.72,
+          "advantages": [
+            "Good chemical resistance",
+            "Established membrane fabrication",
+            "Hydrophilic (no pre-treatment needed)"
+          ],
+          "limitations": [
+            "Lower mechanical strength than PVDF",
+            "Narrower pH tolerance"
+          ]
+        },
+        {
+          "name": "Cellulose Acetate",
+          "use_case": "membrane",
+          "performance_match": 0.55,
+          "processability": 0.7,
+          "cost_factor": 0.9,
+          "availability": 0.85,
+          "overall_score": 0.71,
+          "advantages": [
+            "Bio-derived",
+            "Low fouling propensity",
+            "Low cost"
+          ],
+          "limitations": [
+            "Poor chlorine resistance",
+            "Narrow pH range (4-8)",
+            "Biodegradable (shorter lifetime)"
+          ]
+        },
+        {
+          "name": "Alginate",
+          "use_case": "battery_binder",
+          "performance_match": 0.55,
+          "processability": 0.75,
+          "cost_factor": 0.95,
+          "availability": 0.7,
+          "overall_score": 0.7,
+          "advantages": [
+            "Bio-derived and sustainable",
+            "Water-soluble",
+            "Good adhesion via carboxyl groups"
+          ],
+          "limitations": [
+            "Lower mechanical strength",
+            "Batch-to-batch variability",
+            "Limited cycling data for high-voltage cathodes"
+          ]
+        }
+      ],
+      "pfas_name": "Polyvinylidene fluoride",
+      "cas_number": "24937-79-9",
+      "bom": "Industrial Coatings"
+    },
+    {
+      "material_name": "PFA",
+      "is_pfas": true,
+      "pfas_category": "fluoropolymer",
+      "urgency": "moderate",
+      "heuristic_match": false,
+      "regulations_violated": [
+        {
+          "jurisdiction": "EU",
+          "status": "proposed_ban",
+          "effective_date": null,
+          "description": "Covered by universal PFAS restriction proposal"
+        }
+      ],
+      "replacements": [],
+      "pfas_name": "Perfluoroalkoxy alkane",
+      "cas_number": "26655-00-5",
+      "bom": "Industrial Coatings"
+    }
+  ],
+  "clean_materials": [
+    "EPDM",
+    "Silicone",
+    "Epoxy",
+    "Polyurethane"
+  ]
+}

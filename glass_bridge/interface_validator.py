@@ -32,6 +32,8 @@ from glass_bridge.interaction_scoring import (
     score_degradation_penalty,
     ScorerResult,
 )
+from oracle.compatibility_context import CompatibilityContext
+from oracle.typed_morphisms import apply_typed_morphism_adjustment
 
 
 @dataclass
@@ -175,13 +177,15 @@ class GlassInterfaceValidator:
         if mat_b is None:
             raise ValueError(f"Unknown glass: '{glass_b}'")
 
-        return self.validate_materials(mat_a, mat_b, conditions)
+        return self.validate_materials(mat_a, mat_b, conditions, glass_a, glass_b)
 
     def validate_materials(
         self,
         material_a: GlassMaterial,
         material_b: GlassMaterial,
         conditions: Optional[GlassConditions] = None,
+        material_a_key: Optional[str] = None,
+        material_b_key: Optional[str] = None,
     ) -> GlassInterfaceScore:
         """
         Validate an interface between two GlassMaterial objects.
@@ -195,6 +199,8 @@ class GlassInterfaceValidator:
             GlassInterfaceScore with full breakdown
         """
         conditions = conditions or GlassConditions()
+        material_a_key = material_a_key or _glass_key(material_a)
+        material_b_key = material_b_key or _glass_key(material_b)
 
         # Run all five scorers
         s_cte = score_thermal_expansion_match(material_a, material_b)
@@ -240,6 +246,71 @@ class GlassInterfaceValidator:
             'glass_b': material_b.formula,
         }
 
+        is_viable = total >= self.viability_threshold
+
+        # CTE veto: >3 ppm/K difference causes stress fracture at seal
+        # (Shelby, Introduction to Glass Science 2005)
+        # Exceptions:
+        # - same glass class (e.g., both chalcogenide) can tolerate larger CTE diffs
+        # - known graded-seal pairs (Schott catalog, Hench biomedical)
+        from glass_bridge.material_properties import CompositionType
+        comp_a = getattr(material_a, 'composition_type', None)
+        comp_b = getattr(material_b, 'composition_type', None)
+        class_a = getattr(material_a, 'glass_class', None)
+        class_b = getattr(material_b, 'glass_class', None)
+        same_family = class_a is not None and class_a == class_b
+        # Known pairs that work despite CTE mismatch (graded seals, biomedical)
+        _CTE_EXEMPT_PAIRS = {
+            # Schott graded seal standard (Schott Optical Glass Catalog 2023)
+            frozenset({'BK7', 'Boro_33'}),
+            frozenset({'Boro_33', 'FusedSilica'}),
+            # Biomedical: Hench, J. Am. Ceram. Soc. 1998
+            frozenset({'Bioglass_45S5', 'SodaLime_Float'}),
+        }
+        name_a = material_a_key
+        name_b = material_b_key
+        pair_exempt = name_a and name_b and frozenset({name_a, name_b}) in _CTE_EXEMPT_PAIRS
+        optical_assembly_exempt = (
+            frozenset({name_a, name_b}) == frozenset({'BK7', 'FusedSilica'})
+            and conditions.environment != "furnace"
+            and not conditions.thermal_cycling
+        )
+        cte_a = material_a.cte_per_K
+        cte_b = material_b.cte_per_K
+        if cte_a is not None and cte_b is not None:
+            cte_diff = abs(cte_a - cte_b)
+            if cte_diff > 3.0 and not same_family and not pair_exempt and not optical_assembly_exempt:
+                is_viable = False
+                all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 3 ppm/K: seal will crack (Shelby 2005)'
+
+        # Chemical incompatibility veto: phosphate + silicate network reaction
+        # (Campbell & Suratwala, J. Non-Cryst. Solids 2000)
+        if comp_a and comp_b:
+            incompat = {
+                frozenset({CompositionType.PHOSPHATE, CompositionType.SILICATE}),
+            }
+            if frozenset({comp_a, comp_b}) in incompat:
+                is_viable = False
+                all_details['veto'] = all_details.get('veto', '') + '; phosphate-silicate chemical incompatibility'
+
+        morphism_adjustment = apply_typed_morphism_adjustment(
+            total,
+            is_viable,
+            material_a_key,
+            material_b_key,
+            "glass",
+            CompatibilityContext(
+                interface_type="optical_glass_assembly" if optical_assembly_exempt else None,
+                environment=conditions.environment,
+                temperature_C=conditions.temperature_C,
+            ),
+        )
+        if morphism_adjustment.morphism is not None:
+            all_details['typed_morphism'] = morphism_adjustment.to_dict()
+        if morphism_adjustment.action in {"veto", "negative_prior", "positive_prior"}:
+            total = morphism_adjustment.score
+            is_viable = morphism_adjustment.predicted_compatible
+
         return GlassInterfaceScore(
             total=total,
             thermal_expansion_match=scores['thermal'],
@@ -247,7 +318,7 @@ class GlassInterfaceValidator:
             mechanical_compatibility=scores['mechanical'],
             chemical_compatibility=scores['chemical'],
             degradation_penalty=scores['degradation'],
-            viable=total >= self.viability_threshold,
+            viable=is_viable,
             details=all_details,
         )
 
@@ -337,3 +408,12 @@ def validate_interface(
     """Convenience function for quick interface validation."""
     validator = GlassInterfaceValidator()
     return validator.validate(glass_a, glass_b, conditions)
+
+
+def _glass_key(material: GlassMaterial) -> str:
+    from glass_bridge.material_properties import ALL_GLASSES
+
+    for name, candidate in ALL_GLASSES.items():
+        if candidate is material:
+            return name
+    return material.formula

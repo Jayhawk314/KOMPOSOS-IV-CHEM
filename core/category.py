@@ -224,17 +224,17 @@ class Category:
 
     def morphisms_from(self, source: str) -> List[Morphism]:
         """All morphisms out of source."""
-        return [
-            m for m in self._morphisms.values()
-            if m.source == source
-        ] or self._backend.get_morphisms_from(source)
+        cached = [m for m in self._morphisms.values() if m.source == source]
+        if cached:
+            return cached
+        return self._backend.get_morphisms_from(source)
 
     def morphisms_to(self, target: str) -> List[Morphism]:
         """All morphisms into target."""
-        return [
-            m for m in self._morphisms.values()
-            if m.target == target
-        ] or self._backend.get_morphisms_to(target)
+        cached = [m for m in self._morphisms.values() if m.target == target]
+        if cached:
+            return cached
+        return self._backend.get_morphisms_to(target)
 
     def morphisms(self) -> List[Morphism]:
         """List all morphisms."""

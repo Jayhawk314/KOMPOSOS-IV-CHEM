@@ -1,0 +1,257 @@
+{
+  "domain": "metal",
+  "version": "1.0",
+  "description": "Galvanic compatibility of metals in contact. Compatible = <0.25V galvanic potential difference OR same alloy family. Incompatible = >0.50V difference causing accelerated corrosion per MIL-STD-889.",
+  "pairs": [
+    {
+      "id": 401,
+      "material_a": "SS_304",
+      "material_b": "SS_316",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Same galvanic group (stainless steels)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 402,
+      "material_a": "Cu",
+      "material_b": "Brass_C260",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Same galvanic group (copper alloys)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 403,
+      "material_a": "Al_6061",
+      "material_b": "Cu",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.6-0.8V galvanic difference, severe corrosion",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 404,
+      "material_a": "Al_6061",
+      "material_b": "SS_316",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.5-0.7V potential difference",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 405,
+      "material_a": "Ti",
+      "material_b": "SS_316",
+      "expected_compatible": true,
+      "citation": "Revie, Corrosion and Corrosion Control 2008",
+      "notes": "Close galvanic potentials, both passive",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 406,
+      "material_a": "Mg",
+      "material_b": "Steel_1018",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": ">1.0V difference, Mg is most anodic common metal",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 407,
+      "material_a": "Mg",
+      "material_b": "Cu",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": ">1.5V galvanic potential, extreme corrosion",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 408,
+      "material_a": "Al_6061",
+      "material_b": "Al_7075",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Same galvanic group (aluminum alloys)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 409,
+      "material_a": "Ni",
+      "material_b": "SS_304",
+      "expected_compatible": true,
+      "citation": "Revie, Corrosion and Corrosion Control 2008",
+      "notes": "Close potential, Ni is major SS constituent",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 410,
+      "material_a": "Zn",
+      "material_b": "Cu",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.8V difference, Zn sacrificial to Cu",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 411,
+      "material_a": "Sn",
+      "material_b": "Cu",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "<0.25V, tin-copper plating common",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 412,
+      "material_a": "Ti6Al4V",
+      "material_b": "Inconel_625",
+      "expected_compatible": true,
+      "citation": "Revie, Uhlig's Corrosion Handbook 2011",
+      "notes": "Both noble passive metals, close potentials",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 413,
+      "material_a": "Mg",
+      "material_b": "Al_6061",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.5-0.8V difference, Mg corrodes rapidly",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 414,
+      "material_a": "Cu",
+      "material_b": "Bronze_C510",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Same copper alloy group",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 415,
+      "material_a": "Al_6061",
+      "material_b": "Zn",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Close potentials, Zn used as Al coating",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 416,
+      "material_a": "Pb",
+      "material_b": "SS_316",
+      "expected_compatible": false,
+      "citation": "Revie, Corrosion and Corrosion Control 2008",
+      "notes": "Large potential difference in most environments",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 417,
+      "material_a": "Au",
+      "material_b": "Al_6061",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": ">1.0V difference, Au most cathodic metal",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 418,
+      "material_a": "Ni",
+      "material_b": "Cu",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "<0.15V difference, Monel alloy basis",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 419,
+      "material_a": "Steel_1018",
+      "material_b": "Steel_4140",
+      "expected_compatible": true,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "Same galvanic group (carbon/alloy steels)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 420,
+      "material_a": "Ag",
+      "material_b": "Mg",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": ">1.5V potential difference",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 421,
+      "material_a": "Inconel_718",
+      "material_b": "Ti6Al4V",
+      "expected_compatible": true,
+      "citation": "Revie, Uhlig's Corrosion Handbook 2011",
+      "notes": "Both passive, aerospace standard pairing",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 422,
+      "material_a": "Cast_Iron",
+      "material_b": "Cu",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.35-0.5V difference, iron corrodes",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 423,
+      "material_a": "Mo",
+      "material_b": "W",
+      "expected_compatible": true,
+      "citation": "Revie, Corrosion and Corrosion Control 2008",
+      "notes": "Both refractory metals, similar nobility",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 424,
+      "material_a": "Hastelloy_C276",
+      "material_b": "SS_316",
+      "expected_compatible": true,
+      "citation": "Revie, Uhlig's Corrosion Handbook 2011",
+      "notes": "Both Ni-based passive alloys, close potential",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 425,
+      "material_a": "Zn",
+      "material_b": "SS_304",
+      "expected_compatible": false,
+      "citation": "MIL-STD-889D, Table I",
+      "notes": "0.7V difference, Zn sacrificially corrodes",
+      "doi": null,
+      "used_for_tuning": false
+    }
+  ]
+}

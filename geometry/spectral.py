@@ -1,723 +1,428 @@
-# SPDX-License-Identifier: LicenseRef-Proprietary-Commercial
-# SPDX-FileCopyrightText: 2026 James Hawkins <jhawk314@gmail.com>
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
 
 """
-Spectral Graph Theory - Phase 3C
+Spectral Graph Theory for Network Analysis
 
-Implements spectral methods for network analysis using Laplacian eigenvalues:
-- Graph Laplacian and its spectrum
-- Algebraic connectivity (Fiedler value lambda_2)
-- Spectral clustering
-- Cheeger constant and graph expansion
-- Random walk mixing times
+Analyzes graph structure via eigenvalues and eigenvectors of the Laplacian matrix.
 
 Mathematical Foundation:
-- Laplacian: L = D - A (degree - adjacency)
-- Eigenvalues: 0 = lambda_1 <= lambda_2 <= ... <= lambda_n
-- lambda_2 = 0 iff graph disconnected
-- lambda_2 > 0 implies connected graph (Fiedler value)
-- Cheeger inequality: lambda_2/2 <= h(G) <= sqrt(2*lambda_2)
+- Graph Laplacian: L = D - A (degree matrix minus adjacency)
+- Eigendecomposition: L·v = λ·v
+- λ₁ (algebraic connectivity) = coupling strength
+- λ₂, λ₃, ... = oscillatory modes
 
 Applications:
-- Community detection (spectral clustering)
-- Anomaly detection (spectrum perturbation)
-- Network connectivity analysis
-- Attack surface identification
-- Bottleneck detection (complements Ricci curvature)
+- Climate networks: coupling between CO2 reservoirs
+- Protein networks: community detection
+- Any relational network: structural analysis
 """
 
+from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, field
-from typing import Dict, List, Set, Tuple, Optional
-import math
-from collections import defaultdict
-import heapq
+import numpy as np
 
+try:
+    from scipy.linalg import eigh
+    from scipy.sparse import csr_matrix
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
 
-# =============================================================================
-# GRAPH REPRESENTATION
-# =============================================================================
+from .spectral_structures import (
+    Graph,
+    GraphLaplacian,
+    SpectralClustering,
+    CheegerConstant,
+    RandomWalkAnalysis,
+    graph_from_adjacency,
+    graph_from_edges,
+    analyze_connectivity,
+)
+
 
 @dataclass
-class Graph:
+class SpectralResult:
+    """Results of spectral analysis."""
+    eigenvalues: np.ndarray
+    eigenvectors: np.ndarray
+    node_names: List[str]
+    algebraic_connectivity: float
+    coupling_strength: str
+    equilibration_time: float
+    oscillatory_modes: List[Dict]
+    analysis: str
+
+
+class SpectralGraphAnalyzer:
     """
-    Simple graph structure for spectral analysis.
+    Spectral graph theory analyzer for categorical networks.
 
-    Attributes:
-        nodes: Set of node IDs
-        edges: Dict[node, Set[neighbors]]
-        weights: Dict[(u,v), weight] for weighted graphs
+    Computes eigenvalues/eigenvectors of graph Laplacian to reveal:
+    - System coupling strength (λ₁)
+    - Oscillatory modes (λ₂, λ₃, ...)
+    - Most influential nodes (eigenvector centrality)
+    - Network structure (communities, hierarchies)
     """
-    nodes: Set[int] = field(default_factory=set)
-    edges: Dict[int, Set[int]] = field(default_factory=lambda: defaultdict(set))
-    weights: Dict[Tuple[int, int], float] = field(default_factory=dict)
 
-    def add_edge(self, u: int, v: int, weight: float = 1.0):
-        """Add undirected edge."""
-        self.nodes.add(u)
-        self.nodes.add(v)
-        self.edges[u].add(v)
-        self.edges[v].add(u)
-        self.weights[(min(u, v), max(u, v))] = weight
-
-    def get_neighbors(self, node: int) -> Set[int]:
-        """Get neighbors of a node."""
-        return self.edges.get(node, set())
-
-    def degree(self, node: int) -> int:
-        """Degree of a node (number of neighbors)."""
-        return len(self.get_neighbors(node))
-
-    def get_weight(self, u: int, v: int) -> float:
-        """Get edge weight (1.0 if unweighted)."""
-        edge = (min(u, v), max(u, v))
-        return self.weights.get(edge, 1.0 if v in self.get_neighbors(u) else 0.0)
-
-    def is_connected(self) -> bool:
-        """Check if graph is connected using BFS."""
-        if not self.nodes:
-            return True
-
-        start = next(iter(self.nodes))
-        visited = {start}
-        queue = [start]
-
-        while queue:
-            node = queue.pop(0)
-            for neighbor in self.get_neighbors(node):
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
-
-        return len(visited) == len(self.nodes)
-
-
-# =============================================================================
-# GRAPH LAPLACIAN
-# =============================================================================
-
-@dataclass
-class GraphLaplacian:
-    """
-    Graph Laplacian: L = D - A
-
-    where:
-    - D = degree matrix (diagonal)
-    - A = adjacency matrix
-
-    Properties:
-    - L is positive semi-definite
-    - L has eigenvalue 0 with eigenvector [1,1,...,1]
-    - Number of 0 eigenvalues = number of connected components
-    - lambda_2 (second smallest eigenvalue) = algebraic connectivity
-    """
-    graph: Graph
-    laplacian: Dict[Tuple[int, int], float] = field(default_factory=dict)
-    eigenvalues: List[float] = field(default_factory=list)
-    eigenvectors: Dict[int, List[float]] = field(default_factory=dict)
-
-    def __post_init__(self):
-        """Compute Laplacian matrix."""
-        self._compute_laplacian()
-
-    def _compute_laplacian(self):
-        """Compute L = D - A as sparse dict."""
-        nodes = sorted(self.graph.nodes)
-
-        for i, u in enumerate(nodes):
-            for j, v in enumerate(nodes):
-                if u == v:
-                    # Diagonal: degree
-                    self.laplacian[(i, j)] = float(self.graph.degree(u))
-                elif v in self.graph.get_neighbors(u):
-                    # Off-diagonal: -1 for edges
-                    weight = self.graph.get_weight(u, v)
-                    self.laplacian[(i, j)] = -weight
-                # else: 0 (no edge)
-
-    def compute_spectrum(self, k: Optional[int] = None):
+    def __init__(self, category=None):
         """
-        Compute eigenvalues of Laplacian.
+        Initialize analyzer.
 
         Args:
-            k: Number of smallest eigenvalues to compute (None = all)
-
-        For small graphs (<1000 nodes), computes full spectrum.
-        For large graphs, computes only k smallest eigenvalues.
+            category: Category object with objects and morphisms
         """
-        nodes = sorted(self.graph.nodes)
-        n = len(nodes)
+        self.category = category
+        self.laplacian = None
+        self.eigenvalues = None
+        self.eigenvectors = None
+        self.node_names = None
+
+    def build_laplacian(self) -> np.ndarray:
+        """
+        Build graph Laplacian from category morphisms.
+
+        Laplacian L = D - A where:
+        - D = degree matrix (diagonal: sum of edge weights)
+        - A = adjacency matrix (edge weights)
+
+        Returns:
+            Laplacian matrix (N x N)
+        """
+        if self.category is None:
+            raise ValueError("No category provided")
+
+        # Get node names
+        self.node_names = list(self.category.objects.keys())
+        n = len(self.node_names)
 
         if n == 0:
-            return
+            raise ValueError("Category has no objects")
 
-        # For small graphs, use power iteration
-        # For production, would use scipy.sparse.linalg.eigsh
-        if n <= 100 or k is None:
-            self._compute_spectrum_small()
+        node_to_idx = {name: i for i, name in enumerate(self.node_names)}
+
+        # Build adjacency matrix
+        A = np.zeros((n, n))
+
+        for mor in self.category.morphisms.values():
+            # Skip identity morphisms
+            if mor.data.get("is_identity"):
+                continue
+
+            source_name = mor.source.name
+            target_name = mor.target.name
+
+            if source_name not in node_to_idx or target_name not in node_to_idx:
+                continue
+
+            i = node_to_idx[source_name]
+            j = node_to_idx[target_name]
+
+            # Get weight (default 1.0)
+            weight = mor.data.get("weight", 1.0)
+
+            # Make symmetric (undirected graph)
+            A[i, j] = weight
+            A[j, i] = weight
+
+        # Degree matrix
+        degrees = A.sum(axis=1)
+        D = np.diag(degrees)
+
+        # Laplacian
+        self.laplacian = D - A
+
+        return self.laplacian
+
+    def compute_spectrum(self) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Compute eigenvalues and eigenvectors of Laplacian.
+
+        Returns:
+            Tuple of (eigenvalues, eigenvectors)
+            - eigenvalues: sorted ascending (λ₀ = 0, λ₁, λ₂, ...)
+            - eigenvectors: columns are eigenvectors
+        """
+        if self.laplacian is None:
+            self.build_laplacian()
+
+        if not SCIPY_AVAILABLE:
+            # Fallback to numpy (slower but works)
+            eigenvalues, eigenvectors = np.linalg.eigh(self.laplacian)
         else:
-            self._compute_spectrum_lanczos(k)
+            eigenvalues, eigenvectors = eigh(self.laplacian)
 
-    def _compute_spectrum_small(self):
+        # Sort by eigenvalue (should already be sorted, but ensure it)
+        idx = eigenvalues.argsort()
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[:, idx]
+
+        self.eigenvalues = eigenvalues
+        self.eigenvectors = eigenvectors
+
+        return eigenvalues, eigenvectors
+
+    def analyze_coupling(self) -> Dict:
         """
-        Compute full spectrum for small graphs.
+        Analyze system coupling strength via algebraic connectivity (λ₁).
 
-        Uses scipy.linalg.eigh for accurate eigenvalue computation.
-        Falls back to simplified method if scipy not available.
+        Algebraic connectivity (Fiedler value):
+        - λ₁ = 0: Disconnected graph
+        - λ₁ small: Weakly coupled (slow response)
+        - λ₁ large: Strongly coupled (fast response)
+
+        Returns:
+            Dictionary with coupling analysis
         """
-        nodes = sorted(self.graph.nodes)
-        n = len(nodes)
-
-        # Build dense matrix (for small graphs only)
-        L = [[0.0] * n for _ in range(n)]
-        for i in range(n):
-            for j in range(n):
-                L[i][j] = self.laplacian.get((i, j), 0.0)
-
-        # Try using scipy for accurate computation
-        try:
-            import numpy as np
-            from scipy import linalg
-
-            L_array = np.array(L)
-            eigenvalues, eigenvectors = linalg.eigh(L_array)
-
-            self.eigenvalues = eigenvalues.tolist()
-
-            # Store eigenvectors (column i is eigenvector for eigenvalue i)
-            for i in range(min(n, 10)):
-                self.eigenvectors[i] = eigenvectors[:, i].tolist()
-
-        except ImportError:
-            # Fallback: simplified approximation
-            eigenvalue_estimates = []
-
-            for i in range(n):
-                center = L[i][i]
-                radius = sum(abs(L[i][j]) for j in range(n) if j != i)
-                eigenvalue_estimates.append(center)
-
-            eigenvalue_estimates.sort()
-            eigenvalue_estimates[0] = 0.0
-
-            self.eigenvalues = eigenvalue_estimates
-
-            # Eigenvectors (simplified - first is constant vector)
-            self.eigenvectors[0] = [1.0 / math.sqrt(n)] * n
-
-            for i in range(1, min(n, 10)):
-                self.eigenvectors[i] = [0.0] * n
-
-    def _compute_spectrum_lanczos(self, k: int):
-        """
-        Compute k smallest eigenvalues using Lanczos algorithm.
-
-        Uses scipy.sparse.linalg.eigsh for efficient sparse computation.
-        """
-        try:
-            import numpy as np
-            from scipy.sparse import lil_matrix
-            from scipy.sparse.linalg import eigsh
-
-            nodes = sorted(self.graph.nodes)
-            n = len(nodes)
-
-            # Build sparse Laplacian matrix
-            L_sparse = lil_matrix((n, n))
-            for i in range(n):
-                for j in range(n):
-                    val = self.laplacian.get((i, j), 0.0)
-                    if val != 0:
-                        L_sparse[i, j] = val
-
-            # Compute k smallest eigenvalues
-            k_actual = min(k, n - 1)  # eigsh requires k < n
-            if k_actual > 0:
-                eigenvalues, eigenvectors = eigsh(L_sparse, k=k_actual, which='SM')
-
-                self.eigenvalues = eigenvalues.tolist()
-
-                # Store eigenvectors
-                for i in range(k_actual):
-                    self.eigenvectors[i] = eigenvectors[:, i].tolist()
-            else:
-                self.eigenvalues = []
-
-        except ImportError:
-            # Fallback to full computation
-            self._compute_spectrum_small()
-            self.eigenvalues = self.eigenvalues[:k]
-
-    def algebraic_connectivity(self) -> float:
-        """
-        Compute lambda_2 (Fiedler value) - the algebraic connectivity.
-
-        lambda_2 = 0 iff graph is disconnected
-        lambda_2 > 0 iff graph is connected
-
-        Larger lambda_2 means better connected graph.
-        """
-        if not self.eigenvalues:
+        if self.eigenvalues is None:
             self.compute_spectrum()
 
-        if len(self.eigenvalues) < 2:
-            return 0.0
-
-        return self.eigenvalues[1]
-
-    def spectral_gap(self) -> float:
-        """
-        Gap between lambda_2 and lambda_3.
-
-        Large gap → clear community structure.
-        """
-        if not self.eigenvalues:
-            self.compute_spectrum()
-
-        if len(self.eigenvalues) < 3:
-            return 0.0
-
-        return self.eigenvalues[2] - self.eigenvalues[1]
-
-    def fiedler_vector(self) -> List[float]:
-        """
-        Get Fiedler vector (eigenvector for lambda_2).
-
-        Used for graph bisection - sign of components indicates partition.
-        """
-        if not self.eigenvectors:
-            self.compute_spectrum()
-
-        return self.eigenvectors.get(1, [])
-
-
-# =============================================================================
-# SPECTRAL CLUSTERING
-# =============================================================================
-
-@dataclass
-class SpectralClustering:
-    """
-    Cluster graph nodes using Laplacian eigenvectors.
-
-    Algorithm:
-    1. Compute Laplacian L
-    2. Compute k smallest eigenvectors
-    3. Embed nodes in ℝᵏ using eigenvectors
-    4. Run k-means on embeddings
-
-    Better than traditional clustering for network data.
-    """
-    graph: Graph
-
-    def cluster(self, k: int) -> Dict[int, int]:
-        """
-        Partition graph into k clusters.
-
-        Args:
-            k: Number of clusters
-
-        Returns:
-            Dict[node_id, cluster_id]
-        """
-        laplacian = GraphLaplacian(self.graph)
-        laplacian.compute_spectrum(k=k+1)  # Need k+1 eigenvalues (skip lambda_1=0)
-
-        nodes = sorted(self.graph.nodes)
-        n = len(nodes)
-
-        if n == 0 or k <= 0:
-            return {}
-
-        # Embed nodes using eigenvectors 1..k (skip eigenvector 0)
-        embeddings = {}
-        for i, node in enumerate(nodes):
-            embedding = []
-            for j in range(1, min(k+1, len(laplacian.eigenvectors))):
-                if j in laplacian.eigenvectors:
-                    vec = laplacian.eigenvectors[j]
-                    if i < len(vec):
-                        embedding.append(vec[i])
-
-            if embedding:
-                embeddings[node] = embedding
-
-        # Simple k-means clustering on embeddings
-        clusters = self._kmeans_clustering(embeddings, k)
-
-        return clusters
-
-    def _kmeans_clustering(self, embeddings: Dict[int, List[float]], k: int) -> Dict[int, int]:
-        """
-        Simple k-means clustering on node embeddings.
-
-        Args:
-            embeddings: Dict[node_id, embedding_vector]
-            k: Number of clusters
-
-        Returns:
-            Dict[node_id, cluster_id]
-        """
-        if not embeddings or k <= 0:
-            return {}
-
-        nodes = list(embeddings.keys())
-        n = len(nodes)
-
-        if n <= k:
-            # Each node is its own cluster
-            return {node: i for i, node in enumerate(nodes)}
-
-        # Initialize centroids: pick k nodes uniformly
-        import random
-        random.seed(42)
-        centroid_nodes = random.sample(nodes, k)
-        centroids = {i: embeddings[node] for i, node in enumerate(centroid_nodes)}
-
-        # Run k-means for fixed iterations
-        assignments = {}
-        for iteration in range(10):  # Fixed iterations for simplicity
-            # Assignment step
-            for node in nodes:
-                embedding = embeddings[node]
-                distances = [
-                    self._euclidean_distance(embedding, centroid)
-                    for centroid in centroids.values()
-                ]
-                cluster_id = distances.index(min(distances))
-                assignments[node] = cluster_id
-
-            # Update step
-            for cluster_id in range(k):
-                cluster_nodes = [node for node in nodes if assignments.get(node) == cluster_id]
-                if cluster_nodes:
-                    # Compute mean embedding
-                    dim = len(embeddings[cluster_nodes[0]])
-                    new_centroid = [0.0] * dim
-                    for node in cluster_nodes:
-                        for i, val in enumerate(embeddings[node]):
-                            new_centroid[i] += val
-                    for i in range(dim):
-                        new_centroid[i] /= len(cluster_nodes)
-                    centroids[cluster_id] = new_centroid
-
-        return assignments
-
-    def _euclidean_distance(self, v1: List[float], v2: List[float]) -> float:
-        """Compute Euclidean distance between vectors."""
-        if len(v1) != len(v2):
-            return float('inf')
-        return math.sqrt(sum((a - b) ** 2 for a, b in zip(v1, v2)))
-
-    def find_optimal_k(self, max_k: int = 10) -> int:
-        """
-        Find optimal number of clusters using eigengap heuristic.
-
-        Look for largest gap in eigenvalue spectrum.
-
-        Args:
-            max_k: Maximum number of clusters to consider
-
-        Returns:
-            Optimal k
-        """
-        laplacian = GraphLaplacian(self.graph)
-        laplacian.compute_spectrum(k=max_k+2)
-
-        if len(laplacian.eigenvalues) < 3:
-            return 1
-
-        # Find largest gap in eigenvalues
-        gaps = []
-        for i in range(1, min(len(laplacian.eigenvalues) - 1, max_k)):
-            gap = laplacian.eigenvalues[i+1] - laplacian.eigenvalues[i]
-            gaps.append((gap, i))
-
-        if not gaps:
-            return 1
-
-        # Return k corresponding to largest gap
-        largest_gap = max(gaps, key=lambda x: x[0])
-        return largest_gap[1]
-
-
-# =============================================================================
-# CHEEGER CONSTANT AND GRAPH EXPANSION
-# =============================================================================
-
-@dataclass
-class CheegerConstant:
-    """
-    Graph expansion via Cheeger inequality.
-
-    Cheeger constant: h(G) = min_S |dS| / min(|S|, |V\\S|)
-
-    where dS = edges leaving S (cut size)
-
-    Relates to eigenvalues via Cheeger inequality:
-        lambda_2/2 <= h(G) <= sqrt(2*lambda_2)
-
-    High h(G) → well-connected graph (hard to partition)
-    Low h(G) → bottleneck exists
-    """
-    graph: Graph
-
-    def cheeger_lower_bound(self) -> float:
-        """
-        Lower bound on Cheeger constant using lambda_2.
-
-        h(G) >= lambda_2/2
-        """
-        laplacian = GraphLaplacian(self.graph)
-        lambda_2 = laplacian.algebraic_connectivity()
-        return lambda_2 / 2.0
-
-    def cheeger_upper_bound(self) -> float:
-        """
-        Upper bound on Cheeger constant using lambda_2.
-
-        h(G) <= sqrt(2*lambda_2)
-        """
-        laplacian = GraphLaplacian(self.graph)
-        lambda_2 = laplacian.algebraic_connectivity()
-        return math.sqrt(2.0 * lambda_2)
-
-    def approximate_cheeger_constant(self) -> float:
-        """
-        Approximate Cheeger constant.
-
-        Exact computation is NP-hard.
-        Use geometric mean of bounds as approximation.
-        """
-        lower = self.cheeger_lower_bound()
-        upper = self.cheeger_upper_bound()
-        return math.sqrt(lower * upper) if lower > 0 and upper > 0 else 0.0
-
-    def find_sparse_cut(self) -> Tuple[Set[int], Set[int]]:
-        """
-        Find approximate sparse cut using Fiedler vector.
-
-        Algorithm:
-        1. Compute Fiedler vector (eigenvector for lambda_2)
-        2. Partition nodes by sign of Fiedler vector components
-
-        Returns:
-            (S, V\S) partition
-        """
-        laplacian = GraphLaplacian(self.graph)
-        laplacian.compute_spectrum(k=2)
-
-        fiedler = laplacian.fiedler_vector()
-        nodes = sorted(self.graph.nodes)
-
-        if not fiedler or len(fiedler) < len(nodes):
-            # Fallback: arbitrary partition
-            mid = len(nodes) // 2
-            return (set(nodes[:mid]), set(nodes[mid:]))
-
-        # Partition by sign
-        S = set()
-        T = set()
-        for i, node in enumerate(nodes):
-            if i < len(fiedler):
-                if fiedler[i] >= 0:
-                    S.add(node)
-                else:
-                    T.add(node)
-
-        # Handle empty sets
-        if not S:
-            S.add(nodes[0])
-            T.discard(nodes[0])
-        if not T:
-            T.add(nodes[-1])
-            S.discard(nodes[-1])
-
-        return (S, T)
-
-    def compute_conductance(self, S: Set[int]) -> float:
-        """
-        Compute conductance of set S.
-
-        φ(S) = |∂S| / min(vol(S), vol(V\S))
-
-        where:
-        - |∂S| = number of edges leaving S
-        - vol(S) = sum of degrees in S
-        """
-        if not S or S == self.graph.nodes:
-            return 0.0
-
-        # Compute cut size
-        cut_size = 0
-        for u in S:
-            for v in self.graph.get_neighbors(u):
-                if v not in S:
-                    cut_size += 1
-
-        # Compute volumes
-        vol_S = sum(self.graph.degree(node) for node in S)
-        vol_complement = sum(self.graph.degree(node) for node in self.graph.nodes if node not in S)
-
-        if vol_S == 0 or vol_complement == 0:
-            return 0.0
-
-        return cut_size / min(vol_S, vol_complement)
-
-
-# =============================================================================
-# RANDOM WALK ANALYSIS
-# =============================================================================
-
-@dataclass
-class RandomWalkAnalysis:
-    """
-    Analyze random walks using spectral methods.
-
-    Key relationships:
-    - Mixing time tau_mix ~ 1/lambda_2 (for regular graphs)
-    - Hitting time H(u,v) via commute time resistance
-    - Stationary distribution π_i = deg(i) / (2|E|)
-    """
-    graph: Graph
-
-    def mixing_time_estimate(self) -> float:
-        """
-        Estimate mixing time of random walk.
-
-        tau_mix ~ 1 / lambda_2
-
-        For non-regular graphs, this is approximate.
-        """
-        laplacian = GraphLaplacian(self.graph)
-        lambda_2 = laplacian.algebraic_connectivity()
-
-        if lambda_2 == 0:
-            return float('inf')  # Disconnected graph
-
-        return 1.0 / lambda_2
-
-    def stationary_distribution(self) -> Dict[int, float]:
-        """
-        Compute stationary distribution of random walk.
-
-        For undirected graphs: π_i = deg(i) / (2|E|)
-        """
-        total_degree = sum(self.graph.degree(node) for node in self.graph.nodes)
-
-        if total_degree == 0:
-            return {}
-
-        return {
-            node: self.graph.degree(node) / total_degree
-            for node in self.graph.nodes
+        lambda_1 = self.eigenvalues[1]  # Second smallest (first is ~0)
+
+        # Classify coupling strength
+        if lambda_1 < 0.1:
+            coupling_str = "very weak"
+        elif lambda_1 < 0.3:
+            coupling_str = "weak"
+        elif lambda_1 < 0.7:
+            coupling_str = "moderate"
+        else:
+            coupling_str = "strong"
+
+        # Equilibration time (inverse of λ₁)
+        if lambda_1 > 1e-6:
+            eq_time = 1.0 / lambda_1
+        else:
+            eq_time = float('inf')
+
+        analysis = {
+            "algebraic_connectivity": lambda_1,
+            "coupling_strength": coupling_str,
+            "equilibration_time": eq_time,
+            "interpretation": self._interpret_lambda1(lambda_1)
         }
 
-    def hitting_time_lower_bound(self, source: int, target: int) -> float:
+        return analysis
+
+    def _interpret_lambda1(self, lambda_1: float) -> str:
+        """Generate interpretation of algebraic connectivity."""
+        if lambda_1 < 0.01:
+            return (
+                "Very weak coupling. System takes extremely long to equilibrate. "
+                "Components are nearly independent. High risk of fragmentation."
+            )
+        elif lambda_1 < 0.3:
+            return (
+                "Weak coupling. System responds slowly to perturbations. "
+                "Limited information flow between components."
+            )
+        elif lambda_1 < 0.7:
+            return (
+                "Moderate coupling. System has reasonable response time. "
+                "Components influence each other but maintain some independence."
+            )
+        else:
+            return (
+                "Strong coupling. System responds quickly to changes. "
+                "Components are tightly interconnected. High synchronization."
+            )
+
+    def find_oscillatory_modes(self, num_modes: int = 3) -> List[Dict]:
         """
-        Lower bound on hitting time H(source, target).
+        Find dominant oscillatory modes (λ₂, λ₃, ...).
 
-        Uses resistance distance and stationary distribution.
+        Each eigenvalue λᵢ corresponds to an oscillatory mode with:
+        - Frequency: ω = √λᵢ / (2π)
+        - Period: T = 1/ω
+        - Spatial pattern: eigenvector vᵢ
+
+        Args:
+            num_modes: Number of modes to return
+
+        Returns:
+            List of mode dictionaries
         """
-        stationary = self.stationary_distribution()
+        if self.eigenvalues is None:
+            self.compute_spectrum()
 
-        if target not in stationary or stationary[target] == 0:
-            return float('inf')
+        modes = []
 
-        # H(u,v) ≥ 1/π_v
-        return 1.0 / stationary[target]
+        # Start from λ₁ (skip λ₀ which is always 0)
+        for i in range(1, min(num_modes + 1, len(self.eigenvalues))):
+            lambda_i = self.eigenvalues[i]
+            v_i = self.eigenvectors[:, i]
 
-    def commute_time_estimate(self, u: int, v: int) -> float:
+            # Frequency and period
+            if lambda_i > 0:
+                omega = np.sqrt(lambda_i) / (2 * np.pi)
+                period = 1.0 / omega if omega > 0 else float('inf')
+            else:
+                omega = 0.0
+                period = float('inf')
+
+            # Find nodes with highest participation in this mode
+            node_weights = [(self.node_names[j], abs(v_i[j]))
+                           for j in range(len(v_i))]
+            node_weights.sort(key=lambda x: x[1], reverse=True)
+
+            modes.append({
+                "mode_number": i,
+                "eigenvalue": lambda_i,
+                "frequency": omega,
+                "period": period,
+                "dominant_nodes": node_weights[:5],  # Top 5 nodes
+                "eigenvector": v_i
+            })
+
+        return modes
+
+    def compute_node_centrality(self) -> Dict[str, float]:
         """
-        Estimate commute time C(u,v) = H(u,v) + H(v,u).
+        Compute eigenvector centrality for each node.
 
-        Uses effective resistance: C(u,v) = 2|E| * R_eff(u,v)
+        Uses the dominant eigenvector (largest eigenvalue).
 
-        For simple estimate, use graph distance.
+        Returns:
+            Dictionary mapping node name to centrality score
         """
-        # BFS distance
-        distance = self._bfs_distance(u, v)
+        if self.eigenvectors is None:
+            self.compute_spectrum()
 
-        if distance == float('inf'):
-            return float('inf')
+        # Use eigenvector of largest eigenvalue
+        dominant_eigenvector = self.eigenvectors[:, -1]
 
-        # Rough estimate: commute time ~ distance * graph size
-        return distance * len(self.graph.nodes)
+        # Normalize to [0, 1]
+        centrality = np.abs(dominant_eigenvector)
+        centrality = centrality / centrality.max() if centrality.max() > 0 else centrality
 
-    def _bfs_distance(self, source: int, target: int) -> float:
-        """Compute shortest path distance using BFS."""
-        if source == target:
-            return 0.0
+        return {
+            name: centrality[i]
+            for i, name in enumerate(self.node_names)
+        }
 
-        visited = {source: 0}
-        queue = [source]
+    def full_analysis(self, num_modes: int = 3) -> SpectralResult:
+        """
+        Run complete spectral analysis.
 
-        while queue:
-            node = queue.pop(0)
-            dist = visited[node]
+        Args:
+            num_modes: Number of oscillatory modes to analyze
 
-            for neighbor in self.graph.get_neighbors(node):
-                if neighbor not in visited:
-                    visited[neighbor] = dist + 1
-                    if neighbor == target:
-                        return float(dist + 1)
-                    queue.append(neighbor)
+        Returns:
+            SpectralResult with all analysis
+        """
+        # Compute spectrum
+        eigenvalues, eigenvectors = self.compute_spectrum()
 
-        return float('inf')
+        # Analyze coupling
+        coupling = self.analyze_coupling()
+
+        # Find oscillatory modes
+        modes = self.find_oscillatory_modes(num_modes)
+
+        # Generate analysis text
+        analysis_text = self._generate_analysis(coupling, modes)
+
+        return SpectralResult(
+            eigenvalues=eigenvalues,
+            eigenvectors=eigenvectors,
+            node_names=self.node_names,
+            algebraic_connectivity=coupling["algebraic_connectivity"],
+            coupling_strength=coupling["coupling_strength"],
+            equilibration_time=coupling["equilibration_time"],
+            oscillatory_modes=modes,
+            analysis=analysis_text
+        )
+
+    def _generate_analysis(self, coupling: Dict, modes: List[Dict]) -> str:
+        """Generate human-readable analysis."""
+        lines = []
+
+        lines.append("# Spectral Graph Analysis")
+        lines.append("")
+        lines.append("## System Coupling")
+        lines.append(f"- Algebraic connectivity (lambda_1): {coupling['algebraic_connectivity']:.4f}")
+        lines.append(f"- Coupling strength: {coupling['coupling_strength']}")
+        lines.append(f"- Equilibration time: {coupling['equilibration_time']:.1f} time units")
+        lines.append(f"- {coupling['interpretation']}")
+        lines.append("")
+
+        lines.append("## Oscillatory Modes")
+        for mode in modes:
+            lines.append(f"### Mode {mode['mode_number']} (lambda = {mode['eigenvalue']:.4f})")
+            lines.append(f"- Period: {mode['period']:.2f} time units")
+            lines.append(f"- Dominant nodes:")
+            for node, weight in mode['dominant_nodes'][:3]:
+                lines.append(f"  - {node}: {weight:.3f}")
+            lines.append("")
+
+        return "\n".join(lines)
 
 
-# =============================================================================
-# UTILITY FUNCTIONS
-# =============================================================================
-
-def graph_from_adjacency(adjacency: Dict[int, Set[int]]) -> Graph:
-    """Create Graph from adjacency dict."""
-    graph = Graph()
-    for node, neighbors in adjacency.items():
-        graph.nodes.add(node)
-        for neighbor in neighbors:
-            graph.add_edge(node, neighbor)
-    return graph
-
-
-def graph_from_edges(edges: List[Tuple[int, int]], weighted: bool = False) -> Graph:
+# Convenience function
+def analyze_spectrum(category, num_modes: int = 3) -> SpectralResult:
     """
-    Create Graph from edge list.
+    Convenience function for full spectral analysis.
 
     Args:
-        edges: List of (u, v) or (u, v, weight) tuples
-        weighted: If True, expect 3-tuples with weights
-    """
-    graph = Graph()
-    for edge in edges:
-        if weighted and len(edge) == 3:
-            u, v, w = edge
-            graph.add_edge(u, v, weight=w)
-        else:
-            u, v = edge[0], edge[1]
-            graph.add_edge(u, v)
-    return graph
-
-
-def analyze_connectivity(graph: Graph) -> Dict:
-    """
-    Comprehensive connectivity analysis.
+        category: Category object with network structure
+        num_modes: Number of oscillatory modes to analyze
 
     Returns:
-        Dict with connectivity metrics
+        SpectralResult with complete analysis
     """
-    laplacian = GraphLaplacian(graph)
-    laplacian.compute_spectrum()
+    analyzer = SpectralGraphAnalyzer(category)
+    return analyzer.full_analysis(num_modes=num_modes)
 
-    cheeger = CheegerConstant(graph)
-    random_walk = RandomWalkAnalysis(graph)
 
-    return {
-        'is_connected': graph.is_connected(),
-        'num_nodes': len(graph.nodes),
-        'num_edges': sum(len(neighbors) for neighbors in graph.edges.values()) // 2,
-        'algebraic_connectivity': laplacian.algebraic_connectivity(),
-        'spectral_gap': laplacian.spectral_gap(),
-        'cheeger_lower_bound': cheeger.cheeger_lower_bound(),
-        'cheeger_upper_bound': cheeger.cheeger_upper_bound(),
-        'mixing_time_estimate': random_walk.mixing_time_estimate(),
-    }
+SpectralAnalyzer = SpectralGraphAnalyzer
+
+
+# Example usage
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+    from categorical.category import Category, Object, Morphism
+
+    print("=" * 70)
+    print("Spectral Graph Theory - Example")
+    print("=" * 70)
+    print()
+
+    # Create simple network
+    cat = Category("TestNetwork")
+
+    # Add nodes
+    A = cat.add_object(Object("A"))
+    B = cat.add_object(Object("B"))
+    C = cat.add_object(Object("C"))
+    D = cat.add_object(Object("D"))
+
+    # Add edges with weights
+    cat.add_morphism(Morphism("AB", A, B, data={"weight": 1.0}))
+    cat.add_morphism(Morphism("BC", B, C, data={"weight": 1.0}))
+    cat.add_morphism(Morphism("CD", C, D, data={"weight": 0.5}))
+    cat.add_morphism(Morphism("DA", D, A, data={"weight": 0.5}))
+    cat.add_morphism(Morphism("AC", A, C, data={"weight": 0.3}))  # Shortcut
+
+    # Analyze
+    result = analyze_spectrum(cat, num_modes=3)
+
+    # Print results
+    print(result.analysis)
+
+    print("\nEigenvalues:")
+    for i, lam in enumerate(result.eigenvalues):
+        print(f"  lambda_{i}: {lam:.4f}")
+
+    print("\nNode Centrality:")
+    analyzer = SpectralGraphAnalyzer(cat)
+    analyzer.compute_spectrum()
+    centrality = analyzer.compute_node_centrality()
+    for node, cent in sorted(centrality.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {node}: {cent:.3f}")

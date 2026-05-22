@@ -1,0 +1,546 @@
+{
+  "total_targets": 22,
+  "total_routes": 24,
+  "target_summaries": [
+    {
+      "target": "Al2O3",
+      "num_routes": 1,
+      "best_route": "Al2O3_Bayer_simplified",
+      "best_composite": 0.791,
+      "precursor_cost_usd": 0.01,
+      "total_time_hours": 56.0,
+      "equipment_needed": [
+        "autoclave",
+        "crystallizer",
+        "rotary_kiln"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "Al2O3_coating",
+      "num_routes": 1,
+      "best_route": "Al2O3_PVD_coating",
+      "best_composite": 0.923,
+      "precursor_cost_usd": 0.1,
+      "total_time_hours": 2.5,
+      "equipment_needed": [
+        "ultrasonic_bath",
+        "PVD_chamber"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "Graphite_anode_electrode",
+      "num_routes": 1,
+      "best_route": "graphite_anode_coating",
+      "best_composite": 0.859,
+      "precursor_cost_usd": 0.12,
+      "total_time_hours": 5.6,
+      "equipment_needed": [
+        "stirrer",
+        "mixer",
+        "doctor_blade",
+        "oven",
+        "calender_rolls"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "Graphite_anode_electrode_water",
+      "num_routes": 1,
+      "best_route": "graphite_anode_water_based",
+      "best_composite": 0.939,
+      "precursor_cost_usd": 0.08,
+      "total_time_hours": 3.5,
+      "equipment_needed": [
+        "stirrer",
+        "mixer",
+        "doctor_blade",
+        "oven"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "LCO",
+      "num_routes": 1,
+      "best_route": "LCO_solid_state",
+      "best_composite": 0.841,
+      "precursor_cost_usd": 0.16,
+      "total_time_hours": 19.0,
+      "equipment_needed": [
+        "ball_mill",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "LFP",
+      "num_routes": 3,
+      "best_route": "LFP_sol_gel",
+      "best_composite": 0.852,
+      "precursor_cost_usd": 0.1,
+      "total_time_hours": 23.0,
+      "equipment_needed": [
+        "stirrer",
+        "oven",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "LFP_cathode_electrode",
+      "num_routes": 1,
+      "best_route": "LFP_cathode_coating",
+      "best_composite": 0.858,
+      "precursor_cost_usd": 0.11,
+      "total_time_hours": 8.6,
+      "equipment_needed": [
+        "stirrer",
+        "mixer",
+        "doctor_blade",
+        "oven",
+        "calender_rolls"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "LGPS",
+      "num_routes": 1,
+      "best_route": "LGPS_ball_mill",
+      "best_composite": 0.498,
+      "precursor_cost_usd": 1.5,
+      "total_time_hours": 28.5,
+      "equipment_needed": [
+        "glovebox",
+        "ball_mill",
+        "furnace"
+      ],
+      "warnings": [
+        "Best route has HIGH risk level (hazardous materials)"
+      ]
+    },
+    {
+      "target": "LLZO",
+      "num_routes": 1,
+      "best_route": "LLZO_solid_state",
+      "best_composite": 0.782,
+      "precursor_cost_usd": 0.11,
+      "total_time_hours": 18.5,
+      "equipment_needed": [
+        "ball_mill",
+        "furnace",
+        "press"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "LMO",
+      "num_routes": 1,
+      "best_route": "LMO_solid_state",
+      "best_composite": 0.832,
+      "precursor_cost_usd": 0.07,
+      "total_time_hours": 26.0,
+      "equipment_needed": [
+        "ball_mill",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "Li3PS4",
+      "num_routes": 1,
+      "best_route": "Li3PS4_ball_mill",
+      "best_composite": 0.701,
+      "precursor_cost_usd": 0.7,
+      "total_time_hours": 10.5,
+      "equipment_needed": [
+        "glovebox",
+        "ball_mill"
+      ],
+      "warnings": [
+        "Best route has HIGH risk level (hazardous materials)"
+      ]
+    },
+    {
+      "target": "NASICON",
+      "num_routes": 1,
+      "best_route": "NASICON_solid_state",
+      "best_composite": 0.84,
+      "precursor_cost_usd": 0.06,
+      "total_time_hours": 24.0,
+      "equipment_needed": [
+        "ball_mill",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "NCA",
+      "num_routes": 1,
+      "best_route": "NCA_coprecipitation",
+      "best_composite": 0.768,
+      "precursor_cost_usd": 0.19,
+      "total_time_hours": 28.5,
+      "equipment_needed": [
+        "stirrer",
+        "reactor",
+        "mortar",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "NMC111",
+      "num_routes": 1,
+      "best_route": "NMC111_coprecipitation",
+      "best_composite": 0.847,
+      "precursor_cost_usd": 0.19,
+      "total_time_hours": 23.5,
+      "equipment_needed": [
+        "stirrer",
+        "reactor",
+        "mortar",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "NMC622",
+      "num_routes": 1,
+      "best_route": "NMC622_coprecipitation",
+      "best_composite": 0.802,
+      "precursor_cost_usd": 0.2,
+      "total_time_hours": 25.5,
+      "equipment_needed": [
+        "stirrer",
+        "reactor",
+        "mortar",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "NMC811",
+      "num_routes": 1,
+      "best_route": "NMC811_coprecipitation",
+      "best_composite": 0.77,
+      "precursor_cost_usd": 0.2,
+      "total_time_hours": 39.5,
+      "equipment_needed": [
+        "stirrer",
+        "reactor",
+        "filter",
+        "oven",
+        "mortar",
+        "furnace"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "NMC811_cathode_electrode",
+      "num_routes": 1,
+      "best_route": "NMC811_cathode_coating",
+      "best_composite": 0.781,
+      "precursor_cost_usd": 0.13,
+      "total_time_hours": 16.5,
+      "equipment_needed": [
+        "stirrer",
+        "mixer",
+        "doctor_blade",
+        "oven"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "PEO_electrolyte",
+      "num_routes": 1,
+      "best_route": "PEO_electrolyte_membrane",
+      "best_composite": 0.79,
+      "precursor_cost_usd": 0.4,
+      "total_time_hours": 36.6,
+      "equipment_needed": [
+        "glovebox",
+        "doctor_blade",
+        "hot_press"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "PVDF_film",
+      "num_routes": 1,
+      "best_route": "PVDF_film_casting",
+      "best_composite": 0.864,
+      "precursor_cost_usd": 0.07,
+      "total_time_hours": 16.1,
+      "equipment_needed": [
+        "stirrer",
+        "doctor_blade",
+        "oven"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "SiC",
+      "num_routes": 1,
+      "best_route": "SiC_Acheson",
+      "best_composite": 0.768,
+      "precursor_cost_usd": 0.01,
+      "total_time_hours": 39.0,
+      "equipment_needed": [
+        "mixer",
+        "Acheson_furnace",
+        "crusher"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "TiN_coating",
+      "num_routes": 1,
+      "best_route": "TiN_PVD_coating",
+      "best_composite": 0.903,
+      "precursor_cost_usd": 0.14,
+      "total_time_hours": 2.2,
+      "equipment_needed": [
+        "ultrasonic_bath",
+        "PVD_chamber"
+      ],
+      "warnings": []
+    },
+    {
+      "target": "YSZ_coating",
+      "num_routes": 1,
+      "best_route": "YSZ_thermal_barrier",
+      "best_composite": 0.892,
+      "precursor_cost_usd": 0.36,
+      "total_time_hours": 2.0,
+      "equipment_needed": [
+        "grit_blaster",
+        "plasma_spray"
+      ],
+      "warnings": []
+    }
+  ],
+  "equipment_analysis": {
+    "equipment_frequency": {
+      "stirrer": 10,
+      "furnace": 10,
+      "oven": 7,
+      "doctor_blade": 6,
+      "ball_mill": 6,
+      "mixer": 5,
+      "reactor": 4,
+      "mortar": 4,
+      "glovebox": 3,
+      "ultrasonic_bath": 2,
+      "PVD_chamber": 2,
+      "calender_rolls": 2,
+      "autoclave": 1,
+      "crystallizer": 1,
+      "rotary_kiln": 1,
+      "press": 1,
+      "filter": 1,
+      "hot_press": 1,
+      "Acheson_furnace": 1,
+      "crusher": 1,
+      "grit_blaster": 1,
+      "plasma_spray": 1
+    },
+    "equipment_targets": {
+      "autoclave": [
+        "Al2O3"
+      ],
+      "crystallizer": [
+        "Al2O3"
+      ],
+      "rotary_kiln": [
+        "Al2O3"
+      ],
+      "ultrasonic_bath": [
+        "Al2O3_coating",
+        "TiN_coating"
+      ],
+      "PVD_chamber": [
+        "Al2O3_coating",
+        "TiN_coating"
+      ],
+      "stirrer": [
+        "Graphite_anode_electrode",
+        "Graphite_anode_electrode_water",
+        "LFP",
+        "LFP_cathode_electrode",
+        "NCA",
+        "NMC111",
+        "NMC622",
+        "NMC811",
+        "NMC811_cathode_electrode",
+        "PVDF_film"
+      ],
+      "mixer": [
+        "Graphite_anode_electrode",
+        "Graphite_anode_electrode_water",
+        "LFP_cathode_electrode",
+        "NMC811_cathode_electrode",
+        "SiC"
+      ],
+      "doctor_blade": [
+        "Graphite_anode_electrode",
+        "Graphite_anode_electrode_water",
+        "LFP_cathode_electrode",
+        "NMC811_cathode_electrode",
+        "PEO_electrolyte",
+        "PVDF_film"
+      ],
+      "oven": [
+        "Graphite_anode_electrode",
+        "Graphite_anode_electrode_water",
+        "LFP",
+        "LFP_cathode_electrode",
+        "NMC811",
+        "NMC811_cathode_electrode",
+        "PVDF_film"
+      ],
+      "calender_rolls": [
+        "Graphite_anode_electrode",
+        "LFP_cathode_electrode"
+      ],
+      "ball_mill": [
+        "LCO",
+        "LGPS",
+        "LLZO",
+        "LMO",
+        "Li3PS4",
+        "NASICON"
+      ],
+      "furnace": [
+        "LCO",
+        "LFP",
+        "LGPS",
+        "LLZO",
+        "LMO",
+        "NASICON",
+        "NCA",
+        "NMC111",
+        "NMC622",
+        "NMC811"
+      ],
+      "glovebox": [
+        "LGPS",
+        "Li3PS4",
+        "PEO_electrolyte"
+      ],
+      "press": [
+        "LLZO"
+      ],
+      "reactor": [
+        "NCA",
+        "NMC111",
+        "NMC622",
+        "NMC811"
+      ],
+      "mortar": [
+        "NCA",
+        "NMC111",
+        "NMC622",
+        "NMC811"
+      ],
+      "filter": [
+        "NMC811"
+      ],
+      "hot_press": [
+        "PEO_electrolyte"
+      ],
+      "Acheson_furnace": [
+        "SiC"
+      ],
+      "crusher": [
+        "SiC"
+      ],
+      "grit_blaster": [
+        "YSZ_coating"
+      ],
+      "plasma_spray": [
+        "YSZ_coating"
+      ]
+    }
+  },
+  "extremes": {
+    "highest_composite": {
+      "target": "Graphite_anode_electrode_water",
+      "route_name": "graphite_anode_water_based",
+      "num_steps": 4,
+      "feasibility": 0.911,
+      "cost_score": 0.85,
+      "time_score": 1.0,
+      "safety_score": 1.0,
+      "composite": 0.939,
+      "bottleneck_step": "coat",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    },
+    "lowest_composite": {
+      "target": "LGPS",
+      "route_name": "LGPS_ball_mill",
+      "num_steps": 3,
+      "feasibility": 0.767,
+      "cost_score": 0.3,
+      "time_score": 0.55,
+      "safety_score": 0.24,
+      "composite": 0.498,
+      "bottleneck_step": "anneal",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    },
+    "highest_feasibility": {
+      "target": "PVDF_film",
+      "route_name": "PVDF_film_casting",
+      "num_steps": 3,
+      "feasibility": 0.925,
+      "cost_score": 0.85,
+      "time_score": 0.7,
+      "safety_score": 0.92,
+      "composite": 0.864,
+      "bottleneck_step": "cast",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    },
+    "cheapest": {
+      "target": "Al2O3",
+      "route_name": "Al2O3_Bayer_simplified",
+      "num_steps": 3,
+      "feasibility": 0.86,
+      "cost_score": 0.95,
+      "time_score": 0.35,
+      "safety_score": 0.92,
+      "composite": 0.791,
+      "bottleneck_step": "precipitate",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    },
+    "fastest": {
+      "target": "Al2O3_coating",
+      "route_name": "Al2O3_PVD_coating",
+      "num_steps": 2,
+      "feasibility": 0.866,
+      "cost_score": 0.85,
+      "time_score": 1.0,
+      "safety_score": 1.0,
+      "composite": 0.923,
+      "bottleneck_step": "deposit",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    },
+    "safest": {
+      "target": "Al2O3_coating",
+      "route_name": "Al2O3_PVD_coating",
+      "num_steps": 2,
+      "feasibility": 0.866,
+      "cost_score": 0.85,
+      "time_score": 1.0,
+      "safety_score": 1.0,
+      "composite": 0.923,
+      "bottleneck_step": "deposit",
+      "missing_precursors": "",
+      "missing_equipment": ""
+    }
+  }
+}

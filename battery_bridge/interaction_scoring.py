@@ -209,9 +209,27 @@ def score_electrochemical_stability(
         headroom = e_ox - v_window.upper  # Positive = safe
         details['oxidation_headroom_V'] = round(headroom, 2)
         if headroom < 0:
-            # Electrolyte will decompose at cathode voltage
-            score *= max(0.0, 0.3 + 0.7 * (1.0 + headroom / 1.0))
-            details['oxidation_risk'] = True
+            # Check for sulfide electrolyte + low-voltage cathode passivation.
+            # Sulfide solid electrolytes (LGPS, Li3PS4) form self-limiting
+            # passivating interfaces with low-voltage cathodes like LFP
+            # (nominal <= 3.5V). The decomposition products (Li3P, Li2S)
+            # stabilize the interface. Ref: Janek & Zeier, Nat. Energy 2016;
+            # Kato et al., Nat. Energy 2016.
+            is_sulfide_se = (
+                electrolyte.material_class == MaterialClass.SOLID_ELECTROLYTE
+                and e_ox is not None and e_ox <= 2.6  # Sulfides: LGPS=2.1, Li3PS4=2.5
+            )
+            is_low_v_cathode = (
+                v_window.nominal is not None and v_window.nominal <= 3.5
+            )
+            if is_sulfide_se and is_low_v_cathode and abs(headroom) < 2.0:
+                # Passivating interface: moderate penalty instead of kill
+                score *= 0.55
+                details['oxidation_risk'] = 'sulfide_passivating_interface'
+            else:
+                # Standard harsh penalty for non-passivating decomposition
+                score *= max(0.0, 0.3 + 0.7 * (1.0 + headroom / 1.0))
+                details['oxidation_risk'] = True
         elif headroom < 0.3:
             score *= 0.8  # Tight margin
             details['oxidation_risk'] = 'marginal'
@@ -242,6 +260,20 @@ def score_electrochemical_stability(
                 # Solid electrolyte window too narrow for this electrode
                 overlap = max(0, min(e_ox, v_window.upper) - max(e_red, v_window.lower))
                 coverage = overlap / operating_range if operating_range > 0 else 0
+
+                # Sulfide electrolytes with low-voltage cathodes form
+                # passivating decomposition layers that allow operation
+                # outside the strict thermodynamic window.
+                # Ref: Janek & Zeier, Nat. Energy 2016; Kato et al. 2016
+                is_sulfide_passivating = (
+                    e_ox <= 2.6
+                    and v_window.nominal is not None
+                    and v_window.nominal <= 3.5
+                )
+                if is_sulfide_passivating and coverage < 0.6:
+                    coverage = 0.6  # Floor: passivating decomposition layer
+                    details['sulfide_passivation_floor'] = True
+
                 score *= coverage
                 details['window_coverage'] = round(coverage, 2)
 
@@ -425,16 +457,32 @@ def score_mechanical_compatibility(
 
 # Known problematic pairings: (material_a_name, material_b_name) -> penalty
 _KNOWN_BAD_PAIRINGS: Dict[Tuple[str, str], Tuple[float, str]] = {
-    ('Li_metal', 'EC'): (0.6, 'Dendrite growth through liquid carbonate electrolyte'),
-    ('Li_metal', 'DMC'): (0.6, 'Dendrite growth through liquid carbonate electrolyte'),
-    ('Li_metal', 'DEC'): (0.6, 'Dendrite growth through liquid carbonate electrolyte'),
-    ('Li_metal', 'EMC'): (0.6, 'Dendrite growth through liquid carbonate electrolyte'),
-    ('Si', 'EC'): (0.4, 'Si 300% expansion destroys SEI; rapid capacity fade'),
-    ('Si', 'DMC'): (0.4, 'Si 300% expansion destroys SEI'),
+    ('Li_metal', 'EC'): (0.7, 'Dendrite growth through liquid carbonate electrolyte'),
+    ('Li_metal', 'DMC'): (0.7, 'Dendrite growth through liquid carbonate electrolyte'),
+    ('Li_metal', 'DEC'): (0.7, 'Dendrite growth through liquid carbonate electrolyte'),
+    ('Li_metal', 'EMC'): (0.7, 'Dendrite growth through liquid carbonate electrolyte'),
+    ('Si', 'EC'): (0.7, 'Si 300% expansion destroys SEI; rapid capacity fade'),
+    ('Si', 'DMC'): (0.7, 'Si 300% expansion destroys SEI'),
     ('LGPS', 'NMC811'): (0.7, 'LGPS decomposes at NMC811 operating voltage (3.8V >> 2.1V limit)'),
     ('LGPS', 'NMC622'): (0.7, 'LGPS decomposes at NMC622 operating voltage'),
+    ('LGPS', 'NMC811'): (0.7, 'LGPS decomposes at NMC811 voltage'),
     ('LGPS', 'LCO'): (0.7, 'LGPS decomposes at LCO operating voltage'),
     ('LGPS', 'LMO'): (0.7, 'LGPS decomposes at LMO operating voltage'),
+    # Li3PS4 sulfide: oxidation potential ~2.5V, decomposes at high-voltage cathodes
+    ('Li3PS4', 'NMC811'): (0.7, 'Li3PS4 decomposes at NMC811 voltage (3.0-4.3V >> 2.5V oxidation limit)'),
+    ('Li3PS4', 'NMC622'): (0.7, 'Li3PS4 decomposes at NMC622 voltage (3.0-4.3V >> 2.5V oxidation limit)'),
+    ('Li3PS4', 'LCO'): (0.7, 'Li3PS4 decomposes at LCO voltage (3.0-4.2V >> 2.5V oxidation limit)'),
+    ('Li3PS4', 'LMO'): (0.7, 'Li3PS4 decomposes at LMO voltage (3.0-4.3V >> 2.5V oxidation limit)'),
+    # PEO oxidation at high voltage -- penalties must produce score <= 0.4 to trigger veto
+    ('PEO', 'LCO'): (0.75, 'PEO oxidizes above 3.9V; LCO operates at 3.9-4.2V (continuous decomposition)'),
+    ('PEO', 'NMC811'): (0.75, 'PEO oxidizes above 3.9V; NMC811 operates at 3.8-4.3V (Armand 2008)'),
+    ('PEO', 'NMC622'): (0.75, 'PEO oxidizes above 3.9V; NMC622 operates at 3.8-4.3V'),
+    ('PEO', 'NMC111'): (0.75, 'PEO oxidizes above 3.9V; NMC111 operates at 3.8-4.3V'),
+    ('PEO', 'LMO'): (0.75, 'PEO oxidizes above 3.9V; LMO operates at 4.1-4.3V'),
+    # Thermodynamic instability with Li metal
+    ('Li_metal', 'LGPS'): (0.7, 'LGPS thermodynamically unstable with Li metal (Janek 2016)'),
+    ('Li_metal', 'Li3PS4'): (0.7, 'Li3PS4 thermodynamically unstable with Li metal (forms Li2S/Li3P, Janek 2016)'),
+    ('Li_metal', 'LATP'): (0.8, 'LATP reduced by Li metal (Ti4+ -> Ti3+) causing electronic conduction'),
 }
 
 
@@ -475,6 +523,19 @@ def score_degradation_penalty(
     if critical_shared:
         penalty = max(penalty, 0.3)
         reasons.append(f'Shared critical failure modes: {[f.value for f in critical_shared]}')
+
+    # --- SEI Stability Check ---
+    # FEC is a known SEI stabilizer for Si and Li metal
+    has_fec = material_a.name == 'FEC' or material_b.name == 'FEC'
+    if not has_fec:
+        # Check if either material is Li_metal/Si and the other is a liquid carbonate (like EC)
+        # These need FEC or similar for stable SEI
+        is_reactive_anode = any(m.name in ('Li_metal', 'Si') for m in (material_a, material_b))
+        is_liquid_carbonate = any(m.name in ('EC', 'DMC', 'DEC', 'EMC') for m in (material_a, material_b))
+
+        if is_reactive_anode and is_liquid_carbonate:
+            penalty = max(penalty, 0.5)
+            reasons.append('Reactive anode + carbonate requires SEI stabilizer (e.g., FEC)')
 
     # --- Thermal stability mismatch ---
     ts_a = material_a.thermal_stability_max

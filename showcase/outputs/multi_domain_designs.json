@@ -1,0 +1,311 @@
+{
+  "total_cross_pairs": 146,
+  "top_10_surprises": [
+    {
+      "functor": "battery_polymer",
+      "material_a": "PVDF",
+      "material_b": "NMC811",
+      "score": 0.9815,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PVDF",
+      "material_b": "LFP",
+      "score": 0.9815,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "SBR",
+      "material_b": "Graphite",
+      "score": 0.9815,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PTFE",
+      "material_b": "LFP",
+      "score": 0.9635,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PVDF",
+      "material_b": "Graphite",
+      "score": 0.9615,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PAN",
+      "material_b": "LFP",
+      "score": 0.9435,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PVDF",
+      "material_b": "LCO",
+      "score": 0.919,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PVDF",
+      "material_b": "LTO",
+      "score": 0.919,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PEO",
+      "material_b": "Graphite",
+      "score": 0.919,
+      "compatible": true,
+      "warnings": ""
+    },
+    {
+      "functor": "battery_polymer",
+      "material_a": "PEO",
+      "material_b": "LTO",
+      "score": 0.919,
+      "compatible": true,
+      "warnings": ""
+    }
+  ],
+  "bottom_10_warnings": [
+    {
+      "functor": "ceramic_metal",
+      "material_a": "Al2O3",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown metal: Cu_C11000"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "ZrO2_YSZ",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown metal: Cu_C11000"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "TiN",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown metal: Cu_C11000"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "SiC",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown metal: Cu_C11000"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "Si3N4",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown metal: Cu_C11000"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "BN",
+      "material_b": "SS_304",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown ceramic: BN"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "BN",
+      "material_b": "Ti6Al4V",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown ceramic: BN"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "BN",
+      "material_b": "Inconel_718",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown ceramic: BN"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "BN",
+      "material_b": "Al_6061",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown ceramic: BN"
+    },
+    {
+      "functor": "ceramic_metal",
+      "material_a": "BN",
+      "material_b": "Cu_C11000",
+      "score": 0.0,
+      "compatible": false,
+      "warnings": "Unknown ceramic: BN"
+    }
+  ],
+  "multi_domain_designs": [
+    {
+      "name": "Full NMC811 cell: NMC811+PVDF+Al+LiPF6",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.8533,
+      "viable": true,
+      "bottleneck": "Al_foil<->NMC811 (battery_metal: 0.835)",
+      "warnings": [],
+      "interfaces": {
+        "PVDF<->NMC811": {
+          "functor": "battery_polymer",
+          "score": 0.982,
+          "compatible": true
+        },
+        "Al_foil<->NMC811": {
+          "functor": "battery_metal",
+          "score": 0.835,
+          "compatible": true
+        }
+      }
+    },
+    {
+      "name": "Eco LFP cell: LFP+CMC+Al",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.8365,
+      "viable": true,
+      "bottleneck": "Al_foil<->LFP (battery_metal: 0.835)",
+      "warnings": [],
+      "interfaces": {
+        "CMC<->LFP": {
+          "functor": "battery_polymer",
+          "score": 0.847,
+          "compatible": true
+        },
+        "Al_foil<->LFP": {
+          "functor": "battery_metal",
+          "score": 0.835,
+          "compatible": true
+        }
+      }
+    },
+    {
+      "name": "TBC: YSZ on Inconel 718",
+      "domains": [
+        "ceramic",
+        "metal"
+      ],
+      "overall_score": 0.8315,
+      "viable": true,
+      "bottleneck": "ZrO2_YSZ<->Inconel_718 (ceramic_metal: 0.832)",
+      "warnings": [],
+      "interfaces": {
+        "ZrO2_YSZ<->Inconel_718": {
+          "functor": "ceramic_metal",
+          "score": 0.832,
+          "compatible": true
+        }
+      }
+    },
+    {
+      "name": "Si anode cell: Si+PAN+Cu",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.7361,
+      "viable": true,
+      "bottleneck": "PAN<->Si (battery_polymer: 0.722)",
+      "warnings": [],
+      "interfaces": {
+        "PAN<->Si": {
+          "functor": "battery_polymer",
+          "score": 0.722,
+          "compatible": true
+        },
+        "Cu_foil<->Si": {
+          "functor": "battery_metal",
+          "score": 0.835,
+          "compatible": true
+        }
+      }
+    },
+    {
+      "name": "PEO+LFP+Cu (solid polymer cell)",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.3283,
+      "viable": false,
+      "bottleneck": "Cu_foil<->LFP (battery_metal: 0.250)",
+      "warnings": [
+        "Electrochemical veto: Cu_foil unstable at LFP operating voltage"
+      ],
+      "interfaces": {
+        "PEO<->LFP": {
+          "functor": "battery_polymer",
+          "score": 0.876,
+          "compatible": true
+        },
+        "Cu_foil<->LFP": {
+          "functor": "battery_metal",
+          "score": 0.25,
+          "compatible": false
+        }
+      }
+    },
+    {
+      "name": "Ceramic-coated electrode: Al2O3+NMC811+Al",
+      "domains": [
+        "battery",
+        "ceramic",
+        "metal"
+      ],
+      "overall_score": 0.3231,
+      "viable": false,
+      "bottleneck": "Al2O3<->Al_foil (ceramic_metal: 0.250)",
+      "warnings": [
+        "CTE veto: Al2O3 (8.1) vs Al_foil (23.6) x10^-6/K"
+      ],
+      "interfaces": {
+        "Al_foil<->NMC811": {
+          "functor": "battery_metal",
+          "score": 0.835,
+          "compatible": true
+        },
+        "Al2O3<->Al_foil": {
+          "functor": "ceramic_metal",
+          "score": 0.25,
+          "compatible": false
+        }
+      }
+    }
+  ]
+}

@@ -33,33 +33,20 @@ from .flow import (
     run_ricci_flow,
 )
 
-# Protein structure prediction (if available)
-try:
-    from .contact_prediction import (
-        CompositionalContactPredictor,
-        ContactMap,
-        MotifPattern,
-        PredictionResult
-    )
-    from .structure_reconstruction import (
-        StructureReconstructor,
-        Structure3D,
-        DistanceConstraint,
-        reconstruct_from_contact_map
-    )
-    from .protein_structure_pipeline import (
-        KOMPOSOSStructurePipeline,
-        StructurePredictionResult,
-        predict_protein_structure
-    )
-    STRUCTURE_PREDICTION_AVAILABLE = True
-except ImportError as e:
-    STRUCTURE_PREDICTION_AVAILABLE = False
-    # Silently continue - these are optional modules
-
 # Spectral analysis (if available)
 try:
-    from .spectral import SpectralGraphAnalyzer, analyze_spectrum
+    from .spectral import (
+        SpectralGraphAnalyzer,
+        analyze_spectrum,
+        Graph,
+        GraphLaplacian,
+        SpectralClustering,
+        CheegerConstant,
+        RandomWalkAnalysis,
+        graph_from_adjacency,
+        graph_from_edges,
+        analyze_connectivity,
+    )
     SPECTRAL_AVAILABLE = True
 except ImportError:
     SPECTRAL_AVAILABLE = False
@@ -78,51 +65,17 @@ __all__ = [
     "run_ricci_flow",
 ]
 
-# Add structure prediction if available
-if STRUCTURE_PREDICTION_AVAILABLE:
-    __all__.extend([
-        "CompositionalContactPredictor",
-        "ContactMap",
-        "MotifPattern",
-        "PredictionResult",
-        "StructureReconstructor",
-        "Structure3D",
-        "DistanceConstraint",
-        "reconstruct_from_contact_map",
-        "KOMPOSOSStructurePipeline",
-        "StructurePredictionResult",
-        "predict_protein_structure",
-    ])
-
 # Add spectral if available
 if SPECTRAL_AVAILABLE:
-    __all__.extend(["SpectralGraphAnalyzer", "analyze_spectrum"])
-
-# ESMFold + ZFC verification pipeline (if available)
-try:
-    from .zfc_structure_verifier import StructureZFCBridge, StructureVerificationResult
-    from .esmfold_zfc_pipeline import ESMFoldZFCPipeline, ESMFoldZFCResult
-    ESMFOLD_ZFC_AVAILABLE = True
     __all__.extend([
-        "StructureZFCBridge", "StructureVerificationResult",
-        "ESMFoldZFCPipeline", "ESMFoldZFCResult",
+        "SpectralGraphAnalyzer",
+        "analyze_spectrum",
+        "Graph",
+        "GraphLaplacian",
+        "SpectralClustering",
+        "CheegerConstant",
+        "RandomWalkAnalysis",
+        "graph_from_adjacency",
+        "graph_from_edges",
+        "analyze_connectivity",
     ])
-except ImportError:
-    ESMFOLD_ZFC_AVAILABLE = False
-
-# Categorical fragment assembly (if available)
-try:
-    from .fragment_category import (
-        FragmentAssembler,
-        FragmentCategory,
-        FragmentAssemblyResult,
-        PositionedFragment,
-        SpatialMorphism,
-    )
-    FRAGMENT_ASSEMBLY_AVAILABLE = True
-    __all__.extend([
-        "FragmentAssembler", "FragmentCategory", "FragmentAssemblyResult",
-        "PositionedFragment", "SpatialMorphism",
-    ])
-except ImportError:
-    FRAGMENT_ASSEMBLY_AVAILABLE = False

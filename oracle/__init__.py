@@ -1,8 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
-KOMPOSOS-IV Categorical Oracle
+KOMPOSOS-III Categorical Oracle
 ================================
 
-The Oracle system generates predictions using 8 rigorous inference strategies:
+The Oracle system generates predictions using 9 rigorous inference strategies:
 1. KanExtensionStrategy - Categorical Kan extensions (colimit computation)
 2. SemanticSimilarityStrategy - Embedding-based similarity
 3. TemporalReasoningStrategy - Temporal metadata analysis
@@ -11,6 +18,7 @@ The Oracle system generates predictions using 8 rigorous inference strategies:
 6. CompositionStrategy - Path composition (transitive closure)
 7. FibrationLiftStrategy - Cartesian lift predictions
 8. StructuralHoleStrategy - Triangle closure
+9. GeometricStrategy - Ollivier-Ricci curvature analysis
 
 Predictions are validated by:
 - SheafCoherenceChecker - Ensures predictions agree on overlaps
@@ -20,7 +28,7 @@ Predictions are validated by:
 Usage:
     from oracle import CategoricalOracle
 
-    oracle = CategoricalOracle(category, embeddings)
+    oracle = CategoricalOracle(store, embeddings)
     predictions = oracle.predict(source, target)
 """
 
@@ -43,13 +51,13 @@ from oracle.strategies import (
     CompositionStrategy,
     FibrationLiftStrategy,
     StructuralHoleStrategy,
+    GeometricStrategy,
 )
 from oracle.coherence import SheafCoherenceChecker, CoherenceResult
 from oracle.optimizer import PredictionOptimizer, OptimizationResult
 from oracle.learner import OracleLearner
 
-from core.category import Category
-from data.embeddings import EmbeddingsEngine
+from data import KomposOSStore, EmbeddingsEngine
 
 
 @dataclass
@@ -65,7 +73,7 @@ class OracleResult:
 
 class CategoricalOracle:
     """
-    The KOMPOSOS-IV Categorical Oracle.
+    The KOMPOSOS-III Categorical Oracle.
 
     Uses 8 inference strategies backed by:
     - Category theory (Kan extensions)
@@ -77,7 +85,7 @@ class CategoricalOracle:
     """
 
     def __init__(self,
-                 category: Category,
+                 store: KomposOSStore,
                  embeddings: EmbeddingsEngine,
                  min_confidence: float = 0.4,
                  max_predictions: int = 20):
@@ -85,7 +93,7 @@ class CategoricalOracle:
         Initialize the Categorical Oracle.
 
         Args:
-            category: KOMPOSOS-IV Category runtime
+            store: KOMPOSOS-III data store
             embeddings: Embeddings engine (REQUIRED)
             min_confidence: Minimum confidence threshold for predictions
             max_predictions: Maximum predictions to return
@@ -99,21 +107,26 @@ class CategoricalOracle:
                 "Run 'python cli.py embed' first to compute embeddings."
             )
 
-        self.category = category
+        self.store = store
         self.embeddings = embeddings
         self.min_confidence = min_confidence
         self.max_predictions = max_predictions
 
-        # Initialize all 8 strategies
+        # Shared cache so all strategies reuse the same morphism/object lists
+        # instead of each loading a separate ~2 GB copy from the store.
+        _cache: dict = {}
+
+        # Initialize all 9 core strategies
         self.strategies: List[InferenceStrategy] = [
-            KanExtensionStrategy(category),
-            SemanticSimilarityStrategy(category, embeddings),
-            TemporalReasoningStrategy(category),
-            TypeHeuristicStrategy(category),
-            YonedaPatternStrategy(category),
-            CompositionStrategy(category),
-            FibrationLiftStrategy(category),
-            StructuralHoleStrategy(category),
+            KanExtensionStrategy(store, _shared_cache=_cache),
+            SemanticSimilarityStrategy(store, embeddings, _shared_cache=_cache),
+            TemporalReasoningStrategy(store, _shared_cache=_cache),
+            TypeHeuristicStrategy(store, _shared_cache=_cache),
+            YonedaPatternStrategy(store, _shared_cache=_cache),
+            CompositionStrategy(store, _shared_cache=_cache),
+            FibrationLiftStrategy(store, _shared_cache=_cache),
+            StructuralHoleStrategy(store, _shared_cache=_cache),
+            GeometricStrategy(store, _shared_cache=_cache),
         ]
 
         # Initialize validation and optimization components
@@ -145,8 +158,8 @@ class CategoricalOracle:
         start_time = time.time()
 
         # Verify objects exist
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
+        source_obj = self.store.get_object(source)
+        target_obj = self.store.get_object(target)
 
         if not source_obj:
             return self._empty_result(f"Source object '{source}' not found")
@@ -251,11 +264,9 @@ class CategoricalOracle:
         """
         Merge predictions with the same key.
 
-        Uses calibrated weighted average instead of sequential merging.
+        Predictions from multiple strategies for the same (source, target, relation)
+        are combined with boosted confidence.
         """
-        from oracle.calibration import weighted_average, StrategyCalibrator
-        from pathlib import Path
-
         by_key: Dict[tuple, List[Prediction]] = {}
 
         for pred in predictions:
@@ -263,38 +274,16 @@ class CategoricalOracle:
                 by_key[pred.key] = []
             by_key[pred.key].append(pred)
 
-        # Load calibrator if available
-        calibrator = None
-        if Path("data/strategy_weights.json").exists():
-            calibrator = StrategyCalibrator("data/strategy_weights.json")
-
         merged = []
         for key, preds in by_key.items():
             if len(preds) == 1:
                 merged.append(preds[0])
             else:
-                # Merge using calibrated weighted average (all at once, not sequential)
-                votes = [(p.strategy_name, p.confidence) for p in preds]
-                combined_conf = weighted_average(votes, calibrator)
-
-                # Create merged prediction
-                strategy_names = "+".join(sorted(set(p.strategy_name for p in preds)))
-                merged_evidence = {}
-                for p in preds:
-                    merged_evidence.update(p.evidence)
-                merged_evidence["merged_from"] = [p.strategy_name for p in preds]
-
-                merged_pred = Prediction(
-                    source=preds[0].source,
-                    target=preds[0].target,
-                    predicted_relation=preds[0].predicted_relation,
-                    prediction_type=PredictionType.ENSEMBLE,
-                    strategy_name=strategy_names,
-                    confidence=combined_conf,
-                    reasoning=f"Combined from {len(preds)} strategies",
-                    evidence=merged_evidence,
-                )
-                merged.append(merged_pred)
+                # Merge multiple predictions
+                base = preds[0]
+                for other in preds[1:]:
+                    base = base.merge_with(other)
+                merged.append(base)
 
         return merged
 

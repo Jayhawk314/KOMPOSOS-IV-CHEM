@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
 Kan Operations - The Computational Heart of Cubical Type Theory
 
@@ -122,23 +129,9 @@ def hfill(
         elif t == I1:
             return cap
         else:
-            # Intermediate: interpolate based on walls using
-            # geometric Ricci curvature if available
-            try:
-                from core.hott_bridge import _smooth_interp as _interp
-                # Interpolate between base and cap at point t
-                return _interp(base, cap, t)
-            except ImportError:
-                # Fallback: weighted average of wall values
-                if walls:
-                    # Use the walls to guide interpolation
-                    # Each wall contributes proportionally
-                    values = [w for w in walls if w is not None]
-                    if values:
-                        # Blend base, cap, and wall contributions
-                        alpha = 0.5  # Default for interior
-                        return (1 - alpha) * base + alpha * cap if hasattr(base, '__add__') else base
-                return base  # Safe fallback
+            # Intermediate: interpolate based on walls
+            # This is a simplification - real cubical uses De Morgan algebra
+            return base  # placeholder
 
     return PathType(
         type_A=type_A,
@@ -323,25 +316,8 @@ def fill_square(
         elif s == I1:
             return right(t)
         else:
-            # Interior point: use bicubic interpolation from boundaries
-            try:
-                # Bicubic interpolation from the four boundary paths
-                left_val = left(t)
-                right_val = right(t)
-                bottom_val = bottom(s)
-                top_val = top(s)
-
-                # Blend: average of horizontal and vertical interpolation
-                alpha = 0.5
-                try:
-                    h_blend = (1 - alpha) * left_val + alpha * right_val
-                    v_blend = (1 - alpha) * bottom_val + alpha * top_val
-                    return (h_blend + v_blend) / 2
-                except (TypeError, ValueError):
-                    # For symbolic types, return interpolation description
-                    return f"filler({left_val}, {right_val}, {bottom_val}, {top_val})"
-            except Exception:
-                return bottom(s)  # Safe fallback
+            # Interior point - interpolate
+            return bottom.left  # placeholder
 
     return Square(
         type_A=type_A,

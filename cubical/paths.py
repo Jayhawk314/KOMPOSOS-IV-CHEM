@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
 Computational Paths in Cubical Type Theory
 
@@ -46,28 +53,6 @@ class Interval:
 # Interval endpoints
 I0 = "i0"  # 0, left endpoint
 I1 = "i1"  # 1, right endpoint
-
-
-def _smooth_interp(a, b, t):
-    """
-    Smooth linear interpolation between a and b at interval point t.
-
-    For symbolic values, returns a weighted combination representation.
-    For numeric values, returns the actual interpolated value.
-    """
-    if t == I0:
-        return a
-    elif t == I1:
-        return b
-    else:
-        # For numeric types, do actual interpolation
-        try:
-            # Map interval to [0, 1]: I0=0, I1=1, variables=0.5
-            alpha = 0.5  # Default for dimension variables
-            return (1 - alpha) * a + alpha * b
-        except (TypeError, ValueError):
-            # For symbolic types, return interpolation description
-            return f"interp({a}, {b}, {t})"
 
 
 @dataclass
@@ -129,33 +114,16 @@ class PathType:
 
     def __post_init__(self):
         if self.path_fn is None:
-            # Default: interpolate between left and right
-            # Uses Ricci curvature-based interpolation if geometry module is available
-            try:
-                from geometry.ricci import GeometryType
-
-                def curved_interp(t):
-                    if t == I0:
-                        return self.left
-                    elif t == I1:
-                        return self.right
-                    else:
-                        # Curvature-aware interpolation: blend based on
-                        # whether the path is in a spherical/hyperbolic/euclidean region
-                        # For now, use smooth linear interpolation as fallback
-                        return _smooth_interp(self.left, self.right, t)
-
-                self.path_fn = curved_interp
-            except ImportError:
-                def default_fn(t):
-                    if t == I0:
-                        return self.left
-                    elif t == I1:
-                        return self.right
-                    else:
-                        # Smooth linear interpolation
-                        return _smooth_interp(self.left, self.right, t)
-                self.path_fn = default_fn
+            # Default: constant path (only valid if left == right)
+            def default_fn(t):
+                if t == I0:
+                    return self.left
+                elif t == I1:
+                    return self.right
+                else:
+                    # Interpolate (placeholder)
+                    return self.left
+            self.path_fn = default_fn
 
     def __call__(self, t: str) -> Any:
         """Evaluate the path at a point."""

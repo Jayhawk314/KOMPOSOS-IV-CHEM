@@ -41,33 +41,47 @@ from categorical.dempster_shafer import MassFunction, combine
 
 # All known structure types across the codebase
 STRUCTURE_TYPES = [
-    "layered",          # R-3m, LiMO2 (NMC, LCO, NCA)
-    "spinel",           # Fd-3m (LiMn2O4, Li4Ti5O12, LNMO)
+    "layered",          # R-3m, LiMO2 (NMC, LCO, NCA), also MoS2, WS2
+    "spinel",           # Fd-3m (LiMn2O4, Li4Ti5O12, LNMO, MgAl2O4)
     "olivine",          # Pnma (LiFePO4, LiMnPO4, LiCoPO4)
     "garnet",           # Ia-3d (Li7La3Zr2O12)
-    "perovskite",       # Pm-3m (BaTiO3, SrTiO3)
-    "rock_salt",        # Fm-3m (NiO, CoO, MgO, CaO, BaO)
-    "corundum",         # R-3c (Al2O3, Fe2O3)
-    "rutile",           # P42/mnm (TiO2, MnO2)
-    "fluorite",         # Fm-3m (ZrO2-cubic, CeO2)
-    "zinc_blende",      # F-43m (GaAs, SiC, ZnS)
-    "wurtzite",         # P63mc (GaN, ZnO)
+    "perovskite",       # Pm-3m (BaTiO3, SrTiO3, CaTiO3, LaAlO3)
+    "rock_salt",        # Fm-3m (NiO, CoO, MgO, CaO, BaO, TiN, ZrN)
+    "corundum",         # R-3c (Al2O3, Fe2O3, Cr2O3)
+    "rutile",           # P42/mnm (TiO2, MnO2, SnO2, MgF2)
+    "fluorite",         # Fm-3m (ZrO2-cubic, CeO2, CaF2, BaF2)
+    "zinc_blende",      # F-43m (GaAs, SiC, ZnS, InP, GaP)
+    "wurtzite",         # P63mc (GaN, ZnO, AlN, InN, CdS)
     "diamond",          # Fd-3m (Si, C-diamond, Ge)
     "thio-LISICON",     # (Li10GeP2S12, LGPS)
-    "NASICON",          # R-3c (LATP, LAGP)
-    "thiophosphate",    # (Li3PS4, argyrodite)
-    "antifluorite",     # Fm-3m (Li2O, Na2O)
-    "bcc",              # Im-3m (Li, Fe, W, Cr)
-    "fcc",              # Fm-3m (Cu, Al, Ni, Au)
-    "hcp",              # P63/mmc (Ti, Zr, Mg)
-    "quartz",           # P3121 (SiO2)
-    "hexagonal",        # (La2O3, other rare earth oxides)
+    "NASICON",          # R-3c (LATP, LAGP, Na3V2P3O12)
+    "thiophosphate",    # (Li3PS4, argyrodite Li6PS5Cl)
+    "antifluorite",     # Fm-3m (Li2O, Na2O, Li2S)
+    "antiperovskite",   # Pm-3m (Li3ClO)
+    "argyrodite",       # F-43m (Li6PS5Cl)
+    "tavorite",         # C2/c (LiVPO4F)
+    "silicate",         # Various (Li2FeSiO4, Li2MnSiO4)
+    "pyrite",           # Pa-3 (FeS2)
+    "bixbyite",         # Ia-3 (In2O3, Y2O3, Sc2O3)
+    "cuprite",          # Pn-3m (Cu2O)
+    "tysonite",         # P-3c1 (LaF3)
+    "bcc",              # Im-3m (Li, Fe, W, Cr, Na, K, V, Nb, Mo, Ta)
+    "fcc",              # Fm-3m (Cu, Al, Ni, Au, Ca)
+    "hcp",              # P63/mmc (Ti, Zr, Mg, Co, Zn)
+    "quartz",           # P3121 (SiO2, AlPO4)
+    "hexagonal",        # (La2O3, Si3N4, Li3N, WC)
+    "orthorhombic",     # (Mullite, Nb2O5, MoO3, Cr3C2)
+    "monoclinic",       # (CuO, HfO2, WO3)
+    "rhombohedral",     # (B4C, AlF3)
+    "trigonal",         # (B2O3)
+    "tetragonal",       # (PbO, TiAl)
 ]
 
 # Element ground-state crystal structures
 ELEMENT_STRUCTURES = {
     "Li": "bcc", "Na": "bcc", "K": "bcc", "Fe": "bcc", "Cr": "bcc",
-    "W": "bcc", "Mo": "bcc", "V": "bcc", "Nb": "bcc",
+    "W": "bcc", "Mo": "bcc", "V": "bcc", "Nb": "bcc", "Ta": "bcc",
+    "Mn": "bcc",
     "Cu": "fcc", "Al": "fcc", "Ni": "fcc", "Ca": "fcc", "Sr": "fcc",
     "Ti": "hcp", "Zr": "hcp", "Mg": "hcp", "Co": "hcp", "Zn": "hcp",
     "Si": "diamond", "Ge": "diamond", "C": "diamond",
@@ -75,9 +89,18 @@ ELEMENT_STRUCTURES = {
 
 # III-V compound structure assignment by electronegativity difference
 # Larger EN diff + lighter elements -> wurtzite; smaller diff -> zinc_blende
-IIIV_WURTZITE = {"GaN", "AlN", "InN", "ZnO", "ZnS", "CdS", "BeO"}
+IIIV_WURTZITE = {"GaN", "AlN", "InN", "ZnO", "CdS", "CdSe", "BeO"}
 IIIV_ZINCBLENDE = {"GaAs", "GaP", "InP", "InAs", "InSb", "GaSb", "SiC",
-                   "ZnSe", "ZnTe", "CdTe", "CdSe", "AlAs", "AlP"}
+                   "ZnSe", "ZnTe", "CdTe", "ZnS", "AlAs", "AlP"}
+
+# Bixbyite-forming M2O3 cations (large ionic radius, >0.8A in 6-coord)
+BIXBYITE_CATIONS = {"In", "Y", "Sc", "Mn"}
+
+# Monoclinic-stable binary oxides (Jahn-Teller distortion or lone-pair)
+MONOCLINIC_OXIDES = {"CuO": "monoclinic", "HfO2": "monoclinic", "ZrO2": "monoclinic"}
+
+# Lone-pair cations that adopt tetragonal or distorted structures
+LONE_PAIR_CATIONS = {"Pb", "Sn", "Bi"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -227,9 +250,12 @@ class StructureTypePredictor:
                 return struct, 0.95, f"Pure element {elem}: {struct}"
             return None, 0.0, ""
 
-        # ── Graphite (C with stoich > 1) ──────────────────────────
+        # ── Carbon allotropes ────────────────────────────────────
         if elements == {"C"} or (len(elements) == 1 and "C" in elements):
-            if comp.get("C", 0) > 1:
+            c_amt = comp.get("C", 0)
+            if c_amt > 2:
+                return "graphite", 0.85, "Carbon allotrope with >2 atoms: graphite (layered)"
+            elif c_amt > 1:
                 return "diamond", 0.80, "Carbon allotrope (graphite/diamond)"
 
         # ── III-V / II-VI semiconductors ──────────────────────────
@@ -243,9 +269,31 @@ class StructureTypePredictor:
                 if set(parse_formula(name).keys()) == elements:
                     return "zinc_blende", 0.90, f"Known zincblende compound"
 
+            # Physics-based fallback: EN difference + Period check
+            # Large EN diff -> wurtzite; Small EN diff -> zinc_blende
+            avg_en_diff = average_electronegativity(comp) # This returns avg, not diff
+            # I need the actual elements
+            el_list = list(elements)
+            en1 = ELEMENT_TABLE[el_list[0]].electronegativity
+            en2 = ELEMENT_TABLE[el_list[1]].electronegativity
+            en_diff = abs(en1 - en2)
+
+            # Check if one is a semiconductor (Group 13-15 or 12-16)
+            groups = {ELEMENT_TABLE[e].group for e in elements}
+            if (groups == {13, 15}) or (groups == {12, 16}):
+                if en_diff > 0.8:
+                    return "wurtzite", 0.75, f"Semiconductor with high EN diff ({en_diff:.2f}): wurtzite"
+                else:
+                    return "zinc_blende", 0.75, f"Semiconductor with low EN diff ({en_diff:.2f}): zinc_blende"
+
         # ── Garnet: Li7La3Zr2O12-type ─────────────────────────────
         if has_li and "La" in comp and "Zr" in comp and has_o and li_amt >= 5:
             return "garnet", 0.95, "Li-La-Zr-O garnet (LLZO-type)"
+
+        # ── Argyrodite: Li6PS5X (X = Cl, Br, I) ────────────────────
+        halides = elements & {"F", "Cl", "Br", "I"}
+        if has_li and has_s and has_p and halides and li_amt >= 5:
+            return "argyrodite", 0.90, "Li6PS5X argyrodite (halide-containing)"
 
         # ── Thio-LISICON: Li10GeP2S12-type ────────────────────────
         if has_li and has_s and has_p and li_amt >= 3:
@@ -257,11 +305,15 @@ class StructureTypePredictor:
         if has_li and "Al" in comp and "Ti" in comp and has_p and has_o:
             return "NASICON", 0.90, "Li-Al-Ti-P-O NASICON framework"
 
-        # ── Olivine: LiMPO4 ──────────────────────────────────────
-        if has_li and has_p and has_o and tms_present:
+        # ── Tavorite: LiMPO4F (has fluorine) ────────────────────
+        if has_li and has_p and has_o and tms_present and "F" in comp:
+            return "tavorite", 0.88, "Li-M-PO4-F tavorite (fluorophosphate)"
+
+        # ── Olivine: LiMPO4 / NaMPO4 ────────────────────────────
+        if (has_li or "Na" in comp) and has_p and has_o and tms_present:
             # Check stoichiometry: P:O should be ~1:4
             if p_amt > 0 and abs(o_amt / p_amt - 4.0) < 1.0:
-                return "olivine", 0.92, "Li-M-PO4 olivine phosphate"
+                return "olivine", 0.92, "A-M-PO4 olivine phosphate"
 
         # ── Spinel: LiMn2O4-type (Mn > 1 per formula) ────────────
         if has_li and has_o and mn_amt > 1.0:
@@ -273,10 +325,23 @@ class StructureTypePredictor:
             if mn_amt + ni_amt > 1.5:
                 return "spinel", 0.88, "Li-Ni-Mn-O high-voltage spinel"
 
+        # ── Spinel: Binary M3O4 (Fe3O4, Mn3O4, Co3O4) ────────────
+        if has_o and len(elements) == 2:
+            cation = (elements - {"O"}).pop()
+            cation_amt = comp.get(cation, 0)
+            if cation in tm_elements and abs(o_amt / cation_amt - 1.33) < 0.1:
+                return "spinel", 0.92, f"{cation}3O4 spinel structure"
+
         # ── Layered: LiMO2 (TM_total ~ 1, O ~ 2) ────────────────
         if has_li and has_o and tms_present:
             if 0.5 <= tm_total <= 1.5 and 1.5 <= o_amt <= 2.5:
                 return "layered", 0.92, "Li-TM-O2 layered oxide (R-3m)"
+
+        # ── Antiperovskite: Li3ClO, Li3BrO ──────────────────────
+        if has_o and o_amt <= 1.5 and not tms_present and halides:
+            alkali_total = sum(comp.get(a, 0) for a in ["Li", "Na", "K"])
+            if alkali_total >= 2.5:
+                return "antiperovskite", 0.88, "A3XO antiperovskite (halide-containing)"
 
         # ── Antifluorite: Li2O, Na2O ──────────────────────────────
         if has_o and o_amt <= 1.5 and not tms_present and not has_p:
@@ -304,19 +369,30 @@ class StructureTypePredictor:
 
             ratio = o_amt / cation_amt if cation_amt > 0 else 0
 
-            # A2O3 -> corundum
+            # A2O3 -> corundum or bixbyite
             if abs(ratio - 1.5) < 0.2:
+                if cation in BIXBYITE_CATIONS:
+                    return "bixbyite", 0.90, f"{cation}2O3 bixbyite (large cation)"
                 return "corundum", 0.85, f"{cation}2O3 corundum structure"
 
             # AO2 -> rutile or fluorite
             if abs(ratio - 2.0) < 0.2:
+                if cation == "Si":
+                    return "quartz", 0.90, "SiO2 quartz (ambient-pressure polymorph)"
+                # Polymorph check
+                if f"{cation}O2" in MONOCLINIC_OXIDES:
+                    return "monoclinic", 0.85, f"{cation}O2 monoclinic (low-T polymorph)"
                 # Rutile for Ti, Mn, Sn; fluorite for Zr, Ce
                 if cation in ("Zr", "Ce"):
                     return "fluorite", 0.82, f"{cation}O2 fluorite structure"
                 return "rutile", 0.82, f"{cation}O2 rutile structure"
 
-            # AO -> rock salt
+            # AO -> rock salt or tetragonal (lone pair)
             if abs(ratio - 1.0) < 0.2:
+                if cation in LONE_PAIR_CATIONS:
+                    return "tetragonal", 0.85, f"{cation}O tetragonal (lone-pair distortion)"
+                if f"{cation}O" in MONOCLINIC_OXIDES:
+                    return "monoclinic", 0.85, f"{cation}O monoclinic (Jahn-Teller)"
                 return "rock_salt", 0.85, f"{cation}O rock salt structure"
 
         return None, 0.0, ""
@@ -640,7 +716,7 @@ if __name__ == "__main__":
         ("BaTiO3", "perovskite"),
         ("Al2O3", "corundum"),
         ("TiO2", "rutile"),
-        ("ZrO2", "fluorite"),
+        ("ZrO2", "monoclinic"),
         ("NiO", "rock_salt"),
         ("MgO", "rock_salt"),
         ("GaAs", "zinc_blende"),

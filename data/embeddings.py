@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024-2026 James Ray Hawkins
+
 """
-KOMPOSOS-IV Embeddings Module
+KOMPOSOS-III Embeddings Module
 ===============================
 
 Semantic embeddings for categorical structures using Sentence Transformers.
@@ -17,7 +20,7 @@ Key Features:
 - Sentence Transformers for phrase/sentence understanding
 - SQLite caching for fast repeated lookups
 - Batch embedding for efficiency
-- Integration with the Category runtime
+- Integration with the categorical store
 
 The embeddings enable:
 1. Semantic similarity between concepts
@@ -36,7 +39,7 @@ from dataclasses import dataclass
 
 # Default model and cache directory
 DEFAULT_MODEL = 'all-mpnet-base-v2'
-CACHE_DIR = Path.home() / ".komposos4" / "embeddings_cache"
+CACHE_DIR = Path.home() / ".komposos3" / "embeddings_cache"
 
 
 @dataclass
@@ -62,7 +65,7 @@ class EmbeddingResult:
 
 class EmbeddingsEngine:
     """
-    High-quality embeddings engine for KOMPOSOS-IV.
+    High-quality embeddings engine for KOMPOSOS-III.
 
     Uses Sentence Transformers (all-mpnet-base-v2 by default) for
     semantic embeddings of concepts, relationships, and paths.
@@ -401,7 +404,7 @@ class EmbeddingsEngine:
         """
         Find analogical completions: a is to b as c is to ?
 
-        Uses vector arithmetic: vec(?) ~ vec(b) - vec(a) + vec(c)
+        Uses vector arithmetic: vec(?) ≈ vec(b) - vec(a) + vec(c)
 
         Args:
             a, b, c: Analogy terms
@@ -605,37 +608,37 @@ class EmbeddingsEngine:
 
 
 # =============================================================================
-# Integration with Category
+# Integration with Store
 # =============================================================================
 
-class CategoryEmbedder:
+class StoreEmbedder:
     """
-    Integrates embeddings with the KOMPOSOS-IV Category runtime.
+    Integrates embeddings with the KOMPOSOS-III store.
 
     Provides methods to:
-    - Embed all objects in the category
+    - Embed all objects in the store
     - Find similar objects
     - Detect semantic gaps in the graph
     """
 
     def __init__(
         self,
-        category: 'Category',
+        store: 'KomposOSStore',
         engine: Optional[EmbeddingsEngine] = None
     ):
         """
-        Initialize the category embedder.
+        Initialize the store embedder.
 
         Args:
-            category: KOMPOSOS-IV Category instance
+            store: KOMPOSOS-III store instance
             engine: Embeddings engine (creates default if None)
         """
-        self.category = category
+        self.store = store
         self.engine = engine or EmbeddingsEngine()
 
     def embed_all_objects(self, show_progress: bool = True) -> int:
         """
-        Compute embeddings for all objects in the category.
+        Compute embeddings for all objects in the store.
 
         Args:
             show_progress: Show progress bar
@@ -643,7 +646,9 @@ class CategoryEmbedder:
         Returns:
             Number of objects embedded
         """
-        objects = self.category.objects()
+        from .store import StoredObject
+
+        objects = self.store.list_objects(limit=100000)
 
         if not objects:
             return 0
@@ -664,7 +669,7 @@ class CategoryEmbedder:
         count = 0
         for obj, vec in zip(objects, embeddings):
             obj.embedding = vec
-            self.category.add_object(obj)
+            self.store.add_object(obj)
             count += 1
 
         return count
@@ -674,7 +679,7 @@ class CategoryEmbedder:
         query: str,
         top_k: int = 10,
         type_filter: Optional[str] = None
-    ) -> List[Tuple['Object', float]]:
+    ) -> List[Tuple['StoredObject', float]]:
         """
         Find objects similar to a query.
 
@@ -687,9 +692,9 @@ class CategoryEmbedder:
             List of (object, similarity) tuples
         """
         if type_filter:
-            objects = [o for o in self.category.objects() if o.type_name == type_filter]
+            objects = self.store.get_objects_by_type(type_filter)
         else:
-            objects = self.category.objects()
+            objects = self.store.list_objects(limit=10000)
 
         if not objects:
             return []
@@ -710,7 +715,7 @@ class CategoryEmbedder:
     def find_gaps(
         self,
         threshold: float = 0.3
-    ) -> List[Tuple['Object', 'Object', float]]:
+    ) -> List[Tuple['StoredObject', 'StoredObject', float]]:
         """
         Find semantic gaps between objects that have no direct morphism.
 
@@ -726,16 +731,16 @@ class CategoryEmbedder:
         Returns:
             List of (obj1, obj2, similarity) tuples
         """
-        objects = self.category.objects()
+        objects = self.store.list_objects(limit=10000)
 
         if len(objects) < 2:
             return []
 
         # Get all existing morphism pairs
         existing_pairs = set()
-        for mor in self.category.morphisms():
-            existing_pairs.add((mor.source, mor.target))
-            existing_pairs.add((mor.target, mor.source))
+        for mor in self.store.list_morphisms(limit=100000):
+            existing_pairs.add((mor.source_name, mor.target_name))
+            existing_pairs.add((mor.target_name, mor.source_name))
 
         # Find gaps
         gaps = []
@@ -788,7 +793,7 @@ def load_engine() -> EmbeddingsEngine:
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("KOMPOSOS-IV Embeddings Engine Demo")
+    print("KOMPOSOS-III Embeddings Engine Demo")
     print("=" * 70)
 
     # Create engine
@@ -825,7 +830,7 @@ if __name__ == "__main__":
 
     # Test analogy
     print("\n[4] Testing analogy: Newton is to classical as ??? is to quantum")
-    candidates = ["Einstein", "Schrodinger", "Bohr", "Maxwell", "Faraday"]
+    candidates = ["Einstein", "Schrödinger", "Bohr", "Maxwell", "Faraday"]
     results = engine.find_analogies(
         "Newton", "classical physics", "quantum mechanics",
         candidates, top_k=3

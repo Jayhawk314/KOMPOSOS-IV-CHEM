@@ -63,8 +63,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from core.category import Category
 from core.types import Object, Morphism
 
-from .store_adapter import StoreAdapter
-from .bridge import DualEngineBridge, DualResult
+from .category_store_adapter import StoreAdapter
+from .category_bridge import DualEngineBridge, DualResult
 from .meta_kan import DeltaType, Resolution
 from .proof_engine import Proof, ProofStep, StepMethod, ZFCVerifier
 from .logic import atom, const, Model

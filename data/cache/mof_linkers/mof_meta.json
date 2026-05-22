@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "linker_count": 274,
+  "created": 1776407106,
+  "source": "Imported pre-extracted linker dataset: core-mof-2025-cr",
+  "dataset_path": "data\\external\\core_mof\\extracted_linkers_from_metadata.json",
+  "records_seen": 3569,
+  "imported_this_run": 27,
+  "skipped_missing_smiles": 0,
+  "skipped_invalid_smiles": 0,
+  "skipped_wrong_size": 3496,
+  "skipped_non_linker_like": 0,
+  "exact_heavy_atoms": 22,
+  "reset": true,
+  "require_linker_like": true
+}

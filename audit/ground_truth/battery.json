@@ -1,0 +1,707 @@
+{
+  "domain": "battery",
+  "version": "2.0",
+  "description": "Literature-validated battery material compatibility pairs. De-duplicated 2026-05-19; pairs overlapping blind_test_pairs.json removed.",
+  "pairs": [
+    {
+      "id": 300,
+      "material_a": "LCO",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode LCO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 301,
+      "material_a": "LCO",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode LCO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 303,
+      "material_a": "LCO",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode LCO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 304,
+      "material_a": "LCO",
+      "material_b": "LiPF6",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiPF6 with cathode LCO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 305,
+      "material_a": "LCO",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode LCO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 306,
+      "material_a": "NMC111",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 307,
+      "material_a": "NMC111",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 308,
+      "material_a": "NMC111",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 309,
+      "material_a": "NMC111",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 310,
+      "material_a": "NMC111",
+      "material_b": "LiPF6",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiPF6 with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 311,
+      "material_a": "NMC111",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode NMC111",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 312,
+      "material_a": "NMC622",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode NMC622",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 313,
+      "material_a": "NMC622",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode NMC622",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 314,
+      "material_a": "NMC622",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode NMC622",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 316,
+      "material_a": "NMC622",
+      "material_b": "LiPF6",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiPF6 with cathode NMC622",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 317,
+      "material_a": "NMC622",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode NMC622",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 318,
+      "material_a": "NMC811",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode NMC811",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 320,
+      "material_a": "NMC811",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode NMC811",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 321,
+      "material_a": "NMC811",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode NMC811",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 323,
+      "material_a": "NMC811",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode NMC811",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 324,
+      "material_a": "LFP",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode LFP",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 325,
+      "material_a": "LFP",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode LFP",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 326,
+      "material_a": "LFP",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode LFP",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 327,
+      "material_a": "LFP",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode LFP",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 328,
+      "material_a": "LFP",
+      "material_b": "LiPF6",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiPF6 with cathode LFP",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 331,
+      "material_a": "LMO",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode LMO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 332,
+      "material_a": "LMO",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode LMO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 333,
+      "material_a": "LMO",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode LMO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 334,
+      "material_a": "LMO",
+      "material_b": "LiPF6",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiPF6 with cathode LMO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 335,
+      "material_a": "LMO",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode LMO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 336,
+      "material_a": "LTO",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EC with cathode LTO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 337,
+      "material_a": "LTO",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DMC with cathode LTO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 338,
+      "material_a": "LTO",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent DEC with cathode LTO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 339,
+      "material_a": "LTO",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard solvent EMC with cathode LTO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 341,
+      "material_a": "LTO",
+      "material_b": "LiTFSI",
+      "expected_compatible": true,
+      "citation": "Xu, Chem. Rev. 2004",
+      "notes": "Standard salt LiTFSI with cathode LTO",
+      "doi": "10.1021/cr030203g",
+      "used_for_tuning": true
+    },
+    {
+      "id": 343,
+      "material_a": "LGPS",
+      "material_b": "NMC111",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 344,
+      "material_a": "LGPS",
+      "material_b": "NMC622",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 346,
+      "material_a": "LGPS",
+      "material_b": "LMO",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 347,
+      "material_a": "Li3PS4",
+      "material_b": "LCO",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 348,
+      "material_a": "Li3PS4",
+      "material_b": "NMC111",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 349,
+      "material_a": "Li3PS4",
+      "material_b": "NMC622",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 351,
+      "material_a": "Li3PS4",
+      "material_b": "LMO",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide electrolyte unstable with oxide cathode without coating",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 352,
+      "material_a": "LGPS",
+      "material_b": "LFP",
+      "expected_compatible": true,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "LFP stable with sulfides due to lower operating voltage (<4V)",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 353,
+      "material_a": "Li3PS4",
+      "material_b": "LFP",
+      "expected_compatible": true,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "LFP stable with sulfides due to lower operating voltage (<4V)",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 354,
+      "material_a": "LLZO",
+      "material_b": "LCO",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 355,
+      "material_a": "LLZO",
+      "material_b": "NMC111",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 356,
+      "material_a": "LLZO",
+      "material_b": "NMC622",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 357,
+      "material_a": "LLZO",
+      "material_b": "NMC811",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 359,
+      "material_a": "LLZO",
+      "material_b": "LMO",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 360,
+      "material_a": "LLZO",
+      "material_b": "LTO",
+      "expected_compatible": true,
+      "citation": "Manthiram et al., Nat. Rev. Mater. 2017",
+      "notes": "Oxide electrolyte LLZO compatible with oxide and polyanion cathodes",
+      "doi": "10.1038/natrevmats.2016.103",
+      "used_for_tuning": true
+    },
+    {
+      "id": 361,
+      "material_a": "PEO",
+      "material_b": "LCO",
+      "expected_compatible": false,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with LCO: Oxidizes above 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 362,
+      "material_a": "PEO",
+      "material_b": "NMC111",
+      "expected_compatible": false,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with NMC111: Oxidizes above 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 363,
+      "material_a": "PEO",
+      "material_b": "NMC622",
+      "expected_compatible": false,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with NMC622: Oxidizes above 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 364,
+      "material_a": "PEO",
+      "material_b": "NMC811",
+      "expected_compatible": false,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with NMC811: Oxidizes above 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 366,
+      "material_a": "PEO",
+      "material_b": "LMO",
+      "expected_compatible": false,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with LMO: Oxidizes above 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 367,
+      "material_a": "PEO",
+      "material_b": "LTO",
+      "expected_compatible": true,
+      "citation": "Armand et al., Nature 2008",
+      "notes": "PEO stability with LTO: Stable below 3.9V",
+      "doi": "10.1038/451652a",
+      "used_for_tuning": true
+    },
+    {
+      "id": 368,
+      "material_a": "Graphite",
+      "material_b": "EC",
+      "expected_compatible": true,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Graphite with solvent EC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 369,
+      "material_a": "Graphite",
+      "material_b": "DMC",
+      "expected_compatible": true,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Graphite with solvent DMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 370,
+      "material_a": "Graphite",
+      "material_b": "DEC",
+      "expected_compatible": true,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Graphite with solvent DEC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 371,
+      "material_a": "Graphite",
+      "material_b": "EMC",
+      "expected_compatible": true,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Graphite with solvent EMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 372,
+      "material_a": "Graphite",
+      "material_b": "LLZO",
+      "expected_compatible": true,
+      "citation": "Murugan et al. 2007",
+      "notes": "Anode Graphite with LLZO",
+      "doi": "10.1002/anie.200701144",
+      "used_for_tuning": true
+    },
+    {
+      "id": 374,
+      "material_a": "Li_metal",
+      "material_b": "DMC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Li_metal with solvent DMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 375,
+      "material_a": "Li_metal",
+      "material_b": "DEC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Li_metal with solvent DEC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 376,
+      "material_a": "Li_metal",
+      "material_b": "EMC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Li_metal with solvent EMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 378,
+      "material_a": "Li_metal",
+      "material_b": "LGPS",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide unstable with Li metal (forms Li2S/Li3P)",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 379,
+      "material_a": "Li_metal",
+      "material_b": "Li3PS4",
+      "expected_compatible": false,
+      "citation": "Janek & Zeier, Nat. Energy 2016",
+      "notes": "Sulfide unstable with Li metal (forms Li2S/Li3P)",
+      "doi": "10.1038/nenergy.2016.141",
+      "used_for_tuning": true
+    },
+    {
+      "id": 381,
+      "material_a": "Si",
+      "material_b": "DMC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Si with solvent DMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 382,
+      "material_a": "Si",
+      "material_b": "DEC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Si with solvent DEC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 383,
+      "material_a": "Si",
+      "material_b": "EMC",
+      "expected_compatible": false,
+      "citation": "Lin et al. 2017 / Obrovac 2014",
+      "notes": "Anode Si with solvent EMC",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 384,
+      "material_a": "Si",
+      "material_b": "LLZO",
+      "expected_compatible": true,
+      "citation": "Murugan et al. 2007",
+      "notes": "Anode Si with LLZO",
+      "doi": "10.1002/anie.200701144",
+      "used_for_tuning": true
+    }
+  ]
+}

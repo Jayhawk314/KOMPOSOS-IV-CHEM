@@ -1,5 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
-Nine inference strategies for the KOMPOSOS-IV Categorical Oracle.
+Eight inference strategies for the KOMPOSOS-III Categorical Oracle.
 
 Each strategy implements a different approach to predicting missing morphisms:
 1. KanExtensionStrategy - Uses categorical Kan extensions (colimit computation)
@@ -10,12 +17,6 @@ Each strategy implements a different approach to predicting missing morphisms:
 6. CompositionStrategy - Uses path composition (A->B->C implies A->C)
 7. FibrationLiftStrategy - Uses fibration structure for Cartesian lifts
 8. StructuralHoleStrategy - Finds triangles that should close
-9. GeometricStrategy - Uses Ricci curvature for geometric inference
-
-Additional strategies (imported from separate modules):
-10. ToposLogicStrategy - Uses intuitionistic logic for partial-evidence claims
-11. NaturalTransformationStrategy - Detects pattern variants via naturality squares
-12. OperadicDecompositionStrategy - Decomposes n-ary relations into binary trees
 """
 
 import sys
@@ -27,51 +28,63 @@ from dataclasses import dataclass
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from oracle.prediction import Prediction, PredictionType, PredictionBatch, ConfidenceLevel
-from core.category import Category
-from data.embeddings import EmbeddingsEngine
+from data import KomposOSStore, EmbeddingsEngine
 
 
 class InferenceStrategy(ABC):
     """Base class for all inference strategies."""
 
     name: str = "base_strategy"
+    _MORPHISM_LIMIT: int = 3_000_000
+    _OBJECT_LIMIT: int = 100_000
 
-    def __init__(self, category: Category):
-        self.category = category
-        self._morphism_cache = None
-        self._object_cache = None
+    def __init__(self, store: KomposOSStore, _shared_cache: Optional[Dict[str, Any]] = None):
+        self.store = store
+        # Shared cache allows all strategies to share one copy of morphisms/objects,
+        # reducing memory from O(N_strategies * M) to O(M).
+        self._shared_cache: Dict[str, Any] = _shared_cache if _shared_cache is not None else {}
 
     def _get_morphisms(self) -> list:
-        """Cached morphism retrieval."""
-        if self._morphism_cache is None:
-            self._morphism_cache = self.category.morphisms()
-        return self._morphism_cache
+        """Cached morphism retrieval (shared across strategies)."""
+        if 'morphisms' not in self._shared_cache:
+            self._shared_cache['morphisms'] = self.store.list_morphisms(limit=self._MORPHISM_LIMIT)
+        return self._shared_cache['morphisms']
 
     def _get_objects(self) -> list:
-        """Cached object retrieval."""
-        if self._object_cache is None:
-            self._object_cache = self.category.objects()
-        return self._object_cache
+        """Cached object retrieval (shared across strategies)."""
+        if 'objects' not in self._shared_cache:
+            self._shared_cache['objects'] = self.store.list_objects(limit=self._OBJECT_LIMIT)
+        return self._shared_cache['objects']
+
+    def _get_object_map(self) -> Dict[str, Any]:
+        """Cached name->object map (shared across strategies)."""
+        if 'object_map' not in self._shared_cache:
+            self._shared_cache['object_map'] = {obj.name: obj for obj in self._get_objects()}
+        return self._shared_cache['object_map']
 
     def _build_morphism_index(self) -> Tuple[Dict, Dict]:
-        """Build outgoing and incoming morphism indices."""
+        """Build outgoing and incoming morphism indices (shared across strategies)."""
+        if 'morphism_index' in self._shared_cache:
+            return self._shared_cache['morphism_index']
+
         outgoing = {}  # source -> [morphisms]
         incoming = {}  # target -> [morphisms]
 
         for mor in self._get_morphisms():
-            if mor.source not in outgoing:
-                outgoing[mor.source] = []
-            outgoing[mor.source].append(mor)
+            if mor.source_name not in outgoing:
+                outgoing[mor.source_name] = []
+            outgoing[mor.source_name].append(mor)
 
-            if mor.target not in incoming:
-                incoming[mor.target] = []
-            incoming[mor.target].append(mor)
+            if mor.target_name not in incoming:
+                incoming[mor.target_name] = []
+            incoming[mor.target_name].append(mor)
 
+        self._shared_cache['morphism_index'] = (outgoing, incoming)
         return outgoing, incoming
 
     def _existing_morphism_pairs(self) -> Set[Tuple[str, str]]:
         """Get set of existing (source, target) pairs."""
-        return {(m.source, m.target) for m in self._get_morphisms()}
+        return {(m.source_name, m.target_name) for m in self._get_morphisms()}
 
     @abstractmethod
     def predict(self, source: str, target: str) -> List[Prediction]:
@@ -88,7 +101,7 @@ class KanExtensionStrategy(InferenceStrategy):
     Use Left Kan Extension for prediction.
 
     Mathematical basis:
-    - Left Kan extension Lan_K(F)(b) = colim_{(K|b)} F
+    - Left Kan extension Lan_K(F)(b) = colim_{(K↓b)} F
     - For each target b, compute weighted colimit over all paths leading to b
     - Predicts what should exist based on universal properties
 
@@ -100,7 +113,7 @@ class KanExtensionStrategy(InferenceStrategy):
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        # Build the comma category (K | target)
+        # Build the comma category (K ↓ target)
         # This is all objects with morphisms to target
         outgoing, incoming = self._build_morphism_index()
 
@@ -114,7 +127,7 @@ class KanExtensionStrategy(InferenceStrategy):
         # If multiple objects point to target with similar patterns to source,
         # source should also point to target
 
-        source_out = set(m.target for m in outgoing.get(source, []))
+        source_out = set(m.target_name for m in outgoing.get(source, []))
         source_out_types = set(m.name for m in outgoing.get(source, []))
 
         # Find objects similar to source that DO have morphism to target
@@ -123,7 +136,7 @@ class KanExtensionStrategy(InferenceStrategy):
             if obj.name == source:
                 continue
 
-            obj_out = set(m.target for m in outgoing.get(obj.name, []))
+            obj_out = set(m.target_name for m in outgoing.get(obj.name, []))
             obj_out_types = set(m.name for m in outgoing.get(obj.name, []))
 
             # Check if this object has morphism to target
@@ -140,7 +153,7 @@ class KanExtensionStrategy(InferenceStrategy):
                         "target_overlap": target_overlap,
                         "type_overlap": type_overlap,
                         "morphism_type": next(
-                            (m.name for m in outgoing.get(obj.name, []) if m.target == target),
+                            (m.name for m in outgoing.get(obj.name, []) if m.target_name == target),
                             "related_to"
                         )
                     })
@@ -198,8 +211,8 @@ class SemanticSimilarityStrategy(InferenceStrategy):
 
     name = "semantic_similarity"
 
-    def __init__(self, category: Category, embeddings: EmbeddingsEngine):
-        super().__init__(category)
+    def __init__(self, store: KomposOSStore, embeddings: EmbeddingsEngine, _shared_cache: Optional[Dict[str, Any]] = None):
+        super().__init__(store, _shared_cache=_shared_cache)
         self.embeddings = embeddings
         if embeddings is None or not embeddings.is_available:
             raise ValueError("SemanticSimilarityStrategy requires initialized embeddings")
@@ -232,7 +245,7 @@ class SemanticSimilarityStrategy(InferenceStrategy):
         outgoing, incoming = self._build_morphism_index()
 
         # Get objects pointing to target
-        objects_to_target = [m.source for m in incoming.get(target, [])]
+        objects_to_target = [m.source_name for m in incoming.get(target, [])]
 
         for obj_name in objects_to_target:
             if obj_name == source:
@@ -245,7 +258,7 @@ class SemanticSimilarityStrategy(InferenceStrategy):
                 # This object is similar to source AND has morphism to target
                 # Predict source should also have morphism to target
                 mor_to_target = next(
-                    (m for m in outgoing.get(obj_name, []) if m.target == target),
+                    (m for m in outgoing.get(obj_name, []) if m.target_name == target),
                     None
                 )
                 if mor_to_target and (source, target) not in existing:
@@ -279,7 +292,7 @@ class TemporalReasoningStrategy(InferenceStrategy):
 
     Rules:
     - If birth(source) < birth(target): source may have influenced target
-    - If contemporaries (+-20 years): may have collaborated
+    - If contemporaries (±20 years): may have collaborated
     - If source died before target born: historical influence only
     """
 
@@ -288,43 +301,42 @@ class TemporalReasoningStrategy(InferenceStrategy):
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
+        source_obj = self.store.get_object(source)
+        target_obj = self.store.get_object(target)
 
         if not source_obj or not target_obj:
+            return predictions
+
+        # Extract temporal data
+        source_birth = source_obj.metadata.get("birth")
+        source_death = source_obj.metadata.get("death")
+        target_birth = target_obj.metadata.get("birth")
+        target_death = target_obj.metadata.get("death")
+
+        if source_birth is None or target_birth is None:
             return predictions
 
         existing = self._existing_morphism_pairs()
         if (source, target) in existing:
             return predictions
 
-        # Financial domain: use market_cap for influence direction
-        source_mc = source_obj.metadata.get("market_cap")
-        target_mc = target_obj.metadata.get("market_cap")
-
-        if source_mc is not None and target_mc is not None:
-            return self._predict_financial(source, target, source_obj, target_obj, source_mc, target_mc)
-
-        # Physics domain: use birth/death for temporal influence
-        source_birth = source_obj.metadata.get("birth")
-        target_birth = target_obj.metadata.get("birth")
-
-        if source_birth is None or target_birth is None:
-            return predictions
-
+        # Calculate temporal relationship
         birth_diff = target_birth - source_birth
-        source_death = source_obj.metadata.get("death")
 
         if birth_diff > 0:
+            # Source is older - could have influenced target
             if source_death and source_death < target_birth:
-                confidence = 0.55
+                # Source died before target was born - historical influence
+                confidence = 0.55  # Lower confidence, indirect influence
                 relation = "influenced"
                 reasoning = f"{source} (d.{source_death}) predates {target} (b.{target_birth}) - historical influence"
             elif birth_diff <= 50:
+                # Overlapping lifetimes - direct influence possible
                 confidence = 0.70
                 relation = "influenced"
                 reasoning = f"{source} (b.{source_birth}) is {birth_diff} years older than {target} (b.{target_birth})"
             else:
+                # Large gap - indirect influence
                 confidence = 0.50
                 relation = "influenced"
                 reasoning = f"{source} (b.{source_birth}) predates {target} (b.{target_birth}) by {birth_diff} years"
@@ -346,6 +358,7 @@ class TemporalReasoningStrategy(InferenceStrategy):
             ))
 
         elif abs(birth_diff) <= 20:
+            # Contemporaries - possible collaboration
             confidence = 0.55
             predictions.append(Prediction(
                 source=source,
@@ -359,64 +372,6 @@ class TemporalReasoningStrategy(InferenceStrategy):
                     "source_birth": source_birth,
                     "target_birth": target_birth,
                     "birth_diff": birth_diff,
-                }
-            ))
-
-        return predictions
-
-    def _predict_financial(self, source, target, source_obj, target_obj, source_mc, target_mc):
-        """Financial temporal reasoning: larger market cap companies influence smaller ones."""
-        predictions = []
-
-        # Same sector check
-        source_sector = source_obj.metadata.get("sector", "")
-        target_sector = target_obj.metadata.get("sector", "")
-        same_sector = source_sector and source_sector == target_sector
-
-        # Market cap ratio determines influence direction
-        ratio = source_mc / max(target_mc, 1)
-
-        if ratio > 5:
-            # Source much larger -- likely influences target
-            confidence = min(0.65, 0.45 + 0.05 * (ratio / 10))
-            relation = "correlates_with" if same_sector else "influences"
-            reasoning = (f"{source} (mkt_cap={source_mc:.0e}) is {ratio:.1f}x larger than "
-                         f"{target} (mkt_cap={target_mc:.0e})")
-            if same_sector:
-                reasoning += f" -- same sector ({source_sector})"
-                confidence = min(0.70, confidence + 0.05)
-
-            predictions.append(Prediction(
-                source=source,
-                target=target,
-                predicted_relation=relation,
-                prediction_type=PredictionType.TEMPORAL_INFLUENCE,
-                strategy_name=self.name,
-                confidence=confidence,
-                reasoning=reasoning,
-                evidence={
-                    "source_market_cap": source_mc,
-                    "target_market_cap": target_mc,
-                    "cap_ratio": ratio,
-                    "same_sector": same_sector,
-                }
-            ))
-        elif same_sector and 0.2 < ratio < 5:
-            # Similar size, same sector -- likely correlates
-            confidence = 0.55
-            predictions.append(Prediction(
-                source=source,
-                target=target,
-                predicted_relation="correlates_with",
-                prediction_type=PredictionType.TEMPORAL_COLLABORATION,
-                strategy_name=self.name,
-                confidence=confidence,
-                reasoning=f"{source} and {target} are similar-sized peers in {source_sector}",
-                evidence={
-                    "source_market_cap": source_mc,
-                    "target_market_cap": target_mc,
-                    "cap_ratio": ratio,
-                    "same_sector": True,
                 }
             ))
 
@@ -437,36 +392,148 @@ class TypeHeuristicStrategy(InferenceStrategy):
     name = "type_heuristic"
 
     TYPE_RULES = {
-        # Physics domain (legacy)
+        # === Physics / History of Science ===
         ("Physicist", "Physicist"): ["influenced", "collaborated", "trained"],
         ("Physicist", "Theory"): ["created", "contributed", "developed", "extended"],
         ("Physicist", "Mathematician"): ["influenced", "collaborated"],
         ("Theory", "Theory"): ["extends", "supersedes", "reformulates", "generalizes"],
-        ("Theory", "Physicist"): [],
+        ("Theory", "Physicist"): [],  # Theories don't influence physicists directly
         ("Mathematician", "Physicist"): ["influenced", "provided_tools"],
         ("Mathematician", "Mathematician"): ["influenced", "collaborated"],
         ("Mathematician", "Theory"): ["axiomatized", "proved", "formalized", "developed"],
         ("Philosopher", "Physicist"): ["influenced"],
         ("Philosopher", "Theory"): ["influenced", "conceptualized"],
-        # Financial domain
-        ("Asset:equity", "Sector"): ["in_sector"],
-        ("Asset:equity", "Asset:equity"): ["correlates_with", "competes_with", "supplies", "hedges", "leads"],
-        ("Asset:equity", "MacroFactor"): ["exposed_to", "responds_to"],
-        ("Asset:equity", "Index"): ["component_of"],
-        ("Asset:equity", "RiskFactor"): ["has_risk"],
-        ("Sector", "MacroFactor"): ["sensitive_to"],
-        ("Sector", "Sector"): ["correlates_with"],
-        ("MacroFactor", "MacroFactor"): ["influences"],
-        ("MacroFactor", "Sector"): ["influences"],
-        ("Index", "Asset:equity"): [],  # Indices don't influence assets directly
-        ("Portfolio", "Asset:equity"): ["holds"],
+
+        # === Drug Repurposing ===
+        # Drug -> Protein target interactions (all protein type_names)
+        ("Drug", "Receptor"): ["inhibits", "activates", "targets", "binds"],
+        ("Drug", "Oncogene"): ["inhibits", "targets", "pathway_modulator"],
+        ("Drug", "Signaling"): ["inhibits", "activates", "targets", "indirect_inhibitor"],
+        ("Drug", "TumorSuppressor"): ["activator", "synthetic_lethal", "targets"],
+        ("Drug", "CellCycle"): ["inhibits", "targets"],
+        ("Drug", "Apoptosis"): ["inhibits", "activates", "targets"],
+        ("Drug", "DNARepair"): ["inhibits", "synthetic_lethal", "targets"],
+        ("Drug", "Regulator"): ["inhibits", "activates", "targets"],
+        ("Drug", "Transcription"): ["inhibits", "targets"],
+        # Drug -> generic Protein (Hetionet genes mapped as "Protein")
+        ("Drug", "Protein"): ["inhibits", "activates", "binds", "targets",
+                              "downregulates", "upregulates"],
+
+        # Drug -> Disease treatment relationships
+        ("Drug", "Disease"): ["treats", "prevents", "potential_treatment", "palliates"],
+
+        # Drug -> Drug combinations and similarity
+        ("Drug", "Drug"): ["synergizes_with", "antagonizes", "similar_mechanism", "resembles"],
+
+        # Drug -> SideEffect (Phase 1: Hetionet)
+        ("Drug", "SideEffect"): ["causes_side_effect"],
+
+        # Drug -> Pathway (via PharmClass)
+        ("Drug", "Pathway"): ["targets_pathway"],
+
+        # Protein -> Disease associations (all protein types)
+        ("Receptor", "Disease"): ["driver_of", "associated_with"],
+        ("Oncogene", "Disease"): ["driver_of", "associated_with"],
+        ("Signaling", "Disease"): ["associated_with", "driver_of"],
+        ("TumorSuppressor", "Disease"): ["associated_with", "driver_of"],
+        ("CellCycle", "Disease"): ["associated_with", "driver_of"],
+        ("Apoptosis", "Disease"): ["associated_with", "driver_of"],
+        ("DNARepair", "Disease"): ["associated_with", "driver_of"],
+        ("Regulator", "Disease"): ["associated_with"],
+        ("Transcription", "Disease"): ["associated_with", "driver_of"],
+        ("Epigenetic", "Disease"): ["associated_with", "driver_of"],
+        ("Metabolic", "Disease"): ["associated_with", "driver_of"],
+        ("Splicing", "Disease"): ["associated_with"],
+        ("Structural", "Disease"): ["associated_with"],
+        ("Chaperone", "Disease"): ["associated_with"],
+        # Generic Protein -> Disease (Hetionet genes)
+        ("Protein", "Disease"): ["associated_with", "driver_of"],
+
+        # Protein -> Protein interactions (same type and cross-type)
+        ("Protein", "Protein"): ["interacts", "regulates", "covaries"],
+        ("Receptor", "Receptor"): ["interacts"],
+        ("Oncogene", "Oncogene"): ["interacts"],
+        ("Signaling", "Signaling"): ["interacts"],
+
+        # Protein -> Pathway interactions (Phase 1/6: Hetionet/Reactome)
+        ("Protein", "Pathway"): ["participates_in"],
+        ("Receptor", "Pathway"): ["participates_in"],
+        ("Oncogene", "Pathway"): ["participates_in"],
+        ("Signaling", "Pathway"): ["participates_in"],
+
+        # Protein -> BiologicalProcess/MolecularFunction/CellularComponent
+        ("Protein", "BiologicalProcess"): ["participates_in_bp"],
+        ("Protein", "MolecularFunction"): ["has_function"],
+        ("Protein", "CellularComponent"): ["participates_in_cc"],
+
+        # Disease -> Disease comorbidity and similarity
+        ("Disease", "Disease"): ["comorbid_with", "subtype_of", "resembles"],
+
+        # Disease -> Protein (reverse associations from Hetionet)
+        ("Disease", "Protein"): ["associated_with"],
+        ("Disease", "Receptor"): ["associated_with"],
+        ("Disease", "Oncogene"): ["associated_with"],
+
+        # Disease -> Symptom (Phase 1: Hetionet)
+        ("Disease", "Symptom"): ["presents"],
+
+        # Disease -> Anatomy (Phase 1: Hetionet)
+        ("Disease", "Anatomy"): ["localizes_in"],
+
+        # Pathway -> Disease (Phase 6: Reactome)
+        ("Pathway", "Disease"): ["disrupted_in"],
+
+        # Pathway -> Pathway
+        ("Pathway", "Pathway"): ["contains", "precedes"],
+
+        # Anatomy -> Protein (Phase 1: Hetionet)
+        ("Anatomy", "Protein"): ["expresses", "tissue_upregulates", "tissue_downregulates"],
+
+        # PharmClass -> Drug (Phase 1: Hetionet)
+        ("PharmClass", "Drug"): ["class_includes"],
+
+        # Drug -> AML protein types
+        ("Drug", "Epigenetic"): ["inhibits", "targets"],
+        ("Drug", "Metabolic"): ["inhibits", "targets"],
+        ("Drug", "Splicing"): ["inhibits", "targets"],
+        ("Drug", "Chaperone"): ["inhibits", "targets"],
+        ("Drug", "Structural"): ["inhibits", "targets"],
     }
+
+    def __init__(self, store: KomposOSStore, _shared_cache: Optional[Dict[str, Any]] = None):
+        super().__init__(store, _shared_cache=_shared_cache)
+        self._type_pair_index: Optional[Dict[Tuple[str, str], Dict[str, int]]] = None
+
+    def _build_type_pair_index(self) -> Dict[Tuple[str, str], Dict[str, int]]:
+        """Pre-compute (source_type, target_type) -> {relation: count} index.
+
+        Built once from cached morphisms + object map.  Reduces per-pair cost
+        from O(E) store.get_object() calls to O(1) dict lookup.
+        """
+        if self._type_pair_index is not None:
+            return self._type_pair_index
+
+        obj_map = self._get_object_map()
+        index: Dict[Tuple[str, str], Dict[str, int]] = {}
+
+        for mor in self._get_morphisms():
+            src = obj_map.get(mor.source_name)
+            tgt = obj_map.get(mor.target_name)
+            if src and tgt:
+                tp = (src.type_name, tgt.type_name)
+                if tp not in index:
+                    index[tp] = {}
+                index[tp][mor.name] = index[tp].get(mor.name, 0) + 1
+
+        self._type_pair_index = index
+        return self._type_pair_index
 
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
+        obj_map = self._get_object_map()
+        source_obj = obj_map.get(source) or self.store.get_object(source)
+        target_obj = obj_map.get(target) or self.store.get_object(target)
 
         if not source_obj or not target_obj:
             return predictions
@@ -481,18 +548,11 @@ class TypeHeuristicStrategy(InferenceStrategy):
         if (source, target) in existing:
             return predictions
 
-        # Check if similar typed objects have this relationship
-        outgoing, incoming = self._build_morphism_index()
+        # O(1) lookup from pre-computed index instead of O(E) iteration
+        type_index = self._build_type_pair_index()
+        observed = type_index.get(type_pair, {})
 
-        # Count how often each valid relation appears between these types
-        relation_counts = {r: 0 for r in valid_relations}
-        for mor in self._get_morphisms():
-            src = self.category.get(mor.source)
-            tgt = self.category.get(mor.target)
-            if src and tgt:
-                if (src.type_name, tgt.type_name) == type_pair:
-                    if mor.name in relation_counts:
-                        relation_counts[mor.name] += 1
+        relation_counts = {r: observed.get(r, 0) for r in valid_relations}
 
         # Predict most common valid relation
         if any(relation_counts.values()):
@@ -528,7 +588,7 @@ class YonedaPatternStrategy(InferenceStrategy):
     Objects with same morphism patterns are structurally similar.
 
     Yoneda lemma: Hom(A, -) determines A up to isomorphism.
-    If Hom(A, -) ~ Hom(B, -), then A and B play the same structural role.
+    If Hom(A, -) ≃ Hom(B, -), then A and B play the same structural role.
     """
 
     name = "yoneda_pattern"
@@ -544,11 +604,11 @@ class YonedaPatternStrategy(InferenceStrategy):
 
         # Build Hom(source, -) - outgoing morphism types
         source_hom_out = {m.name for m in outgoing.get(source, [])}
-        source_hom_out_targets = {m.target for m in outgoing.get(source, [])}
+        source_hom_out_targets = {m.target_name for m in outgoing.get(source, [])}
 
         # Build Hom(-, source) - incoming morphism types
         source_hom_in = {m.name for m in incoming.get(source, [])}
-        source_hom_in_sources = {m.source for m in incoming.get(source, [])}
+        source_hom_in_sources = {m.source_name for m in incoming.get(source, [])}
 
         # Find objects with similar Hom patterns that connect to target
         for obj in self._get_objects():
@@ -556,7 +616,7 @@ class YonedaPatternStrategy(InferenceStrategy):
                 continue
 
             obj_hom_out = {m.name for m in outgoing.get(obj.name, [])}
-            obj_hom_out_targets = {m.target for m in outgoing.get(obj.name, [])}
+            obj_hom_out_targets = {m.target_name for m in outgoing.get(obj.name, [])}
 
             # Check if obj has morphism to target
             if target not in obj_hom_out_targets:
@@ -571,7 +631,7 @@ class YonedaPatternStrategy(InferenceStrategy):
             if yoneda_similarity > 0.3:
                 # Objects have similar Hom patterns
                 mor_to_target = next(
-                    (m for m in outgoing.get(obj.name, []) if m.target == target),
+                    (m for m in outgoing.get(obj.name, []) if m.target_name == target),
                     None
                 )
                 if mor_to_target:
@@ -584,7 +644,7 @@ class YonedaPatternStrategy(InferenceStrategy):
                         prediction_type=PredictionType.YONEDA_ANALOGY,
                         strategy_name=self.name,
                         confidence=confidence,
-                        reasoning=f"Yoneda similarity: {source} ~ {obj.name} ({yoneda_similarity:.2f}), and {obj.name} has '{mor_to_target.name}' to {target}",
+                        reasoning=f"Yoneda similarity: {source} ≃ {obj.name} ({yoneda_similarity:.2f}), and {obj.name} has '{mor_to_target.name}' to {target}",
                         evidence={
                             "similar_object": obj.name,
                             "yoneda_similarity": yoneda_similarity,
@@ -616,49 +676,20 @@ class CompositionStrategy(InferenceStrategy):
         if (source, target) in existing:
             return predictions
 
-        # Type filtering for drug repurposing
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
-
-        # Only predict Drug -> Disease for repurposing
-        if not (source_obj and target_obj):
-            return predictions
-
-        is_drug_disease = (source_obj.type_name == "Drug" and target_obj.type_name == "Disease")
-
         outgoing, incoming = self._build_morphism_index()
 
         # Find 2-hop paths: source -> intermediate -> target
-        source_targets = {m.target: m for m in outgoing.get(source, [])}
+        source_targets = {m.target_name: m for m in outgoing.get(source, [])}
 
         for intermediate, mor1 in source_targets.items():
             # Check if intermediate -> target exists
-            intermediate_targets = {m.target: m for m in outgoing.get(intermediate, [])}
+            intermediate_targets = {m.target_name: m for m in outgoing.get(intermediate, [])}
 
             if target in intermediate_targets:
                 mor2 = intermediate_targets[target]
 
-                # Type filtering: for Drug->Disease, require protein intermediate
-                if is_drug_disease:
-                    intermediate_obj = self.category.get(intermediate)
-                    if not intermediate_obj:
-                        continue
-
-                    # Valid protein types for drug repurposing
-                    protein_types = {
-                        "Receptor", "Signaling", "Transcription", "TumorSuppressor",
-                        "Apoptosis", "Oncogene", "DNARepair", "CellCycle", "Regulator",
-                        "Splicing", "Epigenetic", "Metabolic", "Structural", "Chaperone"
-                    }
-
-                    if intermediate_obj.type_name not in protein_types:
-                        continue
-
-                    # Use full confidence for valid Drug->Protein->Disease chains
-                    composed_confidence = min(mor1.confidence, mor2.confidence)
-                else:
-                    # For other types, apply penalty
-                    composed_confidence = min(mor1.confidence, mor2.confidence) * 0.85
+                # Compose confidence
+                composed_confidence = min(mor1.confidence, mor2.confidence) * 0.85
 
                 # Determine composed relation type
                 if mor1.name == mor2.name:
@@ -710,8 +741,8 @@ class FibrationLiftStrategy(InferenceStrategy):
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        source_obj = self.category.get(source)
-        target_obj = self.category.get(target)
+        source_obj = self.store.get_object(source)
+        target_obj = self.store.get_object(target)
 
         if not source_obj or not target_obj:
             return predictions
@@ -738,11 +769,11 @@ class FibrationLiftStrategy(InferenceStrategy):
                 obj_out = outgoing.get(obj.name, [])
 
                 for mor in obj_out:
-                    mor_target = self.category.get(mor.target)
+                    mor_target = self.store.get_object(mor.target_name)
                     if mor_target:
                         mor_target_fiber = (mor_target.type_name, mor_target.metadata.get("era", "unknown"))
 
-                        if mor_target_fiber == target_fiber and mor.target == target:
+                        if mor_target_fiber == target_fiber and mor.target_name == target:
                             # Found lift pattern: obj (same fiber as source) -> target
                             # Predict source should also -> target
 
@@ -791,8 +822,8 @@ class StructuralHoleStrategy(InferenceStrategy):
         outgoing, incoming = self._build_morphism_index()
 
         # Find common ancestors: objects that point to both source and target
-        source_ancestors = {m.source for m in incoming.get(source, [])}
-        target_ancestors = {m.source for m in incoming.get(target, [])}
+        source_ancestors = {m.source_name for m in incoming.get(source, [])}
+        target_ancestors = {m.source_name for m in incoming.get(target, [])}
 
         common_ancestors = source_ancestors & target_ancestors
 
@@ -801,13 +832,13 @@ class StructuralHoleStrategy(InferenceStrategy):
             # Missing: source -> target or target -> source
 
             for ancestor in common_ancestors:
-                mor_to_source = next((m for m in outgoing.get(ancestor, []) if m.target == source), None)
-                mor_to_target = next((m for m in outgoing.get(ancestor, []) if m.target == target), None)
+                mor_to_source = next((m for m in outgoing.get(ancestor, []) if m.target_name == source), None)
+                mor_to_target = next((m for m in outgoing.get(ancestor, []) if m.target_name == target), None)
 
                 if mor_to_source and mor_to_target:
                     # Check type compatibility
-                    source_obj = self.category.get(source)
-                    target_obj = self.category.get(target)
+                    source_obj = self.store.get_object(source)
+                    target_obj = self.store.get_object(target)
 
                     if source_obj and target_obj:
                         type_pair = (source_obj.type_name, target_obj.type_name)
@@ -833,16 +864,16 @@ class StructuralHoleStrategy(InferenceStrategy):
                             ))
 
         # Also check: source -> X, target -> X (common descendants)
-        source_descendants = {m.target for m in outgoing.get(source, [])}
-        target_descendants = {m.target for m in outgoing.get(target, [])}
+        source_descendants = {m.target_name for m in outgoing.get(source, [])}
+        target_descendants = {m.target_name for m in outgoing.get(target, [])}
 
         common_descendants = source_descendants & target_descendants
 
         if common_descendants and (target, source) not in existing:
             # Both point to same thing - might be related
             for descendant in list(common_descendants)[:3]:  # Limit
-                mor_from_source = next((m for m in outgoing.get(source, []) if m.target == descendant), None)
-                mor_from_target = next((m for m in outgoing.get(target, []) if m.target == descendant), None)
+                mor_from_source = next((m for m in outgoing.get(source, []) if m.target_name == descendant), None)
+                mor_from_target = next((m for m in outgoing.get(target, []) if m.target_name == descendant), None)
 
                 if mor_from_source and mor_from_target:
                     confidence = 0.50  # Lower confidence for this pattern
@@ -886,8 +917,8 @@ class GeometricStrategy(InferenceStrategy):
 
     name = "geometric"
 
-    def __init__(self, category: Category, curvature_computer=None):
-        super().__init__(category)
+    def __init__(self, store: KomposOSStore, curvature_computer=None, _shared_cache: Optional[Dict[str, Any]] = None):
+        super().__init__(store, _shared_cache=_shared_cache)
         self.curvature_computer = curvature_computer
         self._curvature_result = None
         self._region_map = None
@@ -900,7 +931,7 @@ class GeometricStrategy(InferenceStrategy):
         try:
             if self.curvature_computer is None:
                 from geometry import OllivierRicciCurvature
-                self.curvature_computer = OllivierRicciCurvature(self.category)
+                self.curvature_computer = OllivierRicciCurvature(self.store)
 
             self._curvature_result = self.curvature_computer.compute_all_curvatures()
             self._region_map = self.curvature_computer.get_geometric_regions()
@@ -1020,117 +1051,24 @@ class GeometricStrategy(InferenceStrategy):
 # Strategy Registry
 # =============================================================================
 
-def create_all_strategies(category: Category, embeddings: EmbeddingsEngine) -> List[InferenceStrategy]:
-    """Create all inference strategies (built-in + imported)."""
+def create_all_strategies(store: KomposOSStore, embeddings: EmbeddingsEngine) -> List[InferenceStrategy]:
+    """Create all 9 inference strategies."""
     strategies = [
-        KanExtensionStrategy(category),
-        TemporalReasoningStrategy(category),
-        TypeHeuristicStrategy(category),
-        YonedaPatternStrategy(category),
-        CompositionStrategy(category),
-        FibrationLiftStrategy(category),
-        StructuralHoleStrategy(category),
+        KanExtensionStrategy(store),
+        SemanticSimilarityStrategy(store, embeddings),
+        TemporalReasoningStrategy(store),
+        TypeHeuristicStrategy(store),
+        YonedaPatternStrategy(store),
+        CompositionStrategy(store),
+        FibrationLiftStrategy(store),
+        StructuralHoleStrategy(store),
     ]
-
-    # Add SemanticSimilarityStrategy only if embeddings available
-    try:
-        if embeddings and embeddings.is_available:
-            strategies.append(SemanticSimilarityStrategy(category, embeddings))
-    except Exception:
-        pass  # Embeddings not available, skip this strategy
 
     # Add Geometric strategy if available
     try:
         from geometry import OllivierRicciCurvature
-        strategies.append(GeometricStrategy(category))
+        strategies.append(GeometricStrategy(store))
     except ImportError:
         pass  # Geometry module not available
-
-    # Add imported strategies (from separate modules)
-    # These activate previously dead code in categorical/
-
-    # ToposLogicStrategy: intuitionistic reasoning (activates topos_logic.py)
-    try:
-        from oracle.topos_strategy import ToposLogicStrategy
-        strategies.append(ToposLogicStrategy(category))
-    except ImportError:
-        pass
-
-    # NaturalTransformationStrategy: pattern variant detection (activates natural_transformations.py)
-    try:
-        from oracle.natural_transformation import NaturalTransformationStrategy
-        strategies.append(NaturalTransformationStrategy(category))
-    except ImportError:
-        pass
-
-    # OperadicDecompositionStrategy: n-ary composition analysis (activates operads.py)
-    try:
-        from oracle.operadic_decomposition import OperadicDecompositionStrategy
-        strategies.append(OperadicDecompositionStrategy(category))
-    except ImportError:
-        pass
-
-    # EvidenceCombinationStrategy: Dempster-Shafer uncertainty (activates dempster_shafer.py)
-    try:
-        from oracle.evidence_combination import EvidenceCombinationStrategy
-        strategies.append(EvidenceCombinationStrategy(category))
-    except ImportError:
-        pass
-
-    # StreamingForecastStrategy: temporal predictions (activates streaming_kan.py)
-    try:
-        from oracle.streaming_forecast import StreamingForecastStrategy
-        strategies.append(StreamingForecastStrategy(category))
-    except ImportError:
-        pass
-
-    # TopologicalAnomalyStrategy: persistent homology anomalies (activates persistent_homology.py)
-    try:
-        from oracle.topological_anomaly import TopologicalAnomalyStrategy
-        strategies.append(TopologicalAnomalyStrategy(category))
-    except ImportError:
-        pass
-
-    # GameStrategy: Nash equilibrium analysis (activates game/nash.py)
-    try:
-        from oracle.game_strategy import GameStrategy
-        strategies.append(GameStrategy(category))
-    except ImportError:
-        pass
-
-    # ActivityAnalysisStrategy: Engeström Activity Theory
-    try:
-        from oracle.activity_analysis import ActivityAnalysisStrategy
-        strategies.append(ActivityAnalysisStrategy(category))
-    except ImportError:
-        pass
-
-    # BoundaryDetectionStrategy: Cross-domain boundary objects
-    try:
-        from oracle.boundary_detection import BoundaryDetectionStrategy
-        strategies.append(BoundaryDetectionStrategy(category))
-    except ImportError:
-        pass
-
-    # CellularDynamicsStrategy: SIR epidemic modeling
-    try:
-        from oracle.cellular_dynamics import CellularDynamicsStrategy
-        strategies.append(CellularDynamicsStrategy(category))
-    except ImportError:
-        pass
-
-    # CubicalGapFillingStrategy: Cubical type theory gap filling
-    try:
-        from oracle.cubical_gap_filling_strategy import CubicalGapFillingStrategy
-        strategies.append(CubicalGapFillingStrategy(category))
-    except ImportError:
-        pass
-
-    # GeometricHomotopyStrategy: Homotopy-based inference
-    try:
-        from oracle.geometric_homotopy_strategy import GeometricHomotopyStrategy
-        strategies.append(GeometricHomotopyStrategy(category))
-    except ImportError:
-        pass
 
     return strategies

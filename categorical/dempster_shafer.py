@@ -27,6 +27,8 @@ Advantages over Bayesian:
 References:
 - Dempster (1967): Upper and lower probabilities induced by a multivalued mapping
 - Shafer (1976): A Mathematical Theory of Evidence
+
+Ported from KOMPOSOS-III-ARC. Pure stdlib, zero dependencies.
 """
 
 from dataclasses import dataclass, field
@@ -75,7 +77,7 @@ class MassFunction:
         """
         total = 0.0
         for focal, mass in self.masses.items():
-            if focal <= hypothesis:  # focal is subset of hypothesis
+            if focal <= hypothesis:
                 total += mass
         return total
 
@@ -89,7 +91,7 @@ class MassFunction:
         """
         total = 0.0
         for focal, mass in self.masses.items():
-            if focal & hypothesis:  # non-empty intersection
+            if focal & hypothesis:
                 total += mass
         return total
 
@@ -122,8 +124,7 @@ def combine(m1: MassFunction, m2: MassFunction) -> Tuple[MassFunction, float]:
     Dempster's combination rule for two independent evidence sources.
 
     Computes the orthogonal sum of two mass functions, normalized by
-    the conflict factor K. The conflict degree measures how much the
-    two sources disagree.
+    the conflict factor K.
 
     Args:
         m1: First mass function
@@ -145,7 +146,6 @@ def combine(m1: MassFunction, m2: MassFunction) -> Tuple[MassFunction, float]:
             product = m_a * m_b
 
             if not intersection:
-                # Conflicting evidence
                 conflict += product
             else:
                 combined_masses[intersection] = (
@@ -158,7 +158,6 @@ def combine(m1: MassFunction, m2: MassFunction) -> Tuple[MassFunction, float]:
             "The sources are completely contradictory."
         )
 
-    # Normalize by (1 - conflict)
     normalization = 1.0 - conflict
     normalized: Dict[FrozenSet[str], float] = {
         k: v / normalization for k, v in combined_masses.items() if v > 0
@@ -186,10 +185,8 @@ def weighted_combine(
     if not masses:
         return MassFunction(masses={})
 
-    # Discount each source by its reliability
     discounted = [discount(m, w) for m, w in masses]
 
-    # Combine sequentially
     result = discounted[0]
     for m in discounted[1:]:
         result, _ = combine(result, m)
@@ -209,8 +206,6 @@ def discount(m: MassFunction, reliability: float) -> MassFunction:
     Args:
         m: Original mass function
         reliability: Source reliability in [0, 1].
-                     1.0 = fully reliable (no change).
-                     0.0 = completely unreliable (all mass to ignorance).
 
     Returns:
         Discounted MassFunction.
@@ -221,16 +216,13 @@ def discount(m: MassFunction, reliability: float) -> MassFunction:
     new_masses: Dict[FrozenSet[str], float] = {}
     for focal, mass in m.masses.items():
         if focal == frame:
-            # Frame gets discounted mass plus unreliability portion
             new_masses[focal] = reliability * mass + (1.0 - reliability)
         else:
             new_masses[focal] = reliability * mass
 
-    # If frame wasn't a focal element, add the unreliability mass
     if frame not in new_masses and frame:
         new_masses[frame] = 1.0 - reliability
 
-    # Remove zero masses
     new_masses = {k: v for k, v in new_masses.items() if v > 1e-12}
 
     return MassFunction(masses=new_masses)

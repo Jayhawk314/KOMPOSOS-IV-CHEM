@@ -1,0 +1,247 @@
+{
+  "domain": "polymer",
+  "version": "1.0",
+  "description": "Polymer blend compatibility. Compatible = miscible or commercially blended. Incompatible = phase-separating with poor mechanical properties.",
+  "pairs": [
+    {
+      "id": 302,
+      "material_a": "PVDF",
+      "material_b": "PMMA",
+      "expected_compatible": true,
+      "citation": "Paul & Bucknall, Polymer Blends Vol 1, 2000",
+      "notes": "LCST miscibility, negative chi parameter",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 303,
+      "material_a": "PP",
+      "material_b": "PE",
+      "expected_compatible": true,
+      "citation": "Utracki, Commercial Polymer Blends 2014",
+      "notes": "Similar solubility parameters, co-crystallization possible",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 304,
+      "material_a": "PP",
+      "material_b": "PET",
+      "expected_compatible": false,
+      "citation": "Utracki, Polymer Alloys and Blends 1990",
+      "notes": "Large chi parameter, phase separation",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 305,
+      "material_a": "PS",
+      "material_b": "PMMA",
+      "expected_compatible": false,
+      "citation": "Paul & Bucknall, Polymer Blends 2000",
+      "notes": "Immiscible, chi=0.037 at 25C",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 306,
+      "material_a": "PA6",
+      "material_b": "PP",
+      "expected_compatible": false,
+      "citation": "Utracki, Commercial Polymer Blends 2014",
+      "notes": "Incompatible without compatibilizer (maleic anhydride grafting needed)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 307,
+      "material_a": "PVC",
+      "material_b": "PMMA",
+      "expected_compatible": true,
+      "citation": "Krause, J. Macromol. Sci. 1972",
+      "notes": "Miscible over full composition range",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 308,
+      "material_a": "PEO",
+      "material_b": "PMMA",
+      "expected_compatible": true,
+      "citation": "Ito et al., Macromolecules 1987",
+      "notes": "Miscible via hydrogen bonding",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 309,
+      "material_a": "PVDF",
+      "material_b": "PP",
+      "expected_compatible": false,
+      "citation": "Paul & Bucknall, Polymer Blends 2000",
+      "notes": "Immiscible, no specific interactions",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 310,
+      "material_a": "PC",
+      "material_b": "PET",
+      "expected_compatible": true,
+      "citation": "Utracki, Commercial Polymer Blends 2014",
+      "notes": "Miscible via transesterification",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 311,
+      "material_a": "PA6",
+      "material_b": "PA66",
+      "expected_compatible": true,
+      "citation": "Ellis, Handbook of Polymer Blends 1993",
+      "notes": "Co-polyamide miscibility, similar repeat units",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 312,
+      "material_a": "PS",
+      "material_b": "PP",
+      "expected_compatible": false,
+      "citation": "Utracki, Polymer Alloys and Blends 1990",
+      "notes": "Immiscible, large solubility parameter difference",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 313,
+      "material_a": "PEEK",
+      "material_b": "PPS",
+      "expected_compatible": true,
+      "citation": "Harris & Robeson, J. Polym. Sci. 1987",
+      "notes": "Compatible high-temperature engineering blend",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 314,
+      "material_a": "PDMS",
+      "material_b": "PS",
+      "expected_compatible": false,
+      "citation": "Bates, Science 1991",
+      "notes": "Extremely immiscible, chi>>0.1",
+      "doi": "10.1126/science.251.4996.898",
+      "used_for_tuning": false
+    },
+    {
+      "id": 315,
+      "material_a": "PTFE",
+      "material_b": "PVC",
+      "expected_compatible": false,
+      "citation": "Van Krevelen, Properties of Polymers 2009",
+      "notes": "Incompatible, very different solubility parameters",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 316,
+      "material_a": "Epoxy",
+      "material_b": "PEO",
+      "expected_compatible": true,
+      "citation": "Hillmyer et al., J. Am. Chem. Soc. 1997",
+      "notes": "PEO toughening agent for epoxy",
+      "doi": "10.1021/ja963622m",
+      "used_for_tuning": false
+    },
+    {
+      "id": 317,
+      "material_a": "PMMA",
+      "material_b": "SBR",
+      "expected_compatible": false,
+      "citation": "Paul & Bucknall, Polymer Blends 2000",
+      "notes": "Immiscible, large delta difference",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 318,
+      "material_a": "PVC",
+      "material_b": "NBR",
+      "expected_compatible": true,
+      "citation": "Utracki, Commercial Polymer Blends 2014",
+      "notes": "Commercial blend, NBR plasticizer for PVC",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 319,
+      "material_a": "PI",
+      "material_b": "PDMS",
+      "expected_compatible": false,
+      "citation": "Nishi & Wang, Macromolecules 1975",
+      "notes": "Immiscible, extreme polarity difference",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 320,
+      "material_a": "PC",
+      "material_b": "PMMA",
+      "expected_compatible": true,
+      "citation": "Kambour et al., Macromolecules 1983",
+      "notes": "Partially miscible, commercial blends exist",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 321,
+      "material_a": "POM",
+      "material_b": "PP",
+      "expected_compatible": false,
+      "citation": "Utracki, Polymer Alloys and Blends 1990",
+      "notes": "Immiscible, crystallinity mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 322,
+      "material_a": "EPDM",
+      "material_b": "PP",
+      "expected_compatible": true,
+      "citation": "Coran & Patel, Rubber Chem. Tech. 1980",
+      "notes": "TPV (thermoplastic vulcanizate) commercial product",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 323,
+      "material_a": "PAN",
+      "material_b": "PVDF",
+      "expected_compatible": true,
+      "citation": "Belfiore et al., Polymer 1984",
+      "notes": "Miscible blend used in membrane applications",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 324,
+      "material_a": "HDPE",
+      "material_b": "PA6",
+      "expected_compatible": false,
+      "citation": "Utracki, Commercial Polymer Blends 2014",
+      "notes": "Incompatible without maleic anhydride compatibilizer",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 325,
+      "material_a": "PS",
+      "material_b": "PVC",
+      "expected_compatible": false,
+      "citation": "Krause, J. Macromol. Sci. 1972",
+      "notes": "Immiscible at all compositions",
+      "doi": null,
+      "used_for_tuning": false
+    }
+  ]
+}

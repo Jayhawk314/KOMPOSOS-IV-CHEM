@@ -27,8 +27,22 @@ from .limits import (
     terminal,
     initial,
 )
-from .higher_order_optimus import HigherOrderOptimus, HigherOrderRewrite
-from .formal_yoneda import YonedaProver, YonedaProofResult, yoneda_transfer_threshold
+from .gray_coherence import (
+    GrayCategoryLayer,
+    CoherenceVulnerabilityMapper,
+    MythosRace,
+    CoherenceGapType,
+    TwoCellProxy,
+    VulnerabilityCandidate,
+    Modification,
+    SoftwareCategoryBuilder,
+)
+from .gray_coherence_bridge import (
+    MythosShield,
+    build_shield,
+    GapFinding,
+    ShieldReport,
+)
 
 __all__ = [
     "Object",
@@ -60,9 +74,16 @@ __all__ = [
     "pushout",
     "terminal",
     "initial",
-    "HigherOrderOptimus",
-    "HigherOrderRewrite",
-    "YonedaProver",
-    "YonedaProofResult",
-    "yoneda_transfer_threshold",
+    "GrayCategoryLayer",
+    "CoherenceVulnerabilityMapper",
+    "MythosRace",
+    "CoherenceGapType",
+    "TwoCellProxy",
+    "VulnerabilityCandidate",
+    "Modification",
+    "SoftwareCategoryBuilder",
+    "MythosShield",
+    "build_shield",
+    "GapFinding",
+    "ShieldReport",
 ]

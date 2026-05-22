@@ -126,14 +126,14 @@ class GenericFibration:
 
         # Phase 2: Build morphisms
         for mor in morphisms:
-            src_base = self._name_to_fiber.get(mor.source_name)
-            tgt_base = self._name_to_fiber.get(mor.target_name)
+            src_base = self._name_to_fiber.get(mor.source)
+            tgt_base = self._name_to_fiber.get(mor.target)
 
             if src_base is None or tgt_base is None:
                 continue
 
-            src_obj = self._object_index.get((src_base, mor.source_name))
-            tgt_obj = self._object_index.get((tgt_base, mor.target_name))
+            src_obj = self._object_index.get((src_base, mor.source))
+            tgt_obj = self._object_index.get((tgt_base, mor.target))
 
             if src_obj is None or tgt_obj is None:
                 continue
@@ -154,7 +154,7 @@ class GenericFibration:
                 transition_label=label,
             )
             self.total_morphisms.append(fiber_mor)
-            src_key = (src_base, mor.source_name)
+            src_key = (src_base, mor.source)
             self._adjacency.setdefault(src_key, []).append(fiber_mor)
 
         return self

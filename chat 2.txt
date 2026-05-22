@@ -1,0 +1,3268 @@
+
+• The MATH spectral implementation is now staged as a separate shared module so the existing chemistry spectral analyzer stays intact. Next I’m wiring
+  exports and compatibility shims rather than replacing chemistry code.
+
+• Edited geometry\spectral.py (+17 -6)
+    28
+    29 -try:
+    30 -    from scipy.linalg import eigh
+    31 -    from scipy.sparse import csr_matrix
+    32 -    SCIPY_AVAILABLE = True
+    33 -except ImportError:
+    34 -    SCIPY_AVAILABLE = False
+    29 +try:
+    30 +    from scipy.linalg import eigh
+    31 +    from scipy.sparse import csr_matrix
+    32 +    SCIPY_AVAILABLE = True
+    33 +except ImportError:
+    34 +    SCIPY_AVAILABLE = False
+    35 +
+    36 +from .spectral_structures import (
+    37 +    Graph,
+    38 +    GraphLaplacian,
+    39 +    SpectralClustering,
+    40 +    CheegerConstant,
+    41 +    RandomWalkAnalysis,
+    42 +    graph_from_adjacency,
+    43 +    graph_from_edges,
+    44 +    analyze_connectivity,
+    45 +)
+    46
+
+• Edited geometry\__init__.py (+29 -7)
+    36  # Spectral analysis (if available)
+    37 -try:
+    38 -    from .spectral import SpectralGraphAnalyzer, analyze_spectrum
+    39 -    SPECTRAL_AVAILABLE = True
+    40 -except ImportError:
+    41 -    SPECTRAL_AVAILABLE = False
+    37 +try:
+    38 +    from .spectral import (
+    39 +        SpectralGraphAnalyzer,
+    40 +        analyze_spectrum,
+    41 +        Graph,
+    42 +        GraphLaplacian,
+    43 +        SpectralClustering,
+    44 +        CheegerConstant,
+    45 +        RandomWalkAnalysis,
+    46 +        graph_from_adjacency,
+    47 +        graph_from_edges,
+    48 +        analyze_connectivity,
+    49 +    )
+    50 +    SPECTRAL_AVAILABLE = True
+    51 +except ImportError:
+    52 +    SPECTRAL_AVAILABLE = False
+    53
+       ⋮
+    68  # Add spectral if available
+    58 -if SPECTRAL_AVAILABLE:
+    59 -    __all__.extend(["SpectralGraphAnalyzer", "analyze_spectrum"])
+    69 +if SPECTRAL_AVAILABLE:
+    70 +    __all__.extend([
+    71 +        "SpectralGraphAnalyzer",
+    72 +        "analyze_spectrum",
+    73 +        "Graph",
+    74 +        "GraphLaplacian",
+    75 +        "SpectralClustering",
+    76 +        "CheegerConstant",
+    77 +        "RandomWalkAnalysis",
+    78 +        "graph_from_adjacency",
+    79 +        "graph_from_edges",
+    80 +        "analyze_connectivity",
+    81 +    ])
+
+• Added categorical\right_kan.py (+103 -0)
+      1 +# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+      2 +# Copyright (c) 2024-2026 James Ray Hawkins
+      3 +
+      4 +"""Right Kan structural priors for seeding streaming categorical prediction."""
+      5 +
+      6 +import math
+      7 +from collections import defaultdict
+      8 +from typing import Callable, Dict, List, Optional, Set, Tuple
+      9 +
+     10 +
+     11 +class RightKanExtension:
+     12 +    """
+     13 +    Structural right Kan extension: Ran_K(F)(e) = lim_{(e downarrow K)} F.
+     14 +
+     15 +    This complements the streaming left Kan by computing topology-only priors
+     16 +    before observations arrive. It is intentionally independent of chemistry,
+     17 +    drug, or cyber domain types.
+     18 +    """
+     19 +
+     20 +    def __init__(
+     21 +        self,
+     22 +        objects: List[str],
+     23 +        compositions: List[Tuple[str, str]],
+     24 +        entry_objects: Optional[Set[str]] = None,
+     25 +        weight_fn: Optional[Callable[[str, str], float]] = None,
+     26 +        successor_fn: Optional[Callable[[str], List[Tuple[str, float]]]] = None,
+     27 +    ):
+     28 +        self._objects = set(objects)
+     29 +        self._weight_fn = weight_fn
+     30 +        self._successor_fn = successor_fn
+     31 +        self._entry_objects = entry_objects or set()
+     32 +        self._structural_scores: Dict[str, float] = {}
+     33 +        self._predecessor_map: Dict[str, Set[str]] = defaultdict(set)
+     34 +
+     35 +        for src, tgt in compositions:
+     36 +            self._predecessor_map[tgt].add(src)
+     37 +
+     38 +        self._compute_structural_priors()
+     39 +
+     40 +    def _compute_structural_priors(self) -> None:
+     41 +        n_objects = len(self._objects)
+     42 +        norm = max(1.0, math.sqrt(n_objects))
+     43 +
+     44 +        for obj_id in self._objects:
+     45 +            predecessors = self._predecessor_map.get(obj_id, set())
+     46 +            if not predecessors:
+     47 +                self._structural_scores[obj_id] = 0.0
+     48 +                continue
+     49 +
+     50 +            total = 0.0
+     51 +            for pred in predecessors:
+     52 +                total += self._weight_fn(pred, obj_id) if self._weight_fn else 0.5
+     53 +
+     54 +            score = min(1.0, total / norm)
+     55 +            if obj_id in self._entry_objects:
+     56 +                score = min(1.0, score + 0.1)
+     57 +            self._structural_scores[obj_id] = score
+     58 +
+     59 +    def predict(self, top_k: int = 10) -> List[Dict]:
+     60 +        sorted_objs = sorted(
+     61 +            self._structural_scores.items(),
+     62 +            key=lambda item: item[1],
+     63 +            reverse=True,
+     64 +        )[:top_k]
+     65 +        return [
+     66 +            {
+     67 +                "object": obj_id,
+     68 +                "structural_score": round(score, 6),
+     69 +                "n_predecessors": len(self._predecessor_map.get(obj_id, set())),
+     70 +                "is_entry": obj_id in self._entry_objects,
+     71 +            }
+     72 +            for obj_id, score in sorted_objs
+     73 +        ]
+     74 +
+     75 +    def get_priors_for_seeding(
+     76 +        self,
+     77 +        entry_points: Optional[List[str]] = None,
+     78 +        prior_weight: float = 0.15,
+     79 +    ) -> List[Tuple[str, float]]:
+     80 +        entries = entry_points or list(self._entry_objects)
+     81 +
+     82 +        if self._successor_fn is not None:
+     83 +            prior_dict: Dict[str, float] = {}
+     84 +            for entry in entries:
+     85 +                for succ_id, succ_weight in self._successor_fn(entry):
+     86 +                    structural = self._structural_scores.get(succ_id, 0.1)
+     87 +                    weight = prior_weight * succ_weight * structural
+     88 +                    if weight > 0.001 and weight > prior_dict.get(succ_id, 0.0):
+     89 +                        prior_dict[succ_id] = weight
+     90 +            return sorted(prior_dict.items(), key=lambda item: item[1], reverse=True)
+     91 +
+     92 +        prior_dict = {
+     93 +            obj_id: prior_weight * score
+     94 +            for obj_id, score in self._structural_scores.items()
+     95 +            if prior_weight * score > 0.001
+     96 +        }
+     97 +        return sorted(prior_dict.items(), key=lambda item: item[1], reverse=True)
+     98 +
+     99 +    def get_structural_score(self, object_id: str) -> float:
+    100 +        return self._structural_scores.get(object_id, 0.0)
+    101 +
+    102 +    def is_entry(self, object_id: str) -> bool:
+    103 +        return object_id in self._entry_objects
+
+• Edited categorical\streaming_kan.py (+4 -2)
+    30  from typing import List, Dict, Tuple, Optional, Set
+    31 -from dataclasses import dataclass, field
+    32 -from collections import defaultdict
+    31 +from dataclasses import dataclass, field
+    32 +from collections import defaultdict
+    33 +
+    34 +from .right_kan import RightKanExtension
+    35
+
+• Edited categorical\__init__.py (+37 -11)
+    19
+    20 -from .category import Object, Morphism, Category
+    21 -from .kan_extensions import Functor, LeftKanExtension, RightKanExtension
+    22 -
+    23 -__all__ = [
+    24 -    "Object",
+    25 -    "Morphism",
+    26 -    "Category",
+    27 -    "Functor",
+    28 -    "LeftKanExtension",
+    29 -    "RightKanExtension",
+    30 -]
+    20 +from .category import Object, Morphism, Category
+    21 +from .kan_extensions import Functor, LeftKanExtension, RightKanExtension
+    22 +from .streaming_kan import StreamingKanExtension
+    23 +from .right_kan import RightKanExtension as StructuralRightKanExtension
+    24 +
+    25 +try:
+    26 +    from .optics import register_lens, register_prism, register_optic
+    27 +    from .para import Para
+    28 +    from .markov import MarkovCategory
+    29 +    from .deep_learning import NeuralCategory
+    30 +    from .poly import register_system, run_traced, category_of_systems
+    31 +    from .double_categories import DoubleCategory
+    32 +except ImportError:
+    33 +    register_lens = register_prism = register_optic = None
+    34 +    Para = MarkovCategory = NeuralCategory = DoubleCategory = None
+    35 +    register_system = run_traced = category_of_systems = None
+    36 +
+    37 +__all__ = [
+    38 +    "Object",
+    39 +    "Morphism",
+    40 +    "Category",
+    41 +    "Functor",
+    42 +    "LeftKanExtension",
+    43 +    "RightKanExtension",
+    44 +    "StreamingKanExtension",
+    45 +    "StructuralRightKanExtension",
+    46 +    "Para",
+    47 +    "MarkovCategory",
+    48 +    "NeuralCategory",
+    49 +    "DoubleCategory",
+    50 +    "register_lens",
+    51 +    "register_prism",
+    52 +    "register_optic",
+    53 +    "register_system",
+    54 +    "run_traced",
+    55 +    "category_of_systems",
+    56 +]
+
+• Edited bridges\__init__.py (+15 -4)
+    19
+    20 +from .cyber_security_bridge import CyberSecurityBridge, ThreatIntelligence, build_cyber_bridge
+    21 +from .math_discovery_bridge import DiscoveryResult, MathDiscoveryBridge
+    22 +
+    23  ORION_PLUGINS_AVAILABLE = True
+       ⋮
+    31      from .infinity_cosmos_plugin import InfinityCosmosPlugin
+    32 +    from .activity_system_plugin import ActivitySystemPlugin
+    33  except ModuleNotFoundError as exc:
+       ⋮
+    42      InfinityCosmosPlugin = None
+    43 +    ActivitySystemPlugin = None
+    44
+    45  __all__ = [
+    46 +    "CyberSecurityBridge",
+    47 +    "ThreatIntelligence",
+    48 +    "build_cyber_bridge",
+    49 +    "DiscoveryResult",
+    50 +    "MathDiscoveryBridge",
+    51      "ORION_PLUGINS_AVAILABLE",
+       ⋮
+    54      "SessionManagerPlugin",
+    45 -    "OptimusPlugin",
+    46 -    "TelemetryPlugin",
+    47 -    "InfinityCosmosPlugin",
+    48 -]
+    55 +    "OptimusPlugin",
+    56 +    "TelemetryPlugin",
+    57 +    "InfinityCosmosPlugin",
+    58 +    "ActivitySystemPlugin",
+    59 +]
+
+• Edited zfc\__init__.py (+35 -15)
+    115
+    116 -from .meta_kan import (
+    117 -    DeltaType,
+    118 -    Resolution,
+    119 -    Episode,
+    120 -    EpisodeCategory,
+    121 -    MetaPrediction,
+    122 -    MetaKanExtension,
+    123 -    System3Oracle,
+    124 -)
+    125 -
+    126 -__all__ = [
+    116 +from .meta_kan import (
+    117 +    DeltaType,
+    118 +    Resolution,
+    119 +    Episode,
+    120 +    EpisodeCategory,
+    123 +    System3Oracle,
+    124 +    episode_similarity,
+    125 +    cosine_similarity,
+    126 +)
+    127 +
+    130 +from .proof_bridge import (
+    131 +    load_proof_graph,
+    132 +    ProofGraphBridge,
+    133 +    ConjectureResult,
+    134 +    ProofVerificationResult,
+    137 +from .evolved_bridge import EvolvedDualEngineBridge
+    138 +
+    139 +__all__ = [
+    140      # Universe (Layer 1)
+        ⋮
+    154 -    "MetaPrediction", "MetaKanExtension",
+    155 -    "System3Oracle",
+    156 -]
+    166 +    "Episode", "EpisodeCategory",
+    167 +    "MetaPrediction", "MetaKanExtension",
+    170 +    # Integration / proof bridge / evolved checks
+    171 +    "StoreAdapter", "DualEngineBridge", "DualResult",
+    172 +    "load_proof_graph", "ProofGraphBridge", "ConjectureResult",
+    173 +    "ProofVerificationResult",
+    174 +    "AxiomMiner", "AxiomPattern", "DiscoveredAxioms",
+
+• Ran rg -n "class .*Gray|Gray|gray_coherence|Mythos|shield|verify|evaluate" gray cog core oracle -g "*.py"
+  └ cog\server.py:315:        "auth_checks": {"jwt_verify": ["admin_panel", "user_api"]},
+    oracle\categorical_verifier.py:125:    ZFC doesn't see this data. CAT uses it independently to verify
+    … +229 lines (ctrl + t to view transcript)
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\cog\engine.py" | Select-Object -Skip 190 -First 70
+  └             for i, n1 in enumerate(names):
+                    for n2 in names[i + 1:]:
+    … +66 lines (ctrl + t to view transcript)
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\cog\engine.py" | Select-Object -Skip 260 -First 115
+  └             """Compute product of morphism confidences along a path."""
+                if len(path) < 2:
+    … +111 lines (ctrl + t to view transcript)
+        def explain(self, claim: CogClaim) -> Dict[str, Any]:
+            """cog_explain: Detailed explanation of why a check returned what it did."""
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\cog\engine.py" | Select-Object -Skip 800 -First 75
+  └                 }
+
+    … +71 lines (ctrl + t to view transcript)
+
+            # Persistent homology (Betti numbers)
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\cog\engine.py" | Select-Object -Skip 900 -First 105
+  └             topology_data["h0_components"] = betti.get(0, 0)
+                topology_data["h1_loops"] = betti.get(1, 0)
+    … +101 lines (ctrl + t to view transcript)
+                        # Publish each critical gap
+                        for finding in report.critical:
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\cog\engine.py" | Select-Object -Skip 1005 -First 75
+  └                         bus.publish(
+                                EVENT_COHERENCE_GAP_FOUND,
+    … +71 lines (ctrl + t to view transcript)
+            else:
+                topo_note = "; Topology: different regions"
+
+• Ran Get-Content -Path cog\engine.py | Select-Object -First 60
+  └ # SPDX-License-Identifier: Apache-2.0 OR LicenseRef-KOMPOSOS-IV-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +56 lines (ctrl + t to view transcript)
+        Higher tiers are lazy-imported to keep startup fast.
+        """
+
+• Ran Test-Path categorical\cat_advanced.py
+  └ True
+
+• Edited cog\engine.py (+120 -10)
+    219
+    220 -        return CoherenceResult(
+    221 -            is_coherent=len(violations) == 0,
+    222 -            coherence_score=round(coherence_score, 4),
+    223 -            violations=violations,
+    224 -            explanation=self._coherence_explanation(violations, total),
+    225 -        )
+    226 -
+    227 -    def compute_energy(self, claim: CogClaim) -> EnergyResult:
+    228 -        """cog_energy: Compute how costly a claim is."""
+    229 -        return self.energy_computer.compute(claim)
+    220 +        return CoherenceResult(
+    221 +            is_coherent=len(violations) == 0,
+    222 +            coherence_score=round(coherence_score, 4),
+    223 +            violations=violations,
+    224 +            explanation=self._coherence_explanation(violations, total),
+    225 +        )
+    226 +
+    227 +    def evaluate_diagram(self, diagram: Any) -> Dict[str, Any]:
+    228 +        """
+    229 +        Evaluate an ActivityDiagram for structural integrity and commutativity.
+    230 +
+    231 +        This is a domain-neutral MATH bridge: it checks whether mediated and
+    232 +        direct paths in an activity diagram agree under morphism confidence.
+    233 +        """
+    234 +        from categorical.cat_advanced import ActivityDiagram
+    235 +
+    236 +        if not isinstance(diagram, ActivityDiagram):
+    237 +            return {"status": "REJECT", "reason": "Invalid diagram type"}
+    238 +
+    239 +        results = {
+    240 +            "activity_id": diagram.activity_id,
+    241 +            "production_tension": 0.0,
+    242 +            "regulation_tension": 0.0,
+    243 +            "distribution_tension": 0.0,
+    244 +            "status": "AGREE",
+    245 +            "evidence_weight": 0.0,
+    246 +            "triad_details": [],
+    247 +        }
+    248 +
+    249 +        def path_confidence(path: List[str]) -> Optional[float]:
+    250 +            if len(path) < 2:
+    251 +                return None
+    252 +            confidence = 1.0
+    253 +            for i in range(len(path) - 1):
+    254 +                morphisms = [
+    255 +                    m for m in self.category.morphisms_from(path[i])
+    256 +                    if m.target == path[i + 1]
+    257 +                ]
+    258 +                if not morphisms:
+    259 +                    return None
+    260 +                confidence *= max(m.confidence for m in morphisms)
+    261 +            return confidence
+    262 +
+    263 +        def check_triad(
+    264 +            mediated_paths: List[List[str]],
+    265 +            direct_paths: List[List[str]],
+    266 +        ) -> tuple[float, List[Dict[str, Any]]]:
+    267 +            max_tension = 0.0
+    268 +            details = []
+    269 +            for mediated in mediated_paths:
+    270 +                for direct in direct_paths:
+    271 +                    mediated_conf = path_confidence(mediated)
+    272 +                    direct_conf = path_confidence(direct)
+    273 +
+    274 +                    if mediated_conf is None and direct_conf is None:
+    275 +                        detail = {
+    276 +                            "mediated": mediated,
+    277 +                            "direct": direct,
+    278 +                            "status": "ORPHAN",
+    279 +                            "tension": 0.0,
+    280 +                        }
+    281 +                    elif mediated_conf is None or direct_conf is None:
+    282 +                        detail = {
+    283 +                            "mediated": mediated,
+    284 +                            "direct": direct,
+    285 +                            "status": "HOLLOW",
+    286 +                            "tension": 1.0,
+    287 +                        }
+    288 +                        max_tension = max(max_tension, 1.0)
+    289 +                    else:
+    290 +                        tension = abs(mediated_conf - direct_conf)
+    291 +                        status = "REJECT" if tension > 0.5 else (
+    292 +                            "HOLLOW" if tension > 0.1 else "AGREE"
+    293 +                        )
+    294 +                        detail = {
+    295 +                            "mediated": mediated,
+    296 +                            "direct": direct,
+    297 +                            "mediated_conf": round(mediated_conf, 4),
+    298 +                            "direct_conf": round(direct_conf, 4),
+    299 +                            "status": status,
+    300 +                            "tension": round(tension, 4),
+    301 +                        }
+    302 +                        max_tension = max(max_tension, tension)
+    303 +                    details.append(detail)
+    304 +            return max_tension, details
+    305 +
+    306 +        prod_tension, prod_details = check_triad(
+    307 +            [[s, t, o] for s in diagram.subjects for t in diagram.tools for o in diagram.objects],
+    308 +            [[s, o] for s in diagram.subjects for o in diagram.objects],
+    309 +        )
+    310 +        reg_tension, reg_details = check_triad(
+    311 +            [[s, r, c] for s in diagram.subjects for r in diagram.rules for c in diagram.community],
+    312 +            [[s, c] for s in diagram.subjects for c in diagram.community],
+    313 +        )
+    314 +        dist_tension, dist_details = check_triad(
+    315 +            [[c, d, o] for c in diagram.community for d in diagram.division for o in diagram.objects],
+    316 +            [[c, o] for c in diagram.community for o in diagram.objects],
+    317 +        )
+    318 +
+    319 +        results["production_tension"] = round(prod_tension, 4)
+    320 +        results["regulation_tension"] = round(reg_tension, 4)
+    321 +        results["distribution_tension"] = round(dist_tension, 4)
+    322 +        results["triad_details"].extend(prod_details + reg_details + dist_details)
+    323 +
+    324 +        max_tension = max(prod_tension, reg_tension, dist_tension)
+    325 +        results["evidence_weight"] = round(max_tension, 4)
+    326 +        if max_tension > 0.5:
+    327 +            results["status"] = "REJECT"
+    328 +        elif max_tension > 0.1:
+    329 +            results["status"] = "HOLLOW"
+    330 +
+    331 +        if not results["triad_details"]:
+    332 +            results["status"] = "ORPHAN"
+    333 +            results["evidence_weight"] = 1.0
+    334 +
+    335 +        return results
+    336 +
+    337 +    def compute_energy(self, claim: CogClaim) -> EnergyResult:
+    338 +        """cog_energy: Compute how costly a claim is."""
+    339 +        return self.energy_computer.compute(claim)
+    340
+
+• Edited cog\engine.py (+46 -7)
+    897
+    898 -        except Exception as e:
+    899 -            logger.debug(f"Tier 4e interchange error: {e}")
+    900 -            topology_data["interchange_error"] = str(e)
+    901 -
+    902 -        # --- Final: Augment confidence based on topology ---
+    903 -        topo_bonus = 0.0
+    904 -        if same_region:
+    898 +        except Exception as e:
+    899 +            logger.debug(f"Tier 4e interchange error: {e}")
+    900 +            topology_data["interchange_error"] = str(e)
+    901 +
+    902 +        # --- Tier 4f: optional Gray 3-cell coherence / Mythos shield ---
+    903 +        try:
+    904 +            if budget_ok() and current_confidence < 0.90:
+    905 +                from core.gray_coherence_bridge import build_shield
+    906 +
+    907 +                shield = build_shield(None, category=self.category)
+    908 +                report = shield.scan(top_k=20)
+    909 +
+    910 +                topology_data["gray_coherence"] = {
+    911 +                    "conjectures_evaluated": getattr(report, "conjectures_evaluated", 0),
+    912 +                    "hollow_count": getattr(report, "hollow_count", 0),
+    913 +                    "gray_gap_count": getattr(report, "gray_gap_count", 0),
+    914 +                    "critical_findings": len(getattr(report, "critical", [])),
+    915 +                    "chainable_findings": len(getattr(report, "chainable", [])),
+    916 +                    "scan_time_ms": getattr(report, "scan_time_ms", 0),
+    917 +                }
+    918 +
+    919 +                critical = getattr(report, "critical", [])
+    920 +                chainable = getattr(report, "chainable", [])
+    921 +                if critical:
+    922 +                    current_confidence = max(0.1, current_confidence - 0.3)
+    923 +                    topology_data["gray_coherence_note"] = (
+    924 +                        f"critical structural coherence gaps detected: {len(critical)}"
+    925 +                    )
+    926 +                elif chainable:
+    929 +                        f"chainable structural coherence gaps detected: {len(chainable)}"
+    930 +                    )
+    931 +                else:
+    932 +                    topology_data["gray_coherence_note"] = "no structural coherence gaps"
+    933 +
+    934 +                topology_data["sub_tier_reached"] = "4f"
+    935 +        except ImportError:
+    936 +            topology_data["gray_coherence_note"] = "Gray coherence module not loaded"
+    937 +        except Exception as e:
+    938 +            logger.debug(f"Tier 4f gray coherence error: {e}")
+    939 +            topology_data["gray_coherence_error"] = str(e)
+    940 +
+    941 +        # --- Final: Augment confidence based on topology ---
+    942 +        topo_bonus = 0.0
+    943 +        if same_region:
+    944              topo_bonus = 0.1
+
+• Edited geometry\spectral_structures.py (+5 -1)
+    310      graph: Graph
+    311 +    n_clusters: Optional[int] = None
+    312
+    312 -    def cluster(self, k: int) -> Dict[int, int]:
+    313 +    def cluster(self, k: Optional[int] = None) -> Dict[int, int]:
+    314          """
+        ⋮
+    322          """
+    323 +        if k is None:
+    324 +            k = self.n_clusters or self.find_optimal_k()
+    325 +
+    326          laplacian = GraphLaplacian(self.graph)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The patches are in place. I’m doing a tight verification pass now: compile the touched packages, then import the exact names that were missing or
+  broadened by the MATH merge.
+
+• Running python -c "from geometry.spectral import Graph, GraphLaplacian, SpectralClustering, SpectralGraphAnalyzer, analyze_spectrum; g=Graph();
+  │ g.add_edge(1,2); print('spectral ok', GraphLaplacian(g).algebraic_connectivity(), SpectralClustering(g, n_clusters=1).cluster())"
+
+• Running python -c "from categorical.streaming_kan import StreamingKanExtension, RightKanExtension; from categorical import Para, MarkovCategory,
+  │ StructuralRightKanExtension; print('categorical ok', bool(RightKanExtension(['a'], [])), Para is not None, MarkovCategory is not None,
+  │ StructuralRightKanExtension.__name__)"
+
+• Running python -m compileall -q categorical geometry cog bridges zfc
+
+• Ran python -c "import zfc; print('zfc ok', zfc.DualEngineBridge.__name__, zfc.StoreAdapter.__name__, zfc.episode_similarity.__name__)"
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\zfc\__init__.py", line 128, in <module>
+        from .store_adapter import StoreAdapter
+• Ran python -m compileall -q categorical geometry cog bridges zfc
+  └ (no output)
+
+• Ran python -c "import bridges; print('bridges ok', bridges.MathDiscoveryBridge.__name__, bridges.ORION_PLUGINS_AVAILABLE)"
+  └ bridges ok MathDiscoveryBridge False
+
+• Ran python -c "from categorical.streaming_kan import StreamingKanExtension, RightKanExtension; from categorical import Para, MarkovCategory,
+  │ StructuralRightKanExtension; print('categorical ok', bool(RightKanExtension(['a'], [])), Para is not None, MarkovCategory is not None,
+  │ StructuralRightKanExtension.__name__)"
+  └ categorical ok True True True RightKanExtension
+
+• Ran python -c "from geometry.spectral import Graph, GraphLaplacian, SpectralClustering, SpectralGraphAnalyzer, analyze_spectrum; g=Graph();
+  │ g.add_edge(1,2); print('spectral ok', GraphLaplacian(g).algebraic_connectivity(), SpectralClustering(g, n_clusters=1).cluster())"
+  └ spectral ok 2.0 {1: 0, 2: 0}
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• One import exposed an actual merge mismatch: target zfc/store_adapter.py is the chemistry/PHARM store adapter and does not expose MATH’s generic
+  StoreAdapter class. I’m adding a compatibility alias without replacing the domain adapter.
+
+• Running rg -n "^class |def __init__|StoreAdapter|Adapter" zfc\store_adapter.py zfc\bridge.py zfc\evolved_bridge.py
+
+• Ran rg -n "^class |def __init__|StoreAdapter|Adapter" zfc\store_adapter.py zfc\bridge.py zfc\evolved_bridge.py
+    … +10 lines (ctrl + t to view transcript)
+    zfc\bridge.py:127:class DualEngineBridge:
+    zfc\bridge.py:138:    def __init__(self, store, embeddings=None, domain: str = "",
+
+• Ran Get-Content -Path zfc\store_adapter.py | Select-Object -First 140
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +136 lines (ctrl + t to view transcript)
+        T = Theory("StoreTheory")
+
+
+• Running Get-Content -Path zfc\evolved_bridge.py | Select-Object -First 145
+
+• Ran Get-Content -Path zfc\evolved_bridge.py | Select-Object -First 145
+  └ # SPDX-License-Identifier: Apache-2.0 OR LicenseRef-KOMPOSOS-IV-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +141 lines (ctrl + t to view transcript)
+            self,
+            source: str,
+
+• Ran Get-Content -Path zfc\bridge.py | Select-Object -First 190
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +186 lines (ctrl + t to view transcript)
+        def predict(self, source: str, target: str) -> DualResult:
+            """
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\store_adapter.py" | Select-Object -First 145
+    … +141 lines (ctrl + t to view transcript)
+            for rel_name in list(V.relations.keys()):
+                rel = V.relations[rel_name]
+
+• Ran Copy-Item -LiteralPath "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\store_adapter.py" -Destination "zfc\category_store_adapter.py" -Force
+  └ (no output)
+
+• Edited zfc\__init__.py (+1 -1)
+    127
+    129  from .bridge import DualEngineBridge, DualResult
+
+• Edited zfc\evolved_bridge.py (+1 -1)
+    26
+    27 -from .store_adapter import StoreAdapter
+    27 +from .category_store_adapter import StoreAdapter
+
+• Running python -m compileall -q categorical geometry cog bridges zfc
+
+• Ran python -m compileall -q categorical geometry cog bridges zfc
+  └ (no output)
+
+• Ran python -c "import zfc; print('zfc ok', zfc.DualEngineBridge.__name__, zfc.StoreAdapter.__name__, zfc.episode_similarity.__name__)"
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    … +3 lines (ctrl + t to view transcript)
+        from .store_adapter import StoreAdapter
+    ImportError: cannot import name 'StoreAdapter' from 'zfc.store_adapter' (C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\zfc\store_adapter.py)
+
+• Ran python -c "from cog.engine import CogEngine; print('cog ok', hasattr(CogEngine, 'evaluate_diagram'))"
+  └ cog ok True
+
+• Ran rg -n "from \.store_adapter import StoreAdapter|import StoreAdapter" zfc
+  └ zfc\__init__.py:128:from .category_store_adapter import StoreAdapter
+    zfc\evolved_bridge.py:27:from .category_store_adapter import StoreAdapter
+    zfc\proof_bridge.py:66:from .store_adapter import StoreAdapter
+
+• Edited zfc\proof_bridge.py (+1 -1)
+    65
+    66 -from .store_adapter import StoreAdapter
+    66 +from .category_store_adapter import StoreAdapter
+    67  from .bridge import DualEngineBridge, DualResult
+
+• Ran python -c "import zfc; print('zfc ok', zfc.DualEngineBridge.__name__, zfc.StoreAdapter.__name__, zfc.episode_similarity.__name__)"
+  └ zfc ok DualEngineBridge StoreAdapter episode_similarity
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  at it. Now I’m checking the downstream modules that depend on those merged names.
+
+• Running python -c "from categorical import register_lens, register_system, DoubleCategory, StreamingKanExtension, StructuralRightKanExtension;
+  │ print('categorical exports ok', register_lens is not None, register_system is not None, DoubleCategory is not None)"
+
+• Running python -c "from zfc.proof_bridge import ProofGraphBridge, load_proof_graph; from zfc.evolved_bridge import EvolvedDualEngineBridge; from
+  │ zfc.category_store_adapter import StoreAdapter; print('zfc bridge imports ok')"
+
+• Running python -c "from aimo.theorem_kg import TheoremKnowledgeGraph; from cyber.spectral_anomaly_detection import SpectralAnomalyDetector; from
+  │ domains.mathematics.kernel import MathKernel; from domains.mathematics.structure_match import StructureMatcher; print('math consumers ok')"
+
+• Ran python -m compileall -q categorical geometry cog bridges zfc aimo cyber domains
+  └ (no output)
+
+• Ran python -c "from zfc.proof_bridge import ProofGraphBridge, load_proof_graph; from zfc.evolved_bridge import EvolvedDualEngineBridge; from
+  │ zfc.category_store_adapter import StoreAdapter; print('zfc bridge imports ok')"
+  └ zfc bridge imports ok
+
+• Ran python -c "from categorical import register_lens, register_system, DoubleCategory, StreamingKanExtension, StructuralRightKanExtension;
+  │ print('categorical exports ok', register_lens is not None, register_system is not None, DoubleCategory is not None)"
+  └ categorical exports ok True True True
+
+• Ran python -c "from aimo.theorem_kg import TheoremKnowledgeGraph; from cyber.spectral_anomaly_detection import SpectralAnomalyDetector; from
+  │ domains.mathematics.kernel import MathKernel; from domains.mathematics.structure_match import StructureMatcher; print('math consumers ok')"
+  └ Warning: Could not import KOMPOSOS-IV core: cannot import name 'SentenceEmbedder' from 'data.embeddings' (C:
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The core merge checks pass, but one broad consumer smoke test exposed older copied MATH modules asking for legacy names like ZFCUniverse and
+  SentenceEmbedder. I’m not going to chase every new module right now unless it blocks the 42-file merge; I’ll check whether it’s only a stale import
+  surface.
+
+• Running rg -n "class |def |ZFCUniverse|SentenceEmbedder|Theorem" aimo\theorem_kg.py aimo domains\mathematics cyber\spectral_anomaly_detection.py
+  │ data\embeddings.py zfc\universe.py
+
+• Running Get-Content -Path aimo\theorem_kg.py | Select-Object -First 80
+
+  └ data\embeddings.py:46:class EmbeddingResult:
+    data\embeddings.py:54:    def dimension(self) -> int:
+    … +892 lines (ctrl + t to view transcript)
+
+• Ran Get-Content -Path aimo\theorem_kg.py | Select-Object -First 80
+  └ """
+    Theorem Knowledge Graph - Full-corpus KG backed by KOMPOSOS Category.
+    … +76 lines (ctrl + t to view transcript)
+            self._loaded = True
+            self._build_indices()
+
+• Ran Get-Content -Path aimo\__init__.py | Select-Object -First 120
+  └ """AIMO3 Solver â€” KOMPOSOS-IV powered mathematical reasoning."""
+
+    … +13 lines (ctrl + t to view transcript)
+        "AnswerExtractor",
+    ]
+
+• Running python -c "from zfc import Universe, StoreAdapter; from core.category import Category; c=Category(db_path=':memory:'); a=StoreAdapter(c);
+  │ print('store adapter ok', a.to_universe().__class__.__name__)"
+
+• Ran python -c "from zfc import Universe, StoreAdapter; from core.category import Category; c=Category(db_path=':memory:'); a=StoreAdapter(c); print('store
+  │ adapter ok', a.to_universe().__class__.__name__)"
+  └ store adapter ok Universe
+• Ran python -c "from aimo.theorem_kg import TheoremKG; from cyber.spectral_anomaly_detection import SpectralAnomalyDetector; from
+  │ domains.mathematics.kernel import MathKernel; from domains.mathematics.structure_match import StructureMatcher; print('math consumers ok',
+  │ TheoremKG.__name__, SpectralAnomalyDetector.__name__, MathKernel.__name__, StructureMatcher.__name__)"
+  └ Warning: Could not import KOMPOSOS-IV core: cannot import name 'SentenceEmbedder' from 'data.embeddings' (C:
+    ImportError: cannot import name 'STEALTH_QUANTALE' from 'categorical.enriched_category' (C:
+  │ \Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\categorical\enriched_category.py"
+  └ C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\categorical\enriched_category.py:59:MULTIPLICATIVE_QUANTALE = MonoidalStructure(
+    C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\categorical\enriched_category.py:66:ADDITIVE_QUANTALE = MonoidalStructure(
+    … +12 lines (ctrl + t to view transcript)
+    categorical\enriched_category.py:99:SUCCESS_QUANTALE = MonoidalStructure(
+    categorical\enriched_category.py:106:ACTIVITY_QUANTALE = MonoidalStructure(
+
+• Ran Get-Content -Path categorical\enriched_category.py | Select-Object -Skip 70 -First 95
+  └ YIELD_QUANTALE = MonoidalStructure(
+        tensor=lambda a, b: a * b,
+    … +91 lines (ctrl + t to view transcript)
+            Compute enriched composition: Hom(A,B) (x) Hom(B,C) -> Hom(A,C).
+
+
+› no aimo
+• Understood. I’ll exclude AIMO entirely from this merge pass and stop using it as a smoke-test surface. I’m keeping the review scoped to chemistry/material
+  runtime plus reusable MATH overlap files.
+
+■ Conversation interrupted - tell the model what to do differently. Something went wrong? Hit `/feedback` to report the issue.
+
+
+› well i dont knoiow if it has n]math we can use, use it,  but that is for math olypiad and lean and mathlib andre for math domain, usde them if they are
+  useful not if they are juts there.think
+
+
+■ You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or
+
+› hello we are back, we lost session context. do you need an updating and if so would it be context efficient to freshen the seesion? if not her is our old
+  chat just befroe disconnection... C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\chat.txt. should we staart fresh or continue from here?
+
+
+• Continue from here. No fresh start needed.
+
+  I have enough checkpoint context to proceed efficiently:
+
+  - Advanced CHEM has already been ported from KOMPOSOS-III-LAMBDA-max-3D-chem.
+  - Missing useful MATH files were copied, excluding Lean/proof-only/domain bulk.
+  - We were in the merge review of the 42 overlapping files.
+  - Rule now: keep chemistry/material logic as primary, pull MATH improvements only when they are genuinely reusable or fix missing runtime surfaces.
+  - Do not treat AIMO/Lean/Mathlib as core unless a specific reusable module helps the chemistry/material system.
+
+  I can use chat.txt only as a fallback if something looks inconsistent. Best next move is to continue from repo truth, inspect current diffs/status, finish
+  the 42-file merge review, then run compile/import/focused tests.
+
+
+› then continue weere we left of you were checking all files we copied to this repo to confirm what math to wire into the chem  we cooied from two
+  different repos.
+
+
+• I’ll continue from repo truth, not the stale chat. I’m going to inventory the copied/changed files, finish the overlap merge checks, and wire only
+  reusable math surfaces that chemistry/material code can actually call or that copied modules already depend on.
+
+• Updated Plan
+  └ Continue the port verification/merge-review from the current working tree: confirm copied files, finish reusable MATH wiring, avoid math-domain-only/
+    AIMO unless it provides a reusable primitive.
+    □ Inventory current copied/changed files and overlap manifests
+    □ Patch remaining reusable math compatibility gaps
+    □ Run compile/import/focused verification
+    □ Summarize what was wired, kept, and skipped
+
+• Running rg -n "STEALTH_QUANTALE|MULTIPLICATIVE_QUANTALE|ADDITIVE_QUANTALE|PROBABILISTIC_QUANTALE|MIN_QUANTALE|ZFCUniverse|SentenceEmbedder|StoreAdapter"
+  │ categorical zfc data aimo cyber domains -g "*.py"
+
+• Running git status --short
+
+• Running rg --files | rg "^(reports/port_manifest|categorical/right_kan.py|geometry/spectral_structures.py|zfc/category_store_adapter.py|chat\.txt$)"
+
+• Running Get-ChildItem -Path reports -Filter "*manifest*" | Select-Object Name,Length,LastWriteTime
+
+• Ran Get-ChildItem -Path reports -Filter "*manifest*" | Select-Object Name,Length,LastWriteTime
+  └
+
+
+• Ran rg --files | rg "^(reports/port_manifest|categorical/right_kan.py|geometry/spectral_structures.py|zfc/category_store_adapter.py|chat\.txt$)"
+  └ (no output)
+
+• Ran git status --short
+  └  M README.md
+     M battery_bridge/interaction_scoring.py
+    … +270 lines (ctrl + t to view transcript)
+    ?? triage_AML.md
+    ?? zfc/category_store_adapter.py
+
+• Ran rg -n "from geometry\.spectral import|from categorical import|from categorical\.enriched_category import|from zfc import|from \.store_adapter import
+  │ StoreAdapter|from data\.embeddings import SentenceEmbedder" aimo cyber domains bridges oracle composition_engine cross_bridge battery_bridge core cog
+  │ material_bridge -g "*.py"
+  └ aimo\bridge.py:14:    from data.embeddings import SentenceEmbedder
+    oracle\categorical_verifier.py:39:    from geometry.spectral import SpectralAnalyzer
+    … +13 lines (ctrl + t to view transcript)
+    aimo\verifier.py:13:    from zfc import ZFCUniverse, DualEngineProver
+    rg: material_bridge: The system cannot find the file specified. (os error 2)
+
+• Ran rg -n "STEALTH_QUANTALE|MULTIPLICATIVE_QUANTALE|ADDITIVE_QUANTALE|PROBABILISTIC_QUANTALE|MIN_QUANTALE|ZFCUniverse|SentenceEmbedder|StoreAdapter"
+  │ categorical zfc data aimo cyber domains -g "*.py"
+  └ zfc\bridge.py:14:       StoreAdapter
+    aimo\bridge.py:14:    from data.embeddings import SentenceEmbedder
+    … +43 lines (ctrl + t to view transcript)
+    aimo\verifier.py:47:            self.zfc = zfc or ZFCUniverse()
+    aimo\verifier.py:50:            self.zfc = ZFCUniverse()
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The inventory shows a few real reusable gaps, not AIMO-specific: cyber/gray-coherence imports need STEALTH_QUANTALE; an oracle verifier asks for old
+  aliases SpectralAnalyzer and VEnrichedCategory; ZFC category adapter is already separated from the chemistry store adapter. I’m patching those as
+  compatibility aliases so chemistry behavior stays unchanged.
+
+• Running Get-Content -Path cyber\stealth_scoring.py | Select-Object -First 80
+
+• Running Get-Content -Path categorical\quantales.py
+
+• Running rg -n "class Spectral|def analyze_spectrum|class VEnriched|VEnrichedCategory|SpectralAnalyzer" geometry\spectral.py
+  │ categorical\enriched_category.py oracle\categorical_verifier.py
+
+• Ran Get-Content -Path categorical\quantales.py
+  └ # SPDX-License-Identifier: LicenseRef-Proprietary-Commercial
+    # SPDX-FileCopyrightText: 2026 James Hawkins <jhawk314@gmail.com>
+    … +104 lines (ctrl + t to view transcript)
+            )
+• Ran rg -n "class Spectral|def analyze_spectrum|class VEnriched|VEnrichedCategory|SpectralAnalyzer" geometry\spectral.py categorical\enriched_category.py
+  │ oracle\categorical_verifier.py
+  └ oracle\categorical_verifier.py:39:    from geometry.spectral import SpectralAnalyzer
+    oracle\categorical_verifier.py:51:    from categorical.enriched_category import VEnrichedCategory
+    geometry\spectral.py:49:class SpectralResult:
+
+• Ran Get-Content -Path cyber\stealth_scoring.py | Select-Object -First 80
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins <jhawk314@gmail.com>
+    … +76 lines (ctrl + t to view transcript)
+    )
+
+
+• Ran Get-Content -Path oracle\categorical_verifier.py | Select-Object -First 90
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +86 lines (ctrl + t to view transcript)
+        # Individual dimension scores [0, 1]
+        curvature_score: float = 0.0
+
+• Ran Get-Content -Path categorical\enriched_category.py | Select-Object -First 140
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +136 lines (ctrl + t to view transcript)
+            return name
+
+
+• Ran rg -n "SpectralAnalyzer|VEnrichedCategory|spectral|enriched" oracle\categorical_verifier.py
+  └ 39:    from geometry.spectral import SpectralAnalyzer
+    51:    from categorical.enriched_category import VEnrichedCategory
+    … +8 lines (ctrl + t to view transcript)
+    404:        Check enriched morphism weights (cost, risk, liquidity).
+    421:        # Use morphism confidence as enriched score
+
+• Ran Get-Content -Path oracle\categorical_verifier.py | Select-Object -Skip 300 -First 155
+  └                     )
+                    )
+    … +151 lines (ctrl + t to view transcript)
+            else:
+                return GeometricClass.UNKNOWN
+
+• Ran rg -n "from categorical\.enriched_category import \(|from categorical\.enriched_category import .*QUANTALE|MAX_QUANTALE" -g "*.py"
+• Edited categorical\enriched_category.py (+19 -10)
+    105
+    106 -ACTIVITY_QUANTALE = MonoidalStructure(
+    107 -    tensor=lambda a, b: min(a, b),  # Bottleneck: weakest link
+    108 -    unit=1.0,
+    109 -    compare=lambda a, b: a >= b,  # Higher = better
+    110 -    name="Activity([0,1], min, 1)"
+    111 -)
+    112 -
+    113 -
+    114 -class EnrichedCategory:
+    106 +ACTIVITY_QUANTALE = MonoidalStructure(
+    107 +    tensor=lambda a, b: min(a, b),  # Bottleneck: weakest link
+    108 +    unit=1.0,
+    109 +    compare=lambda a, b: a >= b,  # Higher = better
+    110 +    name="Activity([0,1], min, 1)"
+    111 +)
+    112 +
+    113 +# Generic MATH/CYBER aliases.  Keep the chemistry names above as the primary
+    116 +MULTIPLICATIVE_QUANTALE = YIELD_QUANTALE
+    117 +ADDITIVE_QUANTALE = COST_QUANTALE
+    118 +PROBABILISTIC_QUANTALE = RISK_QUANTALE
+    119 +MIN_QUANTALE = COMPATIBILITY_QUANTALE
+    120 +STEALTH_QUANTALE = MULTIPLICATIVE_QUANTALE
+    121 +
+    122 +
+    123 +class EnrichedCategory:
+    124      """
+        ⋮
+    171
+    163 -    def compose(self, A: str, B: str, C: str) -> Optional[Any]:
+    172 +    def compose(self, A: str, B: str, C: str) -> Optional[Any]:
+    173          """
+
+• Ran Get-Content -Path categorical\enriched_category.py | Select-Object -Last 80
+  └                     prev[v] = u
+                        path_len[v] = path_len[u] + 1
+    … +76 lines (ctrl + t to view transcript)
+                    f"|Ob|={len(self.objects)}, "
+                    f"|Hom|={len(self.hom_objects)})")
+
+• Edited categorical\enriched_category.py (+7 -4)
+    398
+    399 -    def __repr__(self):
+    400 -        return (f"EnrichedCategory(V={self.monoidal.name}, "
+    401 -                f"|Ob|={len(self.objects)}, "
+    402 -                f"|Hom|={len(self.hom_objects)})")
+    399 +    def __repr__(self):
+    400 +        return (f"EnrichedCategory(V={self.monoidal.name}, "
+    401 +                f"|Ob|={len(self.objects)}, "
+    402 +                f"|Hom|={len(self.hom_objects)})")
+    403 +
+    404 +
+    405 +VEnrichedCategory = EnrichedCategory
+            lines.append(f"- Algebraic connectivity (lambda_1): {coupling['algebraic_connectivity']:.4f}")
+    … +76 lines (ctrl + t to view transcript)
+        for node, cent in sorted(centrality.items(), key=lambda x: x[1], reverse=True):
+            print(f"  {node}: {cent:.3f}")
+
+• Edited geometry\spectral.py (+10 -7)
+    365  # Convenience function
+    366 -def analyze_spectrum(category, num_modes: int = 3) -> SpectralResult:
+    366 +def analyze_spectrum(category, num_modes: int = 3) -> SpectralResult:
+    367      """
+        ⋮
+    376      """
+    377 -    analyzer = SpectralGraphAnalyzer(category)
+    378 -    return analyzer.full_analysis(num_modes=num_modes)
+    379 -
+    380 -
+    381 -# Example usage
+    382 -if __name__ == "__main__":
+    377 +    analyzer = SpectralGraphAnalyzer(category)
+    378 +    return analyzer.full_analysis(num_modes=num_modes)
+    379 +
+    380 +
+    381 +SpectralAnalyzer = SpectralGraphAnalyzer
+    382 +
+    383 +
+    384 +# Example usage
+    385 +if __name__ == "__main__":
+    386      import sys
+
+• The aliases are in place now: chemistry quantales remain primary, but reusable cyber/math modules can import the generic names they were written against.
+  I’m running another import pass over the chemistry/material-facing and reusable MATH surfaces, still keeping AIMO out of the core wiring unless it proves
+  useful.
+
+• Running python -c "from cyber.stealth_scoring import StealthScorer, STEALTH_QUANTALE; from cyber.spectral_anomaly_detection import
+• Running python -c "import zfc; from zfc.proof_bridge import ProofGraphBridge; from zfc.evolved_bridge import EvolvedDualEngineBridge; print('zfc ok',
+  │ zfc.StoreAdapter.__name__, ProofGraphBridge.__name__, EvolvedDualEngineBridge.__name__)"
+
+• Running python -c "from oracle.categorical_verifier import CategoricalVerifier; from geometry.spectral import SpectralAnalyzer; from
+  │ categorical.enriched_category import VEnrichedCategory, STEALTH_QUANTALE; print('oracle aliases ok', CategoricalVerifier.__name__,
+  │ SpectralAnalyzer.__name__, VEnrichedCategory.__name__)"
+
+• Running python -m compileall -q categorical geometry cog bridges zfc cyber domains oracle core composition_engine battery_bridge cross_bridge
+
+• Ran python -m compileall -q categorical geometry cog bridges zfc cyber domains oracle core composition_engine battery_bridge cross_bridge
+  └ (no output)
+
+• Ran python -c "import zfc; from zfc.proof_bridge import ProofGraphBridge; from zfc.evolved_bridge import EvolvedDualEngineBridge; print('zfc ok',
+  │ zfc.StoreAdapter.__name__, ProofGraphBridge.__name__, EvolvedDualEngineBridge.__name__)"
+  └ zfc ok StoreAdapter ProofGraphBridge EvolvedDualEngineBridge
+
+• Ran python -c "from domains.mathematics.kernel import MathKernel; from domains.mathematics.structure_match import StructureMatcher; print('math domain
+  │ primitives ok', MathKernel.__name__, StructureMatcher.__name__)"
+  └ math domain primitives ok MathKernel StructureMatcher
+
+• Ran python -c "from cyber.stealth_scoring import StealthScorer, STEALTH_QUANTALE; from cyber.spectral_anomaly_detection import SpectralAnomalyDetector;
+  │ print('cyber reusable ok', StealthScorer.__name__, STEALTH_QUANTALE.name, SpectralAnomalyDetector.__name__)"
+  └ cyber reusable ok StealthScorer Yield([0,1], x, 1) SpectralAnomalyDetector
+
+• Ran python -c "from oracle.categorical_verifier import CategoricalVerifier; from geometry.spectral import SpectralAnalyzer; from
+  │ categorical.enriched_category import VEnrichedCategory, STEALTH_QUANTALE; print('oracle aliases ok', CategoricalVerifier.__name__,
+  │ SpectralAnalyzer.__name__, VEnrichedCategory.__name__)"
+  └ oracle aliases ok CategoricalVerifier SpectralGraphAnalyzer EnrichedCategory
+
+• Ran python -c "from aimo.theorem_kg import TheoremKG; print('aimo useful primitive ok', TheoremKG.__name__)"
+  └ aimo useful primitive ok TheoremKG
+    Warning: Could not import KOMPOSOS-IV core: cannot import name 'SentenceEmbedder' from 'data.embeddings' (C:
+    … +3 lines (ctrl + t to view transcript)
+    Warning: Could not import ZFC/cubical modules: cannot import name 'ZFCUniverse' from 'zfc' (C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\zfc\__init__.py)
+    Warning: Could not import aimo modules: cannot import name 'ZFCUniverse' from 'zfc' (C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\zfc\__init__.py)
+
+• Running rg -n "DualEngineProver|ZFCUniverse|SentenceEmbedder\.instance|encode\(|embed\(" aimo data zfc -g "*.py"
+
+• Running Get-Content -Path aimo\verifier.py | Select-Object -First 120
+
+• Running Get-Content -Path aimo\bridge.py | Select-Object -First 100
+
+• Ran rg -n "DualEngineProver|ZFCUniverse|SentenceEmbedder\.instance|encode\(|embed\(" aimo data zfc -g "*.py"
+  └ data\sources.py:655:        hash_suffix = hashlib.md5(filename.encode()).hexdigest()[:8]
+    data\pubchem_loader.py:98:        h = hashlib.md5(url.encode()).hexdigest()
+    … +40 lines (ctrl + t to view transcript)
+    aimo\verifier.py:50:            self.zfc = ZFCUniverse()
+    aimo\verifier.py:51:            self.prover = DualEngineProver(self.zfc)
+
+• Ran Get-Content -Path aimo\verifier.py | Select-Object -First 120
+  └ """
+    DualVerifier â€” ZFC/CAT dual-engine proof verification.
+    … +116 lines (ctrl + t to view transcript)
+            claims = {}
+            context = []
+
+• Ran Get-Content -Path aimo\bridge.py | Select-Object -First 100
+  └ """
+    MathProofBridge â€” Convert LLM proof steps into KOMPOSOS-IV Category objects.
+    … +96 lines (ctrl + t to view transcript)
+                obj = Object(
+                    name=step_id,
+
+• Ran Get-Content -Path data\embeddings.py | Select-Object -Skip 760 -First 60
+    … +56 lines (ctrl + t to view transcript)
+        # Test similarity
+        print("\n[3] Testing similarity...")
+
+• Ran Get-Content -Path aimo\semantic_kan.py | Select-Object -First 170
+    … +166 lines (ctrl + t to view transcript)
+
+                if norm1 == 0 or norm2 == 0:
+
+• Running rg -n "DualEngineBridge\(|StoreAdapter\(|EvolvedDualEngineBridge|DualResult\(" zfc core cog oracle domains cyber -g "*.py"
+
+• Running rg -n "def query|def predict|category=" "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py" zfc\bridge.py zfc\evolved_bridge.py
+
+• Ran rg -n "DualEngineBridge\(|StoreAdapter\(|EvolvedDualEngineBridge|DualResult\(" zfc core cog oracle domains cyber -g "*.py"
+  └ zfc\__init__.py:137:from .evolved_bridge import EvolvedDualEngineBridge
+    zfc\__init__.py:175:    "EvolvedDualEngineBridge",
+    core\architect.py:307:            bridge = EvolvedDualEngineBridge(
+
+• Ran rg -n "def query|def predict|category=" "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py" zfc\bridge.py zfc\evolved_bridge.py
+  └ zfc\bridge.py:189:    def predict(self, source: str, target: str) -> DualResult:
+    zfc\bridge.py:364:    def predict_batch(self, pairs: List[Tuple[str, str]]) -> List[DualResult]:
+    … +7 lines (ctrl + t to view transcript)
+    C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py:248:    def predict(
+    C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py:285:    def query_all_relations(
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py" | Select-Object -First 190
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +186 lines (ctrl + t to view transcript)
+                verdict = self._verifier.verify(source, target, relation)
+                cat_says = verdict.structural_confidence > 0.3
+
+• Ran Get-Content -Path cog\engine.py | Select-Object -Skip 570 -First 55
+  └         )
+
+    … +51 lines (ctrl + t to view transcript)
+                dual_dict = {
+                    "delta": dual_result.delta_type.name,
+
+• Ran rg -n "from \.bridge import|from zfc\.bridge import|DualEngineBridge" zfc\proof_bridge.py zfc\evolved_bridge.py cog\engine.py core\architect.py
+  └ core\architect.py:299:            # Use EvolvedDualEngineBridge for axiom-evolving verification
+    core\architect.py:300:            from zfc.evolved_bridge import EvolvedDualEngineBridge
+    … +17 lines (ctrl + t to view transcript)
+    zfc\proof_bridge.py:165:    Connects a ProofGraph to the DualEngineBridge.
+    zfc\proof_bridge.py:196:        self.bridge = DualEngineBridge(self.adapter)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• One important mismatch showed up in the overlap review: the chemistry/PHARM zfc.bridge is store-based, while copied MATH cog, proof_bridge, and
+  evolved_bridge expect the newer category-based dual engine. I’m keeping the store bridge in place and adding the MATH bridge as a separate category_bridge
+  so both APIs can coexist.
+
+• Ran Copy-Item -LiteralPath "C:\Users\JAMES\github\KOMPOSOS-MATH\KOMPOSOS-IV\zfc\bridge.py" -Destination "zfc\category_bridge.py" -Force
+  └ (no output)
+
+• Edited zfc\category_bridge.py (+1 -1)
+    50 +from .category_store_adapter import StoreAdapter
+    51  from .logic import LogicOracle
+
+• Edited cog\engine.py (+7 -7)
+    586
+    587 -        Uses zfc.bridge.DualEngineBridge to run both engines and classify
+    587 +        Uses zfc.category_bridge.DualEngineBridge to run both engines and classify
+    588          the result as AGREE/ORPHAN/HOLLOW/REJECT.
+        ⋮
+    592          try:
+    593 -            from zfc.bridge import DualEngineBridge
+    594 -            from zfc.meta_kan import DeltaType
+    595 -
+    596 -            # TODO: DualEngineBridge needs updating to work with Category directly
+    597 -            # For now, this will use the category as-is
+    598 -            bridge = DualEngineBridge(category=self.category)
+    593 +            from zfc.category_bridge import DualEngineBridge
+    598 +            bridge = DualEngineBridge(adapter, category=self.category)
+    599
+
+• Edited zfc\evolved_bridge.py (+1 -1)
+    27  from .category_store_adapter import StoreAdapter
+    28 -from .bridge import DualEngineBridge, DualResult
+    28 +from .category_bridge import DualEngineBridge, DualResult
+    29  from .meta_kan import System3Oracle, DeltaType
+
+• Edited zfc\proof_bridge.py (+1 -1)
+    66  from .category_store_adapter import StoreAdapter
+    67 -from .bridge import DualEngineBridge, DualResult
+    67 +from .category_bridge import DualEngineBridge, DualResult
+    68  from .meta_kan import DeltaType, Resolution
+
+• Ran Get-Content -Path zfc\__init__.py | Select-Object -Skip 118 -First 65
+  └     Episode,
+        EpisodeCategory,
+    … +54 lines (ctrl + t to view transcript)
+        "EvolvedDualEngineBridge",
+    ]
+
+• Edited zfc\__init__.py (+5 -0)
+    129  from .bridge import DualEngineBridge, DualResult
+    130 +from .category_bridge import (
+    131 +    DualEngineBridge as CategoryDualEngineBridge,
+    132 +    DualResult as CategoryDualResult,
+    133 +)
+    134  from .proof_bridge import (
+        ⋮
+    177      "load_proof_graph", "ProofGraphBridge", "ConjectureResult",
+
+• Running python -c "from zfc.category_bridge import DualEngineBridge; from zfc.category_store_adapter import StoreAdapter; from core.category import
+  │ Category; c=Category(db_path=':memory:'); b=DualEngineBridge(StoreAdapter(c), category=c); print('category bridge ok', b.__class__.__name__)"
+
+• Running python -c "from zfc.evolved_bridge import EvolvedDualEngineBridge; from zfc.proof_bridge import ProofGraphBridge; print('advanced zfc bridges
+  │ ok')"
+
+• Running python -c "import zfc; print('zfc exports ok', zfc.DualEngineBridge.__name__, zfc.CategoryDualEngineBridge.__name__, zfc.StoreAdapter.__name__)"
+
+• Running python -c "from cog.engine import CogEngine; print('cog import ok', hasattr(CogEngine, 'evaluate_diagram'))"
+
+• Ran python -m compileall -q zfc cog oracle categorical geometry cyber domains core
+  └ (no output)
+
+• Ran python -c "from zfc.evolved_bridge import EvolvedDualEngineBridge; from zfc.proof_bridge import ProofGraphBridge; print('advanced zfc bridges ok')"
+  └ advanced zfc bridges ok
+
+• Ran python -c "import zfc; print('zfc exports ok', zfc.DualEngineBridge.__name__, zfc.CategoryDualEngineBridge.__name__, zfc.StoreAdapter.__name__)"
+  └ zfc exports ok DualEngineBridge DualEngineBridge StoreAdapter
+
+• Ran python -c "from zfc.category_bridge import DualEngineBridge; from zfc.category_store_adapter import StoreAdapter; from core.category import Category;
+  │ c=Category(db_path=':memory:'); b=DualEngineBridge(StoreAdapter(c), category=c); print('category bridge ok', b.__class__.__name__)"
+  └ category bridge ok DualEngineBridge
+
+• Ran python -c "from cog.engine import CogEngine; print('cog import ok', hasattr(CogEngine, 'evaluate_diagram'))"
+  └ cog import ok True
+
+
+› remeber this is ca categorival rintime now
+
+
+• Yes. I’m treating Category as the runtime source of truth now: stores are adapters or legacy inputs, not the center of the system. I already moved COG/
+  proof/evolved ZFC paths onto the category bridge; next I’m checking top-level exports and remaining store-first references so the runtime defaults line up
+  with that.
+
+• Running Get-Content -Path oracle\zfc_verifier.py | Select-Object -First 120
+
+• Running rg -n "from zfc import DualEngineBridge|from zfc\.bridge import DualEngineBridge|from \.bridge import DualEngineBridge|DualEngineBridge\(|
+  │ KomposOSStore|list_objects\(|list_morphisms\(|store_to_" . -g "*.py"
+
+• Ran Get-Content -Path core\architect.py | Select-Object -Skip 280 -First 55
+  └         self, cap_graph, gaps, duplicates, coupled
+        ) -> tuple:
+    … +51 lines (ctrl + t to view transcript)
+                            "meta_prediction": (
+                                result.meta_prediction.predicted_delta.name
+
+• Ran Get-Content -Path zfc\__init__.py | Select-Object -Skip 118 -First 35
+  └     Episode,
+        EpisodeCategory,
+    … +31 lines (ctrl + t to view transcript)
+        # Well-Ordering (Layer 3)
+        "Ordinal", "WellOrder", "InductionResult",
+
+• Ran Get-Content -Path oracle\zfc_verifier.py | Select-Object -First 120
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +116 lines (ctrl + t to view transcript)
+        def orphans(self) -> list:
+            return []
+
+• Ran rg -n "from zfc import DualEngineBridge|from zfc\.bridge import DualEngineBridge|from \.bridge import DualEngineBridge|DualEngineBridge\(|
+  │ KomposOSStore|list_objects\(|list_morphisms\(|store_to_" . -g "*.py"
+  └ .\audit_db_check.py:1:from data.store import KomposOSStore
+    .\audit_db_check.py:4:store = KomposOSStore('data/drugs/tier1.db')
+    … +227 lines (ctrl + t to view transcript)
+    .\validation\validate_protein_conjectures.py:70:    store = KomposOSStore('data/proteins/cancer_proteins.db')
+    .\validation\validate_protein_conjectures.py:71:    existing_morphisms = store.list_morphisms(limit=1000)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The scan found exactly the kind of split you warned about: several copied MATH/discovery paths still import the legacy store bridge while passing a
+  category adapter. I’m switching those callers to zfc.category_bridge and keeping zfc.bridge as the old store bridge for legacy audits/tests that still use
+  KomposOSStore.
+
+• Running Get-Content -Path discovery\pipeline.py | Select-Object -Skip 85 -First 35
+
+• Running Get-Content -Path discovery\stt_dual_engine_verify.py | Select-Object -First 45
+
+• Running Get-Content -Path bridges\math_discovery_bridge.py | Select-Object -Skip 145 -First 35
+
+• Running Get-Content -Path audit\run_audit.py | Select-Object -Skip 1078 -First 28
+
+• Ran Get-Content -Path bridges\math_discovery_bridge.py | Select-Object -Skip 145 -First 35
+  └             )
+            return self._optimus_engines[name]
+    … +31 lines (ctrl + t to view transcript)
+                report = self.kernel.convergent_analysis()
+
+
+• Ran Get-Content -Path discovery\pipeline.py | Select-Object -Skip 85 -First 35
+  └     @property
+        def optimus(self):
+    … +31 lines (ctrl + t to view transcript)
+                    continue
+
+
+• Ran Get-Content -Path audit\run_audit.py | Select-Object -Skip 1078 -First 28
+  └         and fg_h.target == f_gh.target
+            and fg_h.data.get("composed_from") == f_gh.data.get("composed_from")
+    … +24 lines (ctrl + t to view transcript)
+                classification = DualEngineBridge.classify_dual_result(cat_says=True, zfc_says=not has_vetoes)
+
+
+• Ran Get-Content -Path audits\split_brain_audit.py | Select-Object -First 55
+  └ # SPDX-License-Identifier: LicenseRef-Proprietary-Commercial
+    # SPDX-FileCopyrightText: 2026 James Hawkins <jhawk314@gmail.com>
+    … +51 lines (ctrl + t to view transcript)
+
+            # Check if System 3 recorded the episode
+
+• Ran Get-Content -Path discovery\stt_dual_engine_verify.py | Select-Object -First 45
+  └ #!/usr/bin/env python3
+    """
+    … +41 lines (ctrl + t to view transcript)
+            "YonedaAsKanExtension",
+            # Directed Univalence
+
+• Edited 6 files (+11 -11)
+  └ audit\run_audit.py (+1 -1)
+    1088          from oracle.material_zfc_constraints import MaterialZFCBridge
+    1089 -        from zfc.bridge import DualEngineBridge
+    1089 +        from zfc.category_bridge import DualEngineBridge
+    1090          from zfc.meta_kan import DeltaType
+
+  └ audits\split_brain_audit.py (+3 -3)
+    18
+    19 +from zfc.category_bridge import DualEngineBridge, DualResult
+    20 +from zfc.meta_kan import DeltaType
+    21 +from zfc.category_store_adapter import StoreAdapter
+    22  from core.category import Category
+
+  └ bridges\math_discovery_bridge.py (+2 -2)
+    158          if self._dual_bridge is None:
+    159 -            from zfc.store_adapter import StoreAdapter
+    160 -            from zfc.bridge import DualEngineBridge
+    159 +            from zfc.category_store_adapter import StoreAdapter
+    160 +            from zfc.category_bridge import DualEngineBridge
+    161              adapter = StoreAdapter(category)
+
+  └ core\architect.py (+1 -1)
+    297          try:
+    298 -            from zfc.store_adapter import StoreAdapter
+    298 +            from zfc.category_store_adapter import StoreAdapter
+    299              # Use EvolvedDualEngineBridge for axiom-evolving verification
+
+  └ discovery\pipeline.py (+2 -2)
+    95          if self._dual is None:
+    96 -            from zfc.store_adapter import StoreAdapter
+    97 -            from zfc.bridge import DualEngineBridge
+    96 +            from zfc.category_store_adapter import StoreAdapter
+    97 +            from zfc.category_bridge import DualEngineBridge
+    98              adapter = StoreAdapter(self.category)
+
+  └ discovery\stt_dual_engine_verify.py (+2 -2)
+    25  from core.optimus import OptimusEngine
+    26 -from zfc.bridge import DualEngineBridge
+    27 -from zfc.store_adapter import StoreAdapter
+    26 +from zfc.category_bridge import DualEngineBridge
+    27 +from zfc.category_store_adapter import StoreAdapter
+    28
+
+• Ran rg -n "from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from \.bridge import DualEngineBridge" audits bridges
+  │ discovery core cog audit zfc -g "*.py"
+  └ zfc\bridge.py:32:    from zfc.bridge import DualEngineBridge
+    zfc\__init__.py:129:from .bridge import DualEngineBridge, DualResult
+    … +4 lines (ctrl + t to view transcript)
+    discovery\riehl_stable_discovery.py:154:    from zfc.store_adapter import StoreAdapter
+    discovery\riehl_stable_discovery.py:155:    from zfc.bridge import DualEngineBridge
+
+• Edited 4 files (+14 -10)
+  └ discovery\bounty_empirical_results.py (+2 -2)
+    15  from core.optimus import OptimusEngine
+    16 -from zfc.bridge import DualEngineBridge
+    17 -from zfc.store_adapter import StoreAdapter
+    16 +from zfc.category_bridge import DualEngineBridge
+    17 +from zfc.category_store_adapter import StoreAdapter
+    18  from zfc.logic import atom, forall, implies, var, const, Theory, Model, LogicOracle
+
+  └ discovery\riehl_stable_discovery.py (+2 -2)
+    153  try:
+    154 -    from zfc.store_adapter import StoreAdapter
+    156
+
+  └ discovery\riehl_stt_discovery.py (+2 -2)
+    233  try:
+    234 -    from zfc.store_adapter import StoreAdapter
+    235 -    from zfc.bridge import DualEngineBridge
+    234 +    from zfc.category_store_adapter import StoreAdapter
+    235 +    from zfc.category_bridge import DualEngineBridge
+    236
+
+  └ zfc\__init__.py (+8 -4)
+    128  from .category_store_adapter import StoreAdapter
+    129 -from .bridge import DualEngineBridge, DualResult
+    130 -from .category_bridge import (
+    131 -    DualEngineBridge as CategoryDualEngineBridge,
+    132 -    DualResult as CategoryDualResult,
+    129 +from .bridge import (
+    130 +    DualEngineBridge as StoreDualEngineBridge,
+    131 +    DualResult as StoreDualResult,
+    132  )
+    133 +from .category_bridge import DualEngineBridge, DualResult
+    134 +
+    135 +CategoryDualEngineBridge = DualEngineBridge
+    136 +CategoryDualResult = DualResult
+    137  from .proof_bridge import (
+        ⋮
+    179      "CategoryDualEngineBridge", "CategoryDualResult",
+    180 +    "StoreDualEngineBridge", "StoreDualResult",
+    181      "load_proof_graph", "ProofGraphBridge", "ConjectureResult",
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The category bridge is now the default top-level zfc.DualEngineBridge, with the old store bridge preserved as StoreDualEngineBridge. I’m verifying the
+  category-runtime paths now, including the discovery callers that were previously wired to the wrong bridge.
+
+• Running python -c "from zfc.category_bridge import DualEngineBridge; from zfc.category_store_adapter import StoreAdapter; from core.category import
+
+• Running python -c "from bridges.math_discovery_bridge import MathDiscoveryBridge; from discovery.pipeline import DiscoveryPipeline; from
+  │ audits.split_brain_audit import SplitBrainAudit; print('category callers import ok')"
+
+• Running python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry cyber domains
+
+• Running python -c "from cog.engine import CogEngine; from oracle.categorical_verifier import CategoricalVerifier; from cyber.stealth_scoring import
+  │ StealthScorer; print('runtime imports ok')"
+
+• Ran python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry cyber domains
+  └ (no output)
+
+• Ran python -c "import zfc; print('zfc default', zfc.DualEngineBridge.__module__, 'legacy', zfc.StoreDualEngineBridge.__module__, 'adapter',
+  │ zfc.StoreAdapter.__module__)"
+  └ zfc default zfc.category_bridge legacy zfc.bridge adapter zfc.category_store_adapter
+
+• Ran python -c "from zfc.category_bridge import DualEngineBridge; from zfc.category_store_adapter import StoreAdapter; from core.category import Category;
+  │ c=Category(db_path=':memory:'); b=DualEngineBridge(StoreAdapter(c), category=c); r=b.query('A','B','rel'); print('query ok', r.delta_type.name)"
+  │ audits.split_brain_audit import SplitBrainAudit; print('category callers import ok')"
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: cannot import name 'DiscoveryPipeline' from 'discovery.pipeline' (C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\discovery\pipeline.py)
+
+• Ran python -c "from cog.engine import CogEngine; from oracle.categorical_verifier import CategoricalVerifier; from cyber.stealth_scoring import
+  │ StealthScorer; print('runtime imports ok')"
+  └ runtime imports ok
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The important category-runtime checks passed: zfc.DualEngineBridge now resolves to zfc.category_bridge, the legacy store bridge is still available
+
+• Ran rg -n "^class |^def " discovery\pipeline.py bridges\math_discovery_bridge.py audits\split_brain_audit.py
+  └ audits\split_brain_audit.py:24:class SplitBrainAudit(unittest.TestCase):
+    bridges\math_discovery_bridge.py:42:class DiscoveryResult:
+    bridges\math_discovery_bridge.py:91:class MathDiscoveryBridge:
+
+
+• Ran python -m pytest -q audits\split_brain_audit.py
+  └ ..                                                                       [100%]
+    2 passed in 1.43s
+
+• Ran rg -n "from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from \.bridge import DualEngineBridge" audits bridges
+  │ discovery core cog audit zfc -g "*.py"
+  └ zfc\bridge.py:32:    from zfc.bridge import DualEngineBridge
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The category bridge import cleanup is done: no remaining category-runtime callers under audits, bridges, discovery, core, cog, or audit point at the
+  legacy store bridge. I’m running the focused chemistry/material regression set plus the split-brain audit now.
+
+• Updated Plan
+  └ ✔ Inventory current copied/changed files and overlap manifests
+    ✔ Patch remaining reusable math compatibility gaps
+    □ Run compile/import/focused verification
+    □ Summarize what was wired, kept, and skipped
+
+• Ran python -m pytest -q battery_bridge\tests\test_properties.py composition_engine\tests\test_structure_predictor.py
+  │ composition_engine\tests\test_calibration.py composition_engine\tests\test_phase16_calibration.py cross_bridge\tests\test_battery_metal.py
+  │ api\tests\test_api.py audits\split_brain_audit.py
+  └ (no output)
+
+• Model interrupted to submit steer instructions.
+
+
+› what is the best wqay to do  the bridges, this is a categorical runtime with morphism? for this repo C:\Users\JAMES\github\KOMPOSOS-IV-PHARM, we
+  tranfered fil3es from here C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D. we may have done it in a similar manunner regarding the store bridge.
+
+
+• I’ll compare this repo’s current bridge wiring against KOMPOSOS-IV-PHARM so the answer is based on the actual runtime shape, not memory. I’m checking how
+  PHARM handled Category, StoreAdapter, and DualEngineBridge, then I’ll give the clean bridge pattern for CHEM.
+
+• Running Get-Content -Path zfc\category_bridge.py | Select-Object -First 80
+
+• Running Get-Content -Path zfc\__init__.py | Select-Object -Skip 120 -First 60
+
+• Running rg -n "class Category|class StoreAdapter|class DualEngineBridge|from zfc\.bridge|from zfc\.store_adapter|CategoryDual|StoreDual|KomposOSStore|
+  │ morphisms_from|list_objects\(" core zfc bridges oracle discovery validation -g "*.py"
+
+• Running Get-Content -Path zfc\bridge.py | Select-Object -First 75
+
+• Ran rg -n "class Category|class StoreAdapter|class DualEngineBridge|from zfc\.bridge|from zfc\.store_adapter|CategoryDual|StoreDual|KomposOSStore|
+  │ morphisms_from|list_objects\(" core zfc bridges oracle discovery validation -g "*.py"
+  └ bridges\knowledge_manager.py:215:            for mor in self.category.morphisms_from(name):
+    zfc\__init__.py:22:Both read the same KomposOSStore.
+    … +85 lines (ctrl + t to view transcript)
+    oracle\categorical_verifier.py:409:            m for m in self.category.morphisms_from(source)
+    oracle\categorical_verifier.py:414:                m for m in self.category.morphisms_from(target)
+
+• Ran Get-Content -Path zfc\__init__.py | Select-Object -Skip 120 -First 60
+  └     MetaPrediction,
+        MetaKanExtension,
+    … +56 lines (ctrl + t to view transcript)
+        "CategoryDualEngineBridge", "CategoryDualResult",
+        "StoreDualEngineBridge", "StoreDualResult",
+
+• Ran Get-Content -Path zfc\category_bridge.py | Select-Object -First 80
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +76 lines (ctrl + t to view transcript)
+        # ZFC judgment (runs first -- proposes)
+        zfc_says: bool = False
+
+• Ran Get-Content -Path zfc\bridge.py | Select-Object -First 75
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +71 lines (ctrl + t to view transcript)
+        cat_confidence: float
+        cat_strategy: str
+
+• Ran rg -n "class Category|class StoreAdapter|class DualEngineBridge|from zfc\.bridge|from zfc\.store_adapter|CategoryDual|StoreDual|KomposOSStore|
+  │ morphisms_from|list_objects\(" core zfc bridges oracle discovery validation -g "*.py"
+  └ validation\ablation_study.py:21:from data.store import KomposOSStore
+    validation\ablation_study.py:56:    store = KomposOSStore(db_path)
+    … +51 lines (ctrl + t to view transcript)
+    validation\validate_protein_conjectures.py:70:    store = KomposOSStore('data/proteins/cancer_proteins.db')
+    rg: discovery: The system cannot find the file specified. (os error 2)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Best pattern for CHEM is category-first, store-compatible.
+
+  The runtime source of truth should be core.Category: objects + morphisms + morphisms_from() / morphisms_to() / composition. Bridges should not make
+  KomposOSStore the center anymore.
+
+  1. Runtime bridges use Category
+      - COG, OPTIMUS, InfinityCosmos, ZFC/CAT dual verification, discovery, material bridges.
+      - They should accept Category or a category adapter.
+      - This is the right default for CHEM.
+      - Do not delete it yet because validation/audit scripts still use store APIs.
+  3. Category ZFC bridge is the primary new bridge
+      - zfc/category_store_adapter.py: adapts Category -> ZFC Universe/Model/Theory.
+      - Legacy one should be available as zfc.StoreDualEngineBridge.
+
+  That is basically what I started wiring here.
+
+  PHARM appears to still be more store-compatible: it has zfc.bridge as store-based, with core.Category wrapping persistence and some validation adapters.
+  For CHEM, because this repo is explicitly a categorical runtime for molecular/material morphisms, we should improve that pattern instead of copying the
+  old store-centered habit.
+
+  The rule I’d follow:
+
+  New CHEM/material/math code:
+      Category -> category_bridge / category_store_adapter
+
+  Old PHARM/drug/audit compatibility:
+      KomposOSStore -> zfc.bridge / zfc.store_adapter
+
+  Never make scientific/material bridges depend directly on list_objects/list_morphisms
+  unless they are explicitly legacy import/audit tools.
+
+  So yes: bridges should be morphism/category-native. Store is persistence and migration compatibility, not the runtime brain.
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+› yes
+
+
+■ Conversation interrupted - tell the model what to do differently. Something went wrong? Hit `/feedback` to report the issue.
+
+
+› that was my poiunt we want the runtiem category but  to use the bridges to. thanks sorry
+
+
+• No problem. I’m aligned now: the runtime stays categorical, and the bridges become adapters around that runtime instead of replacing it. I’ll tighten the
+  remaining bridge wiring so old store-based code still works, but new CHEM/MATH/material paths default to category + morphisms.
+
+• Running rg -n "class DualEngineBridge|def classify|class DualResult|def query|def predict|_CAT_THRESHOLD|DualPrediction" zfc\category_bridge.py
+  │ zfc\bridge.py audit\run_audit.py oracle\zfc_verifier.py
+
+• Running Get-Content -Path zfc\bridge.py | Select-Object -Skip 120 -First 70
+
+
+• Ran rg -n "class DualEngineBridge|def classify|class DualResult|def query|def predict|_CAT_THRESHOLD|DualPrediction" zfc\category_bridge.py zfc\bridge.py
+  │ audit\run_audit.py oracle\zfc_verifier.py
+  └ zfc\bridge.py:64:_CAT_THRESHOLD = 0.4
+    zfc\bridge.py:68:class DualPrediction:
+    … +23 lines (ctrl + t to view transcript)
+    zfc\category_bridge.py:248:    def predict(
+    zfc\category_bridge.py:285:    def query_all_relations(
+
+• Ran rg -n "from zfc import DualEngineBridge|from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from zfc\.category_bridge
+  │ import|from zfc\.category_store_adapter import" . -g "*.py"
+  └ .\audits\split_brain_audit.py:19:from zfc.category_bridge import DualEngineBridge, DualResult
+    .\audits\split_brain_audit.py:21:from zfc.category_store_adapter import StoreAdapter
+    … +24 lines (ctrl + t to view transcript)
+    .\tests\test_zfc_integration.py:616:        from zfc.bridge import DualEngineBridge
+    .\tests\test_zfc_integration.py:623:        from zfc.bridge import DualEngineBridge
+
+• Ran Get-Content -Path zfc\bridge.py | Select-Object -Skip 120 -First 70
+  └
+        @property
+    … +66 lines (ctrl + t to view transcript)
+        def predict(self, source: str, target: str) -> DualResult:
+            """
+  └     """
+        CAT-over-ZFC dual engine bridge.
+    … +226 lines (ctrl + t to view transcript)
+
+        def _rank_gap(self, source: str, target: str) -> int:
+
+• One concrete thing needs fixing for the bridge split: some audit/material code uses the static delta classifier from the old bridge. I’m adding that same
+• Running rg -n "def find_paths|class Path|length" core\category.py zfc\category_bridge.py audit\run_audit.py
+
+• Running Get-Content -Path zfc\__init__.py | Select-Object -First 35
+
+• Ran rg -n "def find_paths|class Path|length" core\category.py zfc\category_bridge.py audit\run_audit.py
+  └ zfc\category_bridge.py:89:    cat_path_lengths: List[int] = field(default_factory=list)
+    zfc\category_bridge.py:193:            cat_path_lengths = verdict.path_lengths
+    … +15 lines (ctrl + t to view transcript)
+    core\category.py:511:        best = self.optimal_path(source, target, maximize, max_length)
+    core\category.py:533:            alt = self.optimal_path(source, target, maximize, max_length)
+
+• Ran Get-Content -Path zfc\category_bridge.py | Select-Object -Skip 30 -First 110
+  └              (novel discoveries -- geometrically real, logically baseless)
+        REJECT -- neither engine supports it
+    … +106 lines (ctrl + t to view transcript)
+        ):
+            self.adapter = adapter
+
+• Ran Get-Content -Path zfc\__init__.py | Select-Object -First 35
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +31 lines (ctrl + t to view transcript)
+        Universe,
+        ZFSet,
+
+• Ran Get-Content -Path core\category.py | Select-Object -Skip 340 -First 55
+  └         h_bc = self._hom_values.get((b, c))
+            if h_ab is None or h_bc is None:
+    … +51 lines (ctrl + t to view transcript)
+                        ))
+
+
+• Ran rg -n "class Path|def length|@property.*length" core\types.py core\category.py
+  └ core\types.py:154:class Path:
+    core\types.py:170:    def length(self) -> int:
+
+• Ran Get-Content -Path core\types.py | Select-Object -Skip 145 -First 35
+  └
+        def __eq__(self, other):
+    … +31 lines (ctrl + t to view transcript)
+
+        Captures HOW two paths are equivalent -- not just that they are,
+
+• Edited zfc\category_bridge.py (+21 -10)
+    119
+    120 -class DualEngineBridge:
+    120 +class DualEngineBridge:
+    121      """
+        ⋮
+    123
+    124 -    ZFC runs first: proves logical entailments from the store.
+    125 -    CAT runs second: verifies each claim structurally using its own
+    126 -    data (curvature, topology, neighborhoods, enriched weights).
+    124 +    ZFC runs first: proves logical entailments from the Category adapter.
+    125 +    CAT runs second: verifies each claim structurally using its own
+    126 +    data (curvature, topology, neighborhoods, enriched weights).
+    127
+        ⋮
+    130
+    131 -    Domain-agnostic: reads whatever relations are in the store.
+    132 -    """
+    131 +    Domain-agnostic: reads whatever objects and morphisms are in the Category.
+    132 +    """
+    133
+    154 -            except (AttributeError, Exception):
+    155 -                pass
+    156 -
+    157 -    # ----------------------------------------------------------------
+    154 +            except (AttributeError, Exception):
+    155 +                pass
+    156 +
+    157 +    @staticmethod
+    158 +    def classify_dual_result(cat_says: bool, zfc_says: bool) -> DeltaType:
+    159 +        """Standardized classification of CAT vs ZFC delta."""
+    160 +        if cat_says and zfc_says:
+    161 +            return DeltaType.AGREE
+    162 +        if not cat_says and zfc_says:
+    163 +            return DeltaType.ORPHAN
+    164 +        if cat_says and not zfc_says:
+    165 +            return DeltaType.HOLLOW
+    166 +        return DeltaType.REJECT
+• Edited zfc\category_bridge.py (+2 -9)
+    216
+    217 -        # -- Step 3: Delta classification ----------------------------
+    218 -        if zfc_says and cat_says:
+    219 -            delta = DeltaType.AGREE
+    220 -        elif zfc_says and not cat_says:
+    221 -            delta = DeltaType.ORPHAN
+    222 -        elif not zfc_says and cat_says:
+    223 -            delta = DeltaType.HOLLOW
+    224 -        else:
+    225 -            delta = DeltaType.REJECT
+    217 +        # -- Step 3: Delta classification ----------------------------
+    218 +        delta = self.classify_dual_result(cat_says=cat_says, zfc_says=zfc_says)
+    219
+
+• Edited zfc\__init__.py (+4 -4)
+    20
+    21 -CAT and ZFC never see each other's internals.
+    22 -Both read the same KomposOSStore.
+    23 -Both produce independent judgments.
+    24 -Category theory (CAT applied to the delta) is the bridge.
+    21 +CAT and ZFC never see each other's internals.
+    22 +Both read the same runtime Category through adapters.
+    23 +Both produce independent judgments.
+    24 +Category theory (CAT applied to the delta) is the bridge.
+    25
+› why are you avoindifgn thhe zfc
+
+
+• I’m not avoiding ZFC. The split is meant to keep ZFC in the loop while feeding it from Category instead of from the old KomposOSStore. I’m going to verify
+  the actual CAT-over-ZFC path now: category object/morphism -> ZFC universe/theory/oracle -> dual bridge classification.
+
+• Running python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry
+
+• Running python -c "from core.category import Category; from core.types import Object, Morphism; from zfc.category_store_adapter import StoreAdapter; from
+  │ zfc.category_bridge import DualEngineBridge; c=Category(db_path=':memory:'); c.add(Object('A','Thing')); c.add(Object('B','Thing'));
+  │ c.connect('A','B','relates',confidence=0.9); a=StoreAdapter(c); V=a.to_universe(); T=a.to_theory(); logic=a.to_logic_oracle();
+  │ … +2 lines
+
+• Ran python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry
+• Ran python -c "from core.category import Category; from core.types import Object, Morphism; from zfc.category_store_adapter import StoreAdapter; from
+  │ zfc.category_bridge import DualEngineBridge; c=Category(db_path=':memory:'); c.add(Object('A','Thing')); c.add(Object('B','Thing'));
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    … +5 lines (ctrl + t to view transcript)
+        cursor = conn.execute(
+    sqlite3.InterfaceError: Error binding parameter 0 - probably unsupported type.
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The failure there was my smoke-test code, not the ZFC bridge: I passed an Object into Category.add() when this runtime expects add(name, ...) or
+  add_object(Object(...)). I’m rerunning it correctly to prove ZFC is actually being fed from categorical morphisms.
+
+• Running Get-Content -Path core\category.py | Select-Object -Skip 70 -First 70
+
+• Ran Get-Content -Path zfc\category_store_adapter.py | Select-Object -Skip 140 -First 90
+  └         V = self.to_universe()
+            T = Theory(name)
+    … +68 lines (ctrl + t to view transcript)
+        """Convenience: build an OrdinalOracle directly from a Category."""
+        return StoreAdapter(category).to_ordinal_oracle()
+
+• Ran Get-Content -Path core\category.py | Select-Object -Skip 70 -First 70
+  └         self._adjacency: Dict[str, List[str]] = defaultdict(list)
+            self._reverse_adjacency: Dict[str, List[str]] = defaultdict(list)
+    … +66 lines (ctrl + t to view transcript)
+            # Remove identity
+            self._hom_values.pop((name, name), None)
+
+• Ran rg -n "def predict_relation|class LogicOracle" zfc\logic.py
+  └ 473:class LogicOracle:
+    517:    def predict_relation(self, rel_name: str, source: str,
+
+• Ran Get-Content -Path core\category.py | Select-Object -Skip 115 -First 95
+  └     def remove_object(self, name: str) -> bool:
+            """
+                confidence=confidence,
+                metadata=metadata,
+
+• Ran python -c "from core.category import Category; from zfc.category_store_adapter import StoreAdapter; from zfc.category_bridge import DualEngineBridge;
+  │ … +2 lines
+  └ sets 4 relations ['relates'] axioms 1 zfc True 1.0 cat True 0.6333333333333333 delta AGREE
+
+• Updated Plan
+  └ ✔ Inventory current copied/changed files and overlap manifests
+    ✔ Patch remaining reusable math compatibility gaps
+    ✔ Run compile/import/focused verification
+    □ Summarize what was wired, kept, and skipped
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I’m not avoiding ZFC. The right architecture is:
+
+  Category runtime -> category_store_adapter -> ZFC Universe/Theory/LogicOracle -> category_bridge dual engine
+
+  I verified that path with a live categorical morphism:
+
+  - ZFC universe relations: ['relates']
+  - ZFC theory axioms: 1
+  - ZFC result: True, confidence 1.0
+  - CAT result: True, confidence 0.6333
+  - Dual delta: AGREE
+
+  So ZFC is still fully in the loop. The change is only that ZFC now reads from the categorical runtime instead of requiring the old KomposOSStore as the
+  primary object.
+
+  I also added the shared classifier to zfc/category_bridge.py, so category-based code can classify AGREE / ORPHAN / HOLLOW / REJECT without reaching back
+─ Worked for 3m 16s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+› sorry , thank you i am just a bit confuesd, but i thinkwe are ok heading the right general way. as long as they system  works well as it did brefore, but
+  better  desired. thanks
+
+
+• Yes, we’re heading the right way.
+
+  The goal is not to remove what worked before. It’s:
+
+  - Keep the old store bridge available for legacy PHARM/audit paths.
+  - Make the default CHEM runtime category-native.
+  - Feed ZFC from the category runtime through an adapter.
+  - Let COG / OPTIMUS / InfinityCosmos / discovery / materials all share the same morphism graph.
+  - Pull in MATH improvements only when they strengthen that shared runtime.
+
+  The key check passed: a real category morphism was converted into ZFC facts and verified through the dual CAT/ZFC bridge as AGREE. That means the
+  direction is sound.
+
+  Next, I’d continue with focused verification and small cleanup: run the material tests, run the development audit, and fix only concrete breakages.
+
+
+› finish all steps you would perform , yolo
+
+
+• I’ll carry this through as a stabilization pass: finish the category/ZFC bridge cleanup, run compile/import checks, then run the focused chemistry/
+  material tests and development audit. If a test fails from the new wiring, I’ll fix that rather than widening the scope.
+
+• Updated Plan
+  └ Stabilization pass after CHEM + MATH port: finish category-runtime bridge wiring and verify with focused tests/audits.
+    □ Check current bridge/runtime wiring and outstanding references
+    □ Run compile and import smoke checks
+    □ Run focused chemistry/material regression tests
+    □ Run development audit and summarize remaining risks
+
+• Running rg -n "TODO: DualEngineBridge|needs updating|KomposOSStore" zfc\category_bridge.py zfc\__init__.py cog\engine.py bridges\math_discovery_bridge.py
+  │ core\architect.py
+
+• Running rg -n "from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from \.bridge import DualEngineBridge|
+  │ DualEngineBridge\(adapter, category|DualEngineBridge\(category=" . -g "*.py"
+
+• Running git diff -- zfc\category_bridge.py zfc\category_store_adapter.py zfc\__init__.py cog\engine.py bridges\math_discovery_bridge.py core\architect.py
+  │ audit\run_audit.py | Select-Object -First 260
+
+• Ran rg -n "TODO: DualEngineBridge|needs updating|KomposOSStore" zfc\category_bridge.py zfc\__init__.py cog\engine.py bridges\math_discovery_bridge.py
+• Ran rg -n "from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from \.bridge import DualEngineBridge|
+  │ DualEngineBridge\(adapter, category|DualEngineBridge\(category=" . -g "*.py"
+  └ .\cog\engine.py:598:            bridge = DualEngineBridge(adapter, category=self.category)
+    .\bridges\math_discovery_bridge.py:162:            self._dual_bridge = DualEngineBridge(adapter, category=category)
+    … +14 lines (ctrl + t to view transcript)
+    .\tests\test_zfc_integration.py:616:        from zfc.bridge import DualEngineBridge
+    .\tests\test_zfc_integration.py:623:        from zfc.bridge import DualEngineBridge
+
+• Ran git diff -- zfc\category_bridge.py zfc\category_store_adapter.py zfc\__init__.py cog\engine.py bridges\math_discovery_bridge.py core\architect.py
+  │ audit\run_audit.py | Select-Object -First 260
+  └ diff --git a/cog/engine.py b/cog/engine.py
+    index ed3a8b0..97d30f7 100644
+    … +259 lines (ctrl + t to view transcript)
+    warning: in the working copy of 'core/architect.py', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'zfc/__init__.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,CPU,StartTime,Path
+  └ (no output)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The bridge references are now clean: category-runtime callers point at zfc.category_bridge, and old store tests still point at zfc.bridge. I found one
+  stale COG comment saying the bridge “may need updating”; I’m removing that because we just updated it.
+
+• Edited cog\engine.py (+1 -1)
+    589
+    590 -        Note: DualEngineBridge may need updating for IV API.
+    590 +        The bridge reads the runtime Category through a ZFC category adapter.
+    591          """
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I’m moving into verification now: full compile for the touched runtime packages, then a focused import smoke test that exercises Category -> ZFC -> dual
+  bridge plus the reused MATH/cyber/math-domain surfaces.
+
+• Running python -c "from core.category import Category; from zfc.category_store_adapter import StoreAdapter; from zfc import DualEngineBridge,
+  │ StoreDualEngineBridge; c=Category(db_path=':memory:'); c.add('A', type_name='Thing'); c.add('B', type_name='Thing');
+  │ c.connect('A','B',name='relates',confidence=0.9); a=StoreAdapter(c); r=DualEngineBridge(a, category=c).query('A','B','relates',record=False);
+  │ … +1 lines
+
+• Running python -c "from geometry.spectral import Graph, GraphLaplacian, SpectralClustering, SpectralAnalyzer; from categorical.streaming_kan import
+  │ RightKanExtension; from categorical.enriched_category import STEALTH_QUANTALE, VEnrichedCategory; print('math aliases ok',
+  │ GraphLaplacian(Graph()).__class__.__name__, SpectralAnalyzer.__name__, RightKanExtension.__name__, STEALTH_QUANTALE.name,
+  │ … +1 lines
+
+• Running python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry cyber domains composition_engine battery_bridge
+• Running python -c "from bridges.math_discovery_bridge import MathDiscoveryBridge; from discovery.pipeline import IntegratedDiscoveryPipeline; from
+  │ zfc.evolved_bridge import EvolvedDualEngineBridge; from zfc.proof_bridge import ProofGraphBridge; from cyber.stealth_scoring import StealthScorer;
+  │ print('bridge imports ok')"
+
+• Ran python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry cyber domains composition_engine battery_bridge
+  │ cross_bridge api
+  └ (no output)
+
+• Ran python -c "from geometry.spectral import Graph, GraphLaplacian, SpectralClustering, SpectralAnalyzer; from categorical.streaming_kan import
+  │ RightKanExtension; from categorical.enriched_category import STEALTH_QUANTALE, VEnrichedCategory; print('math aliases ok',
+  │ GraphLaplacian(Graph()).__class__.__name__, SpectralAnalyzer.__name__, RightKanExtension.__name__, STEALTH_QUANTALE.name, VEnrichedCategory.__name__)"
+  └ math aliases ok GraphLaplacian SpectralGraphAnalyzer RightKanExtension Yield([0,1], x, 1) EnrichedCategory
+
+• Ran python -c "from core.category import Category; from zfc.category_store_adapter import StoreAdapter; from zfc import DualEngineBridge,
+
+• Ran python -c "from composition_engine.predictor import CompositionPredictor; from oracle.compatibility_decision import BinaryCompatibilityDecision; from
+  │ oracle.material_zfc_constraints import MaterialZFCBridge; print('chem imports ok')"
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: cannot import name 'BinaryCompatibilityDecision' from 'oracle.compatibility_decision' (C:
+    \Users\JAMES\github\KOMPOSOS-IV-CHEM\oracle\compatibility_decision.py)
+
+• Ran python -c "from bridges.math_discovery_bridge import MathDiscoveryBridge; from discovery.pipeline import IntegratedDiscoveryPipeline; from
+  │ zfc.evolved_bridge import EvolvedDualEngineBridge; from zfc.proof_bridge import ProofGraphBridge; from cyber.stealth_scoring import StealthScorer;
+  │ print('bridge imports ok')"
+  └ bridge imports ok
+  the actual exported names and rerunning that smoke properly.
+
+• Running rg -n "^class |^def " oracle\compatibility_decision.py oracle\material_zfc_constraints.py composition_engine\predictor.py
+
+• Ran rg -n "^class |^def " oracle\compatibility_decision.py oracle\material_zfc_constraints.py composition_engine\predictor.py
+  └ oracle\compatibility_decision.py:19:class CompatibilityDecision:
+    oracle\compatibility_decision.py:106:def _heuristic_confidence(score: float) -> float:
+    … +5 lines (ctrl + t to view transcript)
+    oracle\material_zfc_constraints.py:67:def _oxidation_state_combos(elements_with_states):
+• Ran Get-Content -Path oracle\compatibility_decision.py | Select-Object -First 120
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +107 lines (ctrl + t to view transcript)
+        return max(0.25, min(0.95, 0.35 + 1.2 * distance))
+
+
+• Ran python -c "from composition_engine.predictor import CompositionPredictor; from oracle.compatibility_decision import CompatibilityDecision; from
+  │ oracle.material_zfc_constraints import MaterialZFCBridge; print('chem imports ok', CompositionPredictor.__name__, CompatibilityDecision.__name__,
+  │ MaterialZFCBridge.__name__)"
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The import smoke checks are clean now. I’m running the focused regression suite next: chemistry/material predictors, bridge tests, API tests, and the
+  split-brain category/ZFC audit.
+
+• Updated Plan
+  └ ✔ Check current bridge/runtime wiring and outstanding references
+    ✔ Run compile and import smoke checks
+    □ Run focused chemistry/material regression tests
+    □ Run development audit and summarize remaining risks
+  │ composition_engine\tests\test_calibration.py composition_engine\tests\test_phase16_calibration.py cross_bridge\tests\test_battery_metal.py
+  │ api\tests\test_api.py audits\split_brain_audit.py
+  └ ........................................................................ [ 46%]
+    ........................................................................ [ 92%]
+    ......s.....                                                             [100%]
+    155 passed, 1 skipped in 111.16s (0:01:51)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The focused regression suite passed: 155 passed, 1 skipped. I’m running the development audit now, which is the better audit gate for the newly wired
+  modules because the full blind protocol has known dataset-overlap checks that can fail independently of runtime correctness.
+
+• Ran python audit\run_audit.py --module development
+  └ ======================================================================
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The development audit passed 36/36 with 100% balanced accuracy. I’m doing one final master-audit pass to catch integration-level issues; if it hits the
+  known Windows output encoding problem again, I’ll report it separately instead of treating it as a scientific regression.
+
+• Ran python audit\run_master_audit.py
+  └ ================================================================================
+    KOMPOSOS-III MASTER AUDIT: SCIENTIFIC VALIDITY RECONFIRMATION
+    … +478 lines (ctrl + t to view transcript)
+    [17:29:15] non-ring atom 21 marked aromatic
+    [17:29:15] Explicit valence for atom # 3 C, 6, is greater than permitted
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The master audit completed, and the runtime/chemistry checks passed, but the physical-grounding section is still marked fail because Windows cp1252 cannot
+  print a warning symbol. That is not scientific logic, but it does make the master audit red, so I’m patching the audit output to ASCII and rerunning it.
+
+• Running rg -n "⚠|✓|✗|PASS|FAIL|warning|charmap|u26a0|print\(" audit\run_master_audit.py audit -g "*.py"
+
+• Ran rg -n "⚠|✓|✗|PASS|FAIL|warning|charmap|u26a0|print\(" audit\run_master_audit.py audit -g "*.py"
+    … +226 lines (ctrl + t to view transcript)
+    audit\analyze_performance.py:73:        print("⚠ FAIR: Model may require better feature calibration.")
+    audit\analyze_performance.py:94:        print("No audit reports found in audit/ directory.")
+
+• Ran Get-Content -Path audit\run_master_audit.py | Select-Object -First 240
+  └ """
+    KOMPOSOS-III Master Scientific & Computational Audit
+    … +144 lines (ctrl + t to view transcript)
+        audit = MasterAudit()
+        audit.run_all()
+  └ 67:                print("✓ ColabFit cache cleared.")
+    82:                print("✓ Probabilistic constraints match physical intuition.")
+    85:                print("⚠ Unexpected probability values. Check ColabFit distribution.")
+
+• Edited audit\run_master_audit.py (+3 -3)
+    66                  cache_path.unlink()
+    67 -                print("✓ ColabFit cache cleared.")
+    67 +                print("[OK] ColabFit cache cleared.")
+    68
+       ⋮
+    81              if p_1_62 > 0.9 and p_2_50 < 0.2:
+    82 -                print("✓ Probabilistic constraints match physical intuition.")
+    82 +                print("[OK] Probabilistic constraints match physical intuition.")
+    83                  self.results['physical_grounding'] = "PASS (Dynamic potentials active)"
+    84              else:
+    85 -                print("⚠ Unexpected probability values. Check ColabFit distribution.")
+    85 +                print("[WARN] Unexpected probability values. Check ColabFit distribution.")
+    86                  self.results['physical_grounding'] = "WARN (Probability logic mismatch)"
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The Windows encoding issue is patched to ASCII. I’m rerunning the master audit once more; if physical grounding becomes a scientific warning rather than
+  an encoding failure, I’ll leave that as an honest audit signal instead of masking it.
+
+• Ran python audit\run_master_audit.py
+  └ ================================================================================
+    KOMPOSOS-III MASTER AUDIT: SCIENTIFIC VALIDITY RECONFIRMATION
+    … +457 lines (ctrl + t to view transcript)
+    [17:30:13] Can't kekulize mol.  Unkekulized atoms: 0 2 3 10 11
+    [17:30:13] Can't kekulize mol.  Unkekulized atoms: 13 14 15
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The master audit is now no longer failing from Windows encoding; it reports a real physical-grounding warning because Si-O plausibility is 0.741 vs the
+  audit’s stricter >0.9 expectation. I’m doing a final status/whitespace check and then I’ll summarize the exact bridge decisions and verification results.
+
+• Running git diff --check
+
+• Running rg -n "from zfc\.bridge import DualEngineBridge|from zfc\.store_adapter import StoreAdapter|from \.bridge import DualEngineBridge|needs updating|
+  │ zfc cog bridges discovery audits audit core -g "*.py"
+    … +19 lines (ctrl + t to view transcript)
+    discovery\ultra_fast_math.py:92:  ✓ {betti.get(1, 0):,} TOPOLOGICAL HOLES found
+    discovery\treasure_detector.py:160:        analysis = f"⚠️  MEDIUM POTENTIAL: {cross_domain_count} fields, {neighbor_count} neighbors"
+
+• Ran Get-Content -Path audit\master_audit_20260521.json
+  └ {
+      "accuracy": "PASS (94.4% Accuracy, F1=0.963)",
+    … +2 lines (ctrl + t to view transcript)
+      "integration": "PASS (Cross-feature logic consistent)"
+    }
+
+• Ran git status --short | Select-Object -First 220
+  └  M README.md
+     M battery_bridge/interaction_scoring.py
+    … +216 lines (ctrl + t to view transcript)
+    ?? examples/quick_mythos_validation.py
+    ?? examples/run_advanced_mythos_test.py
+
+• Ran git diff --check
+  └ battery_bridge/interaction_scoring.py:535: trailing whitespace.
+    +
+    … +104 lines (ctrl + t to view transcript)
+    warning: in the working copy of 'zfc/universe.py', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'zfc/well_ordering.py', LF will be replaced by CRLF the next time Git touches it
+
+  copied-file set alone.
+
+• Ran $files =
+  │ @('battery_bridge\interaction_scoring.py','categorical\grothendieck.py','composition_engine\formation_energy.py','composition_engine\parser.py'); $enc
+  │ = New-Object System.Text.UTF8Encoding($false); foreach ($file in $files) { $text = [System.IO.File]::ReadAllText((Resolve-Path $file)); $text =
+  │ … +1 lines
+  └ (no output)
+
+• Running git diff --check
+
+• Running python -c "from composition_engine.formation_energy import predict_formation_energy; from composition_engine.parser import parse_formula;
+  │ print('whitespace cleanup compile ok', parse_formula('LiFePO4'))"
+
+• Ran python -m compileall -q battery_bridge categorical composition_engine
+  └ (no output)
+
+• Ran git diff --check
+  └ warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+    … +76 lines (ctrl + t to view transcript)
+    warning: in the working copy of 'zfc/universe.py', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'zfc/well_ordering.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran python -c "from composition_engine.formation_energy import predict_formation_energy; from composition_engine.parser import parse_formula;
+  │ print('whitespace cleanup compile ok', parse_formula('LiFePO4'))"
+  └ Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: cannot import name 'predict_formation_energy' from 'composition_engine.formation_energy' (C:
+    \Users\JAMES\github\KOMPOSOS-IV-CHEM\composition_engine\formation_energy.py)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The whitespace check is clean now; the only output is Git’s normal LF/CRLF warnings. My quick smoke command used a non-existent helper name in
+  formation_energy, so I’m checking the actual API and rerunning that one correctly.
+
+• Running rg -n "^class |^def " composition_engine\formation_energy.py | Select-Object -First 80
+
+• Ran rg -n "^class |^def " composition_engine\formation_energy.py | Select-Object -First 80
+  └ 60:class KnownFormationEnergy:
+    309:def _kapustinskii_estimate(comp: Dict[str, float]) -> Optional[float]:
+    … +6 lines (ctrl + t to view transcript)
+    677:class FormationEnergyResult:
+    724:class FormationEnergyPredictor:
+
+• Ran python -c "from composition_engine.formation_energy import FormationEnergyPredictor; from composition_engine.parser import parse_formula;
+  │ print('cleanup import ok', FormationEnergyPredictor.__name__, parse_formula('LiFePO4'))"
+  └ cleanup import ok FormationEnergyPredictor {'Li': 1.0, 'Fe': 1.0, 'P': 1.0, 'O': 4.0}
+
+• Updated Plan
+  └ ✔ Check current bridge/runtime wiring and outstanding references
+    ✔ Run compile and import smoke checks
+    ✔ Run focused chemistry/material regression tests
+    ✔ Run development audit and summarize remaining risks
+• Implemented the stabilization pass.
+
+  What changed:
+
+      - zfc/category_bridge.py is now the primary CAT/ZFC dual engine.
+      - zfc.DualEngineBridge now points to the category bridge.
+      - Legacy store bridge remains available as zfc.StoreDualEngineBridge.
+      - right Kan structural priors
+      - spectral graph structures
+      - generic quantale aliases like STEALTH_QUANTALE
+      - SpectralAnalyzer / VEnrichedCategory aliases
+      - COG evaluate_diagram
+      - optional Gray coherence Tier 4f hook
+  - Fixed master audit Windows encoding output.
+
+  Verification:
+
+  - Compile checks passed for touched runtime packages.
+  - Category -> ZFC -> CAT/ZFC bridge smoke test passed as AGREE.
+  - Focused regression suite: 155 passed, 1 skipped.
+  - Development audit: PASS, 36/36, 100% balanced accuracy.
+  - Master audit:
+      - Accuracy: PASS
+      - Computational: PASS
+      - Integration: PASS
+      - Physical grounding: WARN, not failure. Si-O plausibility was 0.741 where audit expects >0.9; I left that as an honest scientific warning.
+  - git diff --check has no whitespace errors now, only normal Windows LF/CRLF warnings.
+
+  Net result: CHEM is now category-runtime first, still using ZFC properly, with legacy store bridges preserved for old validation/audit paths.
+
+─ Worked for 6m 20s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+› can e confirm the audits and startegy? these are the ones from the old repo:::: C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit, C:
+  \Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\TUNING_LOG.md, C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_CHANGE_LOG.md,
+  C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_PROTOCOL.md. these may be a bit stale,  but it is what we have been doing recently. i
+  just want to confirm we are are the same page.
+
+
+• I’ll verify against the old CHEM repo directly: audit folder contents, protocol docs, and tuning/change logs, then compare what is now in this repo. That
+  will tell us whether we’re following the same audit strategy or accidentally drifting.
+
+• Running Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_PROTOCOL.md"
+
+• Running Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\TUNING_LOG.md"
+
+• Running Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_CHANGE_LOG.md"
+
+• Running Get-ChildItem -Recurse -File audit | ForEach-Object { $_.FullName.Substring((Resolve-Path .).Path.Length + 1) } | Sort-Object
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_PROTOCOL.md"
+  └ # KOMPOSOS-III Scientific & Computational Audit Protocol
+
+    … +340 lines (ctrl + t to view transcript)
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_CHANGE_LOG.md"
+  └ # KOMPOSOS-III Audit Change Log: 2026-05-15 â†’ 2026-05-19
+
+    … +432 lines (ctrl + t to view transcript)
+    The system is now **honest, transparent, and internally consistent**. The remaining question is whether it generalizes beyond the internal benchmark.
+    Phase 3 will answer that.
+
+• Ran Get-Content -Path "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\TUNING_LOG.md"
+  └ # KOMPOSOS-III Bridge Tuning Log (2026-05-16)
+
+    … +454 lines (ctrl + t to view transcript)
+    **Impact**: Low-confidence or borderline compatibility queries can trigger measured MD when inputs exist; missing inputs return an explicit no-verdict
+    readiness state.
+
+• Ran Get-ChildItem -Recurse -File audit | ForEach-Object { $_.FullName.Substring((Resolve-Path .).Path.Length + 1) } | Sort-Object
+  └ audit\__pycache__\analyze_performance.cpython-310.pyc
+    audit\__pycache__\build_compatibility_calibration.cpython-310.pyc
+    … +35 lines (ctrl + t to view transcript)
+    audit\run_audit.py
+    audit\run_master_audit.py
+
+• Ran Get-ChildItem -Recurse -File "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit" | ForEach-Object { $_.FullName.Substring("C:
+  │ \Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\".Length) } | Sort-Object
+  └ audit\__pycache__\literature_ground_truth.cpython-310.pyc
+    audit\__pycache__\run_audit.cpython-310.pyc
+    … +36 lines (ctrl + t to view transcript)
+    audit\run_audit.py
+    audit\run_master_audit.py
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The old audit strategy is clear: Q2-Q5 are spent diagnostics, Q6 is the current blind set, and development files are tuning-eligible only. I found one
+  important mismatch: this repo currently has the audit runner/docs, but it is missing the old repo’s Q5/Q6 external blind files and Q5 dev file. I’m
+  checking the target docs and then I’ll sync only those missing audit artifacts.
+
+• Running Get-Content audit\dataset_registry.json
+
+• Running Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit\dataset_registry.json"
+
+• Running Compare-Object (Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_CHANGE_LOG.md") (Get-Content
+  │ docs\AUDIT_CHANGE_LOG.md) | Select-Object -First 80
+
+• Running Compare-Object (Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\TUNING_LOG.md") (Get-Content docs\TUNING_LOG.md) |
+  │ Select-Object -First 80
+
+• Ran Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit\dataset_registry.json"
+
+• Ran Get-Content audit\dataset_registry.json
+  └ {
+      "version": "dataset_registry.2026-05-21.v1",
+    … +88 lines (ctrl + t to view transcript)
+      ]
+  │ Select-Object -First 80
+  └ (no output)
+• Ran Compare-Object (Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\AUDIT_PROTOCOL.md") (Get-Content docs\AUDIT_PROTOCOL.md) |
+  │ Select-Object -First 80
+  └
+    InputObject
+    … +58 lines (ctrl + t to view transcript)
+
+
+
+• Ran Compare-Object (Get-Content "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\docs\TUNING_LOG.md") (Get-Content docs\TUNING_LOG.md) |
+  │ Select-Object -First 80
+  └
+    InputObject
+    … +5 lines (ctrl + t to view transcript)
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I’m going to sync the missing audit strategy artifacts from the old CHEM repo now: Q5/Q6 external blind files, Q5 dev file, dataset registry, and the
+  three audit docs. That keeps the new category runtime work aligned with the same recent audit protocol.
+
+• Ran Copy-Item -LiteralPath "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit\external_blind\compatibility_2026_q5.json" -Destination
+  │ "audit\external_blind\compatibility_2026_q5.json" -Force; Copy-Item -LiteralPath "C:
+  │ \Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit\external_blind\compatibility_2026_q5.sha256" -Destination
+  │ … +11 lines
+  └ (no output)
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The missing Q5/Q6 audit artifacts and updated audit docs are copied into this repo. I’m validating the registry, SHA manifests, and default external audit
+  behavior now.
+
+• Running rg -n "external_blind|dataset_registry|current_blind|external-path|compatibility_2026_q" audit\run_audit.py
+
+• Running Get-ChildItem audit\external_blind\compatibility_2026_q5.*, audit\external_blind\compatibility_2026_q6.*,
+  │ audit\dev_compatibility\q5_failure_family_dev_2026_q5.json | Select-Object Name,Length,LastWriteTime
+
+
+• Ran rg -n "external_blind|dataset_registry|current_blind|external-path|compatibility_2026_q" audit\run_audit.py
+  └ 17:    python audit/run_audit.py --module external --external-path audit/external_blind/compatibility_2026_q4.json
+    170:def _load_external_blind_pairs(path: Optional[Path] = None) -> tuple[list[Dict[str, Any]], Dict[str, Any]]:
+    … +4 lines (ctrl + t to view transcript)
+
+• Ran rg -n "current_blind_version|2026_q5|2026_q6|Default/current blind|Q6 Current" audit\dataset_registry.json docs\AUDIT_PROTOCOL.md docs\TUNING_LOG.md
+  └ docs\AUDIT_PROTOCOL.md:12:Q5-derived tuning. The frozen Q6 set (`audit/external_blind/compatibility_2026_q6.json`) is
+    docs\AUDIT_PROTOCOL.md:234:- Spent diagnostic dataset: `audit/external_blind/compatibility_2026_q5.json`
+    … +16 lines (ctrl + t to view transcript)
+    1.000, Brier score 0.094, ECE 0.271, and protocol pass true. If scorer changes are informed by Q6 failures, mark Q6 spent and freeze Q7 before reporting
+    a new blind score.
+
+• Ran Get-ChildItem audit\external_blind\compatibility_2026_q5.*, audit\external_blind\compatibility_2026_q6.*,
+  │ audit\dev_compatibility\q5_failure_family_dev_2026_q5.json | Select-Object Name,Length,LastWriteTime
+  └
+    Name                               Length LastWriteTime
+    … +6 lines (ctrl + t to view transcript)
+
+
+
+• Ran $files =
+  │ @('audit\external_blind\compatibility_2026_q5.json','audit\external_blind\compatibility_2026_q6.json','audit\dev_compatibility\q5_failure_family_dev_2
+  │ 026_q5.json'); foreach ($f in $files) { $hash=(Get-FileHash -Algorithm SHA256 $f).Hash.ToLower(); Write-Output "$f $hash" }
+  └ audit\external_blind\compatibility_2026_q5.json 0c25a2953c10041690f284521a909b78645fbb10e01a3c33eb4fc44b14a4d913
+    audit\external_blind\compatibility_2026_q6.json f47972bb4d603b8fe1d00e6d36fabc2ec81d5d9639e3879b87a96026c630cc8c
+    audit\dev_compatibility\q5_failure_family_dev_2026_q5.json be042f17432adaeadfafdfbd2ddc420ce89633ec39be79e5817d21e440b2cabe
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The files and hashes match the old repo, but I found one stale code path: audit/run_audit.py still defaults external audit to Q4 even though the registry/
+  docs say Q6 is current blind. I’m patching the default loader to read current_blind_version from audit/dataset_registry.json, falling back safely only if
+  the registry is absent.
+
+• Ran Get-Content -Path audit\run_audit.py | Select-Object -Skip 150 -First 115
+  └     morphism = infer_typed_morphism(mat_a, mat_b, domain, context)
+        if morphism is not None:
+    … +111 lines (ctrl + t to view transcript)
+            legacy_data = json.load(f)
+
+
+• Ran Get-Content -Path audit\run_audit.py | Select-Object -First 28
+  └ """
+    KOMPOSOS-III Scientific & Computational Audit Runner
+    … +24 lines (ctrl + t to view transcript)
+    from pathlib import Path
+    from typing import Any, Dict, Optional
+
+     17 -    python audit/run_audit.py --module external --external-path audit/external_blind/compatibility_2026_q4.json
+     17 +    python audit/run_audit.py --module external --external-path audit/external_blind/compatibility_2026_q6.json
+     18  """
+        ⋮
+    169
+    170 +def _default_external_blind_path() -> Path:
+    171 +    """Resolve the current blind dataset from the registry."""
+    172 +    audit_dir = Path(__file__).parent
+    173 +    registry_path = audit_dir / "dataset_registry.json"
+    174 +    fallback = audit_dir / "external_blind" / "compatibility_2026_q6.json"
+    177 +        return fallback
+    178 +
+    179 +    with open(registry_path, encoding="utf-8") as f:
+    180 +        registry = json.load(f)
+    181 +
+    182 +    current_version = registry.get("current_blind_version")
+    183 +    for dataset in registry.get("datasets", []):
+    184 +        if dataset.get("version") == current_version:
+    185 +            return (audit_dir.parent / dataset["path"]).resolve()
+    186 +
+    190  def _load_external_blind_pairs(path: Optional[Path] = None) -> tuple[list[Dict[str, Any]], Dict[str, Any]]:
+    191      """Load frozen external blind compatibility pairs."""
+    172 -    dataset_path = (path or (Path(__file__).parent / "external_blind" / "compatibility_2026_q4.json")).resolve()
+    192 +    dataset_path = (path or _default_external_blind_path()).resolve()
+    193      with open(dataset_path, encoding="utf-8") as f:
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The default external audit now follows the registry’s current blind version. I’m running the external module to confirm it uses Q6 and reports the
+  expected protocol behavior.
+
+• Ran python audit\run_audit.py --module external
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +70 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Q6 is now the default external blind audit and passes exactly as the old strategy states. Because I added the Q5-derived development file too, I’m
+  rerunning the development module so the tuning/dev audit reflects the full old repo set.
+
+• Ran python audit\run_audit.py --module development
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +69 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+
+• The full development set now loads 41 pairs from 5 files and still passes threshold, but the newly restored Q5-derived dev cases show 5 misses. I’m
+  checking whether the old CHEM repo behaves the same on those restored Q5 dev cases or whether we still need to port a Q5 tuning patch.
+
+• Running Get-Content audit\dev_compatibility\q5_failure_family_dev_2026_q5.json
+
+• Running python audit\run_audit.py --module development
+
+• Ran Get-Content audit\dev_compatibility\q5_failure_family_dev_2026_q5.json
+  └ {
+      "version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+    … +68 lines (ctrl + t to view transcript)
+      ]
+    }
+
+• Ran rg -n "CMC|PAN|ABS|PA66|AlN|TiN|q5|failure_family|miscibility|battery_polymer_context" polymer_bridge battery_bridge ceramic_bridge docs oracle audit
+  │ -g "*.py" -g "*.md" -g "*.json"
+  └ oracle\compatibility_context.py:17:ROLE_SENSITIVE_BATTERY_POLYMERS = {"CMC", "SBR", "PEO"}
+    oracle\compatibility_failure_memory.py:17:FAILURE_VERDICTS = {"FP", "FN", "SKIP", "ABSTAIN"}
+    … +519 lines (ctrl + t to view transcript)
+    docs\WEB_UI_USER_GUIDE.md:740:3. **Binder** (polymer domain): PVDF, PEO, CMC, SBR, etc.
+    docs\WEB_UI_USER_GUIDE.md:1865:print(result["replacements"][0]["name"])  # CMC+SBR
+
+• Ran python audit\run_audit.py --module development
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +65 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• This confirms the audit strategy is the same, but the target code was missing the Q5 tuning behavior even after the datasets were restored. I’m pulling
+  the specific Q5 scoring fixes from the old CHEM repo now, not broad-copying unrelated files.
+
+• Running rg -n "CMC|LFP|cathode_binder|PAN|PEO|ABS|PTFE|PA66|POM|AlN|TiN|nitride" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge"
+  │ "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge" -g
+  │ "*.py"
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge\interaction_scoring.py"
+  │ polymer_bridge\interaction_scoring.py | Select-Object -First 220
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge\interaction_scoring.py"
+  │ battery_bridge\interaction_scoring.py | Select-Object -First 220
+
+• Running rg -n "CMC|LFP|cathode_binder|PAN|PEO|ABS|PTFE|PA66|POM|AlN|TiN|nitride" battery_bridge polymer_bridge ceramic_bridge -g "*.py"
+
+• Ran rg -n "CMC|LFP|cathode_binder|PAN|PEO|ABS|PTFE|PA66|POM|AlN|TiN|nitride" battery_bridge polymer_bridge ceramic_bridge -g "*.py"
+  └ battery_bridge\__init__.py:28:    from battery_bridge import CellConfiguration, STANDARD_LFP_CELL
+    battery_bridge\__init__.py:32:    result = validator.validate('LFP', 'EC')
+    … +224 lines (ctrl + t to view transcript)
+    battery_bridge\integration.py:564:    from battery_bridge.battery_flow import STANDARD_LFP_CELL, STANDARD_NMC811_CELL
+    battery_bridge\integration.py:571:    for config in [STANDARD_LFP_CELL, STANDARD_NMC811_CELL]:
+
+  └ warning: in the working copy of 'C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\interaction_scoring.py', LF will be replaced by
+    CRLF the next time Git touches it
+    warning: in the working copy of 'ceramic_bridge\interaction_scoring.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge\interaction_scoring.py"
+  │ battery_bridge\interaction_scoring.py | Select-Object -First 220
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\battery_bridge\\interaction_scoring.py" "b/battery_bridge\
+    \interaction_scoring.py"
+    … +10 lines (ctrl + t to view transcript)
+                 penalty = max(penalty, 0.5)
+                 reasons.append('Reactive anode + carbonate requires SEI stabilizer (e.g., FEC)')
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge\interaction_scoring.py"
+  │ polymer_bridge\interaction_scoring.py | Select-Object -First 220
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\polymer_bridge\\interaction_scoring.py" "b/polymer_bridge\
+    \interaction_scoring.py"
+    … +15 lines (ctrl + t to view transcript)
+    CRLF the next time Git touches it
+    warning: in the working copy of 'polymer_bridge\interaction_scoring.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran rg -n "CMC|LFP|cathode_binder|PAN|PEO|ABS|PTFE|PA66|POM|AlN|TiN|nitride" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge" "C:
+  │ \Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge" -g "*.py"
+  └ C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge\battery_flow.py:317:        if anode and FailureMode.VOLUME_EXPANSION in
+    anode.failure_modes:
+    … +235 lines (ctrl + t to view transcript)
+    C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge\tests\test_scoring.py:201:        lfp = get_material('LFP')
+    C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\battery_bridge\tests\test_scoring.py:214:        lfp = get_material('LFP')
+
+• Context compacted
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I’m going to verify the old audit trail against the current repo, then close the gap that the Q5 development audit exposed. The key thing I’m checking is
+  not just that the files were copied, but that the current audit runner uses the same registry/default blind set and that the target reproduces the old
+  CHEM repo’s development behavior.
+
+• Running Get-Content -Path docs\AUDIT_PROTOCOL.md -TotalCount 220
+
+• Running Get-Content -Path audit\dataset_registry.json
+
+• Running Get-Content -Path docs\TUNING_LOG.md -TotalCount 220
+
+• Running Get-Content -Path docs\AUDIT_CHANGE_LOG.md -TotalCount 220
+
+• Running git status --short
+
+• Ran Get-Content -Path audit\dataset_registry.json
+  └ {
+      "version": "dataset_registry.2026-05-21.v1",
+    … +121 lines (ctrl + t to view transcript)
+      ]
+    }
+
+• Ran Get-Content -Path docs\AUDIT_PROTOCOL.md -TotalCount 220
+  └ # KOMPOSOS-III Scientific & Computational Audit Protocol
+
+
+• Ran Get-Content -Path docs\AUDIT_CHANGE_LOG.md -TotalCount 220
+  └ # KOMPOSOS-III Audit Change Log: 2026-05-15 â†’ 2026-05-19
+
+    … +216 lines (ctrl + t to view transcript)
+    ok = relative < 0.60                 # Code criterion (not shown in prints)
+    ```
+
+• Ran Get-Content -Path docs\TUNING_LOG.md -TotalCount 220
+  └ # KOMPOSOS-III Bridge Tuning Log (2026-05-16)
+
+    … +220 lines (ctrl + t to view transcript)
+
+    **Physics**: MgO + Alâ‚‚Oâ‚ƒ â†’ MgAlâ‚‚Oâ‚„ is an **exothermic interfacial reaction** that:
+
+• Ran Get-ChildItem -Path audit -Recurse | Select-Object FullName,Length | Format-Table -AutoSize
+  └
+    FullName                                                                                                 Length
+    … +50 lines (ctrl + t to view transcript)
+
+
+
+• Ran git status --short
+  └  M README.md
+     M battery_bridge/interaction_scoring.py
+    … +272 lines (ctrl + t to view transcript)
+    ?? zfc/category_bridge.py
+    ?? zfc/category_store_adapter.py
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The audit artifacts are present and the registry now says Q6 is the current blind set, which matches the old CHEM audit strategy. The remaining issue is
+  behavioral: the current repo passes Q6, but it still misses the Q5-derived development cases that the old repo already fixed, so I’m comparing those
+  bridge files now and will patch the target surgically.
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge\material_properties.py"
+  │ polymer_bridge\material_properties.py | Select-Object -First 320
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\material_properties.py"
+  │ ceramic_bridge\material_properties.py | Select-Object -First 320
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\cross_bridge\battery_polymer.py" cross_bridge\battery_polymer.py |
+  │ Select-Object -First 320
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge\interaction_scoring.py"
+  │ polymer_bridge\interaction_scoring.py | Select-Object -First 260
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\interface_validator.py"
+  │ ceramic_bridge\interface_validator.py | Select-Object -First 320
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\material_properties.py"
+  │ ceramic_bridge\material_properties.py | Select-Object -First 320
+    \interaction_scoring.py"
+    … +15 lines (ctrl + t to view transcript)
+    CRLF the next time Git touches it
+    warning: in the working copy of 'polymer_bridge\interaction_scoring.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\polymer_bridge\material_properties.py"
+  │ polymer_bridge\material_properties.py | Select-Object -First 320
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\polymer_bridge\\material_properties.py" "b/polymer_bridge\
+    \material_properties.py"
+    … +46 lines (ctrl + t to view transcript)
+    CRLF the next time Git touches it
+    warning: in the working copy of 'polymer_bridge\material_properties.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\cross_bridge\battery_polymer.py" cross_bridge\battery_polymer.py |
+  │ Select-Object -First 320
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\cross_bridge\\battery_polymer.py" "b/cross_bridge\\battery_polymer.py"
+    index 3e68800..41b1d19 100644
+    … +30 lines (ctrl + t to view transcript)
+    next time Git touches it
+    warning: in the working copy of 'cross_bridge\battery_polymer.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_context.py" oracle\compatibility_context.py |
+  │ Select-Object -First 320
+  └ warning: in the working copy of 'C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_context.py', LF will be replaced by CRLF the
+    next time Git touches it
+    warning: in the working copy of 'oracle\compatibility_context.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\interface_validator.py"
+  │ ceramic_bridge\interface_validator.py | Select-Object -First 320
+  └ warning: in the working copy of 'C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\ceramic_bridge\interface_validator.py', LF will be replaced by
+    CRLF the next time Git touches it
+    warning: in the working copy of 'ceramic_bridge\interface_validator.py', LF will be replaced by CRLF the next time Git touches it
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_failure_memory.py"
+  │ oracle\compatibility_failure_memory.py | Select-Object -First 360
+
+• Running rg -n "CMC|LFP|AlN|TiN|PEO|PAN|PA66|POM|ABS|PTFE" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem" -g "*.py" -g "*.json"
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_ensemble.py" oracle\compatibility_ensemble.py |
+  │ Select-Object -First 360
+
+• Running git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\typed_morphisms.py" oracle\typed_morphisms.py | Select-Object
+  │ -First 360
+
+• Running rg -n "CMC|LFP|AlN|TiN|PEO|PAN|PA66|POM|ABS|PTFE" . -g "*.py" -g "*.json"
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_failure_memory.py"
+  │ oracle\compatibility_failure_memory.py | Select-Object -First 360
+  └ warning: in the working copy of 'C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_failure_memory.py', LF will be replaced by
+    CRLF the next time Git touches it
+    warning: in the working copy of 'oracle\compatibility_failure_memory.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\compatibility_ensemble.py" oracle\compatibility_ensemble.py |
+  │ Select-Object -First 360
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\oracle\\compatibility_ensemble.py" "b/oracle\\compatibility_ensemble.py"
+    index f4ffdf9..4775b32 100644
+    … +185 lines (ctrl + t to view transcript)
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\typed_morphisms.py" oracle\typed_morphisms.py | Select-Object
+  │ -First 360
+  └ diff --git "a/C:\\Users\\JAMES\\github\\KOMPOSOS-III-LAMBDA-max-3D-chem\\oracle\\typed_morphisms.py" "b/oracle\\typed_morphisms.py"
+    index ee94a96..b2dc40f 100644
+    … +24 lines (ctrl + t to view transcript)
+    time Git touches it
+    warning: in the working copy of 'oracle\typed_morphisms.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran git diff --no-index -- "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\material_zfc_constraints.py" oracle\material_zfc_constraints.py |
+  │ Select-Object -First 360
+  └ warning: in the working copy of 'C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\oracle\material_zfc_constraints.py', LF will be replaced by CRLF
+    the next time Git touches it
+    warning: in the working copy of 'oracle\material_zfc_constraints.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran rg -n "CMC|LFP|AlN|TiN|PEO|PAN|PA66|POM|ABS|PTFE" "C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem" -g "*.py" -g "*.json"
+  └ C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\api\tests\test_api.py:98:        assert data["count"] >= 22  # 28 after Phase 11 additions (LATP,
+    S8, PEO, etc.)
+    … +3973 lines (ctrl + t to view transcript)
+    C:\Users\JAMES\github\KOMPOSOS-III-LAMBDA-max-3D-chem\synthesis_planner\tests\test_route_planner.py:159:        limited =
+    self.planner.plan_synthesis("LFP",
+
+• Ran rg -n "CMC|LFP|AlN|TiN|PEO|PAN|PA66|POM|ABS|PTFE" . -g "*.py" -g "*.json"
+  └ .\aimo\aimo3_solver.py:429:    Computation patterns for AIMO3 problems - EXPANDED TO 50+ PATTERNS.
+    .\aimo\expanded_test.py:2:AIMO3 EXPANDED TEST - Olympiad Level Problems
+    … +7511 lines (ctrl + t to view transcript)
+    "CC0 1.0", "url": "http://identifiers.org/ncbigene/6557", "chromosome": "15"}}, {"kind": "Molecular Function", "identifier": "GO:0016298", "name":
+    "lipase acti
+
+
+› we have 5% context left
+
+
+• Understood. I’ll keep this tight: I found the audit files are aligned, but the target is missing several Q5 scorer fixes from the advanced CHEM repo. I’m
+  applying only those proven deltas now, then I’ll rerun development + external audits and give you the strategy summary.
+
+• Running Select-String -Path polymer_bridge\material_properties.py -Pattern "THERMOPLASTIC_POLYMERS\['PA66'\]|THERMOPLASTIC_POLYMERS\['ABS'\]|
+  │ BATTERY_POLYMERS\['PEO'\]|BATTERY_POLYMERS\['PAN'\]|ELASTOMER_POLYMERS\['EPDM'\]" -Context 0,28
+
+• Running Select-String -Path oracle\typed_morphisms.py -Pattern "_infer_ceramic_morphism" -Context 0,90
+
+• Running Select-String -Path cross_bridge\battery_polymer.py -Pattern "anode_binder_polymers" -Context 8,28
+
+• Running Test-Path oracle\compatibility_gray_coherence.py; Select-String -Path oracle\compatibility_ensemble.py -Pattern "gray|CompatibilityEnsembleResult|
+  │ DEFAULT_STRATEGY_WEIGHTS|build_compatibility_ensemble" -Context 0,4
+
+• Ran Select-String -Path cross_bridge\battery_polymer.py -Pattern "anode_binder_polymers" -Context 8,28
+  └
+      cross_bridge\battery_polymer.py:391:        v_score = min(v_score, 0.15)
+
+
+• Ran Test-Path oracle\compatibility_gray_coherence.py; Select-String -Path oracle\compatibility_ensemble.py -Pattern "gray|CompatibilityEnsembleResult|
+  │ DEFAULT_STRATEGY_WEIGHTS|build_compatibility_ensemble" -Context 0,4
+  └ True
+
+    … +29 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path oracle\typed_morphisms.py -Pattern "_infer_ceramic_morphism" -Context 0,90
+  └
+    > oracle\typed_morphisms.py:112:        return _infer_ceramic_morphism(material_a, material_b, context)
+    … +183 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path polymer_bridge\interaction_scoring.py -Pattern "_KNOWN_BAD_BLENDS" -Context 0,80
+  └
+    > polymer_bridge\interaction_scoring.py:392:_KNOWN_BAD_BLENDS: Dict[Tuple[str, str], Tuple[float, str]] = {
+    … +135 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path polymer_bridge\material_properties.py -Pattern "THERMOPLASTIC_POLYMERS\['PA66'\]|THERMOPLASTIC_POLYMERS\['ABS'\]|
+  │ BATTERY_POLYMERS\['PEO'\]|BATTERY_POLYMERS\['PAN'\]|ELASTOMER_POLYMERS\['EPDM'\]" -Context 0,28
+  └
+    > polymer_bridge\material_properties.py:394:THERMOPLASTIC_POLYMERS['PA66'] = PolymerMaterial(
+    … +144 lines (ctrl + t to view transcript)
+
+
+
+⚠ Heads up, you have less than 10% of your weekly limit left. Run /status for a breakdown.
+
+⚠ Heads up, you have less than 5% of your 5h limit left. Run /status for a breakdown.
+
+• Running Select-String -Path audit\run_audit.py -Pattern "compatibility_ensemble|build_compatibility_ensemble|ensemble" -Context 2,4
+
+• Running Get-Content oracle\compatibility_gray_coherence.py -TotalCount 220
+
+• Ran Get-Content oracle\compatibility_gray_coherence.py -TotalCount 220
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +196 lines (ctrl + t to view transcript)
+        except (TypeError, ValueError):
+            return 0.0
+
+• Ran Get-Content oracle\compatibility_ensemble.py -TotalCount 360
+  └ # SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+    # Copyright (c) 2024-2026 James Ray Hawkins
+    … +327 lines (ctrl + t to view transcript)
+    def _clamp(value: float) -> float:
+        return max(0.0, min(1.0, float(value)))
+
+• Ran Select-String -Path audit\run_audit.py -Pattern "compatibility_ensemble|build_compatibility_ensemble|ensemble" -Context 2,4
+  └
+      audit\run_audit.py:38:    compute_classification_metrics as _shared_compute_classification_metrics,
+    … +13 lines (ctrl + t to view transcript)
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I’m making the old CHEM Q5 deltas explicit in the IV-CHEM code now: polymer chi/known-bad blend facts, the CMC-as-cathode-binder penalty for LFP, the AlN/
+  TiN ceramic typed morphism, and the Gray coherence guard that the old ensemble used.
+
+• Edited 5 files (+158 -9)
+  └ cross_bridge\battery_polymer.py (+14 -4)
+    401      high_voltage_exempt_roles = {"protective_coating"}
+    402 -    if poly_key in anode_binder_polymers and is_high_voltage_cathode and role not in high_voltage_exempt_roles:
+    403 -        c_score = min(c_score, 0.15)
+    404 -        c_details["anode_binder_high_voltage_cathode_penalty"] = True
+    402 +    if (
+    403 +        poly_key in anode_binder_polymers
+    404 +        and battery_mat.material_class == MaterialClass.CATHODE
+    405 +        and role == "cathode_binder"
+    406 +        and role not in high_voltage_exempt_roles
+    407 +    ):
+    408 +        c_score = min(c_score, 0.18)
+    409 +        m_score = min(m_score, 0.45)
+    410 +        c_details["anode_binder_cathode_penalty"] = True
+    411 +        m_details["anode_binder_cathode_penalty"] = True
+    412          warnings.append(
+    406 -            f"Context penalty: {polymer_name} is primarily an anode binder, not a high-voltage {battery_material_name} cathode binder"
+    413 +            f"Context penalty: {polymer_name} is primarily an anode binder, not a {battery_material_name} cathode binder"
+    414          )
+    415 +        if is_high_voltage_cathode:
+    416 +            c_score = min(c_score, 0.15)
+    417 +            c_details["anode_binder_high_voltage_cathode_penalty"] = True
+    418
+
+  └ oracle\compatibility_ensemble.py (+119 -1)
+     13  from oracle.compatibility_failure_memory import classify_failure_pattern
+     14 +from oracle.compatibility_gray_coherence import check_gray_coherence
+     15  from oracle.compatibility_transfer import guard_transfer
+        ⋮
+     18
+     19 +GRAY_ACTIVE_SEVERITY_THRESHOLD = 0.35
+     20 +
+     21  DEFAULT_STRATEGY_WEIGHTS = {
+        ⋮
+     28      "real_tool_evidence": 1.50,
+     29 +    "gray_coherence": 0.80,
+     30  }
+        ⋮
+     65      transfer_guard: Dict[str, Any]
+     66 +    gray_coherence: Dict[str, Any]
+     67 +    gray_policy: Dict[str, Any]
+     68      capabilities: Dict[str, Any]
+        ⋮
+     80              "transfer_guard": dict(self.transfer_guard),
+     81 +            "gray_coherence": dict(self.gray_coherence),
+     82 +            "gray_policy": dict(self.gray_policy),
+     83              "capabilities": dict(self.capabilities),
+        ⋮
+    162
+    163 +    gray = check_gray_coherence(material_a, material_b, domain, votes, context)
+    164 +    if gray.gap_count:
+    165 +        votes.append(
+    166 +            StrategyVote(
+    167 +                strategy="gray_coherence",
+    168 +                score=0.50,
+    169 +                compatible=bool(base_predicted),
+    170 +                confidence=min(0.88, max(0.35, gray.max_gap_severity)),
+    171 +                reason=gray.reason,
+    172 +                metadata=gray.to_dict(),
+    173 +            )
+    174 +        )
+    175 +
+    176      path_features = _path_features(votes)
+    177      score = _combine_votes(votes, path_features, weights)
+    157 -    compatible = score >= 0.50
+    178 +    gray_policy = _apply_gray_policy(votes, gray.to_dict(), score)
+    179 +    score = gray_policy["score"]
+    180 +    compatible = bool(gray_policy["compatible"])
+    181      confidence = _combined_confidence(votes, path_features)
+        ⋮
+    189          action = "transfer_supported"
+    190 +    elif gray_policy["applied"]:
+    191 +        action = "gray_coherence_guarded"
+    192 +    elif gray.gap_count:
+    193 +        action = "gray_coherence_metadata"
+    194
+        ⋮
+    202          transfer_guard=transfer.to_dict(),
+    203 +        gray_coherence=gray.to_dict(),
+    204 +        gray_policy=gray_policy,
+    205          capabilities=capability_report(domain),
+        ⋮
+    326
+    327 +def _apply_gray_policy(votes: List[StrategyVote], gray: Dict[str, Any], score: float) -> Dict[str, Any]:
+    328 +    """Use Gray gaps as a guard against incoherent indirect ensemble flips."""
+    329 +
+    330 +    direct_votes = [
+    331 +        vote for vote in votes
+    332 +        if vote.strategy in {"real_tool_evidence", "zfc_constraint", "typed_morphism", "rule_scorer"}
+    333 +    ]
+    334 +    compatible = score >= 0.50
+    335 +    base = {
+    336 +        "applied": False,
+    337 +        "score": round(_clamp(score), 4),
+    338 +        "compatible": compatible,
+    339 +        "threshold": GRAY_ACTIVE_SEVERITY_THRESHOLD,
+    340 +        "reason": "gray coherence did not change the ensemble verdict",
+    341 +    }
+    342 +
+    343 +    if not gray.get("gap_count") or not direct_votes:
+    344 +        return base
+    345 +    if float(gray.get("max_gap_severity") or 0.0) < GRAY_ACTIVE_SEVERITY_THRESHOLD:
+    346 +        return {
+    347 +            **base,
+    348 +            "reason": "gray coherence gap below active guard threshold",
+    349 +        }
+    350 +
+    351 +    direct_side = _direct_evidence_side(direct_votes)
+    352 +    if direct_side is None:
+    353 +        return {
+    354 +            **base,
+    355 +            "reason": "direct evidence did not have a stable side to guard",
+    356 +        }
+    357 +
+    358 +    direct_score = _direct_guard_score(direct_votes, direct_side)
+    359 +    if direct_side == compatible:
+    360 +        guarded = max(score, direct_score) if direct_side else min(score, direct_score)
+    361 +        return {
+    362 +            **base,
+    363 +            "score": round(_clamp(guarded), 4),
+    364 +            "compatible": direct_side,
+    365 +            "direct_side": direct_side,
+    366 +            "direct_score": round(direct_score, 4),
+    367 +            "reason": "gray gap confirmed but direct evidence already controlled verdict",
+    368 +        }
+    369 +
+    370 +    guarded = max(0.51, direct_score) if direct_side else min(0.49, direct_score)
+    371 +    return {
+    372 +        "applied": True,
+    373 +        "score": round(_clamp(guarded), 4),
+    374 +        "compatible": direct_side,
+    375 +        "threshold": GRAY_ACTIVE_SEVERITY_THRESHOLD,
+    376 +        "direct_side": direct_side,
+    377 +        "direct_score": round(direct_score, 4),
+    378 +        "reason": "Gray 3-cell gap blocked incoherent indirect ensemble flip",
+    379 +    }
+    380 +
+    381 +
+    382 +def _direct_evidence_side(votes: List[StrategyVote]) -> Optional[bool]:
+    383 +    weighted: Dict[bool, float] = {True: 0.0, False: 0.0}
+    384 +    for vote in votes:
+    385 +        weighted[vote.compatible] += _direct_authority(vote.strategy) * vote.confidence
+    386 +    if weighted[True] == weighted[False]:
+    387 +        return None
+    388 +    return weighted[True] > weighted[False]
+    389 +
+    390 +
+    391 +def _direct_guard_score(votes: List[StrategyVote], direct_side: bool) -> float:
+    392 +    supporting = [vote for vote in votes if vote.compatible == direct_side]
+    393 +    if not supporting:
+    394 +        return 0.5
+    395 +    total_weight = sum(_direct_authority(vote.strategy) * vote.confidence for vote in supporting)
+    396 +    if not total_weight:
+    397 +        return 0.5
+    398 +    weighted_score = sum(
+    399 +        _direct_authority(vote.strategy) * vote.confidence * vote.score
+    400 +        for vote in supporting
+    401 +    ) / total_weight
+    402 +    if direct_side:
+    403 +        return max(0.51, weighted_score)
+    404 +    return min(0.49, weighted_score)
+    405 +
+    406 +
+    407 +def _direct_authority(strategy: str) -> float:
+    408 +    return {
+    409 +        "real_tool_evidence": 4.0,
+    410 +        "zfc_constraint": 3.0,
+    411 +        "typed_morphism": 2.5,
+    412 +        "rule_scorer": 1.5,
+    413 +    }.get(strategy, 1.0)
+    414 +
+    415 +
+    416  def _combine_votes(votes: List[StrategyVote], features: Dict[str, Any], weights: Dict[str, float]) -> float:
+
+  └ oracle\typed_morphisms.py (+14 -0)
+    507
+    508 +    if pair == frozenset({"AlN", "TiN"}):
+    509 +        return _generic_morphism(
+    510 +            material_a,
+    511 +            material_b,
+    512 +            "ceramic",
+    513 +            "nitride_ceramic_composite_with",
+    514 +            True,
+    515 +            0.84,
+    516 +            0.80,
+    517 +            morphism_context,
+    518 +            "AlN and TiN are compatible refractory nitride materials in coating, thermal-management, and hard-interface assemblies.",
+    519 +            evidence_type="typed_interface_rule",
+    520 +        )
+    521 +
+  └ polymer_bridge\interaction_scoring.py (+4 -0)
+    405      ('PVC', 'PA66'): (0.5, 'Immiscible nylon/PVC blend without tailored compatibilizer'),
+    406 +    ('PA66', 'POM'): (0.6, 'Immiscible nylon/acetal blend without compatibilizer; strong processing and interfacial mismatch'),
+    407 +    ('POM', 'PA66'): (0.6, 'Immiscible nylon/acetal blend without compatibilizer; strong processing and interfacial mismatch'),
+    408 +    ('ABS', 'PTFE'): (0.7, 'ABS/PTFE is not a standard miscible blend; PTFE surface energy and fluoropolymer inertness drive poor interfacial adhes
+         ion'),
+    409 +    ('PTFE', 'ABS'): (0.7, 'ABS/PTFE is not a standard miscible blend; PTFE surface energy and fluoropolymer inertness drive poor interfacial adhes
+         ion'),
+    410      ('PTFE', 'Epoxy'): (0.7, 'Untreated PTFE has very low surface energy; poor epoxy adhesion'),
+
+  └ polymer_bridge\material_properties.py (+7 -4)
+    408      density_g_cm3=1.14,
+    409 -    chi_parameters={'ABS': 0.18, 'PVC': 0.12},
+    409 +    chi_parameters={'ABS': 0.18, 'PVC': 0.12, 'POM': 0.35},
+    410 +    chi_parameters={'PTFE': 1.5},
+    411      failure_modes=[
+        ⋮
+    586      density_g_cm3=1.13,
+    586 -    chi_parameters={'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0},
+    587 -    failure_modes=[
+    587 +    chi_parameters={'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0, 'PAN': -0.15},
+    588 +    chi_parameters={'PEO': -0.15},
+    589 +    failure_modes=[
+    590          PolymerFailureMode.MOISTURE_ABSORPTION,
+        ⋮
+    826      elastic_modulus_GPa=0.008,
+    825 -    density_g_cm3=0.86,
+    827 +    density_g_cm3=0.86,
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The patch is in. Next I’m checking import/compile first, then the two audits that matter for this question: development should match the old repo’s Q5-
+  tuned behavior, and external should still default to Q6 as the current blind set.
+
+• Running python audit\run_audit.py --module external
+
+• Running python -m compileall -q polymer_bridge cross_bridge oracle audit
+
+• Ran python -m compileall -q polymer_bridge cross_bridge oracle audit
+  └ *** Error compiling 'polymer_bridge\\material_properties.py'...
+      File "polymer_bridge\material_properties.py", line 410
+    … +2 lines (ctrl + t to view transcript)
+    SyntaxError: keyword argument repeated: chi_parameters
+
+
+• Ran python audit\run_audit.py --module external
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +71 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+• Ran python audit\run_audit.py --module development
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +66 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  rerunning the same audits.
+
+• Running Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 388 -First 40
+
+• Running Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 660 -First 32
+
+• Running Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 500 -First 32
+
+• Ran Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 388 -First 40
+  └         'water': 'Kohan, Nylon Plastics Handbook, 1995',
+        },
+    … +36 lines (ctrl + t to view transcript)
+        structure=PolymerStructure.AMORPHOUS,
+        hansen=HansenParameters(delta_d=18.6, delta_p=5.9, delta_h=6.9),
+
+• Ran Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 808 -First 26
+  └         'hansen': 'Hansen, HSP Handbook 2nd ed., 2007',
+            'mechanical': 'Mark, Physical Properties of Polymers Handbook, 2007',
+    … +22 lines (ctrl + t to view transcript)
+            'Tg': 'Brandrup et al., Polymer Handbook 4th ed., 1999',
+            'hansen': 'Van Krevelen, Properties of Polymers, 2009 (estimated)',
+
+• Ran Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 660 -First 32
+  └         'thermal': 'Biswal & Singh, Carbohydrate Polymers 2004',
+        },
+    … +28 lines (ctrl + t to view transcript)
+            'hansen': 'Van Krevelen, Properties of Polymers, 2009',
+        },
+
+• Ran Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 500 -First 32
+  └     },
+        metadata={
+    … +28 lines (ctrl + t to view transcript)
+    )
+
+
+• Running Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 568 -First 24
+
+• Ran Get-Content polymer_bridge\material_properties.py | Select-Object -Skip 568 -First 24
+  └ )
+
+    … +20 lines (ctrl + t to view transcript)
+            PolymerFailureMode.OXIDATION,
+            PolymerFailureMode.CREEP,
+
+• Ran Select-String -Path polymer_bridge\material_properties.py -Pattern "chi_parameters"
+  └
+    polymer_bridge\material_properties.py:142:    chi_parameters: Dict[str, float] = field(default_factory=dict)
+    … +19 lines (ctrl + t to view transcript)
+
+
+
+• Edited polymer_bridge\material_properties.py (+13 -13)
+    406      crystallinity_pct=40.0,
+    407 -    water_absorption_pct=8.0,
+    410      failure_modes=[
+        ⋮
+    518      elastic_modulus_GPa=2.3,
+    520 -    crystallinity_pct=0.0,
+    521 -    water_absorption_pct=0.3,
+    522 -    density_g_cm3=1.05,
+    523 -    failure_modes=[
+    519 +    crystallinity_pct=0.0,
+    520 +    water_absorption_pct=0.3,
+    521 +    density_g_cm3=1.05,
+    522 +    chi_parameters={'PTFE': 1.5},
+    523 +    failure_modes=[
+    524          PolymerFailureMode.UV_DEGRADATION,
+        ⋮
+    585      water_absorption_pct=100.0,  # Fully water-soluble
+    587      chi_parameters={'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0, 'PAN': -0.15},
+    588 -    chi_parameters={'PEO': -0.15},
+    588      failure_modes=[
+        ⋮
+    680      elastic_modulus_GPa=3.5,
+    682 -    crystallinity_pct=25.0,
+    683 -    water_absorption_pct=2.0,
+    684 -    density_g_cm3=1.18,
+    685 -    failure_modes=[
+    681 +    crystallinity_pct=25.0,
+    682 +    water_absorption_pct=2.0,
+    683 +    density_g_cm3=1.18,
+    684 +    chi_parameters={'PEO': -0.15},
+    685 +    failure_modes=[
+    686          PolymerFailureMode.THERMAL_DEGRADATION,
+
+• Running python -m compileall -q polymer_bridge cross_bridge oracle audit
+
+• Ran python -m compileall -q polymer_bridge cross_bridge oracle audit
+  └ (no output)
+
+• Ran python - <<'PY'
+  │ from polymer_bridge.material_properties import get_polymer
+  │ for name in ['PA66','ABS','PEO','PAN','EPDM']:
+  │ … +3 lines
+  └ At line:2 char:11
+    + python - <<'PY'
+    … +23 lines (ctrl + t to view transcript)
+        + FullyQualifiedErrorId : MissingFileSpecification
+
+
+• Compile is clean after the duplicate fix. The small smoke command failed only because I used Unix heredoc syntax in PowerShell; I’m using normal audit
+  commands now.
+• Running python audit\run_audit.py --module development
+
+• Running python -c "from polymer_bridge.material_properties import get_polymer; [print(n, get_polymer(n).chi_parameters) for n in
+  │ ['PA66','ABS','PEO','PAN','EPDM']]"
+
+• Ran python -c "from polymer_bridge.material_properties import get_polymer; [print(n, get_polymer(n).chi_parameters) for n in
+  │ ['PA66','ABS','PEO','PAN','EPDM']]"
+  └ PA66 {'ABS': 0.18, 'PVC': 0.12, 'POM': 0.35}
+    ABS {'PTFE': 1.5}
+    PEO {'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0, 'PAN': -0.15}
+    PAN {'PEO': -0.15}
+    EPDM {'PEO': -0.15}
+
+• Ran python audit\run_audit.py --module development
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +65 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+• Ran python audit\run_audit.py --module external
+  └ ======================================================================
+    KOMPOSOS-III Scientific & Computational Audit
+    … +70 lines (ctrl + t to view transcript)
+    Report saved to: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\audit_report_2026-05-21.json
+    ======================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Development now matches the old CHEM repo’s Q5-tuned behavior exactly: 41/41 evaluated, zero skips, 100%, Brier 0.103. Q6 external still defaults from the
+  registry and passes 35/35, zero skips, 100%, so I’m doing the broader smoke/master checks before closing.
+
+
+• Running git diff --check
+
+• Running python audit\run_master_audit.py
+
+• Ran python -m compileall -q zfc cog core bridges discovery audits audit oracle categorical geometry cyber domains composition_engine battery_bridge
+  │ polymer_bridge ceramic_bridge cross_bridge api
+  └ (no output)
+
+• Ran git diff --check
+  └ warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+    … +76 lines (ctrl + t to view transcript)
+    warning: in the working copy of 'zfc/universe.py', LF will be replaced by CRLF the next time Git touches it
+• Ran python audit\run_master_audit.py
+  └ ================================================================================
+    KOMPOSOS-III MASTER AUDIT: SCIENTIFIC VALIDITY RECONFIRMATION
+    … +470 lines (ctrl + t to view transcript)
+    [17:43:37] Can't kekulize mol.  Unkekulized atoms: 0 1 2 10 11
+    [17:43:37] Explicit valence for atom # 12 C, 6, is greater than permitted
+
+• Ran python -m pytest -q battery_bridge\tests\test_properties.py polymer_bridge\tests\test_properties.py ceramic_bridge\tests\test_properties.py
+  │ cross_bridge\tests\test_battery_metal.py api\tests\test_api.py audits\split_brain_audit.py
+  └ ........................................................................ [ 38%]
+    ........................................................................ [ 77%]
+    ...................................s.....                                [100%]
+    184 passed, 1 skipped in 31.53s
+
+• The broader checks are clean where they should be: compile passes, focused tests pass 184/184 with 1 skip, Q5 development and Q6 external both pass.
+  Master audit has the known physical-grounding WARN, and I noticed its final accuracy summary still prints an old 94.4% label even though Module 1 just
+  computed 99.5%; I’m checking whether that is a stale display string.
+
+• Running Get-Content audit\run_master_audit.py -TotalCount 260
+
+• Ran Get-Content audit\run_master_audit.py -TotalCount 260
+  └ """
+    KOMPOSOS-III Master Scientific & Computational Audit
+    … +144 lines (ctrl + t to view transcript)
+        audit = MasterAudit()
+        audit.run_all()
+
+• Ran Select-String -Path audit\run_master_audit.py -Pattern "94.4|ACCURACY|summary|scientific|accuracy" -Context 2,6
+  └
+      audit\run_master_audit.py:1:"""
+    … +62 lines (ctrl + t to view transcript)
+
+
+
+• Running Select-String -Path audit\run_audit.py -Pattern "Metric pass|Protocol pass|PASS:|accuracy =|f1" -Context 1,2
+
+• Ran Select-String -Path audit\run_audit.py -Pattern "Metric pass|Protocol pass|PASS:|accuracy =|f1" -Context 1,2
+  └
+      audit\run_audit.py:437:    total = tp + tn + fp + fn
+    … +59 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path audit\run_audit.py -Pattern "def run_scientific_audit|return" -Context 0,3
+  └
+    > audit\run_audit.py:52:    return (
+    … +149 lines (ctrl + t to view transcript)
+
+
+
+• Ran Get-Content audit\run_audit.py | Select-Object -Skip 526 -First 40
+  └         "pairs_total": len(all_pairs),
+            "pairs_evaluated": total,
+    … +36 lines (ctrl + t to view transcript)
+        dataset_path = Path(metadata["path"])
+        existing_identities = _load_existing_benchmark_identities({dataset_path})
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• That master summary label is definitely stale code: run_scientific_audit() returns current metrics, but run_master_audit.py hardcoded “143 pairs / 94.4%”.
+  I’m replacing the hardcoded string with the returned metrics so future summaries match the actual audit.
+
+• Edited audit\run_master_audit.py (+19 -14)
+     4
+     5 +A comprehensive validation script testing:
+     6 +1. Research-Grade Accuracy (full loaded literature benchmark)
+     7  2. Physical Grounding (ColabFit probabilistic constraints)
+       ⋮
+    45
+    46 -    def test_research_grade_accuracy(self):
+    47 -        print("\n[MODULE 1] Research-Grade Accuracy (143 Pairs)")
+    48 -        print("-" * 50)
+    49 -        # Using the refactored scientific audit which now includes 143 pairs
+    50 -        # We'll capture the pass/fail and metrics
+    51 -        try:
+    52 -            # We call the existing logic but we want to make sure it hits the 143 mark
+    53 -            # In a real master audit, we'd wrap this to return metrics
+    54 -            run_scientific_audit()
+    55 -            self.results['accuracy'] = "PASS (94.4% Accuracy, F1=0.963)"
+    56 -        except Exception as e:
+    57 -            self.results['accuracy'] = f"FAIL: {e}"
+    46 +    def test_research_grade_accuracy(self):
+    47 +        print("\n[MODULE 1] Research-Grade Accuracy")
+    50 +            result = run_scientific_audit()
+    51 +            status = "PASS" if result.get("pass") else "FAIL"
+    52 +            evaluated = int(result.get("pairs_evaluated", 0))
+    53 +            accuracy = 100.0 * float(result.get("accuracy", 0.0))
+    54 +            f1 = float(result.get("f1", 0.0))
+    55 +            fp = int(result.get("fp", 0))
+    56 +            fn = int(result.get("fn", 0))
+    57 +            self.results['accuracy'] = (
+    58 +                f"{status} ({evaluated} pairs, accuracy={accuracy:.1f}%, "
+    59 +                f"F1={f1:.3f}, FP={fp}, FN={fn})"
+    60 +            )
+    61 +        except Exception as e:
+    62 +            self.results['accuracy'] = f"FAIL: {e}"
+    63
+
+• Running python audit\run_master_audit.py
+
+• Running python -m compileall -q audit
+
+• Ran python -m compileall -q audit
+  └ (no output)
+
+• Ran git diff --check
+  └ warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+    … +76 lines (ctrl + t to view transcript)
+    warning: in the working copy of 'zfc/universe.py', LF will be replaced by CRLF the next time Git touches it
+    warning: in the working copy of 'zfc/well_ordering.py', LF will be replaced by CRLF the next time Git touches it
+
+• Ran python audit\run_master_audit.py
+  └ ================================================================================
+    KOMPOSOS-III MASTER AUDIT: SCIENTIFIC VALIDITY RECONFIRMATION
+    … +467 lines (ctrl + t to view transcript)
+    [17:45:34] non-ring atom 20 marked aromatic
+    [17:45:34] Can't kekulize mol.  Unkekulized atoms: 3 4 5 6 18
+
+• Running Select-String -Path polymer_bridge\material_properties.py -Pattern "'POM': 0.35|'PTFE': 1.5|'PAN': -0.15|'PEO': -0.15"
+
+• Running Select-String -Path audit\run_master_audit.py -Pattern "Research-Grade Accuracy|result = run_scientific_audit|pairs_evaluated|accuracy=|F1="
+
+• Running Select-String -Path oracle\compatibility_ensemble.py -Pattern "GRAY_ACTIVE|gray_coherence|_apply_gray_policy"
+
+• Running Select-String -Path oracle\typed_morphisms.py -Pattern "AlN|nitride_ceramic_composite"
+
+• Running Select-String -Path cross_bridge\battery_polymer.py -Pattern "anode_binder_cathode_penalty|not a \{battery_material_name\} cathode binder"
+
+• Ran Select-String -Path polymer_bridge\interaction_scoring.py -Pattern "PA66', 'POM|ABS', 'PTFE"
+  └
+    polymer_bridge\interaction_scoring.py:406:    ('PA66', 'POM'): (0.6, 'Immiscible nylon/acetal blend without compatibilizer; strong processing and
+    … +3 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path audit\run_master_audit.py -Pattern "Research-Grade Accuracy|result = run_scientific_audit|pairs_evaluated|accuracy=|F1="
+  └
+    audit\run_master_audit.py:6:1. Research-Grade Accuracy (full loaded literature benchmark)
+    … +5 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path oracle\typed_morphisms.py -Pattern "AlN|nitride_ceramic_composite"
+  └
+    oracle\typed_morphisms.py:508:    if pair == frozenset({"AlN", "TiN"}):
+    … +5 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path cross_bridge\battery_polymer.py -Pattern "anode_binder_cathode_penalty|not a \{battery_material_name\} cathode binder"
+  └
+    cross_bridge\battery_polymer.py:410:        c_details["anode_binder_cathode_penalty"] = True
+    … +3 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path oracle\compatibility_ensemble.py -Pattern "GRAY_ACTIVE|gray_coherence|_apply_gray_policy"
+  └
+    oracle\compatibility_ensemble.py:14:from oracle.compatibility_gray_coherence import check_gray_coherence
+    … +14 lines (ctrl + t to view transcript)
+
+
+
+• Ran Select-String -Path polymer_bridge\material_properties.py -Pattern "'POM': 0.35|'PTFE': 1.5|'PAN': -0.15|'PEO': -0.15"
+  └
+    polymer_bridge\material_properties.py:262:    chi_parameters={'PMMA': 0.04, 'HDPE': 1.0, 'PPO': 0.001, 'PVC': 0.2, 'POM': 0.35},
+    … +8 lines (ctrl + t to view transcript)
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Yes. We are aligned now.
+
+  I confirmed and restored the old advanced CHEM audit strategy into KOMPOSOS-IV-CHEM:
+
+  - Q6 is the current frozen blind benchmark.
+  - Q2-Q5 are spent diagnostic/tuning evidence.
+  - Q5-derived cases live in the development set and are not blind claims.
+  - If Q6 ever informs tuning, Q6 must be marked spent and Q7 frozen before a new blind claim.
+
+  I also fixed the target repo so it reproduces the old CHEM Q5 tuning behavior:
+
+  - Restored polymer chi/known-bad blend facts in polymer_bridge/material_properties.py:409 and polymer_bridge/interaction_scoring.py:406.
+  - Restored CMC/SBR cathode-binder penalty for CMC + LFP in cross_bridge/battery_polymer.py:410.
+  - Restored AlN + TiN ceramic typed morphism in oracle/typed_morphisms.py:508.
+  - Restored Gray coherence ensemble guard in oracle/compatibility_ensemble.py:163.
+  - Fixed stale master audit reporting so it no longer hardcodes 143 pairs / 94.4% in audit/run_master_audit.py:50.
+
+  Verification:
+
+  - python audit\run_audit.py --module development: PASS, 41/41, 0 skipped, 100.0%, Brier 0.103.
+  - python audit\run_audit.py --module external: PASS on Q6, 35/35, 0 skipped, 100.0%, MCC 1.000, Brier 0.094.
+  - python -m pytest ...: 184 passed, 1 skipped.
+  - python -m compileall ...: PASS.
+  - python audit\run_master_audit.py: PASS for accuracy/computational/integration; physical grounding remains WARN because Si-O plausibility is 0.741
+    instead of the audit’s >0.9 expectation.
+
+  Strategy confirmed: categorical runtime is primary, bridge scorers supply domain evidence, ZFC remains in the loop as a constraint/dual-engine verifier,
+  and Gray/Yoneda/failure-memory/calibration act as guards around compatibility decisions rather than replacing the chemistry.
+
+─ Worked for 12m 02s ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+› Implement {feature}
+
+  gpt-5.5 xhigh · ~\github\KOMPOSOS-IV-CHEM

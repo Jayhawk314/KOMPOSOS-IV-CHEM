@@ -77,9 +77,9 @@ class TestKnownMaterialStructures(unittest.TestCase):
         r = self.stp.predict("TiO2")
         self.assertEqual(r.predicted_type, "rutile")
 
-    def test_zro2_fluorite(self):
+    def test_zro2_monoclinic(self):
         r = self.stp.predict("ZrO2")
-        self.assertEqual(r.predicted_type, "fluorite")
+        self.assertEqual(r.predicted_type, "monoclinic")
 
     def test_nio_rock_salt(self):
         r = self.stp.predict("NiO")

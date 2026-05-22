@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
 Ollivier-Ricci Curvature for Knowledge Graphs
 
@@ -81,16 +88,16 @@ class OllivierRicciCurvature:
     - Linear chains of influence (euclidean, kappa ~ 0)
     """
 
-    def __init__(self, category, alpha: float = 0.5):
+    def __init__(self, store, alpha: float = 0.5):
         """
         Initialize curvature computer.
 
         Args:
-            category: Category with objects and morphisms
+            store: KomposOSStore with objects and morphisms
             alpha: Laziness parameter for random walk (0 = pure neighbors, 1 = stay at node)
                    Default 0.5 gives weight to both the node and its neighbors
         """
-        self.category = category
+        self.store = store
         self.alpha = alpha
         self._graph = None
         self._neighbors = None
@@ -103,10 +110,10 @@ class OllivierRicciCurvature:
         self._weights = {}
 
         # Get all morphisms
-        morphisms = self.category.morphisms()
+        morphisms = self.store.list_morphisms(limit=100000)
 
         for mor in morphisms:
-            source, target = mor.source, mor.target
+            source, target = mor.source_name, mor.target_name
 
             # Add both directions for undirected curvature analysis
             self._neighbors[source].add(target)
@@ -418,18 +425,18 @@ class OllivierRicciCurvature:
         return regions
 
 
-def compute_graph_curvature(category, alpha: float = 0.5) -> CurvatureResult:
+def compute_graph_curvature(store, alpha: float = 0.5) -> CurvatureResult:
     """
-    Convenience function to compute curvature for a category.
+    Convenience function to compute curvature for a store.
 
     Args:
-        category: Category with objects and morphisms
+        store: KomposOSStore with objects and morphisms
         alpha: Laziness parameter for random walk
 
     Returns:
         CurvatureResult with full analysis
     """
-    computer = OllivierRicciCurvature(category, alpha=alpha)
+    computer = OllivierRicciCurvature(store, alpha=alpha)
     return computer.compute_all_curvatures()
 
 

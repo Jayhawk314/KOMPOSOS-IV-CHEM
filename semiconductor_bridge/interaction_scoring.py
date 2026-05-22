@@ -108,10 +108,11 @@ def score_lattice_match(
         # Some combinations are worse than others
         compatible_pairs = {
             frozenset({CrystalSystem.ZINCBLENDE, CrystalSystem.DIAMOND_CUBIC}),
+            frozenset({CrystalSystem.HEXAGONAL, CrystalSystem.WURTZITE}),  # SiC/GaN standard heterostructure
         }
         if frozenset({cs_a, cs_b}) in compatible_pairs:
             structure_penalty = 0.85
-            details['structure_note'] = 'zincblende/diamond compatible (similar FCC sublattice)'
+            details['structure_note'] = 'hexagonal/wurtzite compatible (SiC/GaN standard heterostructure) or zincblende/diamond (similar FCC sublattice)'
         elif CrystalSystem.AMORPHOUS in {cs_a, cs_b}:
             structure_penalty = 0.7
             details['structure_note'] = 'amorphous material (no epitaxial growth)'
@@ -150,10 +151,10 @@ def score_lattice_match(
         elif mismatch_pct < 2.0:
             score = 0.65
             details['assessment'] = 'moderate mismatch (buffer layers recommended)'
-        elif mismatch_pct < 4.0:
+        elif mismatch_pct < 3.0:
             score = 0.40
             details['assessment'] = 'poor match (high dislocation density)'
-        elif mismatch_pct < 8.0:
+        elif mismatch_pct < 4.5:
             score = 0.20
             details['assessment'] = 'very poor match (metamorphic growth required)'
         else:

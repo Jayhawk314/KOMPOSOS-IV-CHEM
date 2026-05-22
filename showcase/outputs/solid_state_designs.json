@@ -1,0 +1,163 @@
+{
+  "designs": [
+    {
+      "name": "Design A: NMC811 + LLZO + PEO + Cu",
+      "domains": [
+        "battery",
+        "ceramic",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.2954,
+      "viable": false,
+      "bottleneck": "Cu_foil<->NMC811 (battery_metal: 0.250)",
+      "interfaces": {
+        "PEO<->NMC811": {
+          "functor": "battery_polymer",
+          "score": 0.35,
+          "compatible": false
+        },
+        "Cu_foil<->NMC811": {
+          "functor": "battery_metal",
+          "score": 0.25,
+          "compatible": false
+        },
+        "LLZO<->Cu_foil": {
+          "functor": "ceramic_metal",
+          "score": 0.695,
+          "compatible": true
+        }
+      },
+      "warnings": [
+        "Chemical veto: PEO is chemically incompatible with NMC811",
+        "Electrochemical veto: Cu_foil unstable at NMC811 operating voltage"
+      ]
+    },
+    {
+      "name": "Design B: LFP + LLZO + PEO + Cu",
+      "domains": [
+        "battery",
+        "ceramic",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.3393,
+      "viable": false,
+      "bottleneck": "Cu_foil<->LFP (battery_metal: 0.250)",
+      "interfaces": {
+        "PEO<->LFP": {
+          "functor": "battery_polymer",
+          "score": 0.876,
+          "compatible": true
+        },
+        "Cu_foil<->LFP": {
+          "functor": "battery_metal",
+          "score": 0.25,
+          "compatible": false
+        },
+        "LLZO<->Cu_foil": {
+          "functor": "ceramic_metal",
+          "score": 0.695,
+          "compatible": true
+        }
+      },
+      "warnings": [
+        "Electrochemical veto: Cu_foil unstable at LFP operating voltage"
+      ]
+    },
+    {
+      "name": "Design C: NMC811 + LGPS + PVDF + Al",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.3596,
+      "viable": false,
+      "bottleneck": "Al_foil<->NMC811 (battery_metal: 0.250)",
+      "interfaces": {
+        "PVDF<->NMC811": {
+          "functor": "battery_polymer",
+          "score": 0.982,
+          "compatible": true
+        },
+        "Al_foil<->NMC811": {
+          "functor": "battery_metal",
+          "score": 0.25,
+          "compatible": false
+        },
+        "PVDF<->LGPS": {
+          "functor": "battery_polymer",
+          "score": 0.754,
+          "compatible": true
+        },
+        "Al_foil<->LGPS": {
+          "functor": "battery_metal",
+          "score": 0.767,
+          "compatible": true
+        }
+      },
+      "warnings": [
+        "Electrochemical veto: Al_foil unstable at NMC811 operating voltage"
+      ]
+    },
+    {
+      "name": "Design D: LFP + Li3PS4 + PEO + Cu",
+      "domains": [
+        "battery",
+        "metal",
+        "polymer"
+      ],
+      "overall_score": 0.3532,
+      "viable": false,
+      "bottleneck": "Cu_foil<->LFP (battery_metal: 0.250)",
+      "interfaces": {
+        "PEO<->LFP": {
+          "functor": "battery_polymer",
+          "score": 0.876,
+          "compatible": true
+        },
+        "Cu_foil<->LFP": {
+          "functor": "battery_metal",
+          "score": 0.25,
+          "compatible": false
+        },
+        "PEO<->Li3PS4": {
+          "functor": "battery_polymer",
+          "score": 0.754,
+          "compatible": true
+        },
+        "Cu_foil<->Li3PS4": {
+          "functor": "battery_metal",
+          "score": 0.77,
+          "compatible": true
+        }
+      },
+      "warnings": [
+        "Electrochemical veto: Cu_foil unstable at LFP operating voltage"
+      ]
+    }
+  ],
+  "ranking": [
+    {
+      "name": "Design C: NMC811 + LGPS + PVDF + Al",
+      "score": 0.3596,
+      "viable": false
+    },
+    {
+      "name": "Design D: LFP + Li3PS4 + PEO + Cu",
+      "score": 0.3532,
+      "viable": false
+    },
+    {
+      "name": "Design B: LFP + LLZO + PEO + Cu",
+      "score": 0.3393,
+      "viable": false
+    },
+    {
+      "name": "Design A: NMC811 + LLZO + PEO + Cu",
+      "score": 0.2954,
+      "viable": false
+    }
+  ]
+}

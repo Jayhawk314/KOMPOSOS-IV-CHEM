@@ -67,56 +67,71 @@ class ElementData:
     electronegativity: float    # Pauling scale (0 if unknown)
     ionic_radius: float         # Angstroms, most common oxidation state CN=6
     common_oxidation: int       # Most common oxidation state in oxides
+    group: int                  # Periodic table group (1-18)
+    period: int                 # Periodic table period (1-7)
 
 ELEMENT_TABLE: Dict[str, ElementData] = {}
 
 _RAW_ELEMENTS = [
-    # symbol, Z, mass, EN, ionic_radius, common_ox
-    ("H",   1,   1.008, 2.20, 0.00,  1),
-    ("Li",  3,   6.941, 0.98, 0.76,  1),
-    ("Be",  4,   9.012, 1.57, 0.45,  2),
-    ("B",   5,  10.811, 2.04, 0.27,  3),
-    ("C",   6,  12.011, 2.55, 0.16,  4),
-    ("N",   7,  14.007, 3.04, 0.13, -3),
-    ("O",   8,  15.999, 3.44, 1.40, -2),
-    ("F",   9,  18.998, 3.98, 1.33, -1),
-    ("Na", 11,  22.990, 0.93, 1.02,  1),
-    ("Mg", 12,  24.305, 1.31, 0.72,  2),
-    ("Al", 13,  26.982, 1.61, 0.54,  3),
-    ("Si", 14,  28.086, 1.90, 0.40,  4),
-    ("P",  15,  30.974, 2.19, 0.38,  5),
-    ("S",  16,  32.065, 2.58, 1.84, -2),
-    ("Cl", 17,  35.453, 3.16, 1.81, -1),
-    ("K",  19,  39.098, 0.82, 1.38,  1),
-    ("Ca", 20,  40.078, 1.00, 1.00,  2),
-    ("Ti", 22,  47.867, 1.54, 0.61,  4),
-    ("V",  23,  50.942, 1.63, 0.54,  5),
-    ("Cr", 24,  51.996, 1.66, 0.62,  3),
-    ("Mn", 25,  54.938, 1.55, 0.53,  4),
-    ("Fe", 26,  55.845, 1.83, 0.55,  3),
-    ("Co", 27,  58.933, 1.88, 0.55,  3),
-    ("Ni", 28,  58.693, 1.91, 0.56,  3),
-    ("Cu", 29,  63.546, 1.90, 0.73,  2),
-    ("Zn", 30,  65.380, 1.65, 0.74,  2),
-    ("Ga", 31,  69.723, 1.81, 0.62,  3),
-    ("Ge", 32,  72.640, 2.01, 0.53,  4),
-    ("As", 33,  74.922, 2.18, 0.46,  5),
-    ("Se", 34,  78.960, 2.55, 1.98, -2),
-    ("Br", 35,  79.904, 2.96, 1.96, -1),
-    ("Sr", 38,  87.620, 0.95, 1.18,  2),
-    ("Y",  39,  88.906, 1.22, 0.90,  3),
-    ("Zr", 40,  91.224, 1.33, 0.72,  4),
-    ("Nb", 41,  92.906, 1.60, 0.64,  5),
-    ("Mo", 42,  95.940, 2.16, 0.59,  6),
-    ("Sn", 50, 118.710, 1.96, 0.69,  4),
-    ("Ba", 56, 137.327, 0.89, 1.35,  2),
-    ("La", 57, 138.905, 1.10, 1.03,  3),
-    ("Ce", 58, 140.116, 1.12, 0.87,  4),
-    ("W",  74, 183.840, 2.36, 0.60,  6),
+    # symbol, Z, mass, EN, ionic_radius, common_ox, group, period
+    ("H",   1,   1.008, 2.20, 0.00,  1,  1, 1),
+    ("Li",  3,   6.941, 0.98, 0.76,  1,  1, 2),
+    ("Be",  4,   9.012, 1.57, 0.45,  2,  2, 2),
+    ("B",   5,  10.811, 2.04, 0.27,  3, 13, 2),
+    ("C",   6,  12.011, 2.55, 0.16,  4, 14, 2),
+    ("N",   7,  14.007, 3.04, 0.13, -3, 15, 2),
+    ("O",   8,  15.999, 3.44, 1.40, -2, 16, 2),
+    ("F",   9,  18.998, 3.98, 1.33, -1, 17, 2),
+    ("Na", 11,  22.990, 0.93, 1.02,  1,  1, 3),
+    ("Mg", 12,  24.305, 1.31, 0.72,  2,  2, 3),
+    ("Al", 13,  26.982, 1.61, 0.54,  3, 13, 3),
+    ("Si", 14,  28.086, 1.90, 0.40,  4, 14, 3),
+    ("P",  15,  30.974, 2.19, 0.38,  5, 15, 3),
+    ("S",  16,  32.065, 2.58, 1.84, -2, 16, 3),
+    ("Cl", 17,  35.453, 3.16, 1.81, -1, 17, 3),
+    ("K",  19,  39.098, 0.82, 1.38,  1,  1, 4),
+    ("Ca", 20,  40.078, 1.00, 1.00,  2,  2, 4),
+    ("Ti", 22,  47.867, 1.54, 0.61,  4,  4, 4),
+    ("V",  23,  50.942, 1.63, 0.54,  5,  5, 4),
+    ("Cr", 24,  51.996, 1.66, 0.62,  3,  6, 4),
+    ("Mn", 25,  54.938, 1.55, 0.53,  4,  7, 4),
+    ("Fe", 26,  55.845, 1.83, 0.55,  3,  8, 4),
+    ("Co", 27,  58.933, 1.88, 0.55,  3,  9, 4),
+    ("Ni", 28,  58.693, 1.91, 0.56,  3, 10, 4),
+    ("Cu", 29,  63.546, 1.90, 0.73,  2, 11, 4),
+    ("Zn", 30,  65.380, 1.65, 0.74,  2, 12, 4),
+    ("Ga", 31,  69.723, 1.81, 0.62,  3, 13, 4),
+    ("Ge", 32,  72.640, 2.01, 0.53,  4, 14, 4),
+    ("As", 33,  74.922, 2.18, 0.46,  5, 15, 4),
+    ("Se", 34,  78.960, 2.55, 1.98, -2, 16, 4),
+    ("Br", 35,  79.904, 2.96, 1.96, -1, 17, 4),
+    ("Sr", 38,  87.620, 0.95, 1.18,  2,  2, 5),
+    ("Y",  39,  88.906, 1.22, 0.90,  3,  3, 5),
+    ("Zr", 40,  91.224, 1.33, 0.72,  4,  4, 5),
+    ("Nb", 41,  92.906, 1.60, 0.64,  5,  5, 5),
+    ("Mo", 42,  95.940, 2.16, 0.59,  6,  6, 5),
+    ("Ag", 47, 107.868, 1.93, 1.15,  1, 11, 5),
+    ("Cd", 48, 112.411, 1.69, 0.95,  2, 12, 5),
+    ("In", 49, 114.818, 1.78, 0.80,  3, 13, 5),
+    ("Sn", 50, 118.710, 1.96, 0.69,  4, 14, 5),
+    ("Sb", 51, 121.760, 2.05, 0.76,  3, 15, 5),
+    ("Te", 52, 127.600, 2.10, 0.97, -2, 16, 5),
+    ("I",  53, 126.904, 2.66, 2.20, -1, 17, 5),
+    ("Ba", 56, 137.327, 0.89, 1.35,  2,  2, 6),
+    ("La", 57, 138.905, 1.10, 1.03,  3,  3, 6),
+    ("Ce", 58, 140.116, 1.12, 0.87,  4,  0, 6),
+    ("Hf", 72, 178.490, 1.30, 0.71,  4,  4, 6),
+    ("Ta", 73, 180.948, 1.50, 0.64,  5,  5, 6),
+    ("W",  74, 183.840, 2.36, 0.60,  6,  6, 6),
+    ("Au", 79, 196.967, 2.54, 1.37,  1, 11, 6),
+    ("Hg", 80, 200.590, 2.00, 1.02,  2, 12, 6),
+    ("Tl", 81, 204.383, 1.62, 0.88,  1, 13, 6),
+    ("Pb", 82, 207.200, 2.33, 1.19,  2, 14, 6),
+    ("Bi", 83, 208.980, 2.02, 1.03,  3, 15, 6),
 ]
 
-for _sym, _z, _m, _en, _ir, _ox in _RAW_ELEMENTS:
-    ELEMENT_TABLE[_sym] = ElementData(_sym, _z, _m, _en, _ir, _ox)
+for _sym, _z, _m, _en, _ir, _ox, _gr, _pe in _RAW_ELEMENTS:
+    ELEMENT_TABLE[_sym] = ElementData(_sym, _z, _m, _en, _ir, _ox, _gr, _pe)
 
 
 # ── Canonical element ordering for composition vectors ──────────────────────
@@ -170,28 +185,49 @@ def composition_vector(comp: Dict[str, float]) -> np.ndarray:
     """
     Convert composition dict to fixed-length numpy vector.
 
-    Elements ordered by atomic number (ELEMENT_ORDER).
-    Unknown elements get index at end.
+    Elements ordered by atomic number (0-117).
+    Appends 2 dimensions for chemical similarity:
+    - Index 118: Stoichiometry-weighted average Group (normalized 0-1)
+    - Index 119: Stoichiometry-weighted average Period (normalized 0-1)
     """
-    vec = np.zeros(len(ELEMENT_ORDER))
+    vec = np.zeros(len(ELEMENT_ORDER) + 2)
+    total_amt = sum(comp.values())
+
+    g_sum = 0.0
+    p_sum = 0.0
+
     for elem, amount in comp.items():
-        if elem in ELEMENT_ORDER:
+        if elem in ELEMENT_TABLE:
+            # Stoichiometric dimensions
             idx = ELEMENT_ORDER.index(elem)
             vec[idx] = amount
+
+            # Chemical similarity dimensions
+            ed = ELEMENT_TABLE[elem]
+            g_sum += amount * ed.group
+            p_sum += amount * ed.period
+
+    if total_amt > 0:
+        vec[len(ELEMENT_ORDER)] = (g_sum / total_amt) / 18.0
+        vec[len(ELEMENT_ORDER) + 1] = (p_sum / total_amt) / 7.0
+
     return vec
 
 
 def composition_distance(comp_a: Dict[str, float],
                          comp_b: Dict[str, float]) -> float:
     """
-    Euclidean distance in stoichiometry space.
-
-    This is the primary metric for finding nearest known compositions
-    for Kan extension prediction.
+    Euclidean distance in stoichiometry + chemical similarity space.
     """
     vec_a = composition_vector(comp_a)
     vec_b = composition_vector(comp_b)
     return float(np.linalg.norm(vec_a - vec_b))
+
+
+def chemical_similarity_distance(comp_a: Dict[str, float],
+                                comp_b: Dict[str, float]) -> float:
+    """Legacy alias for composition_distance (now unified)."""
+    return composition_distance(comp_a, comp_b)
 
 
 def molar_mass(comp: Dict[str, float]) -> float:

@@ -1,0 +1,38 @@
+# Production Dockerfile for DockerHub - KOMPOSOS Chemistry MOF Designer
+# Optimized for Heather Kulik demo at MIT
+
+FROM python:3.11-slim
+
+# Install system dependencies for rdkit, pymatgen, and RDKit
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libxrender1 \
+    libxext6 \
+    libsm6 \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy entire application
+COPY . .
+
+# Initialize MOF cache with demo data (optional but helpful)
+# This creates the SQLite DB structure even if MP data isn't available
+RUN python -c "from mof_bridge.linker_screening import LinkerScreener; screener = LinkerScreener(); print('MOF cache initialized')" || true
+
+# Expose Streamlit default port
+EXPOSE 8501
+
+# Health check on Streamlit health endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"
+
+# Run Streamlit app
+CMD ["streamlit", "run", "streamlit_app/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]

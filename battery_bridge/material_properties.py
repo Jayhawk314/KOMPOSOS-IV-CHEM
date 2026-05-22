@@ -307,6 +307,88 @@ CATHODE_MATERIALS['LMO'] = BatteryMaterial(
     },
 )
 
+# Sulfur (S8)
+CATHODE_MATERIALS['S8'] = BatteryMaterial(
+    name='S8',
+    formula='S8',
+    material_class=MaterialClass.CATHODE,
+    crystal_structure=CrystalStructure.MOLECULAR,
+    voltage_window=VoltageWindow(lower=1.7, upper=2.5, nominal=2.1),
+    theoretical_capacity=1675.0, # Manthiram 2017
+    density=2.07,
+    volume_expansion=0.80, # ~80% expansion on lithiation to Li2S
+    failure_modes=[
+        FailureMode.VOLUME_EXPANSION,
+        FailureMode.ELECTROLYTE_DECOMPOSITION, # Polysulfide shuttle
+    ],
+    sources={
+        'capacity': 'Manthiram et al., Nat. Rev. Mater. 2017',
+    },
+)
+
+
+# =============================================================================
+# OTHER COMPONENTS (Binders, Current Collectors, Polymers)
+# =============================================================================
+
+OTHER_MATERIALS: Dict[str, BatteryMaterial] = {}
+
+# Polyethylene Oxide (PEO)
+OTHER_MATERIALS['PEO'] = BatteryMaterial(
+    name='PEO',
+    formula='(C2H4O)n',
+    material_class=MaterialClass.SOLID_ELECTROLYTE,
+    crystal_structure=CrystalStructure.AMORPHOUS,
+    ionic_conductivity=1e-4,  # At 60-80C (Armand 2008)
+    oxidation_potential=3.9,   # Decomposes above 3.9V
+    thermal_stability_max=150,
+    failure_modes=[
+        FailureMode.ELECTROLYTE_DECOMPOSITION,
+    ],
+    sources={
+        'oxidation': 'Armand et al., Nature 2008',
+    },
+)
+
+# Polyvinylidene Fluoride (PVDF)
+OTHER_MATERIALS['PVDF'] = BatteryMaterial(
+    name='PVDF',
+    formula='(C2H2F2)n',
+    material_class=MaterialClass.SEPARATOR, # Used as binder, but class fits
+    crystal_structure=CrystalStructure.AMORPHOUS,
+    oxidation_potential=5.0,  # Very stable
+    thermal_stability_max=150,
+    sources={
+        'stability': 'Bresser et al., Energy Environ. Sci. 2018',
+    },
+)
+
+# Copper Foil
+OTHER_MATERIALS['Cu_foil'] = BatteryMaterial(
+    name='Cu_foil',
+    formula='Cu',
+    material_class=MaterialClass.ANODE, # Anode collector
+    crystal_structure=CrystalStructure.CUBIC,
+    oxidation_potential=3.2, # Dissolves as Cu+ above ~3.2V vs Li
+    density=8.96,
+    sources={
+        'stability': 'Zhang et al., J. Power Sources 2011',
+    },
+)
+
+# Aluminum Foil
+OTHER_MATERIALS['Al_foil'] = BatteryMaterial(
+    name='Al_foil',
+    formula='Al',
+    material_class=MaterialClass.CATHODE, # Cathode collector
+    crystal_structure=CrystalStructure.CUBIC,
+    oxidation_potential=4.5, # Passivates with AlF3 in LiPF6
+    density=2.70,
+    sources={
+        'stability': 'Li et al., Electrochem. Energy Rev. 2020',
+    },
+)
+
 
 # =============================================================================
 # ANODE MATERIALS
@@ -648,6 +730,25 @@ SOLID_ELECTROLYTES['Li3PS4'] = BatteryMaterial(
     },
 )
 
+# LATP (Li1.3Al0.3Ti1.7(PO4)3)
+SOLID_ELECTROLYTES['LATP'] = BatteryMaterial(
+    name='LATP',
+    formula='Li1.3Al0.3Ti1.7(PO4)3',
+    material_class=MaterialClass.SOLID_ELECTROLYTE,
+    crystal_structure=CrystalStructure.AMORPHOUS, # NASICON type
+    ionic_conductivity=1e-3,
+    electronic_conductivity=1e-9,
+    oxidation_potential=4.5,
+    reduction_potential=2.4, # Ti4+ reduction onset
+    density=2.92,
+    failure_modes=[
+        FailureMode.ELECTROLYTE_DECOMPOSITION, # Ti reduction
+    ],
+    sources={
+        'stability': 'Janek & Zeier, Nat. Energy 2016',
+    },
+)
+
 
 # =============================================================================
 # IONS
@@ -720,6 +821,7 @@ ALL_MATERIALS.update(ANODE_MATERIALS)
 ALL_MATERIALS.update(ELECTROLYTE_SOLVENTS)
 ALL_MATERIALS.update(ELECTROLYTE_SALTS)
 ALL_MATERIALS.update(SOLID_ELECTROLYTES)
+ALL_MATERIALS.update(OTHER_MATERIALS)
 ALL_MATERIALS.update(IONS)
 
 

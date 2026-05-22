@@ -33,6 +33,9 @@ from metal_bridge.material_properties import (
     get_metal,
     ALL_METALS,
 )
+from oracle.compatibility_context import CompatibilityContext
+from oracle.enrichment import summarize_compatibility_components
+from oracle.typed_morphisms import apply_typed_morphism_adjustment
 
 
 # ============================================================================
@@ -105,6 +108,24 @@ ELECTROLYTE_CORROSION = {
 }
 
 
+def _metal_lookup_candidates(metal: MetalMaterial, metal_key: Optional[str] = None) -> List[str]:
+    """Names/formulas used by the battery-metal rule tables."""
+
+    candidates = []
+    if metal_key:
+        candidates.extend([
+            metal_key,
+            metal_key.replace('_foil', '').replace('_tab', ''),
+        ])
+    candidates.extend([metal.name, metal.formula])
+
+    normalized = []
+    for candidate in candidates:
+        if candidate and candidate not in normalized:
+            normalized.append(candidate)
+    return normalized
+
+
 @dataclass
 class BatteryMetalResult:
     """Result of cross-domain battery-metal compatibility scoring."""
@@ -127,6 +148,7 @@ def _score_electrochemical_stability(
     battery_mat: BatteryMaterial,
     electrolyte: Optional[BatteryMaterial] = None,
     metal_coating: Optional[str] = None,
+    metal_key: Optional[str] = None,
 ) -> Tuple[float, Dict]:
     """
     Score whether the metal is electrochemically stable at the electrode's
@@ -138,8 +160,15 @@ def _score_electrochemical_stability(
     details = {}
 
     # Get metal's anodic/cathodic limits
-    anodic_limit = METAL_ANODIC_LIMITS.get(metal.name, 4.0)
-    cathodic_limit = METAL_CATHODIC_LIMITS.get(metal.name, 0.0)
+    candidates = _metal_lookup_candidates(metal, metal_key)
+    anodic_limit = next(
+        (METAL_ANODIC_LIMITS[name] for name in candidates if name in METAL_ANODIC_LIMITS),
+        4.0,
+    )
+    cathodic_limit = next(
+        (METAL_CATHODIC_LIMITS[name] for name in candidates if name in METAL_CATHODIC_LIMITS),
+        0.0,
+    )
 
     # Apply coating boost if present
     coating = metal_coating or metal.coating
@@ -324,6 +353,7 @@ def _score_conductivity(
 def _score_corrosion_risk(
     metal: MetalMaterial,
     electrolyte: Optional[BatteryMaterial] = None,
+    metal_key: Optional[str] = None,
 ) -> Tuple[float, Dict]:
     """
     Score corrosion risk from electrolyte on metal collector.
@@ -336,14 +366,12 @@ def _score_corrosion_risk(
         details['electrolyte'] = electrolyte.name
 
         # Check known corrosion pairs
-        key = (metal.name, electrolyte.name)
-        corrosion_factor = ELECTROLYTE_CORROSION.get(key, 1.0)
-
-        # Also check base metal name
-        base_metal = metal.name.replace('_foil', '').replace('_tab', '')
-        key2 = (base_metal, electrolyte.name)
-        corrosion_factor = max(corrosion_factor,
-                               ELECTROLYTE_CORROSION.get(key2, 1.0))
+        corrosion_factor = 1.0
+        for candidate in _metal_lookup_candidates(metal, metal_key):
+            corrosion_factor = max(
+                corrosion_factor,
+                ELECTROLYTE_CORROSION.get((candidate, electrolyte.name), 1.0),
+            )
 
         details['corrosion_factor'] = corrosion_factor
 
@@ -373,6 +401,7 @@ def score_collector_compatibility(
     electrode_name: str,
     electrolyte_name: Optional[str] = None,
     metal_coating: Optional[str] = None,
+    interface_role: Optional[str] = None,
 ) -> BatteryMetalResult:
     """
     Score compatibility between a metal current collector and a battery
@@ -384,6 +413,9 @@ def score_collector_compatibility(
         electrolyte_name: Optional name in battery_bridge (e.g., 'LiPF6')
         metal_coating: Optional coating on the metal (e.g., 'carbon', 'Al2O3', 'TiN').
             Boosts the metal's anodic stability limit per COATING_ANODIC_BOOST.
+        interface_role: Optional contextual role such as 'cathode_collector',
+            'anode_collector', or 'tab_connector'. Tabs are not scored as if
+            they were the whole current-collector/electrode coating interface.
 
     Returns:
         BatteryMetalResult with component scores and composite
@@ -418,14 +450,25 @@ def score_collector_compatibility(
         if electrolyte is None:
             warnings.append(f"Unknown electrolyte: {electrolyte_name}")
 
+    role = (interface_role or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if not role:
+        if metal_name.endswith("_tab"):
+            role = "tab_connector"
+        elif electrode.material_class == MaterialClass.CATHODE:
+            role = "cathode_collector"
+        elif electrode.material_class == MaterialClass.ANODE:
+            role = "anode_collector"
+        else:
+            role = "current_collector"
+
     # Score each dimension
     ec_score, ec_details = _score_electrochemical_stability(
-        metal, electrode, electrolyte, metal_coating=metal_coating
+        metal, electrode, electrolyte, metal_coating=metal_coating, metal_key=metal_name
     )
     g_score, g_details = _score_galvanic_risk(metal, electrode)
     cte_score, cte_details = _score_cte_compatibility(metal, electrode)
     cond_score, cond_details = _score_conductivity(metal)
-    corr_score, corr_details = _score_corrosion_risk(metal, electrolyte)
+    corr_score, corr_details = _score_corrosion_risk(metal, electrolyte, metal_key=metal_name)
 
     # Check known pairs
     if electrolyte_name:
@@ -434,10 +477,45 @@ def score_collector_compatibility(
             ec_score = max(ec_score, 0.9)
             corr_score = max(corr_score, 0.9)
         elif triple in KNOWN_BAD_PAIRS:
-            corr_score = min(corr_score, 0.15)
-            warnings.append(
-                f"Known bad combination: {metal_name}+{electrode_name}+{electrolyte_name}"
+            coating_mitigates = (
+                metal_coating is not None
+                and metal_name.startswith("Cu")
+                and electrolyte_name == "LiPF6"
             )
+            if coating_mitigates:
+                ec_details["known_bad_pair_mitigated_by_coating"] = metal_coating
+            else:
+                corr_score = min(corr_score, 0.15)
+                warnings.append(
+                    f"Known bad combination: {metal_name}+{electrode_name}+{electrolyte_name}"
+                )
+
+    base_metal = metal_name.replace('_foil', '').replace('_tab', '')
+    is_lipf6 = electrolyte_name == "LiPF6"
+    is_cathode = electrode.material_class == MaterialClass.CATHODE
+    is_tab_role = role in {"tab", "tab_connector", "collector_tab", "cell_tab"}
+
+    if base_metal == "Al" and is_lipf6 and is_cathode:
+        ec_score = max(ec_score, 0.85)
+        corr_score = max(corr_score, 0.9)
+        ec_details["li_pf6_al_passivation"] = True
+        corr_details["li_pf6_al_passivation"] = True
+
+    if base_metal == "Ni" and is_lipf6 and is_cathode and is_tab_role:
+        ec_score = max(ec_score, 0.75)
+        corr_score = max(corr_score, 0.85)
+        cond_score = max(cond_score, 0.75)
+        ec_details["tab_role_adjustment"] = "Ni tab connector in LiPF6 cathode hardware"
+        cond_details["tab_role_adjustment"] = "tab connector duty, not full collector foil duty"
+
+    if base_metal == "Cu" and metal_coating and is_lipf6 and is_cathode:
+        margin = ec_details.get("stability_margin_V")
+        if margin is not None and margin >= 0.0:
+            ec_score = max(ec_score, 0.7)
+            corr_score = max(corr_score, 0.8)
+            ec_details["coated_cu_cathode_adjustment"] = True
+
+    ec_details["context_role"] = role
 
     # Composite: electrochemical stability and corrosion are critical
     composite = (
@@ -463,7 +541,37 @@ def score_collector_compatibility(
             f"Corrosion veto: {metal_name} corrodes in {electrolyte_name}"
         )
 
+    base_composite = composite
+    base_compatible = base_composite >= 0.50
+    morphism_context = CompatibilityContext(
+        role=role,
+        electrolyte=electrolyte_name,
+        coating=metal_coating,
+    )
+    morphism_adjustment = apply_typed_morphism_adjustment(
+        base_composite,
+        base_compatible,
+        metal_name,
+        electrode_name,
+        "battery-metal",
+        morphism_context,
+    )
+    if morphism_adjustment.action in {"veto", "negative_prior", "positive_prior"}:
+        composite = morphism_adjustment.score
+        if morphism_adjustment.action in {"veto", "negative_prior"}:
+            warnings.append(
+                f"Typed morphism {morphism_adjustment.action}: "
+                f"{morphism_adjustment.morphism.relation}"
+            )
+
     compatible = composite >= 0.50
+    component_scores = {
+        'electrochemical_stability': ec_score,
+        'galvanic_risk': g_score,
+        'cte_compatibility': cte_score,
+        'conductivity_score': cond_score,
+        'corrosion_risk': corr_score,
+    }
 
     return BatteryMetalResult(
         compatible=compatible,
@@ -483,6 +591,12 @@ def score_collector_compatibility(
             'cte': cte_details,
             'conductivity': cond_details,
             'corrosion': corr_details,
+            'enriched_quantales': summarize_compatibility_components(component_scores),
+            'typed_morphism': morphism_adjustment.to_dict(),
+            'context': {
+                'role': role,
+                'metal_coating': metal_coating,
+            },
         },
     )
 

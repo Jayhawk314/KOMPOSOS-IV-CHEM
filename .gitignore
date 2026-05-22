@@ -62,6 +62,7 @@ orion-main/
 # Large data files
 data/spatial/
 data/external/
+data/cache/hetionet/
 
 # Track B: Chemical Bridges
 abpp_bridge.py

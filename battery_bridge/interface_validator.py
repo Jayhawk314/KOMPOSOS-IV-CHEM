@@ -45,7 +45,7 @@ class InterfaceConditions:
 
 
 @dataclass
-class InterfaceScore:
+class BatteryInterfaceScore:
     """
     Composite interface viability score with component breakdown.
 
@@ -70,6 +70,10 @@ class InterfaceScore:
             'degradation_penalty': round(self.degradation_penalty, 4),
             'viable': self.viable,
         }
+
+
+# Backward-compatible alias (original name used throughout codebase)
+InterfaceScore = BatteryInterfaceScore
 
 
 @dataclass
@@ -151,7 +155,7 @@ class BatteryInterfaceValidator:
         material_a: str,
         material_b: str,
         conditions: Optional[InterfaceConditions] = None,
-    ) -> InterfaceScore:
+    ) -> BatteryInterfaceScore:
         """
         Validate an interface between two materials by name.
 
@@ -161,7 +165,7 @@ class BatteryInterfaceValidator:
             conditions: Optional operating conditions
 
         Returns:
-            InterfaceScore with component breakdown
+            BatteryInterfaceScore with component breakdown
 
         Raises:
             ValueError: If material name not found
@@ -180,7 +184,7 @@ class BatteryInterfaceValidator:
         material_a: BatteryMaterial,
         material_b: BatteryMaterial,
         conditions: Optional[InterfaceConditions] = None,
-    ) -> InterfaceScore:
+    ) -> BatteryInterfaceScore:
         """
         Validate an interface between two BatteryMaterial objects.
 
@@ -190,7 +194,7 @@ class BatteryInterfaceValidator:
             conditions: Optional operating conditions
 
         Returns:
-            InterfaceScore with full breakdown
+            BatteryInterfaceScore with full breakdown
         """
         conditions = conditions or InterfaceConditions()
 
@@ -236,16 +240,30 @@ class BatteryInterfaceValidator:
             'material_b': material_b.name,
         }
 
-        return InterfaceScore(
+        # Veto check: Critical instability
+        # If degradation is extreme or interface doesn't passivate, it's not viable
+        is_viable = total >= self.viability_threshold
+        if scores['degradation_penalty'] <= 0.4:
+            is_viable = False
+            all_details['veto'] = 'Extreme degradation risk: interface non-viable'
+        elif scores['interface_compatibility'] < 0.4:
+            is_viable = False
+            all_details['veto'] = 'Interface instability: SEI/CEI cannot stabilize'
+        elif scores['electrochemical_stability'] < 0.3:
+            is_viable = False
+            all_details['veto'] = 'Electrochemical instability: electrolyte decomposes at electrode voltage'
+
+        return BatteryInterfaceScore(
             total=total,
             ion_transport=scores['ion_transport'],
             electrochemical_stability=scores['electrochemical_stability'],
             interface_compatibility=scores['interface_compatibility'],
             mechanical_compatibility=scores['mechanical_compatibility'],
             degradation_penalty=scores['degradation_penalty'],
-            viable=total >= self.viability_threshold,
+            viable=is_viable,
             details=all_details,
         )
+
 
     def _apply_condition_modifiers(
         self,
@@ -289,7 +307,7 @@ class BatteryInterfaceValidator:
         self,
         materials: List[str],
         conditions: Optional[InterfaceConditions] = None,
-    ) -> Dict[Tuple[str, str], InterfaceScore]:
+    ) -> Dict[Tuple[str, str], BatteryInterfaceScore]:
         """
         Validate all pairwise interfaces in a set of materials.
 
@@ -298,7 +316,7 @@ class BatteryInterfaceValidator:
             conditions: Operating conditions
 
         Returns:
-            Dict mapping (mat_a, mat_b) to InterfaceScore
+            Dict mapping (mat_a, mat_b) to BatteryInterfaceScore
         """
         results = {}
         for i in range(len(materials)):
@@ -316,7 +334,7 @@ def validate_interface(
     material_a: str,
     material_b: str,
     conditions: Optional[InterfaceConditions] = None,
-) -> InterfaceScore:
+) -> BatteryInterfaceScore:
     """Convenience function for quick interface validation."""
     validator = BatteryInterfaceValidator()
     return validator.validate(material_a, material_b, conditions)

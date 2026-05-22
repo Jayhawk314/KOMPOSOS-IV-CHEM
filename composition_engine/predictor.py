@@ -74,6 +74,7 @@ class PredictedMaterial:
     method: str = "kan_extension_plus_dempster_shafer"
     predicted_structure: Optional[object] = None  # StructurePrediction
     derived_structure: Optional[object] = None     # DerivedStructure (from MP)
+    formation_energy_detail: Optional[Dict] = None
 
     def to_dict(self) -> Dict:
         d = {
@@ -98,6 +99,13 @@ class PredictedMaterial:
             d["predicted_structure"] = self.predicted_structure.to_dict()
         if self.derived_structure is not None:
             d["derived_structure"] = self.derived_structure.to_dict()
+        if self.formation_energy_detail is not None:
+            d["formation_energy_detail"] = self.formation_energy_detail
+            d["error_estimate_eV"] = self.formation_energy_detail.get("error_estimate_eV")
+            d["uncertainty_tier"] = self.formation_energy_detail.get("uncertainty_tier")
+            d["chemistry_class"] = self.formation_energy_detail.get("chemistry_class")
+            d["calibrated_intervals_eV"] = self.formation_energy_detail.get("calibrated_intervals_eV")
+            d["calibration_status"] = self.formation_energy_detail.get("calibration_status")
         return d
 
 
@@ -123,7 +131,8 @@ class CompositionPredictor:
 
     def predict(self, formula: str,
                 exclude_names: Optional[List[str]] = None,
-                domain: Optional[str] = None) -> PredictedMaterial:
+                domain: Optional[str] = None,
+                exclude_formula: Optional[str] = None) -> PredictedMaterial:
         """
         Predict properties for a chemical formula.
 
@@ -131,6 +140,8 @@ class CompositionPredictor:
             formula: Chemical formula or shorthand (e.g. "NMC721", "LiNi0.7Mn0.2Co0.1O2")
             exclude_names: Materials to exclude (for leave-one-out validation)
             domain: Restrict to a specific domain
+            exclude_formula: Material name, formula, or MP ID to exclude from
+                formation-energy prediction for leave-one-out validation
 
         Returns:
             PredictedMaterial with per-property predictions and confidence.
@@ -163,12 +174,18 @@ class CompositionPredictor:
             if self._fep is None:
                 from .formation_energy import FormationEnergyPredictor
                 self._fep = FormationEnergyPredictor()
-            fe_result = self._fep.predict(formula)
+            fe_exclude = exclude_formula
+            if fe_exclude is None and exclude_names:
+                fe_exclude = exclude_names[0]
+            fe_result = self._fep.predict(formula, exclude_formula=fe_exclude)
+            interval = fe_result.calibrated_intervals_eV.get("80")
+            if interval is None:
+                interval = abs(fe_result.error_estimate_eV)
             properties["formation_energy"] = PredictedProperty(
                 value=fe_result.ef_per_atom,
                 confidence=fe_result.confidence,
-                lower_bound=fe_result.ef_per_atom * 1.2 if fe_result.ef_per_atom < 0 else fe_result.ef_per_atom * 0.8,
-                upper_bound=fe_result.ef_per_atom * 0.8 if fe_result.ef_per_atom < 0 else fe_result.ef_per_atom * 1.2,
+                lower_bound=fe_result.ef_per_atom - interval,
+                upper_bound=fe_result.ef_per_atom + interval,
                 sources=fe_result.sources,
             )
             properties["synthesizability"] = PredictedProperty(
@@ -215,6 +232,7 @@ class CompositionPredictor:
             nearest_known=nearest_known,
             predicted_structure=predicted_structure,
             derived_structure=derived_structure,
+            formation_energy_detail=fe_result.to_dict() if "fe_result" in locals() else None,
         )
 
     def interpolate(self, formula_a: str, formula_b: str,

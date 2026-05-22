@@ -1,0 +1,10 @@
+pfas_material,use_case,bom,urgency,category,best_replacement,replacement_score,replacement_advantages,replacement_limitations,num_alternatives
+PVDF,battery_binder,Li-ion Battery Cell,moderate,fluoropolymer,CMC+SBR,0.84,"Water-based processing (no NMP solvent), Lower cost and environmental impact","Lower adhesion on high-voltage cathodes, Moisture sensitivity during processing",4
+PTFE,battery_binder,Li-ion Battery Cell,moderate,fluoropolymer,EPDM,0.77,"Excellent weather/ozone resistance, Good temperature range (-50 to 150C)","Poor oil/fuel resistance, Not suitable for hydrocarbon environments",8
+PTFE,chemical_resistant_liner,Semiconductor Fab,moderate,fluoropolymer,PP (polypropylene),0.77,"Low cost, Good acid/base resistance","Poor organic solvent resistance, Lower max temperature (120C)",3
+PFA,chemical_resistant_liner,Semiconductor Fab,moderate,fluoropolymer,None available,,,,0
+PTFE,non_stick_coating,Industrial Coatings,moderate,fluoropolymer,Cast iron (seasoned),0.75,"Zero PFAS, Extremely durable","Heavy, Requires seasoning maintenance",2
+FEP,non_stick_coating,Industrial Coatings,moderate,fluoropolymer,XLPE,0.76,"Low cost, Established manufacturing","Lower max temperature (90C), Not suitable for high-temp environments",3
+Nafion,non_stick_coating,Industrial Coatings,moderate,fluoropolymer,SPEEK,0.63,"PFAS-free, Good proton conductivity (tunable with sulfonation degree)","Lower conductivity than Nafion, Mechanical stability decreases at high sulfonation",2
+PVDF,non_stick_coating,Industrial Coatings,moderate,fluoropolymer,CMC+SBR,0.84,"Water-based processing (no NMP solvent), Lower cost and environmental impact","Lower adhesion on high-voltage cathodes, Moisture sensitivity during processing",6
+PFA,non_stick_coating,Industrial Coatings,moderate,fluoropolymer,None available,,,,0

@@ -19,15 +19,15 @@ Mirrors KOMPOSOS-CAT (categorical/) at every layer:
     coherence.py        ->   separation.py
 
 CAT and ZFC never see each other's internals.
-Both read the same Category (KOMPOSOS-IV fused runtime).
+Both read the same runtime Category through adapters.
 Both produce independent judgments.
 Category theory (CAT applied to the delta) is the bridge.
 
 The delta types:
-    "agree"    -- both engines say yes (high confidence)
-    "cat_only" -- composes but not constructible
-    "zfc_only" -- constructible but doesn't compose
-    "neither"  -- both say no (high confidence rejection)
+    AGREE   -- both engines say yes (high confidence)
+    ORPHAN  -- ZFC yes, CAT no (exists but doesn't compose)
+    HOLLOW  -- CAT yes, ZFC no (composes but doesn't exist)
+    REJECT  -- both say no (high confidence rejection)
 """
 
 from .universe import (
@@ -105,10 +105,10 @@ from .proof_engine import (
     ProofStep,
     ProofResult,
     Proof,
-    StepMethod,
-    StepStatus,
     ZFCVerifier,
     CATVerifier,
+    StepMethod,
+    StepStatus,
     step,
     axiom,
 )
@@ -125,26 +125,23 @@ from .meta_kan import (
     cosine_similarity,
 )
 
-from .store_adapter import StoreAdapter
-from .bridge import DualEngineBridge, DualResult
+from .category_store_adapter import StoreAdapter
+from .bridge import (
+    DualEngineBridge as StoreDualEngineBridge,
+    DualResult as StoreDualResult,
+)
+from .category_bridge import DualEngineBridge, DualResult
 
-# Proof Bridge (Layer 8)
+CategoryDualEngineBridge = DualEngineBridge
+CategoryDualResult = DualResult
 from .proof_bridge import (
     load_proof_graph,
     ProofGraphBridge,
     ConjectureResult,
     ProofVerificationResult,
 )
-
-from .axiom_miner import (
-    AxiomMiner,
-    AxiomPattern,
-    DiscoveredAxioms,
-)
-
-from .evolved_bridge import (
-    EvolvedDualEngineBridge,
-)
+from .axiom_miner import AxiomMiner, AxiomPattern, DiscoveredAxioms
+from .evolved_bridge import EvolvedDualEngineBridge
 
 __all__ = [
     # Universe (Layer 1)
@@ -168,8 +165,8 @@ __all__ = [
     "detect_pairwise_contradictions", "find_minimal_conflict",
     # Proof Engine (Layer 5)
     "ProofStep", "ProofResult", "Proof",
-    "StepMethod", "StepStatus",
     "ZFCVerifier", "CATVerifier",
+    "StepMethod", "StepStatus",
     "step", "axiom",
     # Meta Kan / System 3 (Layer 6)
     "DeltaType", "Resolution",
@@ -177,14 +174,12 @@ __all__ = [
     "MetaPrediction", "MetaKanExtension",
     "System3Oracle",
     "episode_similarity", "cosine_similarity",
-    # Integration (Layer 7)
-    "StoreAdapter",
-    "DualEngineBridge", "DualResult",
-    # Proof Bridge (Layer 8)
+    # Integration / proof bridge / evolved checks
+    "StoreAdapter", "DualEngineBridge", "DualResult",
+    "CategoryDualEngineBridge", "CategoryDualResult",
+    "StoreDualEngineBridge", "StoreDualResult",
     "load_proof_graph", "ProofGraphBridge", "ConjectureResult",
     "ProofVerificationResult",
-    # Axiom Miner (Layer 9 — emergent axioms from System 3)
     "AxiomMiner", "AxiomPattern", "DiscoveredAxioms",
-    # Evolved Bridge (Layer 10 — ZFC checks against discovered principles)
     "EvolvedDualEngineBridge",
 ]

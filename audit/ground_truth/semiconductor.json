@@ -1,0 +1,227 @@
+{
+  "domain": "semiconductor",
+  "version": "2.0",
+  "description": "Semiconductor heterostructure compatibility. Compatible = lattice-matched (<2%) or proven epitaxy. Incompatible = >4% mismatch with high dislocation density.",
+  "pairs": [
+    {
+      "id": 204,
+      "material_a": "GaAs",
+      "material_b": "AlAs",
+      "expected_compatible": true,
+      "citation": "Adachi, GaAs and Related Materials 1994",
+      "notes": "0.14% lattice match, basis of AlGaAs/GaAs HEMTs",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 205,
+      "material_a": "InGaAs",
+      "material_b": "InP",
+      "expected_compatible": true,
+      "citation": "Pearsall, GaInAsP Alloy Semiconductors 1982",
+      "notes": "In0.53Ga0.47As lattice-matched to InP",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 206,
+      "material_a": "GaAs",
+      "material_b": "Si",
+      "expected_compatible": false,
+      "citation": "Kroemer, J. Cryst. Growth 1987",
+      "doi": "10.1016/0022-0248(87)90068-0",
+      "notes": "4.1% mismatch + antiphase domains",
+      "used_for_tuning": false
+    },
+    {
+      "id": 207,
+      "material_a": "GaN",
+      "material_b": "GaAs",
+      "expected_compatible": false,
+      "citation": "Liu & Edgar, Mater. Sci. Eng. R 2002",
+      "notes": "20% lattice mismatch, wurtzite vs zinc blende",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 208,
+      "material_a": "AlGaAs",
+      "material_b": "GaAs",
+      "expected_compatible": true,
+      "citation": "Dingle et al., Appl. Phys. Lett. 1978",
+      "notes": "Lattice-matched, quantum well laser basis",
+      "doi": "10.1063/1.90457",
+      "used_for_tuning": false
+    },
+    {
+      "id": 209,
+      "material_a": "InP",
+      "material_b": "Si",
+      "expected_compatible": false,
+      "citation": "Razeghi, J. Cryst. Growth 2003",
+      "notes": "8.1% lattice mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 210,
+      "material_a": "GaN",
+      "material_b": "AlGaN",
+      "expected_compatible": true,
+      "citation": "Ambacher et al., J. Phys.: Condens. Matter 2002",
+      "notes": "GaN/AlGaN HEMT heterostructure",
+      "doi": "10.1088/0953-8984/14/13/302",
+      "used_for_tuning": true
+    },
+    {
+      "id": 211,
+      "material_a": "SiC_4H",
+      "material_b": "GaN",
+      "expected_compatible": true,
+      "citation": "Morkoc, Handbook of Nitride Semiconductors 2008",
+      "notes": "3.5% mismatch but SiC is standard GaN substrate",
+      "doi": null,
+      "used_for_tuning": true
+    },
+    {
+      "id": 212,
+      "material_a": "InAs",
+      "material_b": "GaAs",
+      "expected_compatible": false,
+      "citation": "Vurgaftman et al., J. Appl. Phys. 2001",
+      "notes": "7.2% mismatch, only QD growth possible",
+      "doi": "10.1063/1.1368156",
+      "used_for_tuning": false
+    },
+    {
+      "id": 213,
+      "material_a": "CdTe",
+      "material_b": "HgCdTe",
+      "expected_compatible": true,
+      "citation": "Rogalski, Infrared Detectors 2010",
+      "notes": "CdTe substrate for HgCdTe IR detectors",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 214,
+      "material_a": "GaP",
+      "material_b": "Si",
+      "expected_compatible": true,
+      "citation": "Liebich et al., Appl. Phys. Lett. 2011",
+      "notes": "0.37% mismatch, III-V on Si integration",
+      "doi": "10.1063/1.3586256",
+      "used_for_tuning": false
+    },
+    {
+      "id": 215,
+      "material_a": "ZnSe",
+      "material_b": "GaAs",
+      "expected_compatible": true,
+      "citation": "Gunshor & Nurmikko, MRS Bulletin 1995",
+      "notes": "0.27% lattice mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 216,
+      "material_a": "Ge",
+      "material_b": "GaAs",
+      "expected_compatible": true,
+      "citation": "Kroemer, J. Cryst. Growth 1987",
+      "notes": "0.07% mismatch, near-perfect",
+      "doi": "10.1016/0022-0248(87)90068-0",
+      "used_for_tuning": false
+    },
+    {
+      "id": 217,
+      "material_a": "InSb",
+      "material_b": "GaAs",
+      "expected_compatible": false,
+      "citation": "Vurgaftman et al., J. Appl. Phys. 2001",
+      "notes": "14.6% mismatch",
+      "doi": "10.1063/1.1368156",
+      "used_for_tuning": false
+    },
+    {
+      "id": 218,
+      "material_a": "SiC_4H",
+      "material_b": "Si",
+      "expected_compatible": false,
+      "citation": "Neudeck, J. Electron. Mater. 1995",
+      "notes": "20% lattice mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 219,
+      "material_a": "MoS2",
+      "material_b": "Si",
+      "expected_compatible": true,
+      "citation": "Radisavljevic et al., Nat. Nanotechnol. 2011",
+      "notes": "Van der Waals heterostructure, no lattice matching needed",
+      "doi": "10.1038/nnano.2010.279",
+      "used_for_tuning": false
+    },
+    {
+      "id": 220,
+      "material_a": "Ga2O3",
+      "material_b": "Si",
+      "expected_compatible": false,
+      "citation": "Pearton et al., Appl. Phys. Rev. 2018",
+      "notes": "Monoclinic vs diamond cubic, no epitaxial relationship",
+      "doi": "10.1063/1.5006941",
+      "used_for_tuning": false
+    },
+    {
+      "id": 221,
+      "material_a": "ZnO",
+      "material_b": "GaN",
+      "expected_compatible": true,
+      "citation": "Ozgur et al., J. Appl. Phys. 2005",
+      "notes": "1.8% mismatch, same wurtzite structure",
+      "doi": "10.1063/1.1992666",
+      "used_for_tuning": false
+    },
+    {
+      "id": 222,
+      "material_a": "AlGaN",
+      "material_b": "AlN",
+      "expected_compatible": true,
+      "citation": "Taniyasu et al., Nature 2006",
+      "notes": "Same crystal family, tunable lattice match",
+      "doi": "10.1038/nature04760",
+      "used_for_tuning": false
+    },
+    {
+      "id": 223,
+      "material_a": "InN",
+      "material_b": "GaN",
+      "expected_compatible": false,
+      "citation": "Davydov et al., Phys. Stat. Sol. B 2002",
+      "notes": "11% lattice mismatch, phase separation issues",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 224,
+      "material_a": "Bi2Te3",
+      "material_b": "Si",
+      "expected_compatible": false,
+      "citation": "Hinsche et al., Phys. Rev. B 2012",
+      "notes": "Rhombohedral vs diamond, large structural mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 225,
+      "material_a": "WS2",
+      "material_b": "MoS2",
+      "expected_compatible": true,
+      "citation": "Gong et al., Nat. Mater. 2014",
+      "notes": "2D lateral heterostructure, 0.2% mismatch",
+      "doi": "10.1038/nmat4091",
+      "used_for_tuning": false
+    }
+  ]
+}

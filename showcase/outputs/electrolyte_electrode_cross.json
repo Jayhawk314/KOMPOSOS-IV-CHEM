@@ -1,0 +1,387 @@
+{
+  "formulations_tested": 6,
+  "electrodes_tested": [
+    "NMC811",
+    "LFP",
+    "LCO",
+    "Graphite",
+    "Si",
+    "Li_metal",
+    "LTO"
+  ],
+  "results": [
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "NMC811",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "LFP",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "LCO",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "Graphite",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "Si",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "Li_metal",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiPF6 (standard)",
+      "electrode": "LTO",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "NMC811",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "LFP",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "LCO",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "Graphite",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "Si",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "Li_metal",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DEC + LiPF6",
+      "electrode": "LTO",
+      "overall_score": 0.7454,
+      "viable": true,
+      "bottleneck": "EC-DEC",
+      "warnings": "DEC flash point=25C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "NMC811",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "LFP",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "LCO",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "Graphite",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "Si",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "Li_metal",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:EMC + LiPF6",
+      "electrode": "LTO",
+      "overall_score": 0.7485,
+      "viable": true,
+      "bottleneck": "EC-EMC",
+      "warnings": "EMC bp=107C: borderline thermal stability; EMC flash point=23C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "NMC811",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "LFP",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "LCO",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "Graphite",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "Si",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "Li_metal",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:DMC + LiTFSI",
+      "electrode": "LTO",
+      "overall_score": 0.7144,
+      "viable": true,
+      "bottleneck": "EC-DMC",
+      "warnings": "DMC bp=90C: borderline thermal stability; DMC flash point=18C: fire risk in battery abuse"
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "NMC811",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "LFP",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "LCO",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "Graphite",
+      "overall_score": 0.6499,
+      "viable": true,
+      "bottleneck": "PC-Graphite",
+      "warnings": "Known incompatible pair: PC + Graphite"
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "Si",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "Li_metal",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:PC + LiPF6",
+      "electrode": "LTO",
+      "overall_score": 0.9313,
+      "viable": true,
+      "bottleneck": "EC-PC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "NMC811",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "LFP",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "LCO",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "Graphite",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "Si",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "Li_metal",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    },
+    {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "electrode": "LTO",
+      "overall_score": 0.9322,
+      "viable": true,
+      "bottleneck": "EC-FEC",
+      "warnings": ""
+    }
+  ],
+  "best_per_electrode": {
+    "NMC811": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "LFP": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "LCO": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "Graphite": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "Si": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "Li_metal": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    },
+    "LTO": {
+      "formulation": "EC:FEC + LiPF6 (Si anode)",
+      "score": 0.9322,
+      "viable": true
+    }
+  }
+}

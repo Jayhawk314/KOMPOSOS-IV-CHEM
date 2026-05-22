@@ -118,10 +118,10 @@ class ProofStep:
 
     def __repr__(self):
         status_icon = {
-            StepStatus.VALID: "✓",
-            StepStatus.ORPHAN: "⚠",
-            StepStatus.HOLLOW: "◇",
-            StepStatus.REJECT: "✗",
+            StepStatus.VALID: "OK",
+            StepStatus.ORPHAN: "??",
+            StepStatus.HOLLOW: "<>",
+            StepStatus.REJECT: "XX",
             StepStatus.PENDING: "?",
         }
         return f"[{status_icon[self.status]}] {self.id}: {self.name} ({self.method.name})"
@@ -526,7 +526,7 @@ class CATVerifier:
         # Check composition: can these types flow into the output type?
         if not self._check_composition(available_types, step.output_type, step.method):
             return (False,
-                f"composition fails: {available_types} ↛ {step.output_type}")
+                f"composition fails: {available_types} -/-> {step.output_type}")
 
         # All good — register output type
         self._proven_types[step.id] = step.output_type
@@ -537,7 +537,7 @@ class CATVerifier:
             key = (at, step.output_type)
             self._morphisms.setdefault(key, []).append(step.id)
 
-        return (True, f"types compose: {available_types} → {step.output_type}")
+        return (True, f"types compose: {available_types} -> {step.output_type}")
 
     def _check_composition(self, input_types: List[str],
                            output_type: str,
@@ -710,10 +710,10 @@ class Proof:
             lines.append(f"Goal: {self.goal}")
         lines.append(f"")
         lines.append(f"Total steps: {len(self.steps)}")
-        lines.append(f"  ✓ Valid:   {len(valid)}")
-        lines.append(f"  ⚠ Orphan:  {len(orphans)}  (ZFC yes, CAT no)")
-        lines.append(f"  ◇ Hollow:  {len(hollows)}  (CAT yes, ZFC no)")
-        lines.append(f"  ✗ Reject:  {len(rejects)}  (both no)")
+        lines.append(f"  [OK]  Valid:   {len(valid)}")
+        lines.append(f"  [??]  Orphan:  {len(orphans)}  (ZFC yes, CAT no)")
+        lines.append(f"  [<>]  Hollow:  {len(hollows)}  (CAT yes, ZFC no)")
+        lines.append(f"  [XX]  Reject:  {len(rejects)}  (both no)")
         lines.append(f"")
         lines.append(f"Sound (ZFC):    {is_sound}")
         lines.append(f"Coherent (CAT): {is_coherent}")
@@ -751,15 +751,15 @@ class Proof:
         lines = [f"Proof: {self.name}"]
         if self.goal:
             lines.append(f"Goal: {self.goal}")
-        lines.append("─" * 50)
+        lines.append("-" * 50)
         for sid in self.order:
             step = self.steps[sid]
             lines.append(f"  {step}")
             if step.inputs:
                 lines.append(f"    uses: {', '.join(step.inputs)}")
             if step.output_type:
-                lines.append(f"    type: {' × '.join(step.input_types) if step.input_types else '()'} → {step.output_type}")
-        lines.append("─" * 50)
+                lines.append(f"    type: {' x '.join(step.input_types) if step.input_types else '()'} -> {step.output_type}")
+        lines.append("-" * 50)
         return "\n".join(lines)
 
 
@@ -819,15 +819,15 @@ if __name__ == "__main__":
     # Axioms (known facts)
     proof.add_axiom(axiom(
         "ax1", "Celecoxib inhibits COX-2",
-        output_type="Drug→Protein",
+        output_type="Drug->Protein",
     ))
     proof.add_axiom(axiom(
         "ax2", "COX-2 associated with Inflammation",
-        output_type="Protein→Disease",
+        output_type="Protein->Disease",
     ))
     proof.add_axiom(axiom(
         "ax3", "Inhibition of disease-associated protein may treat disease",
-        output_type="(Drug→Protein)×(Protein→Disease)→(Drug→Disease)",
+        output_type="(Drug->Protein)x(Protein->Disease)->Drug->Disease",
     ))
 
     # Step 1: Compose inhibition with association
@@ -835,8 +835,8 @@ if __name__ == "__main__":
         "s1", "Celecoxib linked to Inflammation via COX-2",
         method=StepMethod.COMPOSITION,
         inputs=["ax1", "ax2"],
-        input_types=["Drug→Protein", "Protein→Disease"],
-        output_type="Drug→Disease",
+        input_types=["Drug->Protein", "Protein->Disease"],
+        output_type="Drug->Disease",
         justification="relational composition through COX-2",
     ))
 
@@ -845,8 +845,8 @@ if __name__ == "__main__":
         "s2", "celecoxib_treats_inflammation",
         method=StepMethod.MODUS_PONENS,
         inputs=["s1", "ax3"],
-        input_types=["Drug→Disease", "(Drug→Protein)×(Protein→Disease)→(Drug→Disease)"],
-        output_type="Drug→Disease",
+        input_types=["Drug->Disease", "(Drug->Protein)x(Protein->Disease)->Drug->Disease"],
+        output_type="Drug->Disease",
         justification="modus ponens on treatment rule",
     ))
 
@@ -858,13 +858,13 @@ if __name__ == "__main__":
     result = proof.verify_all()
     print(result.analysis)
 
-    # Now try an ORPHAN step — logically fine but wrong type
+    # Now try an ORPHAN step -- logically fine but wrong type
     proof.add_step(step(
         "bad1", "Aspirin also inhibits COX-2",
         method=StepMethod.AXIOM,
         inputs=[],
         input_types=[],
-        output_type="Drug→Protein",
+        output_type="Drug->Protein",
         justification="known fact",
     ))
 
@@ -873,8 +873,8 @@ if __name__ == "__main__":
         "bad2", "Therefore aspirin treats cancer",
         method=StepMethod.COMPOSITION,
         inputs=["bad1", "nonexistent_step"],
-        input_types=["Drug→Protein", "Protein→Disease"],
-        output_type="Drug→Disease",
+        input_types=["Drug->Protein", "Protein->Disease"],
+        output_type="Drug->Disease",
         justification="wishful thinking",
     ))
 

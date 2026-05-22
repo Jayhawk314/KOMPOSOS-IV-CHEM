@@ -200,7 +200,7 @@ THERMOPLASTIC_POLYMERS['HDPE'] = PolymerMaterial(
     crystallinity_pct=70.0,
     water_absorption_pct=0.01,
     density_g_cm3=0.955,
-    chi_parameters={'PP': 0.01, 'PS': 1.0, 'PA6': 2.0},
+    chi_parameters={'PP': 0.01, 'PS': 1.0, 'PA6': 2.0, 'PET': 0.8},
     failure_modes=[
         PolymerFailureMode.UV_DEGRADATION,
         PolymerFailureMode.ENVIRONMENTAL_STRESS_CRACKING,
@@ -230,7 +230,7 @@ THERMOPLASTIC_POLYMERS['PP'] = PolymerMaterial(
     crystallinity_pct=50.0,
     water_absorption_pct=0.02,
     density_g_cm3=0.905,
-    chi_parameters={'HDPE': 0.01, 'PS': 0.5, 'PA6': 1.5, 'PA66': 1.5},
+    chi_parameters={'HDPE': 0.01, 'PS': 0.5, 'PA6': 1.5, 'PA66': 1.5, 'PET': 0.8, 'PVC': 0.6, 'PDMS': 1.5, 'PTFE': 1.2, 'POM': 0.4},
     failure_modes=[
         PolymerFailureMode.UV_DEGRADATION,
         PolymerFailureMode.OXIDATION,
@@ -259,7 +259,7 @@ THERMOPLASTIC_POLYMERS['PS'] = PolymerMaterial(
     crystallinity_pct=0.0,
     water_absorption_pct=0.05,
     density_g_cm3=1.05,
-    chi_parameters={'PMMA': 0.04, 'HDPE': 1.0, 'PPO': 0.001},
+    chi_parameters={'PMMA': 0.04, 'HDPE': 1.0, 'PPO': 0.001, 'PVC': 0.2, 'POM': 0.35},
     failure_modes=[
         PolymerFailureMode.UV_DEGRADATION,
         PolymerFailureMode.CRAZING,
@@ -317,6 +317,7 @@ THERMOPLASTIC_POLYMERS['PVC'] = PolymerMaterial(
     crystallinity_pct=0.0,
     water_absorption_pct=0.1,
     density_g_cm3=1.40,
+    chi_parameters={'PP': 0.6, 'PS': 0.2, 'PTFE': 1.8, 'PDMS': 1.5, 'POM': 0.5},
     failure_modes=[
         PolymerFailureMode.THERMAL_DEGRADATION,
         PolymerFailureMode.PLASTICIZER_MIGRATION,
@@ -348,6 +349,7 @@ THERMOPLASTIC_POLYMERS['PET'] = PolymerMaterial(
     crystallinity_pct=30.0,
     water_absorption_pct=0.3,
     density_g_cm3=1.38,
+    chi_parameters={'HDPE': 0.8, 'PP': 0.8, 'PS': 0.3, 'PVDF': 1.0, 'POM': 0.6},
     failure_modes=[
         PolymerFailureMode.HYDROLYSIS,
         PolymerFailureMode.UV_DEGRADATION,
@@ -375,7 +377,7 @@ THERMOPLASTIC_POLYMERS['PA6'] = PolymerMaterial(
     crystallinity_pct=35.0,
     water_absorption_pct=9.5,
     density_g_cm3=1.13,
-    chi_parameters={'HDPE': 2.0, 'PP': 1.5},
+    chi_parameters={'HDPE': 2.0, 'PP': 1.5, 'ABS': 0.18, 'PVC': 0.12},
     failure_modes=[
         PolymerFailureMode.MOISTURE_ABSORPTION,
         PolymerFailureMode.HYDROLYSIS,
@@ -404,6 +406,7 @@ THERMOPLASTIC_POLYMERS['PA66'] = PolymerMaterial(
     crystallinity_pct=40.0,
     water_absorption_pct=8.0,
     density_g_cm3=1.14,
+    chi_parameters={'ABS': 0.18, 'PVC': 0.12, 'POM': 0.35},
     failure_modes=[
         PolymerFailureMode.MOISTURE_ABSORPTION,
         PolymerFailureMode.HYDROLYSIS,
@@ -486,6 +489,7 @@ THERMOPLASTIC_POLYMERS['POM'] = PolymerMaterial(
     crystallinity_pct=75.0,
     water_absorption_pct=0.2,
     density_g_cm3=1.42,
+    chi_parameters={'PP': 0.4, 'PS': 0.35, 'PVC': 0.5, 'PET': 0.6, 'PVDF': 0.7},
     failure_modes=[
         PolymerFailureMode.THERMAL_DEGRADATION,
         PolymerFailureMode.OXIDATION,
@@ -515,6 +519,7 @@ THERMOPLASTIC_POLYMERS['ABS'] = PolymerMaterial(
     crystallinity_pct=0.0,
     water_absorption_pct=0.3,
     density_g_cm3=1.05,
+    chi_parameters={'PTFE': 1.5},
     failure_modes=[
         PolymerFailureMode.UV_DEGRADATION,
         PolymerFailureMode.CHEMICAL_ATTACK,
@@ -548,7 +553,7 @@ BATTERY_POLYMERS['PVDF'] = PolymerMaterial(
     crystallinity_pct=50.0,
     water_absorption_pct=0.04,
     density_g_cm3=1.78,
-    chi_parameters={'PMMA': -0.5, 'PEO': 0.8},
+    chi_parameters={'PMMA': -0.5, 'PEO': 0.8, 'PP': 1.2, 'PET': 1.0, 'PVC': 0.9, 'PTFE': 1.5, 'POM': 0.7, 'SBR': 0.6},
     failure_modes=[
         PolymerFailureMode.DELAMINATION,
     ],
@@ -579,7 +584,7 @@ BATTERY_POLYMERS['PEO'] = PolymerMaterial(
     crystallinity_pct=80.0,
     water_absorption_pct=100.0,  # Fully water-soluble
     density_g_cm3=1.13,
-    chi_parameters={'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0},
+    chi_parameters={'PMMA': -0.3, 'PVDF': 0.8, 'LiTFSI': -2.0, 'PAN': -0.15},
     failure_modes=[
         PolymerFailureMode.MOISTURE_ABSORPTION,
         PolymerFailureMode.OXIDATION,
@@ -615,6 +620,7 @@ BATTERY_POLYMERS['PTFE'] = PolymerMaterial(
     crystallinity_pct=90.0,
     water_absorption_pct=0.0,
     density_g_cm3=2.17,
+    chi_parameters={'PP': 1.2, 'PVC': 1.8, 'PVDF': 1.5, 'PDMS': 2.0, 'Epoxy': 1.8, 'Phenolic': 1.5},
     failure_modes=[
         PolymerFailureMode.CREEP,
         PolymerFailureMode.DELAMINATION,
@@ -675,6 +681,7 @@ BATTERY_POLYMERS['PAN'] = PolymerMaterial(
     crystallinity_pct=25.0,
     water_absorption_pct=2.0,
     density_g_cm3=1.18,
+    chi_parameters={'PEO': -0.15},
     failure_modes=[
         PolymerFailureMode.THERMAL_DEGRADATION,
         PolymerFailureMode.MOISTURE_ABSORPTION,
@@ -711,6 +718,7 @@ ELASTOMER_POLYMERS['SBR'] = PolymerMaterial(
     elastic_modulus_GPa=0.005,
     water_absorption_pct=0.1,
     density_g_cm3=0.94,
+    chi_parameters={'PVDF': 0.6, 'PMMA': 0.6, 'PVC': 0.4},
     failure_modes=[
         PolymerFailureMode.UV_DEGRADATION,
         PolymerFailureMode.OXIDATION,
@@ -792,6 +800,7 @@ ELASTOMER_POLYMERS['PDMS'] = PolymerMaterial(
     elastic_modulus_GPa=0.001,
     water_absorption_pct=0.0,
     density_g_cm3=0.97,
+    chi_parameters={'PS': 1.5, 'PVC': 1.5, 'PP': 1.5, 'PTFE': 2.0},
     failure_modes=[
         PolymerFailureMode.CREEP,
     ],
@@ -816,6 +825,7 @@ ELASTOMER_POLYMERS['EPDM'] = PolymerMaterial(
     elongation_at_break_pct=400.0,
     elastic_modulus_GPa=0.008,
     density_g_cm3=0.86,
+    chi_parameters={'PEO': -0.15},
     failure_modes=[
         PolymerFailureMode.CREEP,
     ],
@@ -1118,6 +1128,9 @@ ALL_POLYMERS.update(ELASTOMER_POLYMERS)
 ALL_POLYMERS.update(HIGH_PERFORMANCE_POLYMERS)
 ALL_POLYMERS.update(THERMOSET_POLYMERS)
 ALL_POLYMERS.update(POLYMER_SOLVENTS)
+
+# PE is a common abbreviation for polyethylene; map to HDPE
+ALL_POLYMERS['PE'] = ALL_POLYMERS['HDPE']
 
 
 def get_polymer(name: str) -> Optional[PolymerMaterial]:

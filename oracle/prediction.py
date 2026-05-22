@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
 Prediction dataclass and enums for KOMPOSOS-III Oracle.
 """
@@ -6,9 +13,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Optional
 from datetime import datetime
-
-# Module-level cache for calibrated strategy weights
-_CALIBRATED_WEIGHTS_CACHE: Optional[Dict[str, float]] = None
 
 
 class PredictionType(Enum):
@@ -49,8 +53,9 @@ class PredictionType(Enum):
     CURVATURE_BRIDGE = "curvature_bridge"
     SAME_REGION = "same_region"
 
-    # From Binding Evidence (ABPP, Boltz2, Pfam domain matching)
-    BINDING_EVIDENCE = "binding_evidence"
+    # From Domain Pattern Analysis (Pfam)
+    DOMAIN_PATTERN = "domain_pattern"
+    DOMAIN_FUNCTIONAL = "domain_functional"
 
     # Meta
     ENSEMBLE = "ensemble"  # Combined from multiple strategies
@@ -126,43 +131,16 @@ class Prediction:
         """
         Merge two predictions of the same key.
 
-        Combines confidence using CALIBRATED weighted average.
-        Loads learned strategy weights from data/strategy_weights.json.
+        Combines confidence using weighted average based on strategy diversity.
         """
-        global _CALIBRATED_WEIGHTS_CACHE
-
         if self.key != other.key:
             raise ValueError("Cannot merge predictions with different keys")
 
-        # Load calibrated weights (cached on first call)
-        if _CALIBRATED_WEIGHTS_CACHE is None:
-            from pathlib import Path
-            import json
-            weights_file = Path("data/strategy_weights.json")
-            if weights_file.exists():
-                data = json.loads(weights_file.read_text())
-                _CALIBRATED_WEIGHTS_CACHE = {
-                    name: cal['weight']
-                    for name, cal in data['calibrations'].items()
-                }
-            else:
-                _CALIBRATED_WEIGHTS_CACHE = {}
-
-        # Get weights for each strategy (default 1.0 if unknown)
-        weight1 = _CALIBRATED_WEIGHTS_CACHE.get(self.strategy_name, 1.0)
-        weight2 = _CALIBRATED_WEIGHTS_CACHE.get(other.strategy_name, 1.0)
-
-        # Weighted average
-        total_weight = weight1 + weight2
-        if total_weight > 0:
-            combined_confidence = (weight1 * self.confidence + weight2 * other.confidence) / total_weight
-        else:
-            # Fallback to simple average if both weights are 0
-            combined_confidence = (self.confidence + other.confidence) / 2
-
-        # Bonus for independent confirmation from different strategies
-        if self.strategy_name != other.strategy_name and combined_confidence < 0.98:
-            combined_confidence = min(0.98, combined_confidence * 1.05)  # Smaller boost (was 1.1)
+        # Combine confidence (average, with bonus for multiple strategies)
+        combined_confidence = (self.confidence + other.confidence) / 2
+        # Bonus for independent confirmation
+        if self.strategy_name != other.strategy_name:
+            combined_confidence = min(0.98, combined_confidence * 1.1)
 
         # Combine evidence
         merged_evidence = {**self.evidence, **other.evidence}

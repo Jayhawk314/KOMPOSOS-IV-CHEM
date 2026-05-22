@@ -224,6 +224,116 @@ class CogEngine:
             explanation=self._coherence_explanation(violations, total),
         )
 
+    def evaluate_diagram(self, diagram: Any) -> Dict[str, Any]:
+        """
+        Evaluate an ActivityDiagram for structural integrity and commutativity.
+
+        This is a domain-neutral MATH bridge: it checks whether mediated and
+        direct paths in an activity diagram agree under morphism confidence.
+        """
+        from categorical.cat_advanced import ActivityDiagram
+
+        if not isinstance(diagram, ActivityDiagram):
+            return {"status": "REJECT", "reason": "Invalid diagram type"}
+
+        results = {
+            "activity_id": diagram.activity_id,
+            "production_tension": 0.0,
+            "regulation_tension": 0.0,
+            "distribution_tension": 0.0,
+            "status": "AGREE",
+            "evidence_weight": 0.0,
+            "triad_details": [],
+        }
+
+        def path_confidence(path: List[str]) -> Optional[float]:
+            if len(path) < 2:
+                return None
+            confidence = 1.0
+            for i in range(len(path) - 1):
+                morphisms = [
+                    m for m in self.category.morphisms_from(path[i])
+                    if m.target == path[i + 1]
+                ]
+                if not morphisms:
+                    return None
+                confidence *= max(m.confidence for m in morphisms)
+            return confidence
+
+        def check_triad(
+            mediated_paths: List[List[str]],
+            direct_paths: List[List[str]],
+        ) -> tuple[float, List[Dict[str, Any]]]:
+            max_tension = 0.0
+            details = []
+            for mediated in mediated_paths:
+                for direct in direct_paths:
+                    mediated_conf = path_confidence(mediated)
+                    direct_conf = path_confidence(direct)
+
+                    if mediated_conf is None and direct_conf is None:
+                        detail = {
+                            "mediated": mediated,
+                            "direct": direct,
+                            "status": "ORPHAN",
+                            "tension": 0.0,
+                        }
+                    elif mediated_conf is None or direct_conf is None:
+                        detail = {
+                            "mediated": mediated,
+                            "direct": direct,
+                            "status": "HOLLOW",
+                            "tension": 1.0,
+                        }
+                        max_tension = max(max_tension, 1.0)
+                    else:
+                        tension = abs(mediated_conf - direct_conf)
+                        status = "REJECT" if tension > 0.5 else (
+                            "HOLLOW" if tension > 0.1 else "AGREE"
+                        )
+                        detail = {
+                            "mediated": mediated,
+                            "direct": direct,
+                            "mediated_conf": round(mediated_conf, 4),
+                            "direct_conf": round(direct_conf, 4),
+                            "status": status,
+                            "tension": round(tension, 4),
+                        }
+                        max_tension = max(max_tension, tension)
+                    details.append(detail)
+            return max_tension, details
+
+        prod_tension, prod_details = check_triad(
+            [[s, t, o] for s in diagram.subjects for t in diagram.tools for o in diagram.objects],
+            [[s, o] for s in diagram.subjects for o in diagram.objects],
+        )
+        reg_tension, reg_details = check_triad(
+            [[s, r, c] for s in diagram.subjects for r in diagram.rules for c in diagram.community],
+            [[s, c] for s in diagram.subjects for c in diagram.community],
+        )
+        dist_tension, dist_details = check_triad(
+            [[c, d, o] for c in diagram.community for d in diagram.division for o in diagram.objects],
+            [[c, o] for c in diagram.community for o in diagram.objects],
+        )
+
+        results["production_tension"] = round(prod_tension, 4)
+        results["regulation_tension"] = round(reg_tension, 4)
+        results["distribution_tension"] = round(dist_tension, 4)
+        results["triad_details"].extend(prod_details + reg_details + dist_details)
+
+        max_tension = max(prod_tension, reg_tension, dist_tension)
+        results["evidence_weight"] = round(max_tension, 4)
+        if max_tension > 0.5:
+            results["status"] = "REJECT"
+        elif max_tension > 0.1:
+            results["status"] = "HOLLOW"
+
+        if not results["triad_details"]:
+            results["status"] = "ORPHAN"
+            results["evidence_weight"] = 1.0
+
+        return results
+
     def compute_energy(self, claim: CogClaim) -> EnergyResult:
         """cog_energy: Compute how costly a claim is."""
         return self.energy_computer.compute(claim)
@@ -474,18 +584,18 @@ class CogEngine:
         """
         Tier 3: ZFC + CAT dual engine verification. ~1s.
 
-        Uses zfc.bridge.DualEngineBridge to run both engines and classify
+        Uses zfc.category_bridge.DualEngineBridge to run both engines and classify
         the result as AGREE/ORPHAN/HOLLOW/REJECT.
 
-        Note: DualEngineBridge may need updating for IV API.
+        The bridge reads the runtime Category through a ZFC category adapter.
         """
         try:
-            from zfc.bridge import DualEngineBridge
+            from zfc.category_bridge import DualEngineBridge
             from zfc.meta_kan import DeltaType
 
-            # TODO: DualEngineBridge needs updating to work with Category directly
-            # For now, this will use the category as-is
-            bridge = DualEngineBridge(category=self.category)
+            from zfc.category_store_adapter import StoreAdapter
+            adapter = StoreAdapter(self.category)
+            bridge = DualEngineBridge(adapter, category=self.category)
 
             dual_result = bridge.query(
                 claim.source, claim.target, claim.relation, domain="cog"
@@ -788,6 +898,45 @@ class CogEngine:
         except Exception as e:
             logger.debug(f"Tier 4e interchange error: {e}")
             topology_data["interchange_error"] = str(e)
+
+        # --- Tier 4f: optional Gray 3-cell coherence / Mythos shield ---
+        try:
+            if budget_ok() and current_confidence < 0.90:
+                from core.gray_coherence_bridge import build_shield
+
+                shield = build_shield(None, category=self.category)
+                report = shield.scan(top_k=20)
+
+                topology_data["gray_coherence"] = {
+                    "conjectures_evaluated": getattr(report, "conjectures_evaluated", 0),
+                    "hollow_count": getattr(report, "hollow_count", 0),
+                    "gray_gap_count": getattr(report, "gray_gap_count", 0),
+                    "critical_findings": len(getattr(report, "critical", [])),
+                    "chainable_findings": len(getattr(report, "chainable", [])),
+                    "scan_time_ms": getattr(report, "scan_time_ms", 0),
+                }
+
+                critical = getattr(report, "critical", [])
+                chainable = getattr(report, "chainable", [])
+                if critical:
+                    current_confidence = max(0.1, current_confidence - 0.3)
+                    topology_data["gray_coherence_note"] = (
+                        f"critical structural coherence gaps detected: {len(critical)}"
+                    )
+                elif chainable:
+                    current_confidence = max(0.2, current_confidence - 0.15)
+                    topology_data["gray_coherence_note"] = (
+                        f"chainable structural coherence gaps detected: {len(chainable)}"
+                    )
+                else:
+                    topology_data["gray_coherence_note"] = "no structural coherence gaps"
+
+                topology_data["sub_tier_reached"] = "4f"
+        except ImportError:
+            topology_data["gray_coherence_note"] = "Gray coherence module not loaded"
+        except Exception as e:
+            logger.debug(f"Tier 4f gray coherence error: {e}")
+            topology_data["gray_coherence_error"] = str(e)
 
         # --- Final: Augment confidence based on topology ---
         topo_bonus = 0.0

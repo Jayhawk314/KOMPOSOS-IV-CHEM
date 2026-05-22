@@ -33,6 +33,7 @@ from polymer_bridge.material_properties import (
     get_polymer,
     ALL_POLYMERS,
 )
+from oracle.enrichment import summarize_compatibility_components
 
 
 # ============================================================================
@@ -326,6 +327,7 @@ def score_polymer_electrode_compatibility(
     polymer_name: str,
     battery_material_name: str,
     operating_temp_C: float = 25.0,
+    polymer_role: Optional[str] = None,
 ) -> BatteryPolymerResult:
     """
     Score compatibility between a polymer and a battery material.
@@ -334,6 +336,8 @@ def score_polymer_electrode_compatibility(
         polymer_name: Name in polymer_bridge (e.g., 'PEO', 'PVDF')
         battery_material_name: Name in battery_bridge (e.g., 'LFP', 'NMC811')
         operating_temp_C: Operating temperature in Celsius
+        polymer_role: Optional contextual role such as 'cathode_binder',
+            'anode_binder', 'polymer_electrolyte', or 'coating'.
 
     Returns:
         BatteryPolymerResult with component scores and composite
@@ -368,6 +372,56 @@ def score_polymer_electrode_compatibility(
     m_score, m_details = _score_mechanical_compatibility(polymer, battery_mat)
     c_score, c_details = _score_chemical_compatibility(polymer, battery_mat)
 
+    role = (polymer_role or "").strip().lower().replace("-", "_").replace(" ", "_")
+    poly_key = getattr(polymer, 'abbreviation', polymer.name)
+    battery_key = battery_mat.name
+    nominal_v = battery_mat.voltage_window.nominal if battery_mat.voltage_window else None
+    upper_v = battery_mat.voltage_window.upper if battery_mat.voltage_window else None
+    is_high_voltage_cathode = (
+        battery_mat.material_class == MaterialClass.CATHODE
+        and (
+            battery_key.startswith("NMC")
+            or battery_key in {"LCO", "LMO"}
+            or (nominal_v is not None and nominal_v >= 3.7)
+            or (upper_v is not None and upper_v >= 4.2)
+        )
+    )
+
+    if poly_key == "PEO" and is_high_voltage_cathode:
+        v_score = min(v_score, 0.15)
+        c_score = min(c_score, 0.35)
+        v_details["high_voltage_cathode_context"] = True
+        c_details["peo_high_voltage_cathode_penalty"] = True
+        warnings.append(
+            f"Context penalty: {polymer_name} is not stable enough for high-voltage {battery_material_name}"
+        )
+
+    anode_binder_polymers = {"CMC", "SBR"}
+    anode_materials = {"Graphite", "Si", "LTO", "Li_metal"}
+    high_voltage_exempt_roles = {"protective_coating"}
+    if (
+        poly_key in anode_binder_polymers
+        and battery_mat.material_class == MaterialClass.CATHODE
+        and role == "cathode_binder"
+        and role not in high_voltage_exempt_roles
+    ):
+        c_score = min(c_score, 0.18)
+        m_score = min(m_score, 0.45)
+        c_details["anode_binder_cathode_penalty"] = True
+        m_details["anode_binder_cathode_penalty"] = True
+        warnings.append(
+            f"Context penalty: {polymer_name} is primarily an anode binder, not a {battery_material_name} cathode binder"
+        )
+        if is_high_voltage_cathode:
+            c_score = min(c_score, 0.15)
+            c_details["anode_binder_high_voltage_cathode_penalty"] = True
+
+    if poly_key in anode_binder_polymers and battery_key in anode_materials:
+        c_score = max(c_score, 0.85)
+        m_score = max(m_score, 0.75)
+        c_details["anode_binder_context_bonus"] = True
+        m_details["anode_binder_context_bonus"] = True
+
     # Composite: voltage is critical for batteries
     composite = (
         0.35 * v_score +
@@ -393,6 +447,12 @@ def score_polymer_electrode_compatibility(
         )
 
     compatible = composite >= 0.50
+    component_scores = {
+        'voltage_compatibility': v_score,
+        'thermal_compatibility': t_score,
+        'mechanical_compatibility': m_score,
+        'chemical_compatibility': c_score,
+    }
 
     return BatteryPolymerResult(
         compatible=compatible,
@@ -409,6 +469,11 @@ def score_polymer_electrode_compatibility(
             'thermal': t_details,
             'mechanical': m_details,
             'chemical': c_details,
+            'enriched_quantales': summarize_compatibility_components(component_scores),
+            'context': {
+                'role': role or None,
+                'operating_temp_C': operating_temp_C,
+            },
         },
     )
 

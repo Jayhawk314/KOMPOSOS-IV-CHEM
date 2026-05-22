@@ -1,0 +1,197 @@
+{
+  "domain": "glass",
+  "version": "1.0",
+  "description": "Glass sealing and joining compatibility. Compatible = CTE difference <1.5 ppm/K (hermetic seal) OR proven commercial seal pair. Incompatible = CTE difference >3 ppm/K causing stress fracture.",
+  "pairs": [
+    {
+      "id": 601,
+      "material_a": "Boro_33",
+      "material_b": "FusedSilica",
+      "expected_compatible": true,
+      "citation": "Schott Technical Glass Catalog 2023",
+      "notes": "CTE 3.3 vs 0.5, graded seal standard (with intermediates)",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 603,
+      "material_a": "SodaLime_Float",
+      "material_b": "SodaLime_Container",
+      "expected_compatible": true,
+      "citation": "Shelby, Introduction to Glass Science 2005",
+      "notes": "Same glass family, CTE ~9.0 both",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 604,
+      "material_a": "BK7",
+      "material_b": "Boro_33",
+      "expected_compatible": true,
+      "citation": "Schott Optical Glass Catalog 2023",
+      "notes": "CTE 7.1 vs 3.3 - borderline but Schott graded seals standard",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 605,
+      "material_a": "FusedSilica",
+      "material_b": "QuartzGlass",
+      "expected_compatible": true,
+      "citation": "Shelby, Introduction to Glass Science 2005",
+      "notes": "Same material (amorphous vs crystalline SiO2), CTE ~0.5",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 606,
+      "material_a": "SodaLime_Float",
+      "material_b": "FusedSilica",
+      "expected_compatible": false,
+      "citation": "Shelby, Introduction to Glass Science 2005",
+      "notes": "CTE 9.0 vs 0.5 ppm/K, impossible direct seal",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 607,
+      "material_a": "Lead_Crystal",
+      "material_b": "Boro_33",
+      "expected_compatible": false,
+      "citation": "Varshneya, Fundamentals of Inorganic Glasses 2019",
+      "notes": "CTE 9.5 vs 3.3, large mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 608,
+      "material_a": "LAS_Zerodur",
+      "material_b": "FusedSilica",
+      "expected_compatible": true,
+      "citation": "Schott Zerodur Datasheet 2023",
+      "notes": "CTE ~0.05 vs 0.5, both ultra-low expansion",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 609,
+      "material_a": "LAS_Cooktop",
+      "material_b": "LAS_Zerodur",
+      "expected_compatible": true,
+      "citation": "Schott Technical Catalog 2023",
+      "notes": "Same LAS glass-ceramic family, CTE <1.0 both",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 610,
+      "material_a": "Boro_51",
+      "material_b": "Boro_33",
+      "expected_compatible": true,
+      "citation": "Schott Technical Glass Catalog 2023",
+      "notes": "Both borosilicate, CTE 5.1 vs 3.3 within graded seal range",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 611,
+      "material_a": "SodaLime_Tempered",
+      "material_b": "SodaLime_Float",
+      "expected_compatible": true,
+      "citation": "Shelby, Introduction to Glass Science 2005",
+      "notes": "Same composition, different heat treatment",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 612,
+      "material_a": "Lead_Dense_Flint",
+      "material_b": "Lead_Crystal",
+      "expected_compatible": true,
+      "citation": "Varshneya, Fundamentals of Inorganic Glasses 2019",
+      "notes": "Both lead-containing, similar CTE ~9-10",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 613,
+      "material_a": "ZBLAN",
+      "material_b": "SodaLime_Float",
+      "expected_compatible": false,
+      "citation": "France et al., J. Non-Cryst. Solids 1987",
+      "notes": "Fluoride vs oxide glass, chemical incompatibility + CTE mismatch",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 614,
+      "material_a": "As2S3",
+      "material_b": "FusedSilica",
+      "expected_compatible": false,
+      "citation": "Sanghera & Aggarwal, J. Non-Cryst. Solids 1999",
+      "notes": "Chalcogenide vs oxide, CTE 25 vs 0.5, completely incompatible",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 615,
+      "material_a": "Bioglass_45S5",
+      "material_b": "SodaLime_Float",
+      "expected_compatible": true,
+      "citation": "Hench, J. Am. Ceram. Soc. 1998",
+      "notes": "Similar soda-lime-silica base, CTE ~15 vs 9 - high but workable for biomedical",
+      "doi": "10.1111/j.1151-2916.1998.tb02540.x",
+      "used_for_tuning": false
+    },
+    {
+      "id": 616,
+      "material_a": "AlSi_Display",
+      "material_b": "AlSi_ChemStrength",
+      "expected_compatible": true,
+      "citation": "Corning Technical Datasheets 2023",
+      "notes": "Same aluminosilicate family, similar CTE",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 617,
+      "material_a": "Ge28Sb12Se60",
+      "material_b": "As2S3",
+      "expected_compatible": true,
+      "citation": "Bureau et al., Solid State Sci. 2008",
+      "notes": "Both chalcogenide glasses, compatible IR fiber coupling",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 618,
+      "material_a": "LaserPhosphate",
+      "material_b": "BK7",
+      "expected_compatible": false,
+      "citation": "Campbell & Suratwala, J. Non-Cryst. Solids 2000",
+      "notes": "Phosphate vs borosilicate, chemical reaction at interface",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 619,
+      "material_a": "Boro_Neutral",
+      "material_b": "Boro_33",
+      "expected_compatible": true,
+      "citation": "Schott Technical Glass Catalog 2023",
+      "notes": "Both borosilicate Type I, CTE 4.9 vs 3.3",
+      "doi": null,
+      "used_for_tuning": false
+    },
+    {
+      "id": 620,
+      "material_a": "F2",
+      "material_b": "BK7",
+      "expected_compatible": true,
+      "citation": "Schott Optical Glass Catalog 2023",
+      "notes": "Standard optical glass pair, both crown/flint, CTE 8.2 vs 7.1",
+      "doi": null,
+      "used_for_tuning": false
+    }
+  ]
+}

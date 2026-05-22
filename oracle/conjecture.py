@@ -1,13 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# Copyright (c) 2024-2026 James Ray Hawkins
+#
+# This file is dual-licensed. You may use it under either:
+# 1. Apache License 2.0 (see LICENSE file), OR
+# 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
+
 """
-Conjecture Engine for KOMPOSOS-IV.
+Conjecture Engine for KOMPOSOS-III.
 
 Flips the Oracle from reactive to proactive:
   - Reactive (existing):  predict(source, target) -> what relation?
   - Proactive (this):     conjecture()            -> what pairs are missing?
 
 Design constraints respected:
-  - Every strategy already caches category.morphisms() and category.objects().
-    We reuse those exact caches via a shared _GraphCache; no redundant category calls.
+  - Every strategy already caches store.list_morphisms() and store.list_objects().
+    We reuse those exact caches via a shared _GraphCache; no redundant store calls.
   - Candidate enumeration is O(E * k), not O(N^2).  We only consider pairs that
     at least one strategy would score > 0, discovered via graph neighbourhood
     expansion rather than brute-force.
@@ -31,8 +38,7 @@ from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 from dataclasses import dataclass, field
 
 if TYPE_CHECKING:  # pragma: no cover
-    from core.category import Category
-    from data.embeddings import EmbeddingsEngine
+    from data import KomposOSStore, EmbeddingsEngine
     from oracle import CategoricalOracle
 
 from oracle.prediction import Prediction
@@ -82,63 +88,73 @@ class ConjectureResult:
 class _GraphCache:
     """
     Populated once per conjecture run.  All generators and the engine share
-    a single instance so we never hit the category more than once per collection.
+    a single instance so we never hit the store more than once per collection.
+
+    Accepts an optional ``shared_cache`` dict so that the strategy layer and
+    the generator layer share the *same* Python lists / dicts instead of each
+    holding its own ~2 GB copy of the morphism data.
     """
 
-    def __init__(self, category: Category):
-        self.category = category
-        self._morphisms: list | None = None
-        self._objects: list | None = None
-        self._outgoing: Dict[str, list] | None = None
-        self._incoming: Dict[str, list] | None = None
+    def __init__(self, store: KomposOSStore, morphism_limit: int = 3_000_000,
+                 object_limit: int = 100_000,
+                 shared_cache: Dict | None = None):
+        self.store = store
+        self._morphism_limit = morphism_limit
+        self._object_limit = object_limit
+        self._shared: Dict = shared_cache if shared_cache is not None else {}
         self._existing: Set[Tuple[str, str]] | None = None
-        self._object_map: Dict[str, object] | None = None
 
     # -- accessors ----------------------------------------------------------
 
     @property
     def morphisms(self) -> list:
-        if self._morphisms is None:
-            self._morphisms = self.category.morphisms()
-        return self._morphisms
+        if 'morphisms' not in self._shared:
+            self._shared['morphisms'] = self.store.list_morphisms(limit=self._morphism_limit)
+        return self._shared['morphisms']
 
     @property
     def objects(self) -> list:
-        if self._objects is None:
-            self._objects = self.category.objects()
-        return self._objects
+        if 'objects' not in self._shared:
+            self._shared['objects'] = self.store.list_objects(limit=self._object_limit)
+        return self._shared['objects']
 
     @property
     def outgoing(self) -> Dict[str, list]:
         self._ensure_indices()
-        return self._outgoing  # type: ignore[return-value]
+        return self._shared['gc_outgoing']
 
     @property
     def incoming(self) -> Dict[str, list]:
         self._ensure_indices()
-        return self._incoming  # type: ignore[return-value]
+        return self._shared['gc_incoming']
 
     @property
     def existing(self) -> Set[Tuple[str, str]]:
         if self._existing is None:
-            self._existing = {(m.source, m.target) for m in self.morphisms}
+            self._existing = {(m.source_name, m.target_name) for m in self.morphisms}
         return self._existing
 
     @property
     def object_map(self) -> Dict[str, object]:
-        if self._object_map is None:
-            self._object_map = {obj.name: obj for obj in self.objects}
-        return self._object_map
+        if 'object_map' not in self._shared:
+            self._shared['object_map'] = {obj.name: obj for obj in self.objects}
+        return self._shared['object_map']
 
     # -- internals ----------------------------------------------------------
 
     def _ensure_indices(self):
-        if self._outgoing is not None:
+        if 'gc_outgoing' in self._shared:
             return
-        self._outgoing, self._incoming = {}, {}
+        # Reuse strategy morphism_index if already built
+        if 'morphism_index' in self._shared:
+            self._shared['gc_outgoing'], self._shared['gc_incoming'] = self._shared['morphism_index']
+            return
+        out, inc = {}, {}
         for m in self.morphisms:
-            self._outgoing.setdefault(m.source, []).append(m)
-            self._incoming.setdefault(m.target, []).append(m)
+            out.setdefault(m.source_name, []).append(m)
+            inc.setdefault(m.target_name, []).append(m)
+        self._shared['gc_outgoing'] = out
+        self._shared['gc_incoming'] = inc
 
 
 # ---------------------------------------------------------------------------
@@ -154,7 +170,7 @@ class _CandidateGenerator:
         self.cache = cache
         self.embeddings = embeddings
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         raise NotImplementedError
 
 
@@ -168,17 +184,19 @@ class CompositionCandidates(_CandidateGenerator):
 
     name = "composition"
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         outgoing = self.cache.outgoing
         existing = self.cache.existing
         candidates: Set[Tuple[str, str]] = set()
 
         for source, mors in outgoing.items():
             for m1 in mors:
-                for m2 in outgoing.get(m1.target, []):
-                    target = m2.target
+                for m2 in outgoing.get(m1.target_name, []):
+                    target = m2.target_name
                     if target != source and (source, target) not in existing:
                         candidates.add((source, target))
+                        if max_candidates and len(candidates) >= max_candidates:
+                            return candidates
 
         return candidates
 
@@ -197,7 +215,7 @@ class StructuralHoleCandidates(_CandidateGenerator):
     # Per-node cap on pairwise expansion to keep worst case bounded.
     _MAX_SIBLINGS = 25
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         outgoing = self.cache.outgoing
         incoming = self.cache.incoming
         existing = self.cache.existing
@@ -205,7 +223,7 @@ class StructuralHoleCandidates(_CandidateGenerator):
 
         # -- common ancestor --------------------------------------------------
         for ancestor, mors in outgoing.items():
-            targets = [m.target for m in mors]
+            targets = [m.target_name for m in mors]
             if len(targets) > self._MAX_SIBLINGS:
                 targets = targets[: self._MAX_SIBLINGS]
             for i, a in enumerate(targets):
@@ -214,16 +232,20 @@ class StructuralHoleCandidates(_CandidateGenerator):
                         candidates.add((a, b))
                     if (b, a) not in existing:
                         candidates.add((b, a))
+                    if max_candidates and len(candidates) >= max_candidates:
+                        return candidates
 
         # -- common descendant ------------------------------------------------
         for descendant, mors in incoming.items():
-            sources = [m.source for m in mors]
+            sources = [m.source_name for m in mors]
             if len(sources) > self._MAX_SIBLINGS:
                 sources = sources[: self._MAX_SIBLINGS]
             for i, a in enumerate(sources):
                 for b in sources[i + 1:]:
                     if (a, b) not in existing:
                         candidates.add((a, b))
+                    if max_candidates and len(candidates) >= max_candidates:
+                        return candidates
 
         return candidates
 
@@ -240,7 +262,7 @@ class FiberCandidates(_CandidateGenerator):
 
     _MAX_FIBER_SIZE = 30  # beyond this we truncate to avoid O(n^2) per fiber
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         existing = self.cache.existing
         candidates: Set[Tuple[str, str]] = set()
 
@@ -259,6 +281,8 @@ class FiberCandidates(_CandidateGenerator):
                         candidates.add((a, b))
                     if (b, a) not in existing:
                         candidates.add((b, a))
+                    if max_candidates and len(candidates) >= max_candidates:
+                        return candidates
 
         return candidates
 
@@ -279,7 +303,7 @@ class SemanticCandidates(_CandidateGenerator):
         super().__init__(cache, embeddings)
         self.top_k = top_k
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         if self.embeddings is None or not self.embeddings.is_available:
             return set()
 
@@ -291,6 +315,8 @@ class SemanticCandidates(_CandidateGenerator):
             for neighbour in self._top_k_neighbours(name, names):
                 if (name, neighbour) not in existing:
                     candidates.add((name, neighbour))
+                    if max_candidates and len(candidates) >= max_candidates:
+                        return candidates
 
         return candidates
 
@@ -345,7 +371,7 @@ class TemporalCandidates(_CandidateGenerator):
     # TemporalReasoningStrategy treats birth_diff <= 20 as "contemporary"
     _CONTEMPORARY_WINDOW = 20
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         existing = self.cache.existing
         candidates: Set[Tuple[str, str]] = set()
 
@@ -371,10 +397,14 @@ class TemporalCandidates(_CandidateGenerator):
                 for i, a in enumerate(src_group):
                     for b in src_group[i + 1:]:
                         self._maybe_emit(a, b, src_type, tgt_type, existing, candidates)
+                        if max_candidates and len(candidates) >= max_candidates:
+                            return candidates
             else:
                 for a in src_group:
                     for b in tgt_group:
                         self._maybe_emit(a, b, src_type, tgt_type, existing, candidates)
+                        if max_candidates and len(candidates) >= max_candidates:
+                            return candidates
 
         return candidates
 
@@ -404,10 +434,10 @@ class TemporalCandidates(_CandidateGenerator):
         # -- contemporary window checked FIRST: it's the tightest condition
         #    and includes cases where diff > 0 or diff < 0 but small.
         if abs(diff) <= self._CONTEMPORARY_WINDOW:
-            # Forward direction: (a -> b), type pair is (src_type, tgt_type) -- already valid
+            # Forward direction: (a -> b), type pair is (src_type, tgt_type) — already valid
             if (a.name, b.name) not in existing:
                 candidates.add((a.name, b.name))
-            # Reverse direction: (b -> a), type pair is (tgt_type, src_type) -- must check
+            # Reverse direction: (b -> a), type pair is (tgt_type, src_type) — must check
             if (tgt_type, src_type) in self._VALID_TYPE_PAIRS and (b.name, a.name) not in existing:
                 candidates.add((b.name, a.name))
 
@@ -431,14 +461,14 @@ class YonedaCandidates(_CandidateGenerator):
     this overlap (threshold 0.3), so candidates here get non-trivial scores.
 
     We only compare objects that share at least one common *target* (not just
-    morphism type) to keep the set small -- that's the fast filter before we
+    morphism type) to keep the set small — that's the fast filter before we
     compute the actual Jaccard overlap.
     """
 
     name = "yoneda"
     _SIMILARITY_THRESHOLD = 0.3
 
-    def generate(self) -> Set[Tuple[str, str]]:
+    def generate(self, max_candidates: int | None = None) -> Set[Tuple[str, str]]:
         outgoing = self.cache.outgoing
         existing = self.cache.existing
         candidates: Set[Tuple[str, str]] = set()
@@ -447,7 +477,7 @@ class YonedaCandidates(_CandidateGenerator):
         target_to_sources: Dict[str, List[str]] = {}
         for src, mors in outgoing.items():
             for m in mors:
-                target_to_sources.setdefault(m.target, []).append(src)
+                target_to_sources.setdefault(m.target_name, []).append(src)
 
         # For each shared target, compare all pairs of sources.
         # Objects that share no target can't have meaningful Hom-pattern overlap
@@ -467,8 +497,8 @@ class YonedaCandidates(_CandidateGenerator):
                     # Compute Yoneda similarity (same formula as YonedaPatternStrategy)
                     a_out_types = {m.name for m in outgoing.get(a, [])}
                     b_out_types = {m.name for m in outgoing.get(b, [])}
-                    a_out_targets = {m.target for m in outgoing.get(a, [])}
-                    b_out_targets = {m.target for m in outgoing.get(b, [])}
+                    a_out_targets = {m.target_name for m in outgoing.get(a, [])}
+                    b_out_targets = {m.target_name for m in outgoing.get(b, [])}
 
                     type_sim = len(a_out_types & b_out_types) / max(len(a_out_types | b_out_types), 1)
                     target_sim = len(a_out_targets & b_out_targets) / max(len(a_out_targets | b_out_targets), 1)
@@ -479,12 +509,14 @@ class YonedaCandidates(_CandidateGenerator):
                             candidates.add((a, b))
                         if (b, a) not in existing:
                             candidates.add((b, a))
+                        if max_candidates and len(candidates) >= max_candidates:
+                            return candidates
 
         return candidates
 
 
 # ---------------------------------------------------------------------------
-# Conjecture Engine -- the orchestrator
+# Conjecture Engine — the orchestrator
 # ---------------------------------------------------------------------------
 
 class ConjectureEngine:
@@ -502,14 +534,24 @@ class ConjectureEngine:
             print(c)
     """
 
-    def __init__(self, oracle: CategoricalOracle, semantic_top_k: int = 10):
+    def __init__(
+        self,
+        oracle: CategoricalOracle,
+        semantic_top_k: int = 10,
+        morphism_limit: int = 3_000_000,
+        object_limit: int = 100_000,
+    ):
         """
         Args:
             oracle: Fully initialised CategoricalOracle (embeddings required).
             semantic_top_k: How many embedding neighbours to consider per object.
+            morphism_limit: Max morphisms to load into the shared graph cache.
+            object_limit: Max objects to load into the shared graph cache.
         """
         self.oracle = oracle
         self.semantic_top_k = semantic_top_k
+        self._morphism_limit = morphism_limit
+        self._object_limit = object_limit
 
     # -- public API ---------------------------------------------------------
 
@@ -518,6 +560,7 @@ class ConjectureEngine:
         top_k: int = 50,
         min_confidence: float | None = None,
         generators: List[str] | None = None,
+        max_candidates_per_generator: int | None = None,
     ) -> ConjectureResult:
         """
         Run the full conjecture pipeline.
@@ -529,6 +572,9 @@ class ConjectureEngine:
             generators: Whitelist of generator names to run.  None = all.
                 Valid names: composition, structural_hole, fiber, semantic,
                              temporal, yoneda
+            max_candidates_per_generator: Limit each generator to top N candidates.
+                Use this for large datasets to avoid exponential explosion.
+                None = no limit (may be very slow for >100 objects).
 
         Returns:
             ConjectureResult with ranked conjectures and diagnostics.
@@ -537,7 +583,11 @@ class ConjectureEngine:
         effective_min_conf = min_confidence if min_confidence is not None else self.oracle.min_confidence
 
         # -- step 1: build shared cache --------------------------------------
-        cache = _GraphCache(self.oracle.category)
+        # Reuse the strategy-layer shared cache so morphisms/objects/indices
+        # are loaded only once across both strategies and generators.
+        _strategy_cache = getattr(self.oracle.strategies[0], '_shared_cache', {}) if self.oracle.strategies else {}
+        cache = _GraphCache(self.oracle.store, self._morphism_limit, self._object_limit,
+                            shared_cache=_strategy_cache)
 
         # -- step 2: instantiate generators ----------------------------------
         all_generators = self._build_generators(cache)
@@ -550,7 +600,7 @@ class ConjectureEngine:
         pair_sources: Dict[Tuple[str, str], List[str]] = {}  # provenance tracking
 
         for gen in all_generators:
-            pairs = gen.generate()
+            pairs = gen.generate(max_candidates=max_candidates_per_generator)
             candidate_sets[gen.name] = pairs
             for pair in pairs:
                 pair_sources.setdefault(pair, []).append(gen.name)
@@ -565,10 +615,16 @@ class ConjectureEngine:
 
         # -- step 4: score through Oracle ------------------------------------
         conjectures: List[Conjecture] = []
+        _n_total = len(all_candidates)
+        _scored = 0
+        _progress_interval = max(1, _n_total // 20)  # report every 5%
 
         for source, target in all_candidates:
             result = self.oracle.predict(source, target)
             preds = result.predictions
+            _scored += 1
+            if _scored % _progress_interval == 0:
+                print(f"  [conjecture] scored {_scored}/{_n_total} ({100*_scored//_n_total}%)", flush=True)
 
             if not preds:
                 continue
@@ -619,7 +675,7 @@ class ConjectureEngine:
 # ---------------------------------------------------------------------------
 
 def find_conjectures(
-    category: Category,
+    store: KomposOSStore,
     embeddings: EmbeddingsEngine,
     top_k: int = 50,
     min_confidence: float = 0.4,
@@ -629,7 +685,7 @@ def find_conjectures(
     One-shot conjecture generation.  Builds an Oracle internally.
 
     Args:
-        category: Populated Category.
+        store: Populated KomposOSStore.
         embeddings: Initialised EmbeddingsEngine.
         top_k: Number of conjectures to return.
         min_confidence: Minimum confidence threshold.
@@ -641,7 +697,7 @@ def find_conjectures(
     from oracle import CategoricalOracle  # local import avoids circular
 
     oracle = CategoricalOracle(
-        category,
+        store,
         embeddings,
         min_confidence=min_confidence,
         max_predictions=max_predictions,

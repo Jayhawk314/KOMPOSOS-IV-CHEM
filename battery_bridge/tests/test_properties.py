@@ -75,8 +75,8 @@ class TestMaterialProperties(unittest.TestCase):
                                f"{name} upper < lower voltage")
             self.assertGreater(mat.voltage_window.nominal, 0,
                                f"{name} nominal voltage <= 0")
-            # Cathodes should operate at 2.5-5.0V vs Li/Li+
-            self.assertGreaterEqual(mat.voltage_window.nominal, 2.5,
+            # Cathodes should operate at 1.5-5.0V vs Li/Li+ (includes Li-S at ~2.1V)
+            self.assertGreaterEqual(mat.voltage_window.nominal, 1.5,
                                     f"{name} cathode voltage too low")
             self.assertLessEqual(mat.voltage_window.upper, 5.5,
                                  f"{name} cathode voltage too high")

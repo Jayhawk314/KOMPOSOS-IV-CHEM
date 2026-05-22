@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "description": "Riehl STT Discovery Session Results",
+    "date": "2026-05-19",
+    "objects": 57,
+    "morphisms": 62
+  },
+  "gaps": [
+    "{'source': 'DirectedInterval', 'target': 'FibrantType', 'via': 'SimplicialType', 'path_confidence': 0.9025}",
+    "{'source': 'InfinityCosmos', 'target': 'QuasiCategory', 'via': 'ModelIndependence', 'path_confidence': 0.9025}",
+    "{'source': 'InfinityCosmos', 'target': 'CompleteSegalSpace', 'via': 'ModelIndependence', 'path_confidence': 0.9025}",
+    "{'source': 'InfinityCosmos', 'target': 'SegalCategory', 'via': 'ModelIndependence', 'path_confidence': 0.9025}",
+    "{'source': 'SimplicialType', 'target': 'SegalType', 'via': 'FibrantType', 'path_confidence': 0.855}",
+    "{'source': 'SimplexCategory', 'target': 'SimplicialType', 'via': 'DirectedInterval', 'path_confidence': 0.855}",
+    "{'source': 'HornInclusion', 'target': 'SegalCondition', 'via': 'InnerHorn', 'path_confidence': 0.855}",
+    "{'source': 'InnerHorn', 'target': 'SegalType', 'via': 'SegalCondition', 'path_confidence': 0.855}",
+    "{'source': 'InfinityCosmos', 'target': 'TrivialFibration', 'via': 'Isofibration', 'path_confidence': 0.855}",
+    "{'source': 'InfinityCosmos', 'target': 'InfinityFunctor', 'via': 'Homotopy2Category', 'path_confidence': 0.855}",
+    "{'source': 'InfinityCosmos', 'target': 'InfinityNatTrans', 'via': 'Homotopy2Category', 'path_confidence': 0.855}",
+    "{'source': 'CommaObject', 'target': 'Isofibration', 'via': 'InfinityCosmos', 'path_confidence': 0.855}",
+    "{'source': 'CommaObject', 'target': 'ModelIndependence', 'via': 'InfinityCosmos', 'path_confidence': 0.855}",
+    "{'source': 'CommaObject', 'target': 'Homotopy2Category', 'via': 'InfinityCosmos', 'path_confidence': 0.855}",
+    "{'source': 'CartesianFibration', 'target': 'TrivialFibration', 'via': 'Isofibration', 'path_confidence': 0.81}",
+    "{'source': 'CoCartesianFibration', 'target': 'TrivialFibration', 'via': 'Isofibration', 'path_confidence': 0.81}",
+    "{'source': 'AdjointFunctorThm', 'target': 'CoherentAdjunction', 'via': 'AdjointFunctor', 'path_confidence': 0.81}",
+    "{'source': 'SimplicialType', 'target': 'CovariantFamily', 'via': 'FibrantType', 'path_confidence': 0.8075}",
+    "{'source': 'SimplicialType', 'target': 'ContravariantFamily', 'via': 'FibrantType', 'path_confidence': 0.8075}",
+    "{'source': 'HornInclusion', 'target': 'CartesianFibration', 'via': 'OuterHorn', 'path_confidence': 0.8075}",
+    "{'source': 'InfinityCosmos', 'target': 'InnerFibration', 'via': 'Isofibration', 'path_confidence': 0.8075}",
+    "{'source': 'InfinityCosmos', 'target': 'AdjointFunctor', 'via': 'Homotopy2Category', 'path_confidence': 0.8075}",
+    "{'source': 'YonedaEmbedding', 'target': 'AbsoluteKanExt', 'via': 'YonedaLemma', 'path_confidence': 0.8075}",
+    "{'source': 'SegalCondition', 'target': 'RezkType', 'via': 'SegalType', 'path_confidence': 0.8075}",
+    "{'source': 'SliceInfCosmos', 'target': 'Isofibration', 'via': 'InfinityCosmos', 'path_confidence': 0.8075}",
+    "{'source': 'SliceInfCosmos', 'target': 'ModelIndependence', 'via': 'InfinityCosmos', 'path_confidence': 0.8075}",
+    "{'source': 'SliceInfCosmos', 'target': 'Homotopy2Category', 'via': 'InfinityCosmos', 'path_confidence': 0.8075}",
+    "{'source': 'FibrantType', 'target': 'RezkType', 'via': 'SegalType', 'path_confidence': 0.765}",
+    "{'source': 'SegalType', 'target': 'InfinityCategory', 'via': 'RezkType', 'path_confidence': 0.765}",
+    "{'source': 'OuterHorn', 'target': 'Isofibration', 'via': 'CartesianFibration', 'path_confidence': 0.765}"
+  ],
+  "intermediates": [
+    {
+      "source": "SimplicialType",
+      "target": "InfinityCategory",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "ExtensionType",
+      "target": "YonedaLemma",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "SegalType",
+      "target": "CartesianFibration",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "UnivalenceAxiom",
+      "target": "DirectedUnivalence",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "RezkType",
+      "target": "InternalLanguageInfCosmos",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "OuterHorn",
+      "target": "CoCartesianFibration",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "HomType",
+      "target": "InfinityNatTrans",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "MonadicAdjunction",
+      "target": "SyntheticMonad",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "SegalCondition",
+      "target": "Homotopy2Category",
+      "intermediates": [],
+      "conjecture_candidate": true
+    },
+    {
+      "source": "ExtensionType",
+      "target": "SyntheticLimits",
+      "intermediates": [],
+      "conjecture_candidate": true
+    }
+  ],
+  "cosmos": {
+    "two_cells": 0,
+    "fibrations": 0,
+    "yoneda_faithfulness": 1.0,
+    "representables": 57
+  },
+  "optimus_refine": {
+    "steps": 0,
+    "synced_morphisms": [],
+    "improvements": null
+  },
+  "dual_engine": [
+    {
+      "source": "RezkType",
+      "target": "DirectedUnivalence",
+      "relation": "satisfies",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "ExtensionType",
+      "target": "SyntheticLimits",
+      "relation": "expresses",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "SimplicialType",
+      "target": "SimplicialYoneda",
+      "relation": "proves",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "SegalType",
+      "target": "SyntheticCartFib",
+      "relation": "defines",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "RezkType",
+      "target": "InternalLanguageInfCosmos",
+      "relation": "is_language_of",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "MonadicAdjunction",
+      "target": "SyntheticMonad",
+      "relation": "internalizes",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "OuterHorn",
+      "target": "SyntheticCartFib",
+      "relation": "characterizes",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    },
+    {
+      "source": "InfinityCategory",
+      "target": "DirectedHomotopyHypothesis",
+      "relation": "satisfies",
+      "verdict": "HOLLOW",
+      "zfc_says": false,
+      "cat_says": true
+    }
+  ],
+  "pipeline": {
+    "holes_cog_verified": 0,
+    "holes_cog_rejected": 0,
+    "optimus_intermediates": 0,
+    "conjectures_agree": 0,
+    "conjectures_hollow": 8,
+    "conjectures_orphan": 0,
+    "conjectures_reject": 0
+  }
+}

@@ -657,7 +657,7 @@ class System3Oracle:
         """Generate a report on System 3's performance."""
         lines = []
         lines.append(f"System 3 Report: {self.name}")
-        lines.append(f"═" * 50)
+        lines.append("=" * 50)
 
         lines.append(f"")
         lines.append(f"Episodes: {len(self.history.episodes)}")

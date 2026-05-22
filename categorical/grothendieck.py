@@ -27,6 +27,45 @@ from dataclasses import dataclass, field
 import math
 
 
+# =============================================================================
+# Attack Surface Classification
+# =============================================================================
+
+ATTACK_SURFACES: List[str] = [
+    "Application",
+    "Endpoint",
+    "Network",
+    "Identity",
+    "Cloud",
+    "Container",
+    "Cryptographic",
+]
+
+SURFACE_PIVOTS: Dict[str, List[str]] = {
+    "Application->Endpoint": ["T1059", "T1068", "T1055"],
+    "Endpoint->Network": ["T1021", "T1071"],
+    "Network->Cloud": ["T1078.004", "T1530"],
+    "Cloud->Identity": ["T1098.003", "T1528"],
+    "Identity->Endpoint": ["T1078", "T1003"],
+    "Endpoint->Container": ["T1610", "T1611"],
+    "Container->Cloud": ["T1078.004", "T1537"],
+    "Application->Cryptographic": ["TCRYPTO_001", "TCRYPTO_005"],
+}
+
+SURFACE_CLASSIFICATION: Dict[str, List[str]] = {
+    "Application": ["T1190", "T1195", "T1195.001", "T1195.002", "T1566"],
+    "Endpoint": ["T1059", "T1068", "T1055", "T1003", "T1005", "T1486"],
+    "Network": ["T1021", "T1071", "T1041", "T1048"],
+    "Identity": ["T1078", "T1556", "T1558", "T1098.003", "T1528"],
+    "Cloud": ["T1078.004", "T1530", "T1537", "T1580", "T1578.002"],
+    "Container": ["T1610", "T1611", "T1613"],
+    "Cryptographic": [
+        "TCRYPTO_001", "TCRYPTO_002", "TCRYPTO_003", "TCRYPTO_004",
+        "TCRYPTO_005", "TCRYPTO_006", "TCRYPTO_007", "TCRYPTO_008",
+    ],
+}
+
+
 @dataclass
 class FiberedObject:
     """
@@ -271,9 +310,55 @@ class GrothendieckConstruction:
 
         return chains
 
+    def find_cross_surface_chains(self, max_pivots: int = 3,
+                                  max_length: int = 8) -> List[List[FiberedObject]]:
+        """Alias for find_cross_base_chains to support multi-surface detector."""
+        return self.find_cross_base_chains(max_transitions=max_pivots, max_length=max_length)
+
     def classify_fiber_element(self, fiber_id: str) -> List[str]:
         """Get which base objects a fiber element belongs to."""
         return self._fiber_to_bases.get(fiber_id, [])
+
+    def classify_technique_surface(self, tech_id: str) -> List[str]:
+        """Alias for classify_fiber_element to support multi-surface detector."""
+        return self.classify_fiber_element(tech_id)
+
+    def detect_pivot(self, technique_sequence: List[str]) -> List[Dict]:
+        """
+        Detect pivots between surfaces in a sequence of techniques.
+
+        A pivot is a transition between two techniques that belong to
+        different surfaces, connected by a cross-base morphism.
+        """
+        pivots = []
+        if len(technique_sequence) < 2:
+            return pivots
+
+        for i in range(len(technique_sequence) - 1):
+            src_tech = technique_sequence[i]
+            dst_tech = technique_sequence[i+1]
+
+            src_surfaces = self.classify_fiber_element(src_tech)
+            dst_surfaces = self.classify_fiber_element(dst_tech)
+
+            for s_surf in src_surfaces:
+                for d_surf in dst_surfaces:
+                    if s_surf != d_surf:
+                        # Check if a cross-base morphism exists
+                        src_key = (s_surf, src_tech)
+                        morphisms = self._adjacency.get(src_key, [])
+                        for m in morphisms:
+                            if m.target.base == d_surf and m.target.fiber == dst_tech:
+                                pivots.append({
+                                    "source_surface": s_surf,
+                                    "target_surface": d_surf,
+                                    "source_technique": src_tech,
+                                    "target_technique": dst_tech,
+                                    "pivot_stealth": m.weight,
+                                    "valid_pivot": True
+                                })
+                                break
+        return pivots
 
     def get_stats(self) -> Dict:
         """Get statistics about the total category integralF."""
@@ -330,6 +415,7 @@ class GrothendieckConstruction:
             "within_base_morphisms": within_count,
             "cross_base_morphisms": cross_count,
             "base_object_counts": base_obj_counts,
+            "surface_object_counts": base_obj_counts,  # Alias
             "base_morphism_counts": base_morphism_counts,
             "transition_counts": transition_counts,
             "avg_within_weight": round(avg_within_weight, 4),
@@ -337,6 +423,10 @@ class GrothendieckConstruction:
             "shared_fibers": len(shared_fibers),
             "num_base_objects": len(self.base_objects),
         }
+
+    def get_surface_stats(self) -> Dict:
+        """Alias for get_stats to support multi-surface detector."""
+        return self.get_stats()
 
     def get_fibered_morphisms_from(self, base: str, fiber: str) -> List[FiberedMorphism]:
         """Get all outgoing morphisms from a fibered object."""

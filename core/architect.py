@@ -295,7 +295,7 @@ class ArchitecturalAdvisor:
         episodes_recorded = []
 
         try:
-            from zfc.store_adapter import StoreAdapter
+            from zfc.category_store_adapter import StoreAdapter
             # Use EvolvedDualEngineBridge for axiom-evolving verification
             from zfc.evolved_bridge import EvolvedDualEngineBridge
 

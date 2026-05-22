@@ -137,8 +137,8 @@ class OracleZFCBridge:
     This avoids double-prediction and works as a post-processing step.
 
     Usage:
-        oracle = CategoricalOracle(category, embeddings)
-        zfc_bridge = OracleZFCBridge(category, domain="drug_repurposing")
+        oracle = CategoricalOracle(store, embeddings)
+        zfc_bridge = OracleZFCBridge(store, domain="drug_repurposing")
 
         result = oracle.predict(source, target)
         dual = zfc_bridge.verify_predictions(
@@ -146,10 +146,10 @@ class OracleZFCBridge:
         )
     """
 
-    def __init__(self, category, domain: str = "", min_confidence: float = 0.4):
+    def __init__(self, store, domain: str = "", min_confidence: float = 0.4):
         """
         Args:
-            category: Category instance
+            store: KomposOSStore instance
             domain: tag for System 3 episodes
             min_confidence: CAT threshold for AGREE/HOLLOW classification
         """
@@ -161,8 +161,8 @@ class OracleZFCBridge:
             return
 
         try:
-            self.logic_oracle = store_to_logic_oracle(category)
-            self.ordinal_oracle = store_to_ordinal_oracle(category)
+            self.logic_oracle = store_to_logic_oracle(store)
+            self.ordinal_oracle = store_to_ordinal_oracle(store)
             self.system3 = System3Oracle(
                 f"OracleZFC_{domain}" if domain else "OracleZFC"
             )

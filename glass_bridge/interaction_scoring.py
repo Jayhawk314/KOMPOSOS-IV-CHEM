@@ -121,6 +121,17 @@ def score_thermal_expansion_match(
         score = max(0.05, 0.15 - (cte_diff - 10) * 0.01)
         details['assessment'] = 'extreme CTE mismatch (incompatible)'
 
+    # Percentage-based check: enforce documented thresholds (lines 65-70)
+    # Only applied when absolute diff is significant (>= 2.0 x10^-6/K),
+    # since ultra-low CTE pairs (Zerodur + FusedSilica) have high % but tiny absolute diff
+    if cte_diff >= 2.0:
+        if cte_pct_diff > 50:
+            score = min(score, 0.15)
+            details['pct_penalty'] = f'{cte_pct_diff:.0f}% CTE difference exceeds 50% incompatibility threshold'
+        elif cte_pct_diff > 30:
+            score = min(score, 0.30)
+            details['pct_penalty'] = f'{cte_pct_diff:.0f}% CTE difference exceeds 30% threshold'
+
     # Additional penalty for extreme ratios (only meaningful when CTEs > 1.0)
     if cte_avg > 1.0:
         cte_ratio = max(cte_a, cte_b) / max(min(cte_a, cte_b), 0.01)
@@ -347,6 +358,8 @@ _INCOMPATIBLE_PAIRS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('FusedSilica', 'Bioglass_45S5'): (0.3, 'Extreme CTE and durability mismatch'),
     ('As2S3', 'FusedSilica'): (0.5, 'Chalcogenide + fused silica: incompatible networks'),
     ('FusedSilica', 'As2S3'): (0.5, 'Incompatible glass networks'),
+    ('SodaLime_Float', 'Boro_33'): (0.7, 'Soda-lime + borosilicate: 93% CTE mismatch (9.0 vs 3.3); seal will crack'),
+    ('Boro_33', 'SodaLime_Float'): (0.7, 'Borosilicate + soda-lime: 93% CTE mismatch; incompatible for sealing'),
 }
 
 
@@ -447,6 +460,8 @@ _KNOWN_BAD_PAIRS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('SodaLime_Float', 'ZBLAN'): (0.5, 'Fluoride + silicate incompatible'),
     ('LaserPhosphate', 'SodaLime_Float'): (0.3, 'Phosphate glass poor durability + soda-lime alkali leaching'),
     ('SodaLime_Float', 'LaserPhosphate'): (0.3, 'Both have durability concerns'),
+    ('SodaLime_Float', 'Boro_33'): (0.4, 'CTE mismatch 93% (9.0 vs 3.3 x10^-6/K); seal cracks on cooling'),
+    ('Boro_33', 'SodaLime_Float'): (0.4, 'CTE mismatch 93%; borosilicate-soda lime seal incompatible'),
 }
 
 

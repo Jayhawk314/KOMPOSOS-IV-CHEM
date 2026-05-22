@@ -1,0 +1,12 @@
+[
+  {
+    "accession": "PF00400",
+    "name": "WD40",
+    "description": "WD domain, G-beta repeat",
+    "start": 96,
+    "end": 256,
+    "evalue": 1.0,
+    "domain_type": "repeat",
+    "active_site_residues": []
+  }
+]

@@ -19,9 +19,9 @@ Verdicts:
 5. Electrical Conductivity — Does it conduct electrons?
 
 Each verdict classified as:
-- AGREE: Both ZFC (logic) and CAT (composition) confirm
-- HOLLOW: CAT yes, ZFC no (structurally plausible but logically impossible)
-- ORPHAN: ZFC yes, CAT no (logically forced but structurally unknown)
+- AGREE: CAT score passes and ZFC constraint checks find no veto
+- HOLLOW: CAT yes, ZFC no (structurally plausible but violates current constraints)
+- ORPHAN: ZFC no veto, CAT no (not ruled out by constraints but structurally unknown)
 - REJECT: Both no
 
 Pattern follows: oracle/material_zfc_constraints.py + zfc/bridge.py

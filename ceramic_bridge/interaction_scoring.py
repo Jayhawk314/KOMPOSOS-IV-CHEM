@@ -306,13 +306,14 @@ _REACTIVE_PAIRS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('SiO2', 'Al2O3'): (0.2, 'Forms mullite (3Al2O3-2SiO2) at >1500C'),
     ('MgO', 'SiO2'): (0.5, 'Forms forsterite (Mg2SiO4) at >1200C'),
     ('SiO2', 'MgO'): (0.5, 'Forms forsterite (Mg2SiO4) at >1200C'),
-    ('MgO', 'Al2O3'): (0.15, 'Forms spinel (MgAl2O4); actually can be beneficial'),
-    ('Al2O3', 'MgO'): (0.15, 'Forms spinel (MgAl2O4); actually can be beneficial'),
+    ('MgO', 'Al2O3'): (-0.10, 'Forms spinel (MgAl2O4); beneficial reaction product (Kingery 1976)'),
+    ('Al2O3', 'MgO'): (-0.10, 'Forms spinel (MgAl2O4); beneficial reaction product (Kingery 1976)'),
     ('SiC', 'Al2O3'): (0.3, 'SiC oxidizes at Al2O3 sintering temps; interface reaction'),
     ('Al2O3', 'SiC'): (0.3, 'SiC oxidizes at Al2O3 sintering temps; interface reaction'),
 }
 
-# Known compatible pairs (same crystal family, similar bonding)
+# Known compatible pairs (same crystal family, similar bonding, or
+# established composites that tolerate CTE mismatch)
 _COMPATIBLE_PAIRS: Set[Tuple[str, str]] = {
     ('Al2O3', 'ZrO2'), ('ZrO2', 'Al2O3'),
     ('Si3N4', 'SiC'), ('SiC', 'Si3N4'),
@@ -321,6 +322,12 @@ _COMPATIBLE_PAIRS: Set[Tuple[str, str]] = {
     ('Al2O3', 'TiN'), ('TiN', 'Al2O3'),
     ('WC', 'TiC'), ('TiC', 'WC'),
     ('Hydroxyapatite', 'TCP'), ('TCP', 'Hydroxyapatite'),
+    # Wei & Becher, J. Am. Ceram. Soc. 1984 — SiC whisker-reinforced Al2O3
+    ('Al2O3', 'SiC'), ('SiC', 'Al2O3'),
+    # Jaffe et al., Piezoelectric Ceramics 1971 — multilayer piezo stacks
+    ('BaTiO3', 'PZT'), ('PZT', 'BaTiO3'),
+    # Kingery, Introduction to Ceramics 1976 — forms MgAl2O4 spinel
+    ('MgO', 'Al2O3'), ('Al2O3', 'MgO'),
 }
 
 
@@ -432,6 +439,19 @@ _KNOWN_BAD_CERAMIC_PAIRS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('Al2O3', 'Li3PS4'): (0.5, 'Sulfide SE degrades with oxide ceramic'),
     ('BN_hex', 'Soda_Lime'): (0.4, 'No bonding mechanism; CTE and modulus mismatch'),
     ('Soda_Lime', 'BN_hex'): (0.4, 'No bonding mechanism; CTE and modulus mismatch'),
+    ('BN_hex', 'SiO2'): (0.9, 'BN-silica direct interface lacks bonding mechanism; nitride/oxide thermal and chemical mismatch'),
+    ('SiO2', 'BN_hex'): (0.9, 'BN-silica direct interface lacks bonding mechanism; nitride/oxide thermal and chemical mismatch'),
+    ('BN_hex', 'Borosilicate'): (0.9, 'BN-borosilicate direct interface lacks bonding mechanism without engineered interlayer'),
+    ('Borosilicate', 'BN_hex'): (0.9, 'BN-borosilicate direct interface lacks bonding mechanism without engineered interlayer'),
+    # ZrO2_YSZ + MgO: MgO destabilizes YSZ tetragonal phase (ASM Handbook)
+    ('ZrO2_YSZ', 'MgO'): (0.9, 'MgO destabilizes YSZ tetragonal phase; grain boundary segregation'),
+    ('MgO', 'ZrO2_YSZ'): (0.9, 'MgO destabilizes YSZ tetragonal phase; grain boundary segregation'),
+    # B4C + Al2O3: interface reaction above 1600C (Thevenot, J. Eur. Ceram. Soc. 1990)
+    ('B4C', 'Al2O3'): (0.9, 'B4C-Al2O3 interface reaction at sintering temps >1600C'),
+    ('Al2O3', 'B4C'): (0.9, 'B4C-Al2O3 interface reaction at sintering temps >1600C'),
+    # NASICON + Li3PS4: oxide-sulfide SE interface (Janek & Zeier, Nat. Energy 2016)
+    ('NASICON', 'Li3PS4'): (0.9, 'Oxide-sulfide solid electrolyte interface; high impedance'),
+    ('Li3PS4', 'NASICON'): (0.9, 'Oxide-sulfide solid electrolyte interface; high impedance'),
 }
 
 

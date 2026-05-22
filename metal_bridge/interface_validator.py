@@ -30,6 +30,7 @@ from metal_bridge.interaction_scoring import (
     score_mechanical_compatibility,
     score_metallurgical_compatibility,
     score_corrosion_penalty,
+    _get_base_element,
     ScorerResult,
 )
 
@@ -75,11 +76,11 @@ class MetalInterfaceScore:
 @dataclass
 class MetalWeights:
     """Configurable weights for the five scoring components."""
-    galvanic: float = 0.25
+    galvanic: float = 0.35  # Increased from 0.25 to penalize galvanic mismatch
     thermal: float = 0.20
     mechanical: float = 0.20
-    metallurgical: float = 0.20
-    corrosion: float = 0.15
+    metallurgical: float = 0.15  # Reduced from 0.20
+    corrosion: float = 0.10  # Reduced from 0.15
 
     def validate(self):
         """Check weights sum to ~1.0."""
@@ -240,6 +241,34 @@ class MetalInterfaceValidator:
             'metal_b': material_b.formula,
         }
 
+        # Veto check: Severe galvanic mismatch (>0.5V) requires electrical insulation
+        # Per MIL-STD-889D: >0.5V = "avoid direct contact"
+        is_viable = total >= self.viability_threshold
+        elem_a = _get_base_element(material_a)
+        elem_b = _get_base_element(material_b)
+        wet_or_corrosive = conditions.environment in {
+            "outdoor",
+            "marine",
+            "industrial",
+            "conductive_moisture",
+            "wet",
+            "salt_spray",
+        } or conditions.humidity_pct > 80
+        fe_base_join = elem_a == "Fe" and elem_b == "Fe"
+        if scores['galvanic'] < 0.30 and not (fe_base_join and not wet_or_corrosive):
+            is_viable = False
+            all_details['veto'] = 'Severe galvanic mismatch (>0.5V potential difference): direct contact prohibited per MIL-STD-889D'
+        elif scores['galvanic'] < 0.30:
+            all_details['galvanic_veto_relaxed'] = (
+                'Fe-base stainless/carbon or low-alloy steel joint in non-corrosive service; '
+                'galvanic warning retained but not treated as a hard veto.'
+            )
+
+        # Veto check: known-bad corrosion pair (MIL-STD-889D incompatible groups)
+        if scores['corrosion'] < 0.55:
+            is_viable = False
+            all_details['veto'] = all_details.get('veto', '') + '; known corrosion-incompatible pair (MIL-STD-889D)'
+
         return MetalInterfaceScore(
             total=total,
             galvanic_compatibility=scores['galvanic'],
@@ -247,7 +276,7 @@ class MetalInterfaceValidator:
             mechanical_compatibility=scores['mechanical'],
             metallurgical_compatibility=scores['metallurgical'],
             corrosion_penalty=scores['corrosion'],
-            viable=total >= self.viability_threshold,
+            viable=is_viable,
             details=all_details,
         )
 

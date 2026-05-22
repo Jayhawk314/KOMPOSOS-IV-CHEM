@@ -93,16 +93,18 @@ def score_solubility_compatibility(
             details['chi_interpretation'] = 'miscible (negative chi = favorable interaction)'
         elif chi < 0.02:
             score = 0.85
-            details['chi_interpretation'] = 'miscible (chi near zero)'
-        elif chi < 0.1:
-            score = 0.65
-            details['chi_interpretation'] = 'partially miscible (low chi)'
-        elif chi < 0.5:
-            score = 0.40
-            details['chi_interpretation'] = 'marginal miscibility'
+            details['chi_interpretation'] = 'miscible (chi << critical, strong miscibility)'
+        elif chi < 0.04:
+            # Critical chi for many polymer pairs (Krause 1972, Nishi & Wang 1975)
+            score = 0.75
+            details['chi_interpretation'] = 'miscible (chi near critical, marginal miscibility)'
+        elif chi < 0.15:
+            # Above critical chi = immiscible or LCST phase-separated
+            score = 0.35
+            details['chi_interpretation'] = 'immiscible (chi > critical, phase separation expected)'
         else:
-            score = max(0.1, 0.3 - chi * 0.1)
-            details['chi_interpretation'] = 'immiscible (high chi)'
+            score = max(0.05, 0.2 - chi * 0.02)
+            details['chi_interpretation'] = 'immiscible (chi >> critical, severe incompatibility)'
         return ScorerResult(score=max(0.0, min(1.0, score)),
                             label='solubility_compatibility', details=details)
 
@@ -390,8 +392,25 @@ def score_chemical_resistance(
 _KNOWN_BAD_BLENDS: Dict[Tuple[str, str], Tuple[float, str]] = {
     ('HDPE', 'PA6'): (0.5, 'Immiscible blend; delamination without compatibilizer'),
     ('HDPE', 'PA66'): (0.5, 'Immiscible blend; delamination without compatibilizer'),
+    ('HDPE', 'PET'): (0.5, 'Immiscible blend; PE/PET polarity mismatch without compatibilizer'),
     ('PP', 'PA6'): (0.5, 'Immiscible blend; polarity mismatch'),
     ('PP', 'PA66'): (0.5, 'Immiscible blend; polarity mismatch'),
+    ('PA6', 'ABS'): (0.5, 'Immiscible nylon/ABS blend without reactive compatibilizer'),
+    ('ABS', 'PA6'): (0.5, 'Immiscible nylon/ABS blend without reactive compatibilizer'),
+    ('PA66', 'ABS'): (0.5, 'Immiscible nylon/ABS blend without reactive compatibilizer'),
+    ('ABS', 'PA66'): (0.5, 'Immiscible nylon/ABS blend without reactive compatibilizer'),
+    ('PA6', 'PVC'): (0.5, 'Immiscible nylon/PVC blend without tailored compatibilizer'),
+    ('PVC', 'PA6'): (0.5, 'Immiscible nylon/PVC blend without tailored compatibilizer'),
+    ('PA66', 'PVC'): (0.5, 'Immiscible nylon/PVC blend without tailored compatibilizer'),
+    ('PVC', 'PA66'): (0.5, 'Immiscible nylon/PVC blend without tailored compatibilizer'),
+    ('PA66', 'POM'): (0.6, 'Immiscible nylon/acetal blend without compatibilizer; strong processing and interfacial mismatch'),
+    ('POM', 'PA66'): (0.6, 'Immiscible nylon/acetal blend without compatibilizer; strong processing and interfacial mismatch'),
+    ('ABS', 'PTFE'): (0.7, 'ABS/PTFE is not a standard miscible blend; PTFE surface energy and fluoropolymer inertness drive poor interfacial adhesion'),
+    ('PTFE', 'ABS'): (0.7, 'ABS/PTFE is not a standard miscible blend; PTFE surface energy and fluoropolymer inertness drive poor interfacial adhesion'),
+    ('PTFE', 'Epoxy'): (0.7, 'Untreated PTFE has very low surface energy; poor epoxy adhesion'),
+    ('Epoxy', 'PTFE'): (0.7, 'Untreated PTFE has very low surface energy; poor epoxy adhesion'),
+    ('PTFE', 'Phenolic'): (0.6, 'Untreated PTFE has very low surface energy; poor thermoset adhesion'),
+    ('Phenolic', 'PTFE'): (0.6, 'Untreated PTFE has very low surface energy; poor thermoset adhesion'),
     ('PTFE', 'NMP'): (0.3, 'PTFE chemically inert; will not dissolve'),
     ('PTFE', 'Toluene'): (0.3, 'PTFE chemically inert; will not dissolve'),
     ('PTFE', 'Acetone'): (0.3, 'PTFE chemically inert; will not dissolve'),
