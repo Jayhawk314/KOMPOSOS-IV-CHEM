@@ -20,13 +20,53 @@ from data.store import KomposOSStore
 from core.category import Category
 
 
-class BioDomainLoader:
+from core.bridge import Bridge
+from core.types import Object, Morphism
+
+
+class BioDomainLoader(Bridge):
     """Load KOMPOSOS-III bio data into KOMPOSOS-IV Category."""
 
-    def __init__(self):
-        self.store: Optional[KomposOSStore] = None
-        self.category: Optional[Category] = None
+    def __init__(self, db_path: str = "data/drugs/tier1.db"):
+        super().__init__(name="bio", db_path=db_path)
+        self.store = KomposOSStore(db_path)
         self.loaded_count: Dict[str, int] = {"objects": 0, "morphisms": 0}
+
+    def get_objects(self) -> List[Object]:
+        """Return bio entities as categorical Objects."""
+        objs = []
+        for row in self.store.list_objects():
+            objs.append(Object(
+                name=row.name,
+                type_name=row.type_name,
+                metadata=dict(row.metadata) if row.metadata else {}
+            ))
+        return objs
+
+    def get_morphisms(self) -> List[Morphism]:
+        """Return bio interactions as categorical Morphisms."""
+        mors = []
+        for row in self.store.list_morphisms():
+            mors.append(Morphism(
+                name=row.name,
+                source=row.source_name,
+                target=row.target_name,
+                confidence=row.confidence if row.confidence else 1.0,
+                metadata=dict(row.metadata) if row.metadata else {}
+            ))
+        return mors
+
+    def score_pair(self, source: str, target: str) -> Dict[str, float]:
+        """Return compatibility score for a drug-disease or drug-target pair."""
+        # For bio, we use the inference strategies
+        from oracle.compatibility_ensemble import build_compatibility_ensemble
+        
+        # Ensure data is loaded
+        if not self.is_loaded:
+            self.load()
+            
+        ensemble = build_compatibility_ensemble(source, target, "bio", 0.5, True, None)
+        return {"total": ensemble.score, "viable": ensemble.compatible}
 
     def load_tier1(self, tier1_db_path: str, category: Optional[Category] = None) -> Category:
         """

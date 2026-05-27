@@ -1,0 +1,434 @@
+{
+  "version": "external_blind.compatibility.2026_q8.v1",
+  "created_at": "2026-05-27",
+  "benchmark_period": "2026_q8",
+  "frozen": true,
+  "description": "Post-Unified Reasoning Milestone blind benchmark. Evaluates Simplicial Type Theory integration and unified shared-service consistency across battery, polymer, metal, ceramic, and cross-domain families. Targets recent 2024-2026 literature findings and complex interface cases.",
+  "selection_policy": "Forty source-backed pairs selected from 2024-2026 research papers, SCHOTT/MO-SCI technical datasheets, and established materials handbooks. Balance maintained between positive (standard/novel compatible) and negative (mismatch/corrosion/oxidation) controls.",
+  "holdout_policy": "Frozen on 2026-05-27. No tuning allowed against this file until Q8 results are reported. Treat as blind validation.",
+  "schema": {
+    "expected_compatible": "true=stable/usable; false=unsuitable/failure",
+    "source_fields": ["doi", "url", "manual_source"],
+    "context_fields": ["role", "electrolyte", "environment", "temperature_C"]
+  },
+  "pairs": [
+    {
+      "id": 9801,
+      "material_a": "LLZO",
+      "material_b": "PEO",
+      "domain": "battery-polymer",
+      "role": "hybrid_electrolyte",
+      "expected_compatible": true,
+      "citation": "Institute of Metal Research (IMR) 2025, flexible solid-state batteries",
+      "evidence_basis": "Nanoceramic LLZO fillers in PEO matrices form stable, flexible hybrid electrolytes with reduced interfacial resistance.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9802,
+      "material_a": "LLZO",
+      "material_b": "PVDF",
+      "domain": "battery-polymer",
+      "role": "hybrid_electrolyte",
+      "expected_compatible": true,
+      "citation": "Nature Communications 2026, dendrite-suppressing interphases",
+      "evidence_basis": "Engineered nanoceramic-polymer interfaces suppress lithium dendrites via tortuous path induction.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9803,
+      "material_a": "Li_metal",
+      "material_b": "PEO",
+      "domain": "battery-polymer",
+      "role": "anode_interface",
+      "expected_compatible": true,
+      "citation": "Joule 2025, electric-field-modulated interphases",
+      "evidence_basis": "PEO remains chemically stable against lithium metal at low potentials, forming a protective SEI layer.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9804,
+      "material_a": "Li_metal",
+      "material_b": "CMC",
+      "domain": "battery-polymer",
+      "role": "anode_binder",
+      "expected_compatible": false,
+      "citation": "Bresser et al., Energy & Environmental Science 2018",
+      "evidence_basis": "Residual moisture from water-based CMC processing causes parasitic reactions with lithium metal.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9805,
+      "material_a": "Soda_Lime",
+      "material_b": "Li_metal",
+      "domain": "glass",
+      "role": "hermetic_seal",
+      "expected_compatible": false,
+      "citation": "SCHOTT Technical Glass Guide, Lithium Resistance",
+      "evidence_basis": "Standard soda-lime glass is highly susceptible to alkali-metal corrosion and cannot be used in direct contact with lithium.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9806,
+      "material_a": "Cabal-12",
+      "material_b": "Li_metal",
+      "domain": "glass",
+      "role": "hermetic_seal",
+      "expected_compatible": true,
+      "citation": "MO-SCI 2024 Lithium-Resistant Glass Seals",
+      "evidence_basis": "Cabal-12 (calcium-boron-aluminate) is engineered specifically for lithium metal contact in hermetic battery seals.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9807,
+      "material_a": "Al_foil",
+      "material_b": "Li_metal",
+      "domain": "battery-metal",
+      "role": "anode_collector",
+      "expected_compatible": false,
+      "citation": "Journal of Power Sources 2021, Current Collectors Review",
+      "evidence_basis": "Aluminum alloys with lithium at potentials below 0.3V, causing structural disintegration of the collector.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9808,
+      "material_a": "Ti_foil",
+      "material_b": "NCA",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "expected_compatible": true,
+      "citation": "Journal of Power Sources 2021, High-Voltage Stability of Collectors",
+      "evidence_basis": "Titanium foil provides excellent corrosion resistance and electrochemical stability at high cathode potentials.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9809,
+      "material_a": "PEO",
+      "material_b": "NMC811",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "expected_compatible": false,
+      "citation": "Xu, Chemical Reviews 2004, Electrolyte Windows",
+      "evidence_basis": "PEO oxidizes at potentials above 3.8V, making it incompatible with high-voltage NMC811 cathode operation.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9810,
+      "material_a": "CMC",
+      "material_b": "NMC811",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "expected_compatible": false,
+      "citation": "Bresser et al. 2018, Binder Context",
+      "evidence_basis": "CMC processing (water-based) and voltage mismatch limit its use with high-voltage nickel-rich cathodes.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9811,
+      "material_a": "PVDF",
+      "material_b": "Graphite",
+      "domain": "battery-polymer",
+      "role": "anode_binder",
+      "expected_compatible": true,
+      "citation": "Standard Lithium-Ion Practice",
+      "evidence_basis": "PVDF is a chemically resistant, standard binder for graphite anodes in organic electrolyte systems.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9812,
+      "material_a": "ABS",
+      "material_b": "PVDF",
+      "domain": "polymer",
+      "expected_compatible": false,
+      "citation": "Hansen Solubility Parameters Handbook",
+      "evidence_basis": "Significant difference in solubility parameters leading to thermodynamic immiscibility and delamination.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9813,
+      "material_a": "PA66",
+      "material_b": "PEO",
+      "domain": "polymer",
+      "expected_compatible": false,
+      "citation": "Polymer Blends Handbook, immiscible systems",
+      "evidence_basis": "Nylon-66 and PEO exhibit poor interfacial adhesion and phase separation without compatibilizers.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9814,
+      "material_a": "Al2O3",
+      "material_b": "ZrO2_YSZ",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Ceramic Matrix Composites review",
+      "evidence_basis": "Alumina-Zirconia composites are standard structural ceramics with good interfacial stability and toughening.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9815,
+      "material_a": "SiC",
+      "material_b": "Al2O3",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Sintering of Carbide-Oxide composites",
+      "evidence_basis": "SiC-reinforced alumina is a well-established refractory and structural ceramic family.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9816,
+      "material_a": "SiC",
+      "material_b": "Soda_Lime",
+      "domain": "ceramic",
+      "expected_compatible": false,
+      "citation": "Thermal mismatch in carbide-glass systems",
+      "evidence_basis": "Extreme mismatch in sintering temperatures and CTE prevents stable interface formation.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9817,
+      "material_a": "PTFE",
+      "material_b": "LCO",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "expected_compatible": true,
+      "citation": "Handbook of Battery Materials",
+      "evidence_basis": "PTFE is an electrochemically inert binder stable against high-voltage LCO oxidation.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9818,
+      "material_a": "PEO",
+      "material_b": "LFP",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "expected_compatible": true,
+      "citation": "Goodenough & Kim, Chem Mater 2010",
+      "evidence_basis": "PEO is stable at the 3.4V potential of LFP electrodes.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9819,
+      "material_a": "Si",
+      "material_b": "Cu",
+      "domain": "metal-semiconductor",
+      "role": "ohmic_contact",
+      "expected_compatible": true,
+      "citation": "Sze, Physics of Semiconductor Devices",
+      "evidence_basis": "Copper-silicon interfaces are standard for high-conductivity metallization in semiconductor devices.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9820,
+      "material_a": "Si",
+      "material_b": "Al",
+      "domain": "metal-semiconductor",
+      "role": "ohmic_contact",
+      "expected_compatible": true,
+      "citation": "Sze, Physics of Semiconductor Devices",
+      "evidence_basis": "Aluminum is a standard p-type contact and metallization layer for silicon.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9821,
+      "material_a": "Graphite",
+      "material_b": "LiPF6",
+      "domain": "battery",
+      "role": "anode_electrolyte",
+      "expected_compatible": true,
+      "citation": "Standard Li-ion chemistry",
+      "evidence_basis": "Graphite is stable in LiPF6/carbonate electrolytes after forming a protective SEI.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9822,
+      "material_a": "LCO",
+      "material_b": "LiPF6",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "expected_compatible": true,
+      "citation": "Standard Li-ion chemistry",
+      "evidence_basis": "Standard pairing in billions of consumer electronics cells.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9823,
+      "material_a": "PVC",
+      "material_b": "PEO",
+      "domain": "polymer",
+      "expected_compatible": true,
+      "citation": "Polymer Blends Handbook",
+      "evidence_basis": "PVC and PEO are a known miscible polymer blend family due to hydrogen bonding.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9824,
+      "material_a": "PMMA",
+      "material_b": "PVDF",
+      "domain": "polymer",
+      "expected_compatible": true,
+      "citation": "Polymer Blends Handbook",
+      "evidence_basis": "PMMA and PVDF form a standard miscible blend often used for gel electrolytes.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9825,
+      "material_a": "Spinel",
+      "material_b": "MgO",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Refractory ceramic systems",
+      "evidence_basis": "Spinel and magnesia are chemically compatible at high temperatures and share similar CTE.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9826,
+      "material_a": "WC",
+      "material_b": "TiC",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Hardmetal systems handbook",
+      "evidence_basis": "Tungsten and titanium carbides form stable solid solutions in cermet applications.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9827,
+      "material_a": "ZrO2_YSZ",
+      "material_b": "Borosilicate",
+      "domain": "ceramic",
+      "expected_compatible": false,
+      "citation": "CTE mismatch database",
+      "evidence_basis": "Severe mismatch (10.5 vs 3.3 ppm/K) leads to failure during cooling from sealing temperatures.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9828,
+      "material_a": "GaAs",
+      "material_b": "Si",
+      "domain": "semiconductor",
+      "expected_compatible": false,
+      "citation": "Lattice mismatch in heterostructures",
+      "evidence_basis": "Significant lattice mismatch (4.1%) causes high defect density at the interface without buffer layers.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9829,
+      "material_a": "Kovar",
+      "material_b": "Borosilicate",
+      "domain": "glass-metal",
+      "expected_compatible": true,
+      "citation": "ASTM Standard for Hermetic Sealing",
+      "evidence_basis": "Kovar is engineered to match the CTE of borosilicate glass for vacuum-tight seals.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9830,
+      "material_a": "Titanium",
+      "material_b": "Soda_Lime",
+      "domain": "glass-metal",
+      "expected_compatible": false,
+      "citation": "CTE mismatch database",
+      "evidence_basis": "Soda-lime glass has significantly higher CTE (~9.0) than pure titanium (~8.6), leading to seal stress.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9831,
+      "material_a": "Cu",
+      "material_b": "Al",
+      "domain": "metal",
+      "expected_compatible": false,
+      "citation": "Galvanic Potential Series",
+      "evidence_basis": "Significant galvanic potential difference (0.35V) leading to corrosion in moist environments.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9832,
+      "material_a": "SS316",
+      "material_b": "Al",
+      "domain": "metal",
+      "expected_compatible": false,
+      "citation": "Galvanic Potential Series",
+      "evidence_basis": "Severe galvanic mismatch; stainless steel promotes rapid corrosion of aluminum.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9833,
+      "material_a": "SS316",
+      "material_b": "Ti",
+      "domain": "metal",
+      "expected_compatible": true,
+      "citation": "Galvanic Potential Series",
+      "evidence_basis": "Stainless steel and titanium are close in the galvanic series and generally compatible.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9834,
+      "material_a": "PTFE",
+      "material_b": "PVDF",
+      "domain": "polymer",
+      "expected_compatible": true,
+      "citation": "Fluoropolymer Compatibility Guide",
+      "evidence_basis": "Both are fluoropolymers with similar chemical resistance and moderate interfacial adhesion.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9835,
+      "material_a": "Epoxy",
+      "material_b": "Borosilicate",
+      "domain": "polymer-glass",
+      "expected_compatible": true,
+      "citation": "Adhesion Science and Engineering",
+      "evidence_basis": "Epoxy resins exhibit excellent adhesion to glass surfaces, especially with silane coupling.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9836,
+      "material_a": "Silicone",
+      "material_b": "Soda_Lime",
+      "domain": "polymer-glass",
+      "expected_compatible": true,
+      "citation": "Adhesion Science and Engineering",
+      "evidence_basis": "Silicone sealants provide durable, flexible bonds to standard glass substrates.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9837,
+      "material_a": "PAN",
+      "material_b": "Li_metal",
+      "domain": "battery-polymer",
+      "expected_compatible": true,
+      "citation": "Journal of Power Sources, PAN as SSE matrix",
+      "evidence_basis": "PAN-based electrolytes are stable against lithium metal and form a robust SEI.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9838,
+      "material_a": "NMC111",
+      "material_b": "Al_foil",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "expected_compatible": true,
+      "citation": "Standard Li-ion practice",
+      "evidence_basis": "Standard collector pairing for medium-voltage layered oxide cathodes.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9839,
+      "material_a": "SiC",
+      "material_b": "Si3N4",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Ceramic matrix composites",
+      "evidence_basis": "Silicon carbide and silicon nitride form high-performance structural ceramic composites.",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9840,
+      "material_a": "B4C",
+      "material_b": "Al2O3",
+      "domain": "ceramic",
+      "expected_compatible": true,
+      "citation": "Boron Carbide armor systems",
+      "evidence_basis": "Compatible for high-hardness composite armor and structural applications.",
+      "used_for_tuning": false
+    }
+  ]
+}

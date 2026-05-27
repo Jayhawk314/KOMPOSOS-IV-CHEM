@@ -28,8 +28,9 @@ DEFAULT_STRATEGY_WEIGHTS = {
     "failure_memory_gate": 0.90,
     "real_tool_evidence": 1.50,
     "gray_coherence": 0.80,
-    "simplicial_yoneda": 1.15,
-    "fibration_transport": 1.05,
+    "simplicial_yoneda": 0.75,
+    "fibration_transport": 0.25,
+    "rezk_equivalence": 1.25,
 }
 
 
@@ -163,7 +164,11 @@ def build_compatibility_ensemble(
     if zfc_vote is not None:
         votes.append(zfc_vote)
 
-    from oracle.simplicial_strategies import score_simplicial_yoneda, score_fibration_transport
+    from oracle.simplicial_strategies import (
+        score_simplicial_yoneda, 
+        score_fibration_transport,
+        score_rezk_equivalence
+    )
     
     sy = score_simplicial_yoneda(material_a, material_b, domain)
     votes.append(
@@ -186,6 +191,18 @@ def build_compatibility_ensemble(
             confidence=ft["confidence"],
             reason=ft["reason"],
             metadata=ft["metadata"],
+        )
+    )
+
+    re = score_rezk_equivalence(material_a, material_b, domain)
+    votes.append(
+        StrategyVote(
+            strategy="rezk_equivalence",
+            score=re["score"],
+            compatible=re["compatible"],
+            confidence=re["confidence"],
+            reason=re["reason"],
+            metadata=re["metadata"],
         )
     )
 

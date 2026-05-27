@@ -276,6 +276,7 @@ class CeramicInterfaceValidator:
                 )
             if cte_diff > 4.0 and not pair_known_good and not silica_glass_family:
                 is_viable = False
+                total = min(total, 0.38) # Below 0.45 threshold
                 all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 4 ppm/K: thermal shock cracking risk (ASM Handbook Vol 4)'
 
         # Veto check: known-bad ceramic pairs with severe degradation

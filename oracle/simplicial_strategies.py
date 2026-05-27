@@ -43,9 +43,6 @@ def score_simplicial_yoneda(
         }
 
     # Use the strategy with the category
-    # SimplicialYonedaStrategy usually needs a store, but we can mock it
-    # or just use the core logic here.
-    
     known_compatibles = _find_compatible_with(material_b, category)
     if not known_compatibles:
         return {
@@ -76,7 +73,12 @@ def score_simplicial_yoneda(
             "compatible": True,
             "confidence": 0.4 + (0.5 * best_sim),
             "reason": f"simplicial yoneda: similarity {best_sim:.3f} to {best_neighbor}",
-            "metadata": {"neighbor": best_neighbor, "similarity": best_sim}
+            "metadata": {
+                "neighbor": best_neighbor, 
+                "similarity": best_sim,
+                "fingerprint_a": list(fp_a),
+                "fingerprint_n": list(_compute_yoneda_fingerprint(best_neighbor, category))
+            }
         }
 
     return {
@@ -107,11 +109,6 @@ def score_fibration_transport(
             "metadata": {}
         }
 
-    # Find where material_a is 'in the fiber' (has successful interfaces)
-    # In PHARM: drugs connected to proteins connected to disease.
-    # In CHEM: maybe A connected to X connected to B?
-    # Simple version: find B' where A is compatible with B', then transport to B via B'<->B similarity.
-    
     targets_for_a = _find_compatible_with(material_a, category)
     if not targets_for_a:
         return {
@@ -155,16 +152,123 @@ def score_fibration_transport(
     }
 
 
+def score_rezk_equivalence(
+    material_a: str,
+    material_b: str,
+    domain: str,
+    category: Optional[Category] = None,
+) -> Dict[str, Any]:
+    """
+    Score compatibility via Rezk-style equivalence completion.
+    
+    If Material A is equivalent to A', and (A', B) is compatible,
+    then (A, B) is compatible with high certainty.
+    """
+    if category is None:
+        category = _try_get_domain_category(domain)
+
+    if category is None:
+        return {
+            "score": 0.5,
+            "compatible": True,
+            "confidence": 0.3,
+            "reason": "rezk equivalence: no category",
+            "metadata": {}
+        }
+
+    # Find equivalents for Material A
+    equivalents = _find_rezk_equivalents(material_a, category)
+    if not equivalents:
+        return {
+            "score": 0.5,
+            "compatible": True,
+            "confidence": 0.4,
+            "reason": "rezk equivalence: no equivalents found",
+            "metadata": {}
+        }
+
+    # Check if any equivalent is compatible with Material B
+    best_conf = 0.0
+    matching_eq = ""
+    
+    for eq in equivalents:
+        if eq == material_a:
+            continue
+        # Check for compatibility morphism (A_eq -> B)
+        neighbors = _find_compatible_with(eq, category)
+        if material_b in neighbors:
+            best_conf = 0.95 # Mathematical certainty of substitution
+            matching_eq = eq
+            break
+
+    if best_conf > 0:
+        return {
+            "score": 0.95,
+            "compatible": True,
+            "confidence": best_conf,
+            "reason": f"rezk equivalence: {material_a} is isomorphic to {matching_eq} which is compatible with {material_b}",
+            "metadata": {"equivalent": matching_eq, "isomorphism": "full_presheaf_match"}
+        }
+
+    return {
+        "score": 0.5,
+        "compatible": True,
+        "confidence": 0.4,
+        "reason": "rezk equivalence: no compatible equivalents found",
+        "metadata": {}
+    }
+
+
+def _find_rezk_equivalents(obj_name: str, category: Category) -> List[str]:
+    """
+    Find materials that are Rezk-equivalent (isomorphic presheaves).
+    In this implementation, it means having the exact same Yoneda fingerprint.
+    """
+    fp_target = _compute_yoneda_fingerprint(obj_name, category)
+    if not fp_target:
+        return []
+
+    equivalents = []
+    objects = []
+    if hasattr(category, "objects"):
+        objects = list(category.objects.keys())
+    elif hasattr(category, "_objects"):
+        objects = list(category._objects.keys())
+
+    for other in objects:
+        if other == obj_name:
+            continue
+        fp_other = _compute_yoneda_fingerprint(other, category)
+        if fp_other == fp_target:
+            equivalents.append(other)
+            
+    return equivalents
+
+
 def _try_get_domain_category(domain: str) -> Optional[Category]:
     """Try to load or build a category for the given domain."""
     import importlib
+    
+    # Handle composite domains (e.g., battery-metal)
+    primary_domain = domain.split("-")[0] if "-" in domain else domain
+    
     try:
-        mod = importlib.import_module(f"{domain}_bridge.integration")
-        builder_name = f"build_{domain}_category"
+        mod = importlib.import_module(f"{primary_domain}_bridge.integration")
+        builder_name = f"build_{primary_domain}_category"
         if hasattr(mod, builder_name):
             return getattr(mod, builder_name)()
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError, ModuleNotFoundError):
         pass
+        
+    # Second try: no .integration
+    try:
+        mod = importlib.import_module(f"{primary_domain}_bridge")
+        builder_name = f"build_{primary_domain}_category"
+        if hasattr(mod, builder_name):
+            return getattr(mod, builder_name)()
+    except (ImportError, AttributeError, ModuleNotFoundError):
+        pass
+        
     return None
 
 
@@ -248,10 +352,6 @@ class SimplicialYonedaStrategy(InferenceStrategy):
         predictions = []
 
         # Find known compatible neighbors for target
-        # (Assuming 'source' is candidate, 'target' is reference)
-        # In chem compatibility, we usually check if A and B are compatible.
-        # We look for A' such that A' is compatible with B and A is similar to A'.
-
         neighbors = self._find_compatible_neighbors(target)
         if not neighbors:
             return predictions
@@ -292,10 +392,12 @@ class SimplicialYonedaStrategy(InferenceStrategy):
         fp = set()
         # Incoming: (source, relation)
         for m in incoming.get(obj_name, []):
-            fp.add((m.source, m.name))
+            src = getattr(m, "source", getattr(m, "source_name", None))
+            fp.add((src, m.name))
         # Outgoing: (target, relation)
         for m in outgoing.get(obj_name, []):
-            fp.add((m.target, m.name))
+            tgt = getattr(m, "target", getattr(m, "target_name", None))
+            fp.add((tgt, m.name))
 
         return fp
 
@@ -317,9 +419,11 @@ class SimplicialYonedaStrategy(InferenceStrategy):
         for m in incoming.get(target, []):
             # Check if this morphism implies compatibility
             if m.name in {"compatible", "viable", "stable", "indication"}:
-                neighbors.append(m.source)
+                src = getattr(m, "source", getattr(m, "source_name", None))
+                neighbors.append(src)
             elif m.confidence > 0.7:  # Heuristic fallback for high-confidence edges
-                neighbors.append(m.source)
+                src = getattr(m, "source", getattr(m, "source_name", None))
+                neighbors.append(src)
         return neighbors
 
 
@@ -341,7 +445,8 @@ class FibrationTransportStrategy(InferenceStrategy):
         source_compatible_with = []
         for m in outgoing.get(source, []):
             if m.name in {"compatible", "viable", "stable"} or m.confidence > 0.7:
-                source_compatible_with.append(m.target)
+                tgt = getattr(m, "target", getattr(m, "target_name", None))
+                source_compatible_with.append(tgt)
 
         if not source_compatible_with:
             return predictions
@@ -411,3 +516,36 @@ class FibrationTransportStrategy(InferenceStrategy):
                     fp.add(f"meta:{k}:{item}")
 
         return fp
+
+
+class RezkEquivalenceStrategy(InferenceStrategy):
+    """
+    Materials that play identical roles are equivalent.
+    
+    If Hom(A, -) = Hom(A', -), then A and A' are Rezk-equivalent.
+    Compatibility can be safely propagated between equivalent materials.
+    """
+    
+    name = "rezk_equivalence"
+    
+    def predict(self, source: str, target: str) -> List[Prediction]:
+        predictions = []
+        
+        # Check if source has an equivalent that is compatible with target
+        # Or if target has an equivalent that is compatible with source
+        
+        # We'll use the scoring function logic
+        res = score_rezk_equivalence(source, target, "unknown")
+        if res["confidence"] > 0.8:
+            predictions.append(Prediction(
+                source=source,
+                target=target,
+                predicted_relation="compatible",
+                prediction_type=PredictionType.EQUIVALENCE_PROPAGATION,
+                strategy_name=self.name,
+                confidence=res["confidence"],
+                reasoning=res["reason"],
+                evidence=res["metadata"]
+            ))
+            
+        return predictions

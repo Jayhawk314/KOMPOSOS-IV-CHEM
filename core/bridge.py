@@ -26,6 +26,7 @@ from .types import Object, Morphism
 from .enrichment import MonoidalStructure
 from .category import Category
 from .typed_capabilities import TypedPluginMixin, MathRequirement, MathCapability, MathStructure
+from .functor import Functor
 
 
 class Bridge(ABC, TypedPluginMixin):
@@ -51,10 +52,22 @@ class Bridge(ABC, TypedPluginMixin):
             name=name, db_path=db_path, quantale=quantale
         )
         self._loaded = False
+        self._functors: Dict[str, Functor] = {}
         # Default capabilities for a base bridge
         self.math_provides = [
             MathCapability(f"{name}_bridge", MathStructure.CATEGORY, ["get_objects", "get_morphisms"]),
         ]
+
+    def register_functor(self, target_domain: str, functor: Functor):
+        """Register a functor to another material domain."""
+        self._functors[target_domain] = functor
+        self.math_provides.append(
+            MathCapability(f"{self.name}_to_{target_domain}", MathStructure.FUNCTOR, [functor.name])
+        )
+
+    def get_functor(self, target_domain: str) -> Optional[Functor]:
+        """Retrieve a functor to another domain."""
+        return self._functors.get(target_domain)
 
     @abstractmethod
     def get_objects(self) -> List[Object]:

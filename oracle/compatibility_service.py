@@ -1,4 +1,4 @@
-﻿"""Shared compatibility reasoning workflow for API and UI surfaces."""
+"""Shared compatibility reasoning workflow for API and UI surfaces."""
 
 from __future__ import annotations
 
@@ -33,6 +33,7 @@ def run_compatibility_workflow(
     material_a: str,
     material_b: str,
     *,
+    domain: Optional[str] = None,
     role: Optional[str] = None,
     electrolyte: Optional[str] = None,
     voltage_context: Optional[str] = None,
@@ -46,7 +47,7 @@ def run_compatibility_workflow(
     md_conditions: Optional[Dict[str, Any]] = None,
 ) -> CompatibilityWorkflowResult:
     """Run the full compatibility reasoning workflow for one material pair."""
-    domain = resolve_same_domain(material_a, material_b)
+    domain = domain or resolve_workflow_domain(material_a, material_b)
     context = CompatibilityContext(
         role=role,
         electrolyte=electrolyte,
@@ -60,34 +61,42 @@ def run_compatibility_workflow(
     )
 
     validate = _get_validator(domain)
-    result = validate(material_a, material_b)
+    # Most validators take (a, b) or (a, b, context)
+    # We'll normalize to a standard call
+    result = _call_validator(validate, material_a, material_b, domain, context)
+
+    # Robust field extraction for total score and viability
+    total_score = getattr(result, "total", getattr(result, "score", 0.0))
+    is_viable = getattr(result, "viable", getattr(result, "compatible", False))
 
     md_results = _run_md_verification(
         material_a,
         material_b,
         domain,
-        result.total,
-        result.viable,
+        total_score,
+        is_viable,
         md_verify=md_verify,
         md_conditions=md_conditions,
     )
     if md_results is not None:
         fusion = md_results.get("fusion", {})
         if fusion.get("used"):
-            result.viable = bool(fusion["fused_viable"])
+            is_viable = bool(fusion["fused_viable"])
         elif md_results.get("confidence", 0.0) > 0.8:
-            result.viable = bool(md_results.get("viable", result.viable))
+            is_viable = bool(md_results.get("viable", is_viable))
 
-    scores = result.to_dict()
+    scores = _result_to_dict(result)
     scores["context"] = context.to_dict()
+    scores["total"] = total_score  # Ensure standardized field
+    scores["viable"] = is_viable
 
     morphism = infer_typed_morphism(material_a, material_b, domain, context)
     if morphism is not None:
         scores["typed_morphism"] = morphism.to_dict()
 
     morphism_adjustment = apply_typed_morphism_adjustment(
-        scores.get("total", result.total),
-        result.viable,
+        total_score,
+        is_viable,
         material_a,
         material_b,
         domain,
@@ -97,11 +106,11 @@ def run_compatibility_workflow(
         scores["typed_morphism_adjustment"] = morphism_adjustment.to_dict()
         scores["total"] = morphism_adjustment.score
         scores["viable"] = morphism_adjustment.predicted_compatible
-        result.viable = morphism_adjustment.predicted_compatible
+        is_viable = morphism_adjustment.predicted_compatible
 
     try:
         scores["calibration"] = load_default_calibration().calibrate(
-            scores.get("total", 0.0), domain
+            scores.get("total", total_score), domain
         )
     except Exception as exc:
         scores["calibration"] = {
@@ -119,7 +128,7 @@ def run_compatibility_workflow(
         material_b,
         domain,
         scores.get("total", 0.0),
-        result.viable,
+        is_viable,
         context,
         md_results=md_results,
     ).to_dict()
@@ -129,13 +138,13 @@ def run_compatibility_workflow(
         material_b=material_b,
         domain=domain,
         scores=scores,
-        viable=result.viable,
+        viable=is_viable,
         md_results=md_results,
     )
 
 
-def resolve_same_domain(material_a: str, material_b: str) -> str:
-    """Return the shared domain for a material pair or raise ValueError."""
+def resolve_workflow_domain(material_a: str, material_b: str) -> str:
+    """Resolve the domain(s) for a material pair, supporting cross-domain."""
     domain_a = _REGISTRY.get(material_a)
     domain_b = _REGISTRY.get(material_b)
 
@@ -143,12 +152,83 @@ def resolve_same_domain(material_a: str, material_b: str) -> str:
         raise ValueError(f"Unknown material: '{material_a}'")
     if domain_b is None:
         raise ValueError(f"Unknown material: '{material_b}'")
-    if domain_a != domain_b:
-        raise ValueError(
-            f"Materials are in different domains ({domain_a} vs {domain_b}). "
-            "Use multi-domain analysis for cross-domain queries."
-        )
-    return domain_a
+
+    if domain_a == domain_b:
+        return domain_a
+
+    # Cross-domain resolution
+    domains = {domain_a, domain_b}
+    if "battery" in domains and "metal" in domains:
+        return "battery-metal"
+    if "battery" in domains and "polymer" in domains:
+        return "battery-polymer"
+    if "ceramic" in domains and "metal" in domains:
+        return "ceramic-metal"
+    if "metal" in domains and "semiconductor" in domains:
+        return "metal-semiconductor"
+    if "polymer" in domains and "metal" in domains:
+        return "polymer-metal"
+    if "ceramic" in domains and "battery" in domains:
+        return "ceramic-battery"
+
+    # Default: composite string
+    return f"{domain_a}-{domain_b}"
+
+
+def _get_validator(domain: str):
+    if domain in _VALIDATORS:
+        return _VALIDATORS[domain]
+
+    import importlib
+    if "-" in domain:
+        # Cross-domain validator
+        parts = domain.split("-")
+        mod_name = f"cross_bridge.{parts[0]}_{parts[1]}"
+        try:
+            mod = importlib.import_module(mod_name)
+            # Find the scorer function
+            for attr in dir(mod):
+                if attr.startswith("score_") and attr.endswith("_compatibility"):
+                    _VALIDATORS[domain] = getattr(mod, attr)
+                    return _VALIDATORS[domain]
+                if attr == "score_collector_compatibility":
+                    _VALIDATORS[domain] = getattr(mod, attr)
+                    return _VALIDATORS[domain]
+        except ImportError:
+            pass
+
+    # Fallback: try individual domain bridges
+    domains_to_try = domain.split("-") if "-" in domain else [domain]
+    for d in domains_to_try:
+        try:
+            mod = importlib.import_module(f"{d}_bridge")
+            if hasattr(mod, "validate_interface"):
+                _VALIDATORS[domain] = mod.validate_interface
+                return _VALIDATORS[domain]
+        except (ImportError, ModuleNotFoundError):
+            pass
+
+    raise ValueError(f"No validator found for domain '{domain}'")
+
+
+def _call_validator(validate: Any, material_a: str, material_b: str, domain: str, context: CompatibilityContext):
+    """Normalize validator call across different bridge signatures."""
+    import inspect
+    sig = inspect.signature(validate)
+
+    kwargs = {}
+    if "role" in sig.parameters:
+        kwargs["role"] = context.role
+    if "polymer_role" in sig.parameters:
+        kwargs["polymer_role"] = context.role
+    if "interface_role" in sig.parameters:
+        kwargs["interface_role"] = context.role
+    if "operating_temp_C" in sig.parameters:
+        kwargs["operating_temp_C"] = context.temperature_C or 25.0
+
+    # Some cross-domain scorers are symmetric, some are not
+    # We might need to swap a/b based on expected types if they differ
+    return validate(material_a, material_b, **kwargs)
 
 
 def run_zfc_summary(material_a: str, material_b: str, domain: str) -> Dict[str, Any]:
@@ -168,7 +248,22 @@ def run_zfc_summary(material_a: str, material_b: str, domain: str) -> Dict[str, 
 
     import importlib
 
-    bridge_mod = importlib.import_module(f"{domain}_bridge")
+    # Try to load single-domain bridge first
+    bridge_domain = domain.split("-")[0] if "-" in domain else domain
+    try:
+        bridge_mod = importlib.import_module(f"{bridge_domain}_bridge")
+    except (ImportError, ModuleNotFoundError):
+        return {
+            "available": False,
+            "num_constraints": 0,
+            "constraints": [],
+            "has_vetoes": False,
+            "interface_viable": None,
+            "compatible_constraints": [],
+            "veto_constraints": [],
+            "note": f"Domain '{bridge_domain}' bridge not found",
+        }
+
     if not hasattr(bridge_mod, "score_all"):
         return {
             "available": False,
@@ -178,15 +273,47 @@ def run_zfc_summary(material_a: str, material_b: str, domain: str) -> Dict[str, 
             "interface_viable": None,
             "compatible_constraints": [],
             "veto_constraints": [],
-            "note": f"Domain '{domain}' does not support score_all",
+            "note": f"Domain '{bridge_domain}' does not support score_all",
         }
 
-    mat_a = _get_bridge_material(bridge_mod, domain, material_a)
-    mat_b = _get_bridge_material(bridge_mod, domain, material_b)
+    mat_a = _get_bridge_material(bridge_mod, bridge_domain, material_a)
+    mat_b = _get_bridge_material(bridge_mod, bridge_domain, material_b)
     if mat_a is None or mat_b is None:
-        raise ValueError("Material not found")
+        # Try swapping if cross-domain
+        if "-" in domain:
+            other_domain = domain.split("-")[1]
+            try:
+                other_mod = importlib.import_module(f"{other_domain}_bridge")
+                if mat_a is None: mat_a = _get_bridge_material(other_mod, other_domain, material_a)
+                if mat_b is None: mat_b = _get_bridge_material(other_mod, other_domain, material_b)
+            except: pass
 
-    raw_scores = bridge_mod.score_all(mat_a, mat_b)
+    if mat_a is None or mat_b is None:
+        return {
+            "available": False,
+            "num_constraints": 0,
+            "constraints": [],
+            "has_vetoes": False,
+            "interface_viable": None,
+            "compatible_constraints": [],
+            "veto_constraints": [],
+            "note": "Material(s) not found for ZFC",
+        }
+
+    try:
+        raw_scores = bridge_mod.score_all(mat_a, mat_b)
+    except:
+        return {
+            "available": False,
+            "num_constraints": 0,
+            "constraints": [],
+            "has_vetoes": False,
+            "interface_viable": None,
+            "compatible_constraints": [],
+            "veto_constraints": [],
+            "note": "ZFC scoring failed",
+        }
+
     constraints = MaterialZFCBridge().score_constraints(material_a, material_b, raw_scores)
 
     serial_constraints = []
@@ -223,7 +350,6 @@ def run_zfc_summary(material_a: str, material_b: str, domain: str) -> Dict[str, 
     }
 
 
-
 def _get_bridge_material(bridge_mod: Any, domain: str, name: str) -> Any:
     getter_names = {
         "battery": "get_material",
@@ -249,13 +375,6 @@ def _get_bridge_material(bridge_mod: Any, domain: str, name: str) -> Any:
     if dict_name and hasattr(bridge_mod, dict_name):
         return getattr(bridge_mod, dict_name).get(name)
     return None
-def _get_validator(domain: str):
-    if domain not in _VALIDATORS:
-        import importlib
-
-        mod = importlib.import_module(f"{domain}_bridge")
-        _VALIDATORS[domain] = mod.validate_interface
-    return _VALIDATORS[domain]
 
 
 def _run_md_verification(
@@ -298,3 +417,23 @@ def _run_md_verification(
     }
 
 
+def _result_to_dict(result: Any) -> Dict[str, Any]:
+    """Robust conversion of bridge results to dictionaries."""
+    if hasattr(result, "to_dict"):
+        return result.to_dict()
+
+    from dataclasses import is_dataclass, asdict
+    if is_dataclass(result):
+        return asdict(result)
+
+    if isinstance(result, dict):
+        return result
+
+    # Manual extraction as fallback
+    res = {}
+    for attr in dir(result):
+        if not attr.startswith("_"):
+            val = getattr(result, attr)
+            if isinstance(val, (int, float, str, bool, list, dict)) or val is None:
+                res[attr] = val
+    return res

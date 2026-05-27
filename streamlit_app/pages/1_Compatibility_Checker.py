@@ -26,6 +26,7 @@ DOMAIN_IMPORTS = {
     "ceramic": ("ceramic_bridge.material_properties", "ALL_CERAMICS"),
     "semiconductor": ("semiconductor_bridge.material_properties", "ALL_SEMICONDUCTORS"),
     "glass": ("glass_bridge.material_properties", "ALL_GLASSES"),
+    "bio": ("domains.bio.loader", "BioDomainLoader"),
 }
 
 
@@ -36,10 +37,13 @@ def get_all_materials():
 
     result = {}
     for domain, (mod_path, attr) in DOMAIN_IMPORTS.items():
+        if domain == "bio":
+            # Bio loader needs instantiation
+            loader = importlib.import_module(mod_path).BioDomainLoader()
+            result[domain] = sorted([obj.name for obj in loader.get_objects()])
+            continue
+            
         mod = importlib.import_module(mod_path)
-        mats = getattr(mod, attr)
-        result[domain] = sorted(mats.keys())
-    return result
 
 
 def extract_component_scores(scores, md_results=None):
@@ -251,6 +255,35 @@ else:
                         use_container_width=True,
                         hide_index=True
                     )
+
+                    # Simplicial Yoneda Visualization (Presheaf Fingerprint)
+                    for vote in ensemble["votes"]:
+                        if vote["strategy"] == "simplicial_yoneda" and vote.get("metadata", {}).get("fingerprint_a"):
+                            st.markdown("---")
+                            st.subheader("Simplicial Presheaf Overlap")
+                            meta = vote["metadata"]
+                            neighbor = meta["neighbor"]
+                            
+                            col_a, col_n = st.columns(2)
+                            
+                            def format_fp(fp):
+                                if not fp: return "Empty"
+                                return "\n".join([f"- {target} ({rel})" for target, rel in fp])
+
+                            with col_a:
+                                st.markdown(f"**{mat_a} Fingerprint**")
+                                st.code(format_fp(meta["fingerprint_a"]), language="markdown")
+                            with col_n:
+                                st.markdown(f"**{neighbor} Fingerprint** (known compatible with {mat_b})")
+                                st.code(format_fp(meta["fingerprint_n"]), language="markdown")
+                            
+                            fp_a = set(tuple(x) for x in meta["fingerprint_a"])
+                            fp_n = set(tuple(x) for x in meta["fingerprint_n"])
+                            overlap = fp_a & fp_n
+                            if overlap:
+                                st.success(f"Structural overlap detected: {len(overlap)} shared relations.")
+                                with st.expander("Show shared relations"):
+                                    st.code(format_fp(list(overlap)), language="markdown")
 
             with st.expander("Raw score data"):
                 st.json(scores)
