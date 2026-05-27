@@ -26,7 +26,11 @@ class StrategyCalibration:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(**data)
+        # Filter out keys not in __init__
+        import inspect
+        valid_keys = inspect.signature(cls.__init__).parameters.keys()
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
 
 
 class StrategyCalibrator:

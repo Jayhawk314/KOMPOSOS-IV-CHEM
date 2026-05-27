@@ -25,9 +25,10 @@ from typing import Dict, List, Optional
 from .types import Object, Morphism
 from .enrichment import MonoidalStructure
 from .category import Category
+from .typed_capabilities import TypedPluginMixin, MathRequirement, MathCapability, MathStructure
 
 
-class Bridge(ABC):
+class Bridge(ABC, TypedPluginMixin):
     """
     Domain bridge for KOMPOSOS-IV.
 
@@ -35,18 +36,7 @@ class Bridge(ABC):
     The bridge creates a Category (or uses one you provide)
     and loads domain data into it.
 
-    Usage:
-        class MyBridge(Bridge):
-            def get_objects(self):
-                return [Object(name="A"), Object(name="B")]
-            def get_morphisms(self):
-                return [Morphism(name="r", source="A", target="B", confidence=0.9)]
-            def score_pair(self, source, target):
-                return {"strength": 0.9}
-
-        bridge = MyBridge("my_domain")
-        bridge.load()
-        path = bridge.category.optimal_path("A", "B")
+    Now includes TypedPluginMixin to declare mathematical capabilities.
     """
 
     def __init__(
@@ -61,6 +51,10 @@ class Bridge(ABC):
             name=name, db_path=db_path, quantale=quantale
         )
         self._loaded = False
+        # Default capabilities for a base bridge
+        self.math_provides = [
+            MathCapability(f"{name}_bridge", MathStructure.CATEGORY, ["get_objects", "get_morphisms"]),
+        ]
 
     @abstractmethod
     def get_objects(self) -> List[Object]:

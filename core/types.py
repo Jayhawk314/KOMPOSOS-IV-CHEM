@@ -103,6 +103,16 @@ class Morphism:
             self.created_at = datetime.now()
 
     @property
+    def source_name(self) -> str:
+        """Alias for source (KOMPOSOS-III compatibility)."""
+        return self.source
+
+    @property
+    def target_name(self) -> str:
+        """Alias for target (KOMPOSOS-III compatibility)."""
+        return self.target
+
+    @property
     def id(self) -> str:
         """Unique identifier for this morphism instance."""
         return f"{self.name}:{self.source}->{self.target}"

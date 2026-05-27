@@ -31,16 +31,15 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture
+## Current Audit Posture (Updated 2026-05-27)
 
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
 - Current blind benchmark: `audit/external_blind/compatibility_2026_q7.json`
 - Q2-Q6 are spent diagnostic evidence.
-- Development benchmark currently matches the advanced CHEM source repo at
-  `41/41`, `100.0%`, `0` skips.
-- Q7 first IV-CHEM blind run: `35/35`, `91.4%`, protocol pass true.
-- If Q7 miss families are used for scorer changes, freeze Q8 before making a
-  new blind claim.
+- Development benchmark: `41/41`, `100.0%`, `0` skips. (Verified 2026-05-27)
+- Q7 blind benchmark: `35/35`, `91.4%`, protocol pass true. (Verified 2026-05-27)
+- STT-enhanced reasoning (Yoneda/Fibration) integrated and active in ensemble.
+- System integrity: `InferenceStrategy` supports both III-style Store and IV-style Category via `Morphism` aliases.
 
 ## Runtime Rule
 

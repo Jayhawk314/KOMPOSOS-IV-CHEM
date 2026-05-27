@@ -1,4 +1,4 @@
-"""Material Compatibility Checker — check if two materials are compatible."""
+﻿"""Material Compatibility Checker - check if two materials are compatible."""
 
 import sys
 from pathlib import Path
@@ -9,18 +9,15 @@ if _root not in sys.path:
 
 import streamlit as st
 from utils.molecule_autocomplete import molecule_selector, show_molecule_reference
+from oracle.compatibility_service import run_compatibility_workflow
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from streamlit_app.md_controls import render_md_input_controls, render_md_result
 
-st.set_page_config(page_title="Compatibility Checker", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="Compatibility Checker", page_icon="chem", layout="wide")
 st.title("Material Compatibility Checker")
 st.markdown("Select two materials from the same domain to check compatibility.")
 
 render_login_sidebar()
-
-# ---------------------------------------------------------------------------
-# Load materials per domain (cached)
-# ---------------------------------------------------------------------------
 
 DOMAIN_IMPORTS = {
     "battery": ("battery_bridge.material_properties", "ALL_MATERIALS"),
@@ -31,20 +28,12 @@ DOMAIN_IMPORTS = {
     "glass": ("glass_bridge.material_properties", "ALL_GLASSES"),
 }
 
-DOMAIN_VALIDATORS = {
-    "battery": ("battery_bridge", "validate_interface"),
-    "polymer": ("polymer_bridge", "validate_interface"),
-    "metal": ("metal_bridge", "validate_interface"),
-    "ceramic": ("ceramic_bridge", "validate_interface"),
-    "semiconductor": ("semiconductor_bridge", "validate_interface"),
-    "glass": ("glass_bridge", "validate_interface"),
-}
-
 
 @st.cache_data
 def get_all_materials():
     """Load all materials grouped by domain."""
     import importlib
+
     result = {}
     for domain, (mod_path, attr) in DOMAIN_IMPORTS.items():
         mod = importlib.import_module(mod_path)
@@ -53,47 +42,21 @@ def get_all_materials():
     return result
 
 
-def run_compatibility(domain, name_a, name_b):
-    """Run compatibility check for a given domain."""
-    import importlib
-    mod_path, func_name = DOMAIN_VALIDATORS[domain]
-    mod = importlib.import_module(mod_path)
-    validate_fn = getattr(mod, func_name)
-    return validate_fn(name_a, name_b)
-
-
-def run_zfc_audit(domain, name_a, name_b, component_scores):
-    """Run ZFC constraint verification on the scorer results.
-
-    Returns a dict with:
-        delta_type: AGREE | HOLLOW | ORPHAN | REJECT
-        vetoes: list of scorer names that triggered a hard veto
-        compatible: list of scorer names that passed threshold
-        cat_says: bool (Category Theory result -- viable flag)
-        zfc_says: bool (ZFC result -- no vetoes)
-    """
-    VETO_THRESHOLD = 0.20
-    COMPAT_THRESHOLD = 0.45
-
-    vetoes = []
-    compatible = []
-    for scorer_name, score_val in component_scores.items():
-        if score_val < VETO_THRESHOLD:
-            vetoes.append(scorer_name)
-        if score_val >= COMPAT_THRESHOLD:
-            compatible.append(scorer_name)
-
-    zfc_says = len(vetoes) == 0
-    return {
-        "vetoes": vetoes,
-        "compatible": compatible,
-        "zfc_says": zfc_says,
+def extract_component_scores(scores, md_results=None):
+    """Extract flat numeric scorer values for visualization."""
+    component_scores = {
+        key: value
+        for key, value in scores.items()
+        if key not in {
+            "total", "viable", "context", "typed_morphism", "typed_morphism_adjustment",
+            "calibration", "ensemble", "zfc"
+        }
+        and isinstance(value, (int, float))
     }
+    if md_results and md_results.get("constraint_scores"):
+        component_scores.update(md_results["constraint_scores"])
+    return component_scores
 
-
-# ---------------------------------------------------------------------------
-# UI: Material Compatibility
-# ---------------------------------------------------------------------------
 
 all_materials = get_all_materials()
 
@@ -112,15 +75,16 @@ with col1:
     mat_a = st.selectbox("Material A", materials, index=0)
 
 with col2:
-    # Default to a different material
     default_b = min(1, len(materials) - 1)
     mat_b = st.selectbox("Material B", materials, index=default_b)
 
-# --- Active Verification Toggle ---
 st.markdown("---")
 col_md, col_help = st.columns([1, 3])
 with col_md:
-    md_verify = st.checkbox("Trigger Active Verification (MD)", help="Orchestrate a high-fidelity Molecular Dynamics simulation (GROMACS) for this interface.")
+    md_verify = st.checkbox(
+        "Trigger Active Verification (MD)",
+        help="Orchestrate a high-fidelity Molecular Dynamics simulation (GROMACS) for this interface.",
+    )
 with col_help:
     if md_verify:
         st.info(
@@ -140,72 +104,36 @@ else:
         if not require_access():
             st.stop()
         consume_use()
-        
-        # We need the API-style call for MD integration
-        from oracle.md_integration import MDIntegrator
-        
-        with st.spinner("Running dual-engine analysis + Active Verification..."):
-            result = run_compatibility(domain, mat_a, mat_b)
-            
-            # Integrated MD Logic
-            md_results = None
-            if md_verify:
-                md_integrator = MDIntegrator()
-                md_run = md_integrator.run_verification(mat_a, mat_b, domain, md_conditions)
-                md_constraint_scores = md_run.constraint_scores()
-                md_fusion = md_run.fuse_with_categorical(
-                    result.total,
-                    result.viable,
-                    cat_confidence=0.4 if 0.4 < result.total < 0.6 else 0.8,
-                )
-                md_results = {
-                    'verdict': md_run.verdict,
-                    'measured_md': md_run.measured_md,
-                    'viable': md_run.viable,
-                    'score': md_run.score,
-                    'confidence': md_run.confidence,
-                    'detail': md_run.detail,
-                    'energy_diff': md_run.potential_energy_diff,
-                    'diffusion': md_run.diffusion_coefficient,
-                    'constraint_scores': md_constraint_scores,
-                    'fusion': md_fusion,
-                    'metadata': md_run.simulation_metadata
-                }
-                if md_fusion.get("used"):
-                    result.viable = bool(md_fusion["fused_viable"])
-                elif md_run.confidence > 0.8:
-                    result.viable = md_run.viable
 
-        scores = result.to_dict()
-        total = scores.get("total", 0)
-        viable = scores.get("viable", False)
+        with st.spinner("Running shared compatibility workflow..."):
+            workflow = run_compatibility_workflow(
+                mat_a,
+                mat_b,
+                md_verify=md_verify,
+                md_conditions=md_conditions,
+            )
 
-        component_scores = {
-            k: v for k, v in scores.items()
-            if k not in ("total", "viable") and isinstance(v, (int, float))
-        }
-        if md_results and md_results.get("constraint_scores"):
-            component_scores.update(md_results["constraint_scores"])
-
-        # --- ZFC Dual-Engine Audit ---
-        zfc = run_zfc_audit(domain, mat_a, mat_b, component_scores)
-        cat_says = viable
-        zfc_says = zfc["zfc_says"]
+        scores = workflow.scores
+        md_results = workflow.md_results
+        total = scores.get("total", 0.0)
+        cat_says = bool(workflow.viable)
+        zfc = scores.get("zfc", {})
+        zfc_available = bool(zfc.get("available"))
+        zfc_says = bool(zfc.get("interface_viable")) if zfc_available else False
+        component_scores = extract_component_scores(scores, md_results)
 
         if cat_says and zfc_says:
             delta_type = "AGREE"
-        elif cat_says and not zfc_says:
+        elif cat_says and zfc_available and not zfc_says:
             delta_type = "HOLLOW"
         elif not cat_says and zfc_says:
             delta_type = "ORPHAN"
         else:
             delta_type = "REJECT"
 
-        # --- Dual-Engine Verdict ---
         st.subheader("Dual-Engine Verdict")
 
         col_cat, col_zfc = st.columns(2)
-
         with col_cat:
             st.markdown("**System 2: Categorical Oracle**")
             if cat_says:
@@ -217,104 +145,122 @@ else:
 
         with col_zfc:
             st.markdown("**System 1: ZFC Logic Oracle**")
-            if zfc_says:
-                st.success(f"Witness FOUND ({len(zfc['compatible'])}/{len(component_scores)} constraints pass)")
+            if not zfc_available:
+                st.info("ZFC summary unavailable for this environment.")
+            elif zfc_says:
+                st.success(
+                    f"Witness FOUND ({len(zfc.get('compatible_constraints', []))}/"
+                    f"{zfc.get('num_constraints', 0)} constraints pass)"
+                )
                 st.caption("No constraint vetoes detected in the current rule set.")
             else:
                 veto_names = ", ".join(
-                    v.replace("_", " ").title() for v in zfc["vetoes"]
+                    v.replace("_", " ").title() for v in zfc.get("veto_constraints", [])
+                ) or "no viable witness"
+                st.error(
+                    f"Witness EMPTY ({len(zfc.get('veto_constraints', []))} veto(s): {veto_names})"
                 )
-                st.error(f"Witness EMPTY ({len(zfc['vetoes'])} veto(s): {veto_names})")
-                st.caption("Hard constraint veto -- score below 0.20 on at least one axis.")
+                st.caption("Hard constraint veto or failed viability witness in the ZFC layer.")
 
-        # --- MD Verification Result ---
         if md_results:
             render_md_result(md_results)
 
-        # --- Delta Classification ---
+        calibration = scores.get("calibration", {})
+        if calibration:
+            st.caption(
+                "Calibrated compatibility probability: "
+                f"{calibration.get('calibrated_probability', total):.3f} "
+                f"via {calibration.get('calibrator', 'unknown')}"
+            )
+
+        ensemble = scores.get("ensemble", {})
+        gray = ensemble.get("gray_coherence", {}) if isinstance(ensemble, dict) else {}
+        if gray.get("checked"):
+            if gray.get("coherent", True):
+                st.info(
+                    f"Gray coherence checked {gray.get('pairs_checked', 0)} contradictory strategy path pair(s); "
+                    "no active 3-cell gap guard fired."
+                )
+            else:
+                st.warning(
+                    f"Gray coherence found {gray.get('gap_count', 0)} contradictory 3-cell gap(s); "
+                    f"max severity {gray.get('max_gap_severity', 0.0):.3f}."
+                )
+
         if delta_type == "AGREE":
             st.success(
-                f"**AGREE** -- The categorical score passes for **{mat_a} + {mat_b}** and "
-                f"the ZFC constraint verifier finds no veto."
+                f"**AGREE** - The categorical score passes for **{mat_a} + {mat_b}** and "
+                "the ZFC constraint verifier finds no veto."
             )
         elif delta_type == "HOLLOW":
             st.warning(
-                f"**HOLLOW STATE** -- The categorical oracle finds a compositional path "
-                f"(score {total:.3f}), but the ZFC constraint verifier detected a hard "
-                f"constraint veto. KOMPOSOS rejects it because the current constraint set "
-                f"does not admit this interface."
+                f"**HOLLOW STATE** - The categorical oracle finds a compositional path "
+                f"(score {total:.3f}), but the ZFC constraint verifier rejects the pair."
             )
             with st.expander("Why this matters"):
                 st.markdown(
-                    "A **HOLLOW** state means the structural pattern *looks* like it should work "
-                    "(the arrows compose in the category), but at least one explicit constraint "
-                    "falls below the veto threshold. This is a logical/constraint warning, not "
-                    "a standalone proof of physical truth.\n\n"
-                    f"**Veto constraint(s):** {', '.join(zfc['vetoes'])}\n\n"
-                    "These scorers returned values below 0.20, indicating a high-risk constraint "
-                    "failure that needs external evidence before the pair should be trusted."
+                    "A **HOLLOW** state means the structural pattern looks viable, but the logical "
+                    "constraint layer does not admit the interface as currently grounded.\n\n"
+                    f"**Veto constraint(s):** {', '.join(zfc.get('veto_constraints', [])) or 'none recorded'}"
                 )
         elif delta_type == "ORPHAN":
             st.info(
-                f"**ORPHAN** -- The ZFC verifier finds no constraint veto, but the "
-                f"categorical scorer composite falls below threshold (score {total:.3f}). "
-                f"This pair is not ruled out by the current constraints, but it is structurally weak."
+                f"**ORPHAN** - The ZFC verifier finds no hard veto, but the categorical scorer "
+                f"composite falls below threshold (score {total:.3f})."
             )
         else:
             st.error(
-                f"**REJECT** -- Both engines agree: **{mat_a} + {mat_b}** fails. "
-                f"The categorical morphism does not compose AND the ZFC constraint set "
-                f"contains vetoes."
+                f"**REJECT** - Both engines reject **{mat_a} + {mat_b}**. "
+                "The categorical morphism does not compose and the logical layer does not validate it."
             )
 
-        # --- Score Breakdown ---
         st.subheader("Score Breakdown")
-
         if component_scores:
             import pandas as pd
+
             df = pd.DataFrame({
                 "Scorer": [k.replace("_", " ").title() for k in component_scores.keys()],
                 "Score": list(component_scores.values()),
-            })
-            df = df.set_index("Scorer")
+            }).set_index("Scorer")
 
             col_chart, col_table = st.columns([2, 1])
-
             with col_chart:
                 st.bar_chart(df, horizontal=True)
-
             with col_table:
                 st.dataframe(
-                    df.style.format("{:.3f}").background_gradient(
-                        cmap="RdYlGn", vmin=0, vmax=1
-                    ),
+                    df.style.format("{:.3f}").background_gradient(cmap="RdYlGn", vmin=0, vmax=1),
                     use_container_width=True,
                 )
 
-            st.caption(
-                "Viability threshold: 0.45 | "
-                "Veto threshold: 0.20 (below this = ZFC hard constraint veto)"
-            )
+            ensemble = scores.get("ensemble", {})
+            if ensemble and ensemble.get("votes"):
+                with st.expander("Detailed Ensemble Votes (Audit Trail)", expanded=True):
+                    vote_rows = []
+                    for vote in ensemble["votes"]:
+                        vote_rows.append({
+                            "Strategy": vote["strategy"].replace("_", " ").title(),
+                            "Score": vote["score"],
+                            "Confidence": vote["confidence"],
+                            "Verdict": "PASS" if vote["compatible"] else "FAIL",
+                            "Reasoning": vote["reason"]
+                        })
+                    import pandas as pd
+                    vote_df = pd.DataFrame(vote_rows)
+                    st.dataframe(
+                        vote_df.style.format({"Score": "{:.3f}", "Confidence": "{:.3f}"}),
+                        use_container_width=True,
+                        hide_index=True
+                    )
 
-        # Raw data
-        with st.expander("Raw score data"):
-            st.json(scores)
-            st.json({
-                "delta_type": delta_type,
-                "cat_says_viable": cat_says,
-                "zfc_says_no_vetoes": zfc_says,
-                "zfc_vetoes": zfc["vetoes"],
-                "zfc_compatible_constraints": zfc["compatible"],
-            })
-
-# ---------------------------------------------------------------------------
-# Molecule Constraint Search
-# ---------------------------------------------------------------------------
+            with st.expander("Raw score data"):
+                st.json(scores)
+                if md_results:
+                    st.json({"md_results": md_results})
 
 st.divider()
 st.subheader("Molecule Constraint Search")
 st.markdown(
-    "KOMPOSOS doesn't generate text -- it searches real molecular data with "
+    "KOMPOSOS doesn't generate text - it searches real molecular data with "
     "**exact** constraint satisfaction. Enter a target heavy atom count below."
 )
 
@@ -373,11 +319,10 @@ if st.button("Search Molecules", type="primary", key="kulik_search"):
     else:
         st.info(
             f"No molecules with exactly **{target_count}** heavy atoms in the database. "
-            "**This is the correct answer** -- not a hallucination. "
+            "**This is the correct answer** - not a hallucination. "
             "KOMPOSOS never fabricates molecules."
         )
 
-    # Show distribution
     with st.expander("Heavy atom count distribution (all 37 molecules)"):
         dist = get_atom_count_distribution()
         import pandas as pd
@@ -386,12 +331,8 @@ if st.button("Search Molecules", type="primary", key="kulik_search"):
             rows.append({"Heavy Atoms": count, "Count": len(names), "Molecules": ", ".join(names)})
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
-# ---------------------------------------------------------------------------
-# Quick Molecule Selection
-# ---------------------------------------------------------------------------
-
 st.divider()
-st.subheader("🧪 Quick Molecule Selection")
+st.subheader("Quick Molecule Selection")
 st.caption("Select a molecule directly to view details, or use constraint search above for advanced filtering")
 
 selected_molecule = molecule_selector(
@@ -404,7 +345,7 @@ if selected_molecule:
     from molecular_bridge.molecule_properties import ALL_MOLECULES
     mol = ALL_MOLECULES[selected_molecule]
 
-    st.success(f"✅ Selected: **{selected_molecule}** ({mol.name})")
+    st.success(f"Selected: **{selected_molecule}** ({mol.name})")
 
     col_details, col_props = st.columns([1, 1])
 
@@ -420,10 +361,11 @@ if selected_molecule:
         st.markdown("**Physical Properties:**")
         st.markdown(f"- **Molecular Weight:** {mol.molecular_weight:.2f} g/mol")
         if mol.boiling_point_C:
-            st.markdown(f"- **Boiling Point:** {mol.boiling_point_C}°C")
+            st.markdown(f"- **Boiling Point:** {mol.boiling_point_C} deg C")
         if mol.melting_point_C:
-            st.markdown(f"- **Melting Point:** {mol.melting_point_C}°C")
+            st.markdown(f"- **Melting Point:** {mol.melting_point_C} deg C")
         st.markdown(f"- **Hazard Class:** {mol.hazard_class}")
 
-# Show molecule reference
 show_molecule_reference()
+
+

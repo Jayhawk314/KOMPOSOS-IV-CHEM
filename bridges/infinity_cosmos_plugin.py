@@ -61,18 +61,18 @@ except ImportError:
 from core.category import Category
 from core.cosmos import InfinityCosmos
 from core.two_cell_bridge import TwoCellBridge
+from core.typed_capabilities import TypedPluginMixin, MathCapability, MathStructure
 
 
-class InfinityCosmosPlugin(Plugin):
+class InfinityCosmosPlugin(Plugin, TypedPluginMixin):
     """
-    Bridge ∞-cosmos reasoning to Orion as a capability.
+    Bridge âˆž-cosmos reasoning to Orion as a capability.
 
-    Capabilities provided:
-    - homotopy_2_category: 2-cell reasoning between parallel morphisms
-    - yoneda_embedding: Structural equivalence via Yoneda
-    - cartesian_fibrations: Fibration detection
-    - kan_extension: Pointwise Kan extensions
-    - interchange_check: 2-category coherence verification
+    Capabilities provided (via TypedPluginMixin):
+    - INFINITY_COSMOS: Homotopy 2-category, Yoneda, Fibrations, Kan
+    - TWO_CELL_BRIDGE: 2-cell reasoning
+    """
+
 
     Events published:
     - cosmos.two_cell_added: New 2-cell created
@@ -89,23 +89,21 @@ class InfinityCosmosPlugin(Plugin):
             core,
             name="infinity_cosmos",
             version="0.1.0",
-            description="∞-cosmos layer: higher categorical reasoning",
-            provides={
-                "homotopy_2_category",
-                "yoneda_embedding",
-                "cartesian_fibrations",
-                "kan_extension",
-                "interchange_check",
-            },
-            events_published={
-                "cosmos.two_cell_added",
-                "cosmos.fibration_detected",
-            },
+            description="âˆž-cosmos layer: higher categorical reasoning",
         )
-
-        self.category = category or Category(db_path=db_path)
+        self.math_provides = [
+            MathCapability("infinity_cosmos", MathStructure.INFINITY_COSMOS, [
+                "homotopy_2_category", "yoneda_embedding", "cartesian_fibrations", "kan_extension"
+            ]),
+            MathCapability("two_cell_bridge", MathStructure.TWO_CELL_BRIDGE, [
+                "add_two_cell", "verify_interchange"
+            ]),
+        ]
+        self.category = category or Category(name="cosmos_core", db_path=db_path)
         self.cosmos = InfinityCosmos(self.category)
-        self.bridge = TwoCellBridge(self.cosmos)
+        self.two_cell_bridge = TwoCellBridge(self.category)
+
+
 
     async def on_start(self):
         """Plugin startup."""

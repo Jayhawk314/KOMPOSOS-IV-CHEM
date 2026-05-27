@@ -14,6 +14,7 @@ from oracle.compatibility_failure_memory import classify_failure_pattern
 from oracle.compatibility_gray_coherence import check_gray_coherence
 from oracle.compatibility_transfer import guard_transfer
 from oracle.typed_morphisms import infer_typed_morphism
+from oracle.simplicial_strategies import SimplicialYonedaStrategy, FibrationTransportStrategy
 
 
 GRAY_ACTIVE_SEVERITY_THRESHOLD = 0.35
@@ -27,6 +28,8 @@ DEFAULT_STRATEGY_WEIGHTS = {
     "failure_memory_gate": 0.90,
     "real_tool_evidence": 1.50,
     "gray_coherence": 0.80,
+    "simplicial_yoneda": 1.15,
+    "fibration_transport": 1.05,
 }
 
 
@@ -159,6 +162,32 @@ def build_compatibility_ensemble(
     zfc_vote = _zfc_constraint_vote(material_a, material_b, base_score, morphism)
     if zfc_vote is not None:
         votes.append(zfc_vote)
+
+    from oracle.simplicial_strategies import score_simplicial_yoneda, score_fibration_transport
+    
+    sy = score_simplicial_yoneda(material_a, material_b, domain)
+    votes.append(
+        StrategyVote(
+            strategy="simplicial_yoneda",
+            score=sy["score"],
+            compatible=sy["compatible"],
+            confidence=sy["confidence"],
+            reason=sy["reason"],
+            metadata=sy["metadata"],
+        )
+    )
+
+    ft = score_fibration_transport(material_a, material_b, domain)
+    votes.append(
+        StrategyVote(
+            strategy="fibration_transport",
+            score=ft["score"],
+            compatible=ft["compatible"],
+            confidence=ft["confidence"],
+            reason=ft["reason"],
+            metadata=ft["metadata"],
+        )
+    )
 
     gray = check_gray_coherence(material_a, material_b, domain, votes, context)
     if gray.gap_count:

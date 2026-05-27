@@ -22,13 +22,14 @@ Each strategy implements a different approach to predicting missing morphisms:
 import sys
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import List, Dict, Set, Tuple, Optional, Any
+from typing import List, Dict, Set, Tuple, Optional, Any, Union
 from dataclasses import dataclass
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from oracle.prediction import Prediction, PredictionType, PredictionBatch, ConfidenceLevel
 from data import KomposOSStore, EmbeddingsEngine
+from core.category import Category
 
 
 class InferenceStrategy(ABC):
@@ -38,8 +39,11 @@ class InferenceStrategy(ABC):
     _MORPHISM_LIMIT: int = 3_000_000
     _OBJECT_LIMIT: int = 100_000
 
-    def __init__(self, store: KomposOSStore, _shared_cache: Optional[Dict[str, Any]] = None):
+    def __init__(self, store: Union[KomposOSStore, Category], _shared_cache: Optional[Dict[str, Any]] = None):
         self.store = store
+        # Handle both III-style Store and IV-style Category
+        self.category = store if isinstance(store, Category) else None
+        
         # Shared cache allows all strategies to share one copy of morphisms/objects,
         # reducing memory from O(N_strategies * M) to O(M).
         self._shared_cache: Dict[str, Any] = _shared_cache if _shared_cache is not None else {}
@@ -47,13 +51,19 @@ class InferenceStrategy(ABC):
     def _get_morphisms(self) -> list:
         """Cached morphism retrieval (shared across strategies)."""
         if 'morphisms' not in self._shared_cache:
-            self._shared_cache['morphisms'] = self.store.list_morphisms(limit=self._MORPHISM_LIMIT)
+            if self.category:
+                self._shared_cache['morphisms'] = self.category.morphisms()
+            else:
+                self._shared_cache['morphisms'] = self.store.list_morphisms(limit=self._MORPHISM_LIMIT)
         return self._shared_cache['morphisms']
 
     def _get_objects(self) -> list:
         """Cached object retrieval (shared across strategies)."""
         if 'objects' not in self._shared_cache:
-            self._shared_cache['objects'] = self.store.list_objects(limit=self._OBJECT_LIMIT)
+            if self.category:
+                self._shared_cache['objects'] = self.category.objects()
+            else:
+                self._shared_cache['objects'] = self.store.list_objects(limit=self._OBJECT_LIMIT)
         return self._shared_cache['objects']
 
     def _get_object_map(self) -> Dict[str, Any]:
@@ -71,20 +81,29 @@ class InferenceStrategy(ABC):
         incoming = {}  # target -> [morphisms]
 
         for mor in self._get_morphisms():
-            if mor.source_name not in outgoing:
-                outgoing[mor.source_name] = []
-            outgoing[mor.source_name].append(mor)
+            # Handle both IV (source) and III (source_name)
+            src_name = getattr(mor, "source", getattr(mor, "source_name", None))
+            tgt_name = getattr(mor, "target", getattr(mor, "target_name", None))
+            
+            if src_name not in outgoing:
+                outgoing[src_name] = []
+            outgoing[src_name].append(mor)
 
-            if mor.target_name not in incoming:
-                incoming[mor.target_name] = []
-            incoming[mor.target_name].append(mor)
+            if tgt_name not in incoming:
+                incoming[tgt_name] = []
+            incoming[tgt_name].append(mor)
 
         self._shared_cache['morphism_index'] = (outgoing, incoming)
         return outgoing, incoming
 
     def _existing_morphism_pairs(self) -> Set[Tuple[str, str]]:
         """Get set of existing (source, target) pairs."""
-        return {(m.source_name, m.target_name) for m in self._get_morphisms()}
+        pairs = set()
+        for m in self._get_morphisms():
+            src = getattr(m, "source", getattr(m, "source_name", None))
+            tgt = getattr(m, "target", getattr(m, "target_name", None))
+            pairs.add((src, tgt))
+        return pairs
 
     @abstractmethod
     def predict(self, source: str, target: str) -> List[Prediction]:
