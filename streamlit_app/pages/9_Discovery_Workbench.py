@@ -32,6 +32,23 @@ def get_material_options():
     names = sorted(registry.keys(), key=lambda s: s.lower())
     return names, registry
 
+
+@st.cache_data
+def get_element_options():
+    """Return chemical element symbols sorted alphabetically by symbol."""
+    return sorted([
+        "Ac", "Ag", "Al", "Am", "Ar", "As", "At", "Au", "B", "Ba", "Be", "Bh",
+        "Bi", "Bk", "Br", "C", "Ca", "Cd", "Ce", "Cf", "Cl", "Cm", "Cn", "Co",
+        "Cr", "Cs", "Cu", "Db", "Ds", "Dy", "Er", "Es", "Eu", "F", "Fe", "Fl",
+        "Fm", "Fr", "Ga", "Gd", "Ge", "H", "He", "Hf", "Hg", "Ho", "Hs", "I",
+        "In", "Ir", "K", "Kr", "La", "Li", "Lr", "Lu", "Lv", "Mc", "Md", "Mg",
+        "Mn", "Mo", "Mt", "N", "Na", "Nb", "Nd", "Ne", "Nh", "Ni", "No", "Np",
+        "O", "Og", "Os", "P", "Pa", "Pb", "Pd", "Pm", "Po", "Pr", "Pt", "Pu",
+        "Ra", "Rb", "Re", "Rf", "Rg", "Rh", "Rn", "Ru", "S", "Sb", "Sc", "Se",
+        "Sg", "Si", "Sm", "Sn", "Sr", "Ta", "Tb", "Tc", "Te", "Th", "Ti", "Tl",
+        "Tm", "Ts", "U", "V", "W", "Xe", "Y", "Yb", "Zn", "Zr",
+    ], key=lambda s: s.lower())
+
 # --- TARGET PROPERTIES CONFIG ---
 _PROP_META = {
     "voltage": ("Voltage", "V"),
@@ -100,7 +117,24 @@ with st.sidebar:
     st.button("Add Property Target", on_click=_add_target)
 
     st.divider()
-    st.subheader("2. Compatibility Context")
+    st.subheader("2. Element Constraints")
+    element_options = get_element_options()
+    req_elems = st.multiselect(
+        "Required Elements",
+        element_options,
+        default=[],
+        help="Elements that generated candidates must include (type to search; sorted A-Z).",
+    )
+    ex_elems = st.multiselect(
+        "Excluded Elements",
+        element_options,
+        default=[],
+        help="Elements that generated candidates must avoid (type to search; sorted A-Z).",
+    )
+    max_elems = st.number_input("Max Elements", min_value=0, max_value=10, value=0)
+
+    st.divider()
+    st.subheader("3. Compatibility Context")
     material_names, material_registry = get_material_options()
     default_idx = material_names.index("Li_metal") if "Li_metal" in material_names else 0
     target_mat = st.selectbox(
@@ -144,7 +178,7 @@ with st.sidebar:
     )
 
     st.divider()
-    st.subheader("3. Pipeline Limits")
+    st.subheader("4. Pipeline Limits")
     max_cands = st.slider("Max Candidates", 10, 100, 30)
 
 # --- PIPELINE EXECUTION ---
@@ -163,6 +197,9 @@ if st.button("Start Discovery Pipeline", type="primary"):
     
     goal = DiscoveryGoal(
         targets=targets,
+        required_elements=req_elems,
+        excluded_elements=ex_elems,
+        max_elements=max_elems if max_elems > 0 else None,
         target_interface_material=target_mat if target_mat else None,
         interface_role=interface_role if interface_role else None,
         max_candidates=max_cands

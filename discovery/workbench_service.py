@@ -89,10 +89,20 @@ class DiscoveryWorkbenchService:
         
         # --- STAGE 1: Generation (Inverse Design) ---
         print(f"[*] Stage 1: Generating candidates for {len(goal.targets)} targets...")
+        from composition_engine.designer import ElementConstraint
+        
+        elem_spec = None
+        if goal.required_elements or goal.excluded_elements:
+            elem_spec = ElementConstraint(
+                required_elements=goal.required_elements,
+                excluded_elements=goal.excluded_elements,
+                max_elements=goal.max_elements
+            )
+            
         spec = DesignSpec(
             targets=goal.targets,
             max_candidates=goal.max_candidates,
-            element_constraints=None, # Elements handled by designer natively
+            element_constraints=elem_spec,
             domain=None
         )
         # Note: We'd normally pass goal elements to spec, but simplified for prototype
