@@ -44,6 +44,10 @@ def get_all_materials():
             continue
             
         mod = importlib.import_module(mod_path)
+        materials = getattr(mod, attr)
+        result[domain] = sorted(materials.keys())
+
+    return result
 
 
 def extract_component_scores(scores, md_results=None):

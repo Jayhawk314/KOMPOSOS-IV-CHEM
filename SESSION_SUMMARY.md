@@ -1,48 +1,32 @@
 # Session Summary: KOMPOSOS-IV-CHEM Integration Milestone
 **Date:** Wednesday, May 27, 2026
-**Status:** COMPLETE (Integration, Validation, and Documentation)
+**Status:** REPAIRED (Shared Engine Stable; Composition-First Workbench Prototype)
 
 ## 1. Executive Summary
-This session successfully transitioned KOMPOSOS-IV-CHEM from a fragmented multi-engine state to a unified, research-grade categorical runtime. We eliminated architectural drift by establishing a shared reasoning service, removed ad-hoc heuristics via Simplicial Type Theory (STT), and significantly enhanced the transparency of the scientific audit trail.
+This session integrated the shared compatibility workflow and introduced a composition-first Discovery Workbench prototype. A follow-up verification pass repaired API/UI import breaks and corrected workbench schema mismatches so the current pipeline can run through inverse design, PFAS screening, compatibility verification, and synthesis planning.
 
-## 2. Technical Achievements
+## 2. Technical & Architectural Achievements
+- **Autonomous Discovery Workbench**: Introduced `discovery/workbench_service.py`, a composition-first orchestrator for inverse design, PFAS screening, compatibility verification, and synthesis planning.
+- **Shared Compatibility Service**: Unified the core reasoning path for FastAPI and Streamlit UI; the public `/compatibility` API still preserves the same-domain contract while the service supports internal cross-domain workflows.
+- **Cross-Domain Functors**: Formalized the `Functor` architecture in the core `Bridge` ABC, enabling the system to reason between disparate material domains.
+- **Typed Orion Capabilities**: Integrated math-level contract verification across all material bridges.
 
-### Architecture Unification
-- **Shared Compatibility Service**: Unified the reasoning path for both FastAPI and Streamlit UI in `oracle/compatibility_service.py`. This ensures 100% consistency across all system surfaces.
-- **Typed Orion Capabilities**: Integrated the `TypedPluginMixin` layer into the core `Bridge` architecture. Bridges now explicitly declare math-level requirements (2-cells, fibrations, etc.) at the type level.
+## 3. Advanced Math & Heuristic Removal (STT)
+- **Simplicial Strategies**: Implemented and calibrated the **Yoneda, Fibration, and Rezk** strategies.
+- **Ensemble Weights**: Current STT weights are `yoneda=0.75`, `transport=0.25`, `rezk=1.25`; the 2026-05-27 audit report records **100.0% development accuracy** on 41 development pairs.
+- **Structural Proofs**: Replaced ad-hoc similarity with rigorous presheaf fingerprints and transport laws.
 
-### Advanced Math & Heuristic Removal
-- **Simplicial Type Theory (STT)**: Implemented two new strategies in `oracle/simplicial_strategies.py`:
-    - **Simplicial Yoneda**: Uses presheaf fingerprints (Jaccard distance) to find structural analogs.
-    - **Fibration Transport**: Lifts known compatibility results across base category morphisms.
-- **Ensemble Fusion**: These strategies are now active members of the `CompatibilityEnsemble`, replacing older name-based similarity with rigorous categorical proofs.
+## 4. Scientific Audit & Integrity
+- **Development Accuracy**: Verified **100.0% (41/41)** on the Q5 development set.
+- **Q8 Blind Benchmark**: Frozen with 40 new pairs (2024-2026) in `audit/external_blind/compatibility_2026_q8.json`; no Q8 validation claim has been reported yet.
 
-### System Integrity & Backward Compatibility
-- **Morphism Fusing**: Added `source_name` and `target_name` aliases to the `Morphism` class to support legacy KOMPOSOS-III strategies.
-- **Dual-Mode Inference**: Updated `InferenceStrategy` to support both the legacy SQLite `Store` and the new fused `Category` runtime.
-- **Data Leakage Mitigation**: Resolved a critical attribute error in `ToposLogicStrategy` and verified the evaluation integrity tool `check_data_leakage.py`.
+## 5. UI Mastery & Transparency
+- **Integrated Discovery Workbench**: Created a new Streamlit tool panel (`9_Discovery_Workbench.py`) that executes the current composition-first pipeline in a single view.
+- **Detailed Audit Trail**: Interactive expanders for strategy-level transparency.
+- **Simplicial Visualization**: Interactive **"Simplicial Presheaf Overlap"** section for visual fingerprint comparison.
 
-## 3. Scientific Audit Results (Verified 2026-05-27)
-- **Development Set (Q5)**: `41/41`, `100.0%` accuracy.
-- **External Blind (Q7)**: `35/35`, `91.4%` accuracy.
-- **AUROC (Bio)**: `0.9008` (Confirmed working on the full 78x20 Drug-Disease matrix).
-- **Master Status**: **PASS** (Accuracy, Physical grounding, Computational, Integration).
-
-## 4. UI Transparency & User Experience
-- **Detailed Audit Trail**: The Compatibility Checker UI now features a **"Detailed Ensemble Votes"** expander. Researchers can inspect the raw score, confidence, and mathematical reasoning for every contributing strategy.
-- **Accuracy Display**: Rewired UI to display calibrated probabilities and Gray coherence guards directly from the shared service.
-
-## 5. Documentation Synchronization
-Updated all core repository documentation to reflect the new state:
-- `CURRENT_STATE.md`: Refactored to highlight integration milestones and current accuracy.
-- `MEMORY.md` & `CLAUDE.md`: Synchronized with latest audit posture and system rules.
-- `docs/AUDIT_CHANGE_LOG.md`: Recorded the integration of STT and the shared reasoning service.
-- `docs/FEATURES.md` & `docs/WEB_UI_USER_GUIDE.md`: Documented the new STT strategies and interactive audit trail.
-
-## 6. Next Steps for Future Agents
-1. **Calibrate STT Weights**: Perform an automated grid search to find the optimal ensemble weights for `simplicial_yoneda` and `fibration_transport`.
-2. **Cross-Domain Functors**: Leverage the new `TypedPluginMixin` to formalize relationships (functors) between the 8 material bridges.
-3. **Expand Q8 Blind**: Since Q7 "misses" have been analyzed, a new Q8 blind benchmark should be frozen before further significant scorer changes.
+## 6. Project Status
+The shared compatibility path and composition-first workbench now run under focused smoke tests. The broader goal of integrating all 8 primary features remains future work; `docs/PIPELINE_ARCHITECTURE.md` tracks the missing CRYSTAL/MOF-specific pipeline paths.
 
 ---
 *KOMPOSOS-IV-CHEM | Integration Lead | James Ray Hawkins | 2026*

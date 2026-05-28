@@ -11,14 +11,16 @@ KOMPOSOS-IV is a **categorical runtime** for multi-domain discovery. It is deplo
 
 ## 2026-05-27 Integration Milestone
 
-We have successfully unified the reasoning architecture and integrated Simplicial Type Theory (STT) to remove ad-hoc heuristics.
+We have unified the compatibility reasoning architecture and integrated Simplicial Type Theory (STT) strategies into the compatibility ensemble. The Discovery Workbench is currently a composition-first prototype, not yet the full 8-feature autonomous pipeline.
 
 ### Key Accomplishments
-- **Shared Reasoning Service**: Unified `oracle/compatibility_service.py` ensures 100% consistency between the Streamlit UI and FastAPI backend.
-- **Simplicial Type Theory (STT)**: Implemented `SimplicialYonedaStrategy` and `FibrationTransportStrategy`. These replace heuristic weights with structural categorical proofs.
-- **Ensemble Fusion**: The compatibility ensemble now natively supports STT-enhanced votes alongside classical rules and ZFC constraints.
-- **UI Transparency**: Added a detailed "Audit Trail" to the Compatibility Checker, exposing strategy-level reasoning to researchers.
-- **Backward Compatibility**: Restored seamless operation of legacy inference strategies on the new fused runtime via `Morphism` aliases.
+- **Simplicial Weight Calibration**: Optimized ensemble weights via grid search (`yoneda=0.75`, `transport=0.25`).
+- **Q8 Blind Benchmark Frozen**: 40 new literature-backed pairs (2024-2026) are registered as the current blind benchmark for the next validation claim.
+- **Rezk Equivalence**: Enabled mathematical material substitution via isomorphic presheaf detection.
+- **Cross-Domain Functors**: Formalized inter-bridge reasoning in the core categorical architecture.
+- **UI Simplicial Visualization**: Added interactive Presheaf Overlap comparison to the Compatibility Checker.
+- **Shared Reasoning Service**: Unified `oracle/compatibility_service.py` for API/UI compatibility reasoning; the public API preserves its same-domain route contract.
+- **Backward Compatibility**: Restored seamless operation for legacy KOMPOSOS-III strategies.
 
 ## Current Audit State (Verified 2026-05-27)
 
@@ -39,8 +41,8 @@ We have successfully unified the reasoning architecture and integrated Simplicia
 - **PFAS Scanner** provides auditable compliance reports.
 
 ## Immediate Next Steps
-1. **Calibrate STT Weights**: Perform grid search to find optimal ensemble weights for the new Yoneda and Transport strategies.
-2. **Expand Cross-Domain Functors**: Utilize the new `TypedPluginMixin` to define formal relationships between different material domains.
+1. **Run Q8 Blind Validation**: Report results against `audit/external_blind/compatibility_2026_q8.json` before further scorer tuning.
+2. **Expand Workbench Pipelines**: Add CRYSTAL and MOF pipeline modes beyond the current composition-first path.
 3. **Data Leakage Monitoring**: Continuously run `check_data_leakage.py` during dataset expansion to ensure evaluation integrity.
 
 ---

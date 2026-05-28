@@ -15,18 +15,20 @@ Unified the reasoning pipeline and integrated Simplicial Type Theory (STT) conce
 
 ### Unified Reasoning Architecture
 - **Shared Service**: `oracle/compatibility_service.py` is the single source of truth for both FastAPI and Streamlit UI.
-- **Ensemble Integration**: The `CompatibilityEnsembleResult` now fuses classical rules, typed morphisms, MD integration, and STT strategies.
+- **Ensemble Integration**: The `CompatibilityEnsembleResult` now fuses classical rules, typed morphisms, MD integration, and STT strategies (Yoneda, Transport, Rezk).
 - **Categorical Foundation**: The system correctly handles both III-style stores and IV-style categorical objects via robust base classes and `Morphism` aliases.
+- **Cross-Domain Functors**: Formalized inter-bridge reasoning for complex multi-domain queries.
 
 ### Advanced Math Features
 - **Simplicial Yoneda**: Uses Jaccard distance between presheaf fingerprints to find structural analogs.
 - **Fibration Transport**: Lifts compatibility results across base category morphisms.
+- **Rezk Equivalence**: Groups isomorphic materials for exact functional substitution discovery.
 - **Typed Capabilities**: Bridges explicitly declare math-level requirements (2-cells, fibrations, etc.) using `TypedPluginMixin`.
 
 ## Scientific Audit Status
 
 - **Development Set (Q5)**: `41/41`, `100.0%` accuracy. (Verified 2026-05-27)
-- **External Blind (Q7)**: `35/35`, `91.4%` accuracy. (Verified 2026-05-27)
+- **External Blind (Q8)**: 40 pairs frozen and registered as the current blind benchmark; no Q8 result has been claimed yet. (Frozen 2026-05-27)
 - **AUROC (Bio)**: Confirmed at `0.9008` (simple average) for Drug->Disease prediction.
 
 ## Standing Rules
@@ -45,4 +47,5 @@ Unified the reasoning pipeline and integrated Simplicial Type Theory (STT) conce
 - `audit/run_audit.py`: main scientific audit harness.
 - `api/routes/compatibility.py`: unified API endpoint.
 - `streamlit_app/pages/1_Compatibility_Checker.py`: rewired UI using shared service.
+- `discovery/workbench_service.py`: composition-first Discovery Workbench prototype.
 - `SESSION_SUMMARY.md`: detailed history of the 2026-05-27 integration session.

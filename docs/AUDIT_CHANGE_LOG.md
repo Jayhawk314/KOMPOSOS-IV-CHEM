@@ -4,23 +4,26 @@
 
 ---
 
+## 2026-05-27: Integration, Q8 Freeze, and Workbench Repair
+
+**Outcome**: Data-driven calibration of STT weights and freezing of the Q8 blind benchmark.
+
+### Performance Tuning
+- **STT Calibration**: Performed grid search across 41 dev pairs. Optimized weights: `simplicial_yoneda=0.75`, `fibration_transport=0.25`.
+- **Q8 Freeze**: Frozen `audit/external_blind/compatibility_2026_q8.json` with 40 new pairs (2024-2026 literature).
+
+### Structural Completion
+- **Rezk Equivalence**: Full implementation of `RezkEquivalenceStrategy` for exact material substitution.
+- **Cross-Domain Functors**: Formalized functor architecture for reasoning between material domains.
+- **Workbench Repair**: Fixed API/UI import contracts and workbench schema mismatches found during verification.
+
+### 2026-05-27 Final Metrics
+- **Development Accuracy**: `100.0%` (Pass).
+- **System Consistency**: Focused API compatibility tests pass; Q8 remains unreported.
+
+---
+
 ## 2026-05-27: Integration & Simplicial Enhancement
-
-**Outcome**: Unified reasoning architecture and removal of heuristics via Simplicial Type Theory.
-
-### System-Wide Synchronization
-- **Shared Service**: API and UI rewired to `oracle/compatibility_service.py` for absolute consistency.
-- **Backward Compatibility**: `Morphism` aliases (`source_name`, `target_name`) restored for legacy strategies.
-- **Data Leakage Fix**: Resolved vulnerability in Topos logic and updated `check_data_leakage.py`.
-
-### Simplicial Type Theory (STT) Strategies
-- **Yoneda Similarity**: presheaf-based structural analogs implemented in `SimplicialYonedaStrategy`.
-- **Fibration Transport**: known compatibility lifted across base morphisms in `FibrationTransportStrategy`.
-
-### 2026-05-27 Metrics
-- **Development (Q5)**: `41/41`, `100.0%` accuracy (Verified).
-- **Q7 External Blind**: `35/35`, `91.4%` accuracy (Verified).
-- **AUROC (Bio)**: `0.9008` (Confirmed via `confirm_auroc.py`).
 
 ---
 
@@ -40,7 +43,8 @@
 | :--- | :--- | :--- | :--- |
 | **Development** | 41 | 100.0% | Pass |
 | **Q6 (Blind)** | 35 | 100.0% | Pass (Spent) |
-| **Q7 (Blind)** | 35 | 91.4% | Pass (Current) |
+| **Q7 (Blind)** | 35 | 91.4% | Pass (Spent) |
+| **Q8 (Blind)** | 40 | Not run | Current frozen holdout |
 
 ---
 

@@ -32,7 +32,8 @@ The KOMPOSOS-IV Web UI provides a window into the **Infinity Cosmos** categorica
 - **Morphism Status**: EXISTS (Green) or BLOCKED (Red).
 - **Quantale Weight**: Composite confidence score (0-1).
 - **Dual-Engine Verdict**: **AGREE**, **HOLLOW**, **ORPHAN**, or **REJECT**.
-- **Detailed Ensemble Votes**: An interactive audit trail showing exactly how every mathematical strategy voted, including simplicial similarity and fibration transport evidence.
+- **Detailed Ensemble Votes**: An interactive audit trail showing exactly how every mathematical strategy voted.
+- **Simplicial Presheaf Overlap**: A visual comparison of the mathematical "fingerprints" for two materials, highlighting the structural relations that justify their compatibility analog.
 - **Energy Score**: Measures the "surprise" or stability of the interaction.
 
 ---

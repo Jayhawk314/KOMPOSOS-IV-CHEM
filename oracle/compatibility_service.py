@@ -175,6 +175,23 @@ def resolve_workflow_domain(material_a: str, material_b: str) -> str:
     return f"{domain_a}-{domain_b}"
 
 
+def resolve_same_domain(material_a: str, material_b: str) -> str:
+    """Resolve a material pair that must belong to the same domain."""
+    domain_a = _REGISTRY.get(material_a)
+    domain_b = _REGISTRY.get(material_b)
+
+    if domain_a is None:
+        raise ValueError(f"Unknown material: '{material_a}'")
+    if domain_b is None:
+        raise ValueError(f"Unknown material: '{material_b}'")
+    if domain_a != domain_b:
+        raise ValueError(
+            f"Materials belong to different domains: '{material_a}' is {domain_a}, "
+            f"'{material_b}' is {domain_b}"
+        )
+    return domain_a
+
+
 def _get_validator(domain: str):
     if domain in _VALIDATORS:
         return _VALIDATORS[domain]

@@ -22,7 +22,8 @@ The core of Version IV is the **Infinity Cosmos**, a simplicially enriched categ
 
 - **Morphism Composition**: Verify compatibility by composing interactions A→B and B→C.
 - **Quantale Enrichment**: Scores are weights in a quantale (Multiplicative, Additive, or Min).
-- **Simplicial Type Theory (STT)**: Rigorous structural metrics and transport laws (Yoneda similarity, Fibration transport) replace ad-hoc heuristics.
+- **Simplicial Type Theory (STT)**: Rigorous structural metrics and transport laws (Yoneda similarity, Fibration transport, Rezk equivalence) replace ad-hoc heuristics.
+- **Cross-Domain Functors**: Formalized mathematical mappings between material domains (e.g., mapping molecular stability to battery performance).
 - **Higher-Order Reasoning**: 2-cells compare different paths (e.g., comparing synthesis routes).
 - **Shared Reasoning Service**: Unified backend (`compatibility_service.py`) ensures 100% consistency between API and UI.
 
@@ -117,7 +118,13 @@ Loaded via the **Bridge ABC**, providing data for 103K+ materials.
 
 - **Composition Predictor**: Predict any formula's properties via Kan Extensions.
 - **Crystal Dreamer**: Inverse design via Perturbation, Interpolation, and Substitution strategies.
-- **Derived Crystal Structures**: Trace lattice parameters back to MP entries with exact provenance.
+## 10. Autonomous Discovery Workbench (Prototype)
+
+The Workbench is a composition-first orchestrator for a subset of the discovery stack. It currently chains inverse composition design, PFAS screening, compatibility verification, and synthesis planning; CRYSTAL and MOF-specific pipeline modes are tracked in `docs/PIPELINE_ARCHITECTURE.md`.
+
+- **Composition-to-Route Pipeline**: Chains Inverse Design, PFAS Screening, Compatibility Verification, and Synthesis Planning.
+- **Integrated Scorecard**: A unified view of candidates across property fit, regulatory safety, interface stability, and synthesizability.
+- **Proxy-Aware Verification**: Generated formulas are checked through their nearest known material proxy when downstream services require registered material names.
 
 ---
 

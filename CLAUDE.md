@@ -34,11 +34,11 @@ Python: 3.10+
 ## Current Audit Posture (Updated 2026-05-27)
 
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
-- Current blind benchmark: `audit/external_blind/compatibility_2026_q7.json`
-- Q2-Q6 are spent diagnostic evidence.
+- Current blind benchmark: `audit/external_blind/compatibility_2026_q8.json` (Frozen 2026-05-27)
+- Q2-Q7 are spent diagnostic evidence.
 - Development benchmark: `41/41`, `100.0%`, `0` skips. (Verified 2026-05-27)
-- Q7 blind benchmark: `35/35`, `91.4%`, protocol pass true. (Verified 2026-05-27)
-- STT-enhanced reasoning (Yoneda/Fibration) integrated and active in ensemble.
+- Q8 blind benchmark: Active and frozen for next validation claim.
+- STT-enhanced reasoning (Yoneda, Fibration, Rezk) integrated and calibrated.
 - System integrity: `InferenceStrategy` supports both III-style Store and IV-style Category via `Morphism` aliases.
 
 ## Runtime Rule
@@ -54,7 +54,7 @@ Python: 3.10+
 ```powershell
 python audit\run_audit.py --module development
 python audit\run_audit.py --module external
-python audit\run_audit.py --module external --external-path audit\external_blind\compatibility_2026_q7.json
+python audit\run_audit.py --module external --external-path audit\external_blind\compatibility_2026_q8.json
 python audit\run_master_audit.py
 ```
 

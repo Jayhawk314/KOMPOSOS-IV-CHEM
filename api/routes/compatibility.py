@@ -23,9 +23,11 @@ def check_compatibility(req: CompatibilityRequest):
     Both materials must belong to the same domain.
     """
     try:
+        domain = resolve_same_domain(req.material_a, req.material_b)
         workflow = run_compatibility_workflow(
             req.material_a,
             req.material_b,
+            domain=domain,
             role=req.role,
             electrolyte=req.electrolyte,
             voltage_context=req.voltage_context,
