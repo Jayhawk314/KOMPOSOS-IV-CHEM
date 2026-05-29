@@ -61,6 +61,44 @@ KNOWN_BAD_PAIRS: List[Tuple[str, str]] = [
 ]
 
 
+class UnknownMaterialError(ValueError):
+    """Raised when a material cannot be resolved in either argument orientation.
+
+    Callers (the audit runner, the product compatibility service, the Discovery
+    Workbench) pass materials in dataset/UI order, which is not necessarily
+    ``(polymer, battery_material)``. Rather than silently emit a confident
+    ``score=0.0`` for a material this bridge does not actually know — which
+    manufactures false negatives — the bridge abstains by raising. The audit
+    runner turns this into an honest SKIP/no_verdict.
+    """
+
+
+def _orient_polymer_battery(arg1: str, arg2: str) -> Tuple[str, str]:
+    """Return ``(polymer_name, battery_material_name)`` in the orientation where
+    both roles resolve. Prefer the given order when it already resolves; try the
+    reverse otherwise. Raise :class:`UnknownMaterialError` when neither
+    orientation yields a resolvable polymer and battery material."""
+    forward = get_polymer(arg1) is not None and get_battery_material(arg2) is not None
+    if forward:
+        return arg1, arg2
+    reverse = get_polymer(arg2) is not None and get_battery_material(arg1) is not None
+    if reverse:
+        return arg2, arg1
+    unknown = [
+        m for m in (arg1, arg2)
+        if get_polymer(m) is None and get_battery_material(m) is None
+    ]
+    if unknown:
+        raise UnknownMaterialError(
+            f"Unknown battery-polymer material(s): {', '.join(unknown)}"
+        )
+    raise UnknownMaterialError(
+        f"Cannot resolve a (polymer, battery_material) orientation for "
+        f"{arg1!r} + {arg2!r} (neither is usable as a battery electrode/electrolyte "
+        f"paired with a polymer)"
+    )
+
+
 @dataclass
 class BatteryPolymerResult:
     """Result of cross-domain battery-polymer compatibility scoring."""
@@ -344,27 +382,15 @@ def score_polymer_electrode_compatibility(
     """
     warnings = []
 
-    polymer = get_polymer(polymer_name)
-    if polymer is None:
-        return BatteryPolymerResult(
-            compatible=False, score=0.0,
-            voltage_compatibility=0.0, thermal_compatibility=0.0,
-            mechanical_compatibility=0.0, chemical_compatibility=0.0,
-            polymer_name=polymer_name,
-            battery_material_name=battery_material_name,
-            warnings=[f"Unknown polymer: {polymer_name}"],
-        )
+    # Resolve argument orientation before scoring. Callers pass materials in
+    # arbitrary order; pick the orientation where both roles resolve, or abstain
+    # (raise) if the material is genuinely unknown to this bridge.
+    polymer_name, battery_material_name = _orient_polymer_battery(
+        polymer_name, battery_material_name
+    )
 
+    polymer = get_polymer(polymer_name)
     battery_mat = get_battery_material(battery_material_name)
-    if battery_mat is None:
-        return BatteryPolymerResult(
-            compatible=False, score=0.0,
-            voltage_compatibility=0.0, thermal_compatibility=0.0,
-            mechanical_compatibility=0.0, chemical_compatibility=0.0,
-            polymer_name=polymer_name,
-            battery_material_name=battery_material_name,
-            warnings=[f"Unknown battery material: {battery_material_name}"],
-        )
 
     # Score each dimension
     v_score, v_details = _score_voltage_compatibility(polymer, battery_mat)
@@ -416,11 +442,28 @@ def score_polymer_electrode_compatibility(
             c_score = min(c_score, 0.15)
             c_details["anode_binder_high_voltage_cathode_penalty"] = True
 
-    if poly_key in anode_binder_polymers and battery_key in anode_materials:
+    # Water-processed binders (CMC, SBR) are standard for conventional
+    # intercalation anodes (graphite, Si, LTO) but NOT for lithium metal:
+    # residual moisture from the aqueous slurry drives parasitic reactions with
+    # Li metal (Bresser et al., Energy Environ. Sci. 2018). Lithium metal is
+    # therefore excluded from the generic anode-binder bonus and given an
+    # explicit moisture-reaction penalty.
+    water_processed_binders = {"CMC", "SBR"}
+    conventional_anodes = anode_materials - {"Li_metal"}
+
+    if poly_key in anode_binder_polymers and battery_key in conventional_anodes:
         c_score = max(c_score, 0.85)
         m_score = max(m_score, 0.75)
         c_details["anode_binder_context_bonus"] = True
         m_details["anode_binder_context_bonus"] = True
+
+    if poly_key in water_processed_binders and battery_key == "Li_metal":
+        c_score = min(c_score, 0.15)
+        c_details["water_binder_li_metal_moisture_penalty"] = True
+        warnings.append(
+            f"Moisture-reaction penalty: water-processed {polymer_name} causes "
+            f"parasitic reactions with lithium metal"
+        )
 
     # Composite: voltage is critical for batteries
     composite = (

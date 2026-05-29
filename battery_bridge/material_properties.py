@@ -241,6 +241,34 @@ CATHODE_MATERIALS['NMC811'] = BatteryMaterial(
     },
 )
 
+# NCA (lithium nickel cobalt aluminum oxide) — high-Ni layered cathode used in
+# high-energy cells (e.g. Panasonic/Tesla 18650/2170). Behaves like NMC811:
+# high capacity, high-voltage layered oxide, reduced thermal stability from high
+# Ni content. Standard collector pairing is Al foil at cathode potentials.
+CATHODE_MATERIALS['NCA'] = BatteryMaterial(
+    name='NCA',
+    formula='LiNi0.8Co0.15Al0.05O2',
+    material_class=MaterialClass.CATHODE,
+    crystal_structure=CrystalStructure.LAYERED,
+    voltage_window=VoltageWindow(lower=3.0, upper=4.3, nominal=3.7),
+    theoretical_capacity=279.0,  # Manthiram, Nat. Commun. 2020
+    density=4.45,                # Kim et al., Adv. Energy Mater. 2016
+    thermal_stability_max=180,   # High-Ni; between NMC811 and NMC622 (Noh et al. 2013)
+    volume_expansion=0.04,       # ~4% layered-oxide (de Biasi et al. 2019)
+    elastic_modulus=172.0,       # GPa, NMC/NCA family estimate
+    failure_modes=[
+        FailureMode.OXYGEN_RELEASE,
+        FailureMode.CEI_DEGRADATION,
+        FailureMode.CRACKING,
+        FailureMode.TRANSITION_METAL_DISSOLUTION,
+    ],
+    sources={
+        'voltage': 'Manthiram, Nat. Commun. 2020',
+        'capacity': 'Manthiram, Nat. Commun. 2020',
+        'thermal': 'Noh et al., J. Power Sources 2013',
+    },
+)
+
 # NMC622
 CATHODE_MATERIALS['NMC622'] = BatteryMaterial(
     name='NMC622',

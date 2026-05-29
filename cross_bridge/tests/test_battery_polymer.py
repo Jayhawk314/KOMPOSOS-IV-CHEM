@@ -16,6 +16,7 @@ import unittest
 from cross_bridge.battery_polymer import (
     score_polymer_electrode_compatibility,
     BatteryPolymerResult,
+    UnknownMaterialError,
     KNOWN_GOOD_PAIRS,
     KNOWN_BAD_PAIRS,
 )
@@ -51,19 +52,26 @@ class TestResultStructure(unittest.TestCase):
 
 
 class TestUnknownMaterials(unittest.TestCase):
-    """Test graceful handling of unknown materials."""
+    """Unknown materials must abstain (raise), not emit a confident score=0.0.
+
+    A degenerate 0.0 manufactures false negatives; the bridge instead raises
+    UnknownMaterialError so the audit runner records an honest SKIP/no_verdict.
+    """
 
     def test_unknown_polymer(self):
-        r = score_polymer_electrode_compatibility('NONEXISTENT', 'LFP')
-        self.assertFalse(r.compatible)
-        self.assertEqual(r.score, 0.0)
-        self.assertTrue(any('Unknown polymer' in w for w in r.warnings))
+        with self.assertRaises(UnknownMaterialError):
+            score_polymer_electrode_compatibility('NONEXISTENT', 'LFP')
 
     def test_unknown_battery_material(self):
-        r = score_polymer_electrode_compatibility('PVDF', 'NONEXISTENT')
-        self.assertFalse(r.compatible)
-        self.assertEqual(r.score, 0.0)
-        self.assertTrue(any('Unknown battery' in w for w in r.warnings))
+        with self.assertRaises(UnknownMaterialError):
+            score_polymer_electrode_compatibility('PVDF', 'NONEXISTENT')
+
+    def test_orientation_is_resolved(self):
+        """Arbitrary argument order resolves to the same result (general fix)."""
+        forward = score_polymer_electrode_compatibility('PEO', 'Li_metal')
+        reverse = score_polymer_electrode_compatibility('Li_metal', 'PEO')
+        self.assertEqual(forward.compatible, reverse.compatible)
+        self.assertAlmostEqual(forward.score, reverse.score, places=4)
 
 
 class TestKnownGoodPairs(unittest.TestCase):

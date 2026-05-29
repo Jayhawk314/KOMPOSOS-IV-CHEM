@@ -126,6 +126,41 @@ def _metal_lookup_candidates(metal: MetalMaterial, metal_key: Optional[str] = No
     return normalized
 
 
+class UnknownMaterialError(ValueError):
+    """Raised when a material cannot be resolved in either argument orientation.
+
+    Callers pass materials in arbitrary order, which is not necessarily
+    ``(metal, electrode)``. Rather than silently emit a confident ``score=0.0``
+    for a material this bridge does not actually know — which manufactures false
+    negatives — the bridge abstains by raising; the audit runner turns this into
+    an honest SKIP/no_verdict.
+    """
+
+
+def _orient_metal_electrode(arg1: str, arg2: str) -> Tuple[str, str]:
+    """Return ``(metal_name, electrode_name)`` in the orientation where both
+    roles resolve. Prefer the given order; try the reverse otherwise. Raise
+    :class:`UnknownMaterialError` when neither orientation resolves both."""
+    forward = get_metal(arg1) is not None and get_battery_material(arg2) is not None
+    if forward:
+        return arg1, arg2
+    reverse = get_metal(arg2) is not None and get_battery_material(arg1) is not None
+    if reverse:
+        return arg2, arg1
+    unknown = [
+        m for m in (arg1, arg2)
+        if get_metal(m) is None and get_battery_material(m) is None
+    ]
+    if unknown:
+        raise UnknownMaterialError(
+            f"Unknown battery-metal material(s): {', '.join(unknown)}"
+        )
+    raise UnknownMaterialError(
+        f"Cannot resolve a (metal, electrode) orientation for "
+        f"{arg1!r} + {arg2!r}"
+    )
+
+
 @dataclass
 class BatteryMetalResult:
     """Result of cross-domain battery-metal compatibility scoring."""
@@ -422,27 +457,12 @@ def score_collector_compatibility(
     """
     warnings = []
 
-    metal = get_metal(metal_name)
-    if metal is None:
-        return BatteryMetalResult(
-            compatible=False, score=0.0,
-            electrochemical_stability=0.0, galvanic_risk=0.0,
-            cte_compatibility=0.0, conductivity_score=0.0, corrosion_risk=0.0,
-            metal_name=metal_name, electrode_name=electrode_name,
-            electrolyte_name=electrolyte_name,
-            warnings=[f"Unknown metal: {metal_name}"],
-        )
+    # Resolve argument orientation before scoring; abstain (raise) on genuinely
+    # unknown materials rather than emitting a misleading confident score=0.0.
+    metal_name, electrode_name = _orient_metal_electrode(metal_name, electrode_name)
 
+    metal = get_metal(metal_name)
     electrode = get_battery_material(electrode_name)
-    if electrode is None:
-        return BatteryMetalResult(
-            compatible=False, score=0.0,
-            electrochemical_stability=0.0, galvanic_risk=0.0,
-            cte_compatibility=0.0, conductivity_score=0.0, corrosion_risk=0.0,
-            metal_name=metal_name, electrode_name=electrode_name,
-            electrolyte_name=electrolyte_name,
-            warnings=[f"Unknown electrode: {electrode_name}"],
-        )
 
     electrolyte = None
     if electrolyte_name:

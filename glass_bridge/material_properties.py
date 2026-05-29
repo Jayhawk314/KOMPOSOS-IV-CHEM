@@ -935,9 +935,26 @@ ALL_GLASSES.update(PHOSPHATE_GLASSES)
 ALL_GLASSES.update(FLUORIDE_GLASSES)
 
 
+# Common generic glass names -> canonical ALL_GLASSES keys. Soda-lime and
+# borosilicate are the two most common glasses; datasets and users routinely
+# name them generically. General capability, not a per-benchmark patch.
+_GLASS_ALIASES: Dict[str, str] = {
+    'Soda_Lime': 'SodaLime_Float', 'SodaLime': 'SodaLime_Float',
+    'Soda_Lime_Glass': 'SodaLime_Float', 'Soda-Lime': 'SodaLime_Float',
+    'Borosilicate': 'Boro_33', 'Boro': 'Boro_33', 'Pyrex': 'Boro_33',
+    'Duran': 'Boro_33', 'Borosilicate_3.3': 'Boro_33',
+    'Fused_Silica': 'FusedSilica', 'Quartz': 'QuartzGlass',
+}
+
+
 def get_glass(name: str) -> Optional[GlassMaterial]:
-    """Look up a glass by name or abbreviation."""
-    return ALL_GLASSES.get(name)
+    """Look up a glass by canonical key or common generic synonym."""
+    if name in ALL_GLASSES:
+        return ALL_GLASSES[name]
+    alias = _GLASS_ALIASES.get(name)
+    if alias is not None:
+        return ALL_GLASSES.get(alias)
+    return None
 
 
 def get_glasses_by_class(

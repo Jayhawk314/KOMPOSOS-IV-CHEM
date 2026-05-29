@@ -1001,6 +1001,21 @@ def _evaluate_pair(
         result = validator.validate(mat_a, mat_b, conditions)
         return result.total, result.viable
 
+    elif domain == "metal-semiconductor":
+        from cross_bridge.metal_semiconductor import score_metal_semiconductor_compatibility
+        result = score_metal_semiconductor_compatibility(mat_a, mat_b, role=role)
+        return _apply_typed_context_score(result.score, result.compatible, mat_a, mat_b, domain, context)
+
+    elif domain == "glass-metal":
+        from cross_bridge.glass_metal import score_glass_metal_compatibility
+        result = score_glass_metal_compatibility(mat_a, mat_b, role=role)
+        return _apply_typed_context_score(result.score, result.compatible, mat_a, mat_b, domain, context)
+
+    elif domain == "polymer-glass":
+        from cross_bridge.polymer_glass import score_polymer_glass_compatibility
+        result = score_polymer_glass_compatibility(mat_a, mat_b, role=role)
+        return _apply_typed_context_score(result.score, result.compatible, mat_a, mat_b, domain, context)
+
     elif domain == "cross-bridge":
         from cross_bridge.multi_domain import (
             MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent

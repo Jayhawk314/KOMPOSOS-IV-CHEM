@@ -1133,9 +1133,22 @@ ALL_POLYMERS.update(POLYMER_SOLVENTS)
 ALL_POLYMERS['PE'] = ALL_POLYMERS['HDPE']
 
 
+# Common synonyms -> canonical ALL_POLYMERS keys (general capability).
+_POLYMER_ALIASES: Dict[str, str] = {
+    'Silicone': 'PDMS', 'Silicone_Rubber': 'PDMS', 'PDMS_Silicone': 'PDMS',
+    'Nylon': 'PA6', 'Nylon_6': 'PA6', 'Nylon_66': 'PA66', 'Nylon_6,6': 'PA66',
+    'Acrylic': 'PMMA', 'Teflon': 'PTFE', 'Epoxy_Resin': 'Epoxy',
+}
+
+
 def get_polymer(name: str) -> Optional[PolymerMaterial]:
-    """Look up a polymer by name or abbreviation."""
-    return ALL_POLYMERS.get(name)
+    """Look up a polymer by canonical key, abbreviation, or common synonym."""
+    if name in ALL_POLYMERS:
+        return ALL_POLYMERS[name]
+    alias = _POLYMER_ALIASES.get(name)
+    if alias is not None:
+        return ALL_POLYMERS.get(alias)
+    return None
 
 
 def get_polymers_by_class(polymer_class: PolymerClass) -> Dict[str, PolymerMaterial]:

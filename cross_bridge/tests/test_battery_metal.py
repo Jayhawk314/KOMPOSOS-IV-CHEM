@@ -16,6 +16,7 @@ import unittest
 from cross_bridge.battery_metal import (
     score_collector_compatibility,
     BatteryMetalResult,
+    UnknownMaterialError,
     KNOWN_GOOD_PAIRS,
     KNOWN_BAD_PAIRS,
 )
@@ -55,14 +56,19 @@ class TestUnknownMaterials(unittest.TestCase):
     """Test graceful handling of unknown materials."""
 
     def test_unknown_metal(self):
-        r = score_collector_compatibility('NONEXISTENT', 'LFP', 'LiPF6')
-        self.assertFalse(r.compatible)
-        self.assertEqual(r.score, 0.0)
+        with self.assertRaises(UnknownMaterialError):
+            score_collector_compatibility('NONEXISTENT', 'LFP', 'LiPF6')
 
     def test_unknown_electrode(self):
-        r = score_collector_compatibility('Al_foil', 'NONEXISTENT', 'LiPF6')
-        self.assertFalse(r.compatible)
-        self.assertEqual(r.score, 0.0)
+        with self.assertRaises(UnknownMaterialError):
+            score_collector_compatibility('Al_foil', 'NONEXISTENT', 'LiPF6')
+
+    def test_orientation_is_resolved(self):
+        """Arbitrary argument order resolves to the same result (general fix)."""
+        forward = score_collector_compatibility('Al_foil', 'NMC811', 'LiPF6')
+        reverse = score_collector_compatibility('NMC811', 'Al_foil', 'LiPF6')
+        self.assertEqual(forward.compatible, reverse.compatible)
+        self.assertAlmostEqual(forward.score, reverse.score, places=4)
 
     def test_unknown_electrolyte_warns(self):
         r = score_collector_compatibility('Al_foil', 'LFP', 'NONEXISTENT')

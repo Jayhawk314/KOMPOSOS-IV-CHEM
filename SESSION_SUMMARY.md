@@ -1,116 +1,62 @@
-# Session Summary: STT Integration Repair, Evidence Chain & Audit Reports
-**Date:** 2026-05-28
-**Status:** STABLE — runtime wiring repaired, evidence UI upgraded, audit verified
+# Session Summary — Research-Grade Remediation (2026-05-29)
 
----
+Goal: honest research-grade compatibility on data the system has not seen. Q8 is
+the only honest signal and it failed protocol at 70%. This session repaired
+coverage and one calibration bug, with a hard rule: **general capability, not
+Q8 patches**; the real claim comes from a freshly-frozen Q9.
 
-## 1. Executive Summary
+## Audit-posture change
+- **Q8 demoted `current_blind` → `spent_diagnostic`** in `audit/dataset_registry.json`
+  (its skip/fail cases were inspected; also 14/40 pairs overlap existing
+  benchmarks — never a clean holdout). `current_blind_version` set to `null`.
+  **Q8 improvements must NEVER be reported as a blind claim. Freeze Q9 first.**
 
-This session diagnosed and repaired a silent failure in the STT (Simplicial Type Theory)
-reasoning layer, added a formal Yoneda evidence chain to the compatibility ensemble,
-introduced domain-aware audit report generation, and upgraded the Compatibility Checker
-UI to surface mathematical evidence in chemistry-field language.
+## What changed (all general capability)
+1. **Cross-bridge orientation + abstain** (`cross_bridge/battery_polymer.py`,
+   `battery_metal.py`): bridges were order-sensitive and returned a *confident*
+   `score=0.0` on the wrong argument order — an honesty bug that manufactured
+   false negatives. Now they resolve orientation by DB membership and raise
+   `UnknownMaterialError` (→ runner SKIP) on genuinely-unknown materials.
+2. **Name resolution + materials**: `get_metal` alias+form-factor layer
+   (SS316→SS_316, Ti_foil→Ti, element names); `get_glass` aliases
+   (Soda_Lime→SodaLime_Float, Borosilicate→Boro_33); `get_polymer` aliases
+   (Silicone→PDMS); added **NCA** cathode (battery DB) and **Kovar** sealing
+   alloy (metal DB).
+3. **Three new physics-based cross-bridges** (+wired into `audit/run_audit.py`):
+   - `cross_bridge/glass_metal.py` — CTE matching + active-metal reactivity.
+   - `cross_bridge/metal_semiconductor.py` — metallization suitability + thermal stress.
+   - `cross_bridge/polymer_glass.py` — Hansen-polarity + siloxane/thermoset coupling adhesion.
+   These behave correctly on non-Q8 inputs too (e.g. SS316+boro fails on CTE,
+   Al+GaAs fails metallization, PTFE+glass fails adhesion).
+4. **One calibration logic fix**: water-processed binders (CMC/SBR) + Li metal
+   now carry a moisture-reaction penalty (Bresser 2018) instead of the generic
+   anode-binder bonus. Fixed the `Li_metal+CMC` FP that the orientation fix exposed.
 
-The development benchmark was re-verified: **41/41, 100.0%, Brier 0.095**.
-Q8 blind benchmark remains frozen and unreported.
+## Q8 DIAGNOSTIC progression (NOT a blind claim)
+| stage | acc | eval/skip | TP/TN/FP/FN | MCC | Brier | ECE |
+|---|---|---|---|---|---|---|
+| baseline | 70.0% | 30/10 | 13/8/2/7 | 0.424 | 0.259 | 0.256 |
+| +orientation/abstain | 79.3% | 29/11 | 16/7/3/3 | 0.542 | 0.162 | 0.097 |
+| +materials | 81.2% | 32/8 | 18/8/3/3 | 0.584 | 0.156 | 0.115 |
+| +cross-bridges | 84.2% | 38/2 | 23/9/3/3 | 0.635 | 0.137 | 0.103 |
+| +CMC fix | 86.8% | 38/2 | 23/10/2/3 | 0.703 | 0.119 | 0.117 |
 
----
+- **Dev set unchanged at 41/41, Brier 0.095** throughout (regression gate).
+- 2 intentional remaining skips: `Soda_Lime`/`Cabal-12` + `Li_metal` (niche
+  glass-vs-lithium corrosion; not fabricated to match Q8).
 
-## 2. What Was Broken (Silent Failure)
+## Tooling
+- `audit/chem_audit.py` — chem-system-only regression harness (explicit in-scope
+  allowlist; never runs the monolithic pytest tree). Pre-existing baseline reds
+  (NOT from this work): `mof test_screening_pipeline_small`, 2× `FibrationLiftStrategy`.
+- New tests: `cross_bridge/tests/test_interface_cross_domain.py`; updated
+  unknown-material tests in `test_battery_polymer.py` / `test_battery_metal.py`.
 
-The three STT strategies in the compatibility ensemble
-(`simplicial_yoneda`, `fibration_transport`, `rezk_equivalence`) were each
-independently calling `_try_get_domain_category(domain)` — an O(n²) pairwise
-validation build — and the result was being discarded after each call.
-The category WAS being built, but three times per query, and each was thrown away.
-
-More critically, the `metadata` returned by all three strategies contained no
-formal mathematical evidence — only a score and a plain reason string.
-The Yoneda distance, presheaf overlap, proof steps, shared sources, isomorphism
-witnesses, and transport paths were all computed but never surfaced to the
-ensemble or UI.
-
----
-
-## 3. Runtime Wiring Changes
-
-### `oracle/simplicial_strategies.py`
-- Added `_DOMAIN_CATEGORY_CACHE` module-level dict (keyed by primary domain name).
-- Made `build_domain_category(domain)` public — builds on first call, returns
-  cached instance on all subsequent calls. Eliminates 3× redundant O(n²) build
-  per compatibility query.
-- Added category adapter helpers (`_iter_morphisms_to`, `_iter_all_morphisms`)
-  handling both III-style (`categorical.category.Category`) and IV-style
-  (`core.category.Category`) APIs.
-- Added `_build_formal_yoneda_evidence(obj_a, obj_b, category)` — computes
-  representable presheaves Hom(−,A) and Hom(−,B), weighted sieve distance
-  `d = |Δ|/|∪|`, presheaf overlap, isomorphism check, shared-source evidence
-  table, and numbered proof steps.
-- Enriched `score_simplicial_yoneda` metadata: `evidence_quality`, `yoneda_proof`
-  (full proof dict with steps + shared source table).
-- Enriched `score_fibration_transport` metadata: per-path strength, shared
-  property features, human-readable reasoning per path.
-- Enriched `score_rezk_equivalence` metadata: isomorphism witness with shared
-  relation list, transport morphism table, and logic chain string.
-- **Vote scores and weights unchanged** — audit benchmark not affected.
-
-### `oracle/compatibility_ensemble.py`
-- Imports `build_domain_category` from `oracle.simplicial_strategies`.
-- Builds domain category once at the top of `build_compatibility_ensemble`,
-  passes to all three STT strategies.
-
-### `domains/bio/loader.py`
-- Fixed pre-existing `NameError`: added `List` to `from typing import ...`.
-  This was preventing the Compatibility Checker UI from loading on startup.
-
----
-
-## 4. New Module: `reports/compatibility_report.py`
-
-Domain-aware audit report generator. Translates every categorical concept into
-chemistry-field language per domain (battery, polymer, metal, ceramic,
-semiconductor, glass, MOF, default).
-
-Key exports:
-- `build_compatibility_report(mat_a, mat_b, domain, scores, viable)` → `CompatibilityAuditReport`
-- `render_markdown(report)` → human-readable Markdown with two tracks:
-  chemistry narrative + mathematical backing
-- `report_to_dict(report)` → JSON-serialisable dict for programmatic use
-
-The narration registry maps:
-
-| Math term | Battery example | Semiconductor example |
-|---|---|---|
-| interface | electrochemical interface | heterostructure interface |
-| compatible | electrochemically stable | band-aligned and lattice-matched |
-| shared sources | materials that can form stable interfaces with both | semiconductors that form clean heterostructures with both |
-| Rezk equivalent | electrochemically interchangeable (same SEI chemistry) | band-structure equivalent semiconductor |
-
----
-
-## 5. UI Changes: `streamlit_app/pages/1_Compatibility_Checker.py`
-
-- **Audit Report section** added above the evidence chain: two download buttons
-  (`Download Report (Markdown)` and `Download Audit Trail (JSON)`) with a
-  unique report ID per run.
-- Evidence chain expander titles use domain-aware chemistry labels (not raw
-  math names).
-- Chemistry narrative shown as an info box above each strategy's details.
-- Shared sources table header uses domain language
-  (e.g. "Materials that can form stable interfaces with both").
-- Evidence quality badge per vote: `✓ Formal proof` / `~ Structural` / `✗ No category`.
-
----
-
-## 6. Audit Posture
-
-| Benchmark | Status | Result |
-|---|---|---|
-| Development (41 pairs) | Verified 2026-05-28 | 41/41, 100.0%, Brier 0.095 |
-| Q8 blind (40 pairs) | Frozen 2026-05-27 | Unreported — do not run |
-
-No audit claims changed. Score formulas are identical to 2026-05-27.
-
----
-
-*KOMPOSOS-IV-CHEM | James Ray Hawkins | 2026-05-28*
+## Remaining (deferred to user decision before Q9)
+- 5 genuine calibration errors: FP `ABS+PVDF`, `PA66+PEO`; FN `Spinel+MgO`,
+  `PTFE+PVDF`, `B4C+Al2O3`. These need polymer-miscibility / ceramic-compatibility
+  scorer changes with real overfit risk and partly-debatable Q8 labels
+  (`PTFE+PVDF` "compatible" is lamination, not blend miscibility).
+- **Then: freeze Q9 (uninspected recent-literature pairs) and report Q9 ONLY**
+  (coverage, accuracy, AUROC, AP, Brier, ECE, FP/FN). After that: PFAS blind BOM,
+  MP category-precision, MOF external verdicts.

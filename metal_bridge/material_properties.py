@@ -1059,6 +1059,35 @@ NICKEL_ALLOYS['Inconel_718'] = MetalMaterial(
     metadata={'passivating': True},
 )
 
+NICKEL_ALLOYS['Kovar'] = MetalMaterial(
+    name='Kovar',
+    formula='Fe-29Ni-17Co',
+    metal_class=MetalClass.NICKEL_ALLOY,
+    crystal_system=CrystalSystem.BCC,
+    melting_point_C=1450.0,
+    thermal_conductivity_W_mK=17.3,
+    cte_per_K=5.1,               # Controlled-expansion: matched to borosilicate (ASTM F15)
+    elastic_modulus_GPa=138.0,
+    yield_strength_MPa=345.0,
+    ultimate_tensile_MPa=517.0,
+    elongation_pct=30.0,
+    hardness_HV=160,
+    density_g_cm3=8.36,
+    electrical_resistivity_ohm_m=4.9e-7,
+    galvanic_potential_V=-0.10,
+    corrosion_rate_mm_yr=0.05,
+    failure_modes=[
+        MetalFailureMode.GALVANIC_CORROSION,
+    ],
+    sources={
+        'cte': 'ASTM F15 / Carpenter Kovar datasheet',
+        'mechanical': 'Carpenter Technology Kovar alloy datasheet',
+    },
+    # Controlled-expansion Fe-Ni-Co alloy engineered for hermetic glass-to-metal
+    # seals; its 4.9-5.3 ppm/K CTE matches borosilicate over the sealing range.
+    metadata={'controlled_expansion': True, 'sealing_alloy': True},
+)
+
 NICKEL_ALLOYS['Hastelloy_C276'] = MetalMaterial(
     name='Hastelloy C-276',
     formula='Ni-16Cr-16Mo-5Fe-4W',
@@ -1185,9 +1214,52 @@ ALL_METALS.update(NICKEL_ALLOYS)
 ALL_METALS.update(BATTERY_METALS)
 
 
+# Common name synonyms -> canonical ALL_METALS keys. General capability:
+# users and datasets write stainless steel and elements many ways. This is
+# deliberately NOT a per-benchmark patch — every entry is a widely used synonym.
+_METAL_ALIASES: Dict[str, str] = {
+    # Stainless steel notations (with/without underscore, L grades, 'SS' suffix)
+    'SS316': 'SS_316', 'SS316L': 'SS_316', '316SS': 'SS_316', '316L': 'SS_316',
+    '316_stainless': 'SS_316', '316_Stainless': 'SS_316',
+    'SS304': 'SS_304', 'SS304L': 'SS_304', '304SS': 'SS_304', '304L': 'SS_304',
+    '304_stainless': 'SS_304', '304_Stainless': 'SS_304',
+    'Stainless_Steel': 'SS_304', 'Stainless': 'SS_304',
+    # Full element names -> symbols
+    'Aluminum': 'Al', 'Aluminium': 'Al', 'Copper': 'Cu', 'Nickel': 'Ni',
+    'Iron': 'Fe', 'Titanium': 'Ti', 'Tungsten': 'W', 'Molybdenum': 'Mo',
+    'Magnesium': 'Mg', 'Zinc': 'Zn', 'Silver': 'Ag', 'Gold': 'Au',
+    'Platinum': 'Pt', 'Tin': 'Sn', 'Lead': 'Pb',
+    'CP_Ti': 'CP_Ti_Gr2',
+}
+
+# Form-factor suffixes describe geometry, not the intrinsic material properties
+# used for compatibility scoring; strip them as a fallback (e.g. 'Ti_foil' -> 'Ti').
+# Checked only AFTER an exact match, so dedicated foil entries (Al_foil, Cu_foil)
+# still resolve to their own specific records.
+_FORM_FACTOR_SUFFIXES = ('_foil', '_sheet', '_plate', '_wire', '_rod', '_bar', '_mesh')
+
+
 def get_metal(name: str) -> Optional[MetalMaterial]:
-    """Look up a metal by name or abbreviation."""
-    return ALL_METALS.get(name)
+    """Look up a metal by canonical key, common synonym, or form factor.
+
+    Resolution order: exact key -> synonym alias -> form-factor-stripped base.
+    Returns None when nothing resolves, so callers can abstain rather than
+    silently mis-score an unknown material.
+    """
+    if name in ALL_METALS:
+        return ALL_METALS[name]
+    alias = _METAL_ALIASES.get(name)
+    if alias is not None:
+        return ALL_METALS.get(alias)
+    for suffix in _FORM_FACTOR_SUFFIXES:
+        if name.endswith(suffix):
+            base = name[: -len(suffix)]
+            if base in ALL_METALS:
+                return ALL_METALS[base]
+            base_alias = _METAL_ALIASES.get(base)
+            if base_alias is not None:
+                return ALL_METALS.get(base_alias)
+    return None
 
 
 def get_metals_by_class(metal_class: MetalClass) -> Dict[str, MetalMaterial]:
