@@ -14,7 +14,11 @@ from oracle.compatibility_failure_memory import classify_failure_pattern
 from oracle.compatibility_gray_coherence import check_gray_coherence
 from oracle.compatibility_transfer import guard_transfer
 from oracle.typed_morphisms import infer_typed_morphism
-from oracle.simplicial_strategies import SimplicialYonedaStrategy, FibrationTransportStrategy
+from oracle.simplicial_strategies import (
+    SimplicialYonedaStrategy,
+    FibrationTransportStrategy,
+    build_domain_category,
+)
 
 
 GRAY_ACTIVE_SEVERITY_THRESHOLD = 0.35
@@ -165,12 +169,16 @@ def build_compatibility_ensemble(
         votes.append(zfc_vote)
 
     from oracle.simplicial_strategies import (
-        score_simplicial_yoneda, 
+        score_simplicial_yoneda,
         score_fibration_transport,
-        score_rezk_equivalence
+        score_rezk_equivalence,
     )
-    
-    sy = score_simplicial_yoneda(material_a, material_b, domain)
+
+    # Build domain category once; pass to all three STT strategies so we do not
+    # repeat the O(n²) pairwise validation on every call.
+    _domain_cat = build_domain_category(domain)
+
+    sy = score_simplicial_yoneda(material_a, material_b, domain, category=_domain_cat)
     votes.append(
         StrategyVote(
             strategy="simplicial_yoneda",
@@ -182,7 +190,7 @@ def build_compatibility_ensemble(
         )
     )
 
-    ft = score_fibration_transport(material_a, material_b, domain)
+    ft = score_fibration_transport(material_a, material_b, domain, category=_domain_cat)
     votes.append(
         StrategyVote(
             strategy="fibration_transport",
@@ -194,7 +202,7 @@ def build_compatibility_ensemble(
         )
     )
 
-    re = score_rezk_equivalence(material_a, material_b, domain)
+    re = score_rezk_equivalence(material_a, material_b, domain, category=_domain_cat)
     votes.append(
         StrategyVote(
             strategy="rezk_equivalence",

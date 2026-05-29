@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-05-28: STT Wiring Repair, Formal Evidence Chain, Audit Reports
+
+**Audit result: 41/41, 100.0%, Brier 0.095 — unchanged from 2026-05-27.**
+
+### What changed
+
+**STT runtime fix** — `oracle/simplicial_strategies.py`:
+- Domain category was being built 3× per compatibility query and discarded.
+  Now built once, cached in `_DOMAIN_CATEGORY_CACHE`, passed to all three
+  STT strategies via `oracle/compatibility_ensemble.py`.
+- Vote scores and ensemble weights **unchanged** — no benchmark impact.
+
+**Formal Yoneda evidence** — new in every `simplicial_yoneda` vote metadata:
+- `yoneda_proof`: representable presheaves Hom(−,A) and Hom(−,B), sieve
+  distance `d = |Δ|/|∪|`, presheaf overlap, isomorphism verdict, proof steps,
+  shared-source table with per-direction confidence values.
+- `fibration_transport`: per-path strength, shared property features, reasoning.
+- `rezk_equivalence`: isomorphism witness with shared relation count, transport
+  morphisms, logic chain.
+
+**New module** — `reports/compatibility_report.py`:
+- Domain-aware narration registry for battery, polymer, metal, ceramic,
+  semiconductor, glass, MOF.
+- `build_compatibility_report()` → `CompatibilityAuditReport` dataclass.
+- `render_markdown()` → two-track report (chemistry narrative + math backing).
+- `report_to_dict()` → JSON audit trail.
+
+**UI** — `streamlit_app/pages/1_Compatibility_Checker.py`:
+- Download Report (Markdown) and Download Audit Trail (JSON) buttons.
+- Chemistry-domain labels on all STT evidence expanders.
+- Formal proof steps and shared-source table visible in UI.
+
+**Bug fix** — `domains/bio/loader.py`: added `List` to typing imports
+(pre-existing `NameError` prevented Compatibility Checker from loading).
+
+### Audit posture unchanged
+- Development: 41/41, 100.0% (re-verified 2026-05-28).
+- Q8: frozen, unreported. Do not run.
+
+---
+
 ## 2026-05-27: Integration, Q8 Freeze, and Workbench Repair
 
 **Outcome**: Data-driven calibration of STT weights and freezing of the Q8 blind benchmark.

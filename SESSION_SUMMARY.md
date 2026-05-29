@@ -1,32 +1,116 @@
-# Session Summary: KOMPOSOS-IV-CHEM Integration Milestone
-**Date:** Wednesday, May 27, 2026
-**Status:** REPAIRED (Shared Engine Stable; Composition-First Workbench Prototype)
-
-## 1. Executive Summary
-This session integrated the shared compatibility workflow and introduced a composition-first Discovery Workbench prototype. A follow-up verification pass repaired API/UI import breaks and corrected workbench schema mismatches so the current pipeline can run through inverse design, PFAS screening, compatibility verification, and synthesis planning.
-
-## 2. Technical & Architectural Achievements
-- **Autonomous Discovery Workbench**: Introduced `discovery/workbench_service.py`, a composition-first orchestrator for inverse design, PFAS screening, compatibility verification, and synthesis planning.
-- **Shared Compatibility Service**: Unified the core reasoning path for FastAPI and Streamlit UI; the public `/compatibility` API still preserves the same-domain contract while the service supports internal cross-domain workflows.
-- **Cross-Domain Functors**: Formalized the `Functor` architecture in the core `Bridge` ABC, enabling the system to reason between disparate material domains.
-- **Typed Orion Capabilities**: Integrated math-level contract verification across all material bridges.
-
-## 3. Advanced Math & Heuristic Removal (STT)
-- **Simplicial Strategies**: Implemented and calibrated the **Yoneda, Fibration, and Rezk** strategies.
-- **Ensemble Weights**: Current STT weights are `yoneda=0.75`, `transport=0.25`, `rezk=1.25`; the 2026-05-27 audit report records **100.0% development accuracy** on 41 development pairs.
-- **Structural Proofs**: Replaced ad-hoc similarity with rigorous presheaf fingerprints and transport laws.
-
-## 4. Scientific Audit & Integrity
-- **Development Accuracy**: Verified **100.0% (41/41)** on the Q5 development set.
-- **Q8 Blind Benchmark**: Frozen with 40 new pairs (2024-2026) in `audit/external_blind/compatibility_2026_q8.json`; no Q8 validation claim has been reported yet.
-
-## 5. UI Mastery & Transparency
-- **Integrated Discovery Workbench**: Created a new Streamlit tool panel (`9_Discovery_Workbench.py`) that executes the current composition-first pipeline in a single view.
-- **Detailed Audit Trail**: Interactive expanders for strategy-level transparency.
-- **Simplicial Visualization**: Interactive **"Simplicial Presheaf Overlap"** section for visual fingerprint comparison.
-
-## 6. Project Status
-The shared compatibility path and composition-first workbench now run under focused smoke tests. The broader goal of integrating all 8 primary features remains future work; `docs/PIPELINE_ARCHITECTURE.md` tracks the missing CRYSTAL/MOF-specific pipeline paths.
+# Session Summary: STT Integration Repair, Evidence Chain & Audit Reports
+**Date:** 2026-05-28
+**Status:** STABLE — runtime wiring repaired, evidence UI upgraded, audit verified
 
 ---
-*KOMPOSOS-IV-CHEM | Integration Lead | James Ray Hawkins | 2026*
+
+## 1. Executive Summary
+
+This session diagnosed and repaired a silent failure in the STT (Simplicial Type Theory)
+reasoning layer, added a formal Yoneda evidence chain to the compatibility ensemble,
+introduced domain-aware audit report generation, and upgraded the Compatibility Checker
+UI to surface mathematical evidence in chemistry-field language.
+
+The development benchmark was re-verified: **41/41, 100.0%, Brier 0.095**.
+Q8 blind benchmark remains frozen and unreported.
+
+---
+
+## 2. What Was Broken (Silent Failure)
+
+The three STT strategies in the compatibility ensemble
+(`simplicial_yoneda`, `fibration_transport`, `rezk_equivalence`) were each
+independently calling `_try_get_domain_category(domain)` — an O(n²) pairwise
+validation build — and the result was being discarded after each call.
+The category WAS being built, but three times per query, and each was thrown away.
+
+More critically, the `metadata` returned by all three strategies contained no
+formal mathematical evidence — only a score and a plain reason string.
+The Yoneda distance, presheaf overlap, proof steps, shared sources, isomorphism
+witnesses, and transport paths were all computed but never surfaced to the
+ensemble or UI.
+
+---
+
+## 3. Runtime Wiring Changes
+
+### `oracle/simplicial_strategies.py`
+- Added `_DOMAIN_CATEGORY_CACHE` module-level dict (keyed by primary domain name).
+- Made `build_domain_category(domain)` public — builds on first call, returns
+  cached instance on all subsequent calls. Eliminates 3× redundant O(n²) build
+  per compatibility query.
+- Added category adapter helpers (`_iter_morphisms_to`, `_iter_all_morphisms`)
+  handling both III-style (`categorical.category.Category`) and IV-style
+  (`core.category.Category`) APIs.
+- Added `_build_formal_yoneda_evidence(obj_a, obj_b, category)` — computes
+  representable presheaves Hom(−,A) and Hom(−,B), weighted sieve distance
+  `d = |Δ|/|∪|`, presheaf overlap, isomorphism check, shared-source evidence
+  table, and numbered proof steps.
+- Enriched `score_simplicial_yoneda` metadata: `evidence_quality`, `yoneda_proof`
+  (full proof dict with steps + shared source table).
+- Enriched `score_fibration_transport` metadata: per-path strength, shared
+  property features, human-readable reasoning per path.
+- Enriched `score_rezk_equivalence` metadata: isomorphism witness with shared
+  relation list, transport morphism table, and logic chain string.
+- **Vote scores and weights unchanged** — audit benchmark not affected.
+
+### `oracle/compatibility_ensemble.py`
+- Imports `build_domain_category` from `oracle.simplicial_strategies`.
+- Builds domain category once at the top of `build_compatibility_ensemble`,
+  passes to all three STT strategies.
+
+### `domains/bio/loader.py`
+- Fixed pre-existing `NameError`: added `List` to `from typing import ...`.
+  This was preventing the Compatibility Checker UI from loading on startup.
+
+---
+
+## 4. New Module: `reports/compatibility_report.py`
+
+Domain-aware audit report generator. Translates every categorical concept into
+chemistry-field language per domain (battery, polymer, metal, ceramic,
+semiconductor, glass, MOF, default).
+
+Key exports:
+- `build_compatibility_report(mat_a, mat_b, domain, scores, viable)` → `CompatibilityAuditReport`
+- `render_markdown(report)` → human-readable Markdown with two tracks:
+  chemistry narrative + mathematical backing
+- `report_to_dict(report)` → JSON-serialisable dict for programmatic use
+
+The narration registry maps:
+
+| Math term | Battery example | Semiconductor example |
+|---|---|---|
+| interface | electrochemical interface | heterostructure interface |
+| compatible | electrochemically stable | band-aligned and lattice-matched |
+| shared sources | materials that can form stable interfaces with both | semiconductors that form clean heterostructures with both |
+| Rezk equivalent | electrochemically interchangeable (same SEI chemistry) | band-structure equivalent semiconductor |
+
+---
+
+## 5. UI Changes: `streamlit_app/pages/1_Compatibility_Checker.py`
+
+- **Audit Report section** added above the evidence chain: two download buttons
+  (`Download Report (Markdown)` and `Download Audit Trail (JSON)`) with a
+  unique report ID per run.
+- Evidence chain expander titles use domain-aware chemistry labels (not raw
+  math names).
+- Chemistry narrative shown as an info box above each strategy's details.
+- Shared sources table header uses domain language
+  (e.g. "Materials that can form stable interfaces with both").
+- Evidence quality badge per vote: `✓ Formal proof` / `~ Structural` / `✗ No category`.
+
+---
+
+## 6. Audit Posture
+
+| Benchmark | Status | Result |
+|---|---|---|
+| Development (41 pairs) | Verified 2026-05-28 | 41/41, 100.0%, Brier 0.095 |
+| Q8 blind (40 pairs) | Frozen 2026-05-27 | Unreported — do not run |
+
+No audit claims changed. Score formulas are identical to 2026-05-27.
+
+---
+
+*KOMPOSOS-IV-CHEM | James Ray Hawkins | 2026-05-28*

@@ -1,6 +1,34 @@
 # KOMPOSOS-IV Bridge Tuning Log
 
-*Updated 2026-05-22 - Version IV Categorical Runtime*
+*Updated 2026-05-28 - Version IV Categorical Runtime*
+
+---
+
+## 2026-05-28: STT Category Cache + Formal Evidence Wiring
+
+### Problem
+`_try_get_domain_category(domain)` was called independently inside each of the
+three STT score functions — building the domain category O(n²) pairwise
+validation calls 3× per compatibility query, then discarding it.
+
+### Fix
+`build_domain_category(domain)` — public, module-level cached in
+`_DOMAIN_CATEGORY_CACHE`. Built once per domain per process lifetime.
+Passed explicitly from `build_compatibility_ensemble` to all three STT
+strategies.
+
+### Evidence enrichment
+`score_simplicial_yoneda` now computes and returns the formal Yoneda presheaf
+evidence (sieve distance, presheaf overlap, shared sources with confidences,
+proof steps) in vote metadata. `score_fibration_transport` includes per-path
+details. `score_rezk_equivalence` includes the full isomorphism witness.
+
+### Impact on scores
+**None.** Score formulas are identical. Benchmark: 41/41, 100.0%, Brier 0.095.
+
+### New report module
+`reports/compatibility_report.py` — domain-aware narration registry translates
+categorical concepts to chemistry-field language for each supported domain.
 
 ---
 

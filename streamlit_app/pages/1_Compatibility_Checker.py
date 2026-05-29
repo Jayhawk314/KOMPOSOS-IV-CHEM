@@ -7,11 +7,17 @@ _root = str(Path(__file__).resolve().parent.parent.parent)
 if _root not in sys.path:
     sys.path.insert(0, _root)
 
+import json
 import streamlit as st
 from utils.molecule_autocomplete import molecule_selector, show_molecule_reference
 from oracle.compatibility_service import run_compatibility_workflow
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from streamlit_app.md_controls import render_md_input_controls, render_md_result
+from reports.compatibility_report import (
+    build_compatibility_report,
+    render_markdown,
+    report_to_dict,
+)
 
 st.set_page_config(page_title="Compatibility Checker", page_icon="chem", layout="wide")
 st.title("Material Compatibility Checker")
@@ -240,54 +246,325 @@ else:
                     use_container_width=True,
                 )
 
+            # ── Audit Report download ──────────────────────────────────────
+            try:
+                _report = build_compatibility_report(
+                    mat_a=mat_a, mat_b=mat_b, domain=workflow.domain,
+                    scores=scores, viable=workflow.viable,
+                )
+                _report_md   = render_markdown(_report)
+                _report_json = json.dumps(report_to_dict(_report), indent=2, default=str)
+                _fname_stem  = f"compat_{mat_a}_{mat_b}_{workflow.domain}".replace(" ", "_")
+
+                st.markdown("#### Audit Report")
+                dl_col1, dl_col2 = st.columns(2)
+                with dl_col1:
+                    st.download_button(
+                        label="Download Report (Markdown)",
+                        data=_report_md,
+                        file_name=f"{_fname_stem}.md",
+                        mime="text/markdown",
+                        help="Human-readable report with chemistry narrative + mathematical backing",
+                    )
+                with dl_col2:
+                    st.download_button(
+                        label="Download Audit Trail (JSON)",
+                        data=_report_json,
+                        file_name=f"{_fname_stem}.json",
+                        mime="application/json",
+                        help="Full machine-readable audit trail for programmatic verification",
+                    )
+                st.caption(f"Report ID: `{_report.report_id}`")
+            except Exception as _rpt_err:
+                st.caption(f"Report generation unavailable: {_rpt_err}")
+
+            st.divider()
+
             ensemble = scores.get("ensemble", {})
             if ensemble and ensemble.get("votes"):
-                with st.expander("Detailed Ensemble Votes (Audit Trail)", expanded=True):
+                with st.expander("Ensemble Votes & Categorical Evidence Chain", expanded=True):
+                    import pandas as pd
+
+                    # ── Evidence quality summary ───────────────────────────
+                    _EQ_LABEL = {
+                        "formal":               "✓ Formal proof",
+                        "formal_with_neighbor": "✓ Formal proof",
+                        "structural":           "~ Structural",
+                        "none":                 "✗ No category",
+                    }
+                    _EQ_COLOR = {
+                        "formal":               "green",
+                        "formal_with_neighbor": "green",
+                        "structural":           "orange",
+                        "none":                 "gray",
+                    }
+
+                    n_formal     = sum(
+                        1 for v in ensemble["votes"]
+                        if v.get("metadata", {}).get("evidence_quality", "").startswith("formal")
+                    )
+                    n_structural = sum(
+                        1 for v in ensemble["votes"]
+                        if v.get("metadata", {}).get("evidence_quality") == "structural"
+                    )
+                    n_none = sum(
+                        1 for v in ensemble["votes"]
+                        if v.get("metadata", {}).get("evidence_quality") == "none"
+                        or "evidence_quality" not in v.get("metadata", {})
+                    )
+                    total_votes = len(ensemble["votes"])
+
+                    eq_col1, eq_col2, eq_col3, eq_col4 = st.columns(4)
+                    eq_col1.metric("Total votes", total_votes)
+                    eq_col2.metric("Formal proof", n_formal,
+                                   help="Votes backed by formal Yoneda/categorical evidence")
+                    eq_col3.metric("Structural only", n_structural,
+                                   help="Votes with structural comparison but no formal proof")
+                    eq_col4.metric("No category", n_none,
+                                   help="Neutral fallback — domain category unavailable")
+
+                    st.caption(
+                        f"Evidence coverage: "
+                        f"{n_formal}/{total_votes} votes carry formal mathematical proof chains."
+                    )
+                    st.divider()
+
+                    # ── Vote summary table ─────────────────────────────────
                     vote_rows = []
                     for vote in ensemble["votes"]:
+                        eq = vote.get("metadata", {}).get("evidence_quality", "")
                         vote_rows.append({
-                            "Strategy": vote["strategy"].replace("_", " ").title(),
-                            "Score": vote["score"],
+                            "Strategy":   vote["strategy"].replace("_", " ").title(),
+                            "Score":      vote["score"],
                             "Confidence": vote["confidence"],
-                            "Verdict": "PASS" if vote["compatible"] else "FAIL",
-                            "Reasoning": vote["reason"]
+                            "Verdict":    "PASS" if vote["compatible"] else "FAIL",
+                            "Evidence":   _EQ_LABEL.get(eq, eq or "—"),
+                            "Reasoning":  vote["reason"],
                         })
-                    import pandas as pd
                     vote_df = pd.DataFrame(vote_rows)
                     st.dataframe(
                         vote_df.style.format({"Score": "{:.3f}", "Confidence": "{:.3f}"}),
                         use_container_width=True,
-                        hide_index=True
+                        hide_index=True,
+                    )
+                    st.divider()
+
+                    # ── Categorical evidence chains ────────────────────────
+                    st.markdown("#### Categorical Evidence Chains")
+                    st.caption(
+                        "Chemistry interpretation first — mathematical backing in italics below each entry. "
+                        "Download the Markdown report above for the full version."
                     )
 
-                    # Simplicial Yoneda Visualization (Presheaf Fingerprint)
-                    for vote in ensemble["votes"]:
-                        if vote["strategy"] == "simplicial_yoneda" and vote.get("metadata", {}).get("fingerprint_a"):
-                            st.markdown("---")
-                            st.subheader("Simplicial Presheaf Overlap")
-                            meta = vote["metadata"]
-                            neighbor = meta["neighbor"]
-                            
-                            col_a, col_n = st.columns(2)
-                            
-                            def format_fp(fp):
-                                if not fp: return "Empty"
-                                return "\n".join([f"- {target} ({rel})" for target, rel in fp])
+                    # Pull domain-aware labels from the report module
+                    from reports.compatibility_report import (
+                        _strategy_label as _slabel,
+                        _chemistry_narrative as _cnar,
+                        _nar,
+                    )
+                    _domain = workflow.domain
 
-                            with col_a:
-                                st.markdown(f"**{mat_a} Fingerprint**")
-                                st.code(format_fp(meta["fingerprint_a"]), language="markdown")
-                            with col_n:
-                                st.markdown(f"**{neighbor} Fingerprint** (known compatible with {mat_b})")
-                                st.code(format_fp(meta["fingerprint_n"]), language="markdown")
-                            
-                            fp_a = set(tuple(x) for x in meta["fingerprint_a"])
-                            fp_n = set(tuple(x) for x in meta["fingerprint_n"])
-                            overlap = fp_a & fp_n
-                            if overlap:
-                                st.success(f"Structural overlap detected: {len(overlap)} shared relations.")
-                                with st.expander("Show shared relations"):
-                                    st.code(format_fp(list(overlap)), language="markdown")
+                    def _format_fp_lines(fp):
+                        if not fp:
+                            return "Empty fingerprint"
+                        return "\n".join(f"  ({t}, {r})" for t, r in fp)
+
+                    for vote in ensemble["votes"]:
+                        meta = vote.get("metadata", {})
+                        eq   = meta.get("evidence_quality", "")
+                        strategy = vote["strategy"]
+
+                        # ── Simplicial Yoneda ──────────────────────────────
+                        if strategy == "simplicial_yoneda":
+                            yp = meta.get("yoneda_proof")
+                            _chem_label = _slabel(strategy, _domain)
+                            with st.expander(
+                                f"**{_chem_label}** — score {vote['score']:.3f}  "
+                                f"| {_EQ_LABEL.get(eq, eq or '—')}",
+                                expanded=bool(yp),
+                            ):
+                                if yp:
+                                    # Chemistry narrative first
+                                    _narr = _cnar(vote, _domain, mat_a, mat_b)
+                                    if _narr:
+                                        st.info(_narr)
+                                    st.markdown(
+                                        f"**Formal proof** *(Yoneda sieve distance — "
+                                        f"measures how different {mat_a} and {mat_b} are "
+                                        f"in terms of what {_nar(_domain, 'objects')} "
+                                        f"they can interface with)*"
+                                    )
+                                    for step in yp.get("proof_steps", []):
+                                        st.markdown(f"&nbsp;&nbsp;{step}")
+
+                                    if yp.get("shared_sources"):
+                                        st.markdown(
+                                            f"**{_nar(_domain, 'shared_partners').title()}** — "
+                                            f"{len(yp['shared_sources'])} {_nar(_domain, 'objects')} "
+                                            f"that can interface with both {mat_a} and {mat_b}"
+                                        )
+                                        ss_df = pd.DataFrame(yp["shared_sources"]).rename(columns={
+                                            "source":    "Material",
+                                            "conf_to_a": f"Conf→{mat_a}",
+                                            "conf_to_b": f"Conf→{mat_b}",
+                                        })
+                                        st.dataframe(
+                                            ss_df.style.format({
+                                                f"Conf→{mat_a}": "{:.4f}",
+                                                f"Conf→{mat_b}": "{:.4f}",
+                                            }),
+                                            use_container_width=True,
+                                            hide_index=True,
+                                        )
+                                    else:
+                                        st.info(
+                                            f"No shared sources: {mat_a} and {mat_b} have "
+                                            "disjoint incoming morphism sets."
+                                        )
+
+                                    iso = yp.get("is_isomorphic", False)
+                                    if iso:
+                                        st.success(
+                                            f"**Isomorphic** — "
+                                            f"d(y(A),y(B)) = {yp['sieve_distance']:.4f}; "
+                                            f"A ≅ B (Yoneda fully faithful)"
+                                        )
+                                    else:
+                                        st.info(
+                                            f"Yoneda distance d = {yp['sieve_distance']:.4f}  |  "
+                                            f"Overlap = {yp['presheaf_overlap']:.4f}  |  "
+                                            f"Max transfer threshold = {yp['max_transfer_threshold']:.4f}"
+                                        )
+
+                                    if meta.get("fingerprint_a") and meta.get("neighbor"):
+                                        st.markdown(
+                                            f"**Neighbour comparison** "
+                                            f"(similarity {meta.get('similarity', 0):.4f} "
+                                            f"to {meta['neighbor']})"
+                                        )
+                                        fp_a_set = set(tuple(x) for x in meta["fingerprint_a"])
+                                        fp_n_set = set(tuple(x) for x in meta["fingerprint_n"])
+                                        overlap  = fp_a_set & fp_n_set
+                                        if overlap:
+                                            st.success(
+                                                f"{len(overlap)} shared morphism relations "
+                                                f"between {mat_a} and {meta['neighbor']}"
+                                            )
+                                            with st.expander("Show shared relations"):
+                                                st.code(
+                                                    _format_fp_lines(list(overlap)),
+                                                    language="text",
+                                                )
+                                else:
+                                    st.info(vote["reason"])
+
+                        # ── Fibration Transport ────────────────────────────
+                        elif strategy == "fibration_transport":
+                            paths = meta.get("transport_paths", [])
+                            _chem_label = _slabel(strategy, _domain)
+                            with st.expander(
+                                f"**{_chem_label}** — score {vote['score']:.3f}  "
+                                f"| {_EQ_LABEL.get(eq, eq or '—')}",
+                                expanded=bool(paths),
+                            ):
+                                _narr = _cnar(vote, _domain, mat_a, mat_b)
+                                if _narr:
+                                    st.info(_narr)
+                                if paths:
+                                    st.markdown(
+                                        f"**{len(paths)} transport route(s)** — "
+                                        f"{_nar(_domain, 'transport_via')}"
+                                    )
+                                    path_rows = []
+                                    for p in paths:
+                                        path_rows.append({
+                                            "Via material":       p["via"],
+                                            "Transport strength": p["strength"],
+                                            "Shared properties":  len(p.get("shared_properties", [])),
+                                            "Reasoning":          p.get("reasoning", ""),
+                                        })
+                                    path_df = pd.DataFrame(path_rows)
+                                    st.dataframe(
+                                        path_df.style.format({"Transport strength": "{:.4f}"}),
+                                        use_container_width=True,
+                                        hide_index=True,
+                                    )
+                                    st.caption(
+                                        f"Total transport strength: "
+                                        f"{meta.get('total_strength', 0):.4f}  "
+                                        f"(sum of per-path Jaccard property similarities)"
+                                    )
+                                    with st.expander("Shared properties per path"):
+                                        for p in paths:
+                                            props = p.get("shared_properties", [])
+                                            if props:
+                                                st.markdown(f"**{p['via']}** ({len(props)} props)")
+                                                st.code("\n".join(f"  {pr}" for pr in props),
+                                                        language="text")
+                                else:
+                                    st.info(vote["reason"])
+
+                        # ── Rezk Equivalence ──────────────────────────────
+                        elif strategy == "rezk_equivalence":
+                            witness = meta.get("isomorphism_witness")
+                            _chem_label = _slabel(strategy, _domain)
+                            with st.expander(
+                                f"**{_chem_label}** — score {vote['score']:.3f}  "
+                                f"| {_EQ_LABEL.get(eq, eq or '—')}",
+                                expanded=bool(witness),
+                            ):
+                                _narr = _cnar(vote, _domain, mat_a, mat_b)
+                                if _narr:
+                                    st.info(_narr)
+                                if witness:
+                                    eq_mat = witness.get("equivalent", "")
+                                    st.success(
+                                        f"**{_nar(_domain, 'interchangeable').title()} found**: "
+                                        f"{mat_a} ≅ {eq_mat}"
+                                    )
+                                    st.markdown(
+                                        f"**Logic chain** *(substitution principle: "
+                                        f"if A has the same {_nar(_domain, 'profile')} as A', "
+                                        f"then A can substitute for A' in any interface)*:"
+                                    )
+                                    st.markdown(witness.get("logic", ""))
+
+                                    shared_rels = witness.get("shared_relations", [])
+                                    if shared_rels:
+                                        st.markdown(
+                                            f"**Presheaf isomorphism evidence** — "
+                                            f"{len(shared_rels)} shared relations "
+                                            f"prove Hom(−,{mat_a}) = Hom(−,{eq_mat})"
+                                        )
+                                        st.code(
+                                            "\n".join(
+                                                f"  ({r[0]}, {r[1]})" if len(r) == 2 else f"  {r}"
+                                                for r in shared_rels[:20]
+                                            )
+                                            + ("\n  ..." if len(shared_rels) > 20 else ""),
+                                            language="text",
+                                        )
+
+                                    transport_m = witness.get("transport_morphisms", [])
+                                    if transport_m:
+                                        st.markdown(
+                                            f"**Transport morphisms** — "
+                                            f"{eq_mat} → {mat_b} "
+                                            f"({len(transport_m)} morphism(s))"
+                                        )
+                                        tm_df = pd.DataFrame(transport_m)
+                                        st.dataframe(
+                                            tm_df.style.format({"confidence": "{:.4f}"}),
+                                            use_container_width=True,
+                                            hide_index=True,
+                                        )
+                                elif meta.get("equivalents_found", 0) > 0:
+                                    st.info(
+                                        f"{meta['equivalents_found']} equivalent(s) found for "
+                                        f"{mat_a}, but none are compatible with {mat_b}."
+                                    )
+                                else:
+                                    st.info(vote["reason"])
 
             with st.expander("Raw score data"):
                 st.json(scores)

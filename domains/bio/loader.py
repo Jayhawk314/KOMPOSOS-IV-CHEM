@@ -9,7 +9,7 @@ reproduction, use validation/repurposing_benchmark.py --view legacy.
 
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 import numpy as np
 
 # Import from Bio's data layer

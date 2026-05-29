@@ -31,15 +31,20 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture (Updated 2026-05-27)
+## Current Audit Posture (Updated 2026-05-28)
 
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
 - Current blind benchmark: `audit/external_blind/compatibility_2026_q8.json` (Frozen 2026-05-27)
 - Q2-Q7 are spent diagnostic evidence.
-- Development benchmark: `41/41`, `100.0%`, `0` skips. (Verified 2026-05-27)
+- Development benchmark: `41/41`, `100.0%`, `0` skips. (Verified 2026-05-28)
 - Q8 blind benchmark: Active and frozen for next validation claim.
-- STT-enhanced reasoning (Yoneda, Fibration, Rezk) integrated and calibrated.
+- STT reasoning (Yoneda, Fibration, Rezk) is integrated, calibrated, and wired:
+  domain category is built once per process (cached), passed to all three strategies,
+  and formal Yoneda presheaf evidence is surfaced in vote metadata and audit reports.
+- Audit reports: `reports/compatibility_report.py` generates domain-aware Markdown +
+  JSON reports from any compatibility workflow result.
 - System integrity: `InferenceStrategy` supports both III-style Store and IV-style Category via `Morphism` aliases.
+- Bio domain loader: `domains/bio/loader.py` List import fixed (pre-existing NameError).
 
 ## Runtime Rule
 

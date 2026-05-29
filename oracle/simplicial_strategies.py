@@ -5,9 +5,14 @@
 Simplicial Type Theory (STT) Strategies for KOMPOSOS-IV-CHEM.
 
 Implements structural metrics and transport laws to remove heuristics:
-1. YonedaSimilarityStrategy - Uses Jaccard distance between presheaf fingerprints.
+1. SimplicialYonedaStrategy  - Formal Yoneda presheaf distance + neighbor comparison.
 2. FibrationTransportStrategy - Lifts compatibility along base morphisms.
-3. RezkEquivalenceStrategy - Groups isomorphic materials for label propagation.
+3. RezkEquivalenceStrategy   - Isomorphic-presheaf label propagation.
+
+Each strategy returns rich metadata for the audit/evidence UI:
+  - evidence_quality: "formal" | "structural" | "none"
+  - yoneda_proof:     formal sieve-distance proof steps + shared-source table
+  - isomorphism_witness / transport_paths: specific morphism chains
 
 Adapted from KOMPOSOS-IV-PHARM's stt_repurposing.py.
 """
@@ -22,16 +27,224 @@ from oracle.prediction import Prediction, PredictionType
 from oracle.strategies import InferenceStrategy
 
 
+# ─── Domain-category cache ────────────────────────────────────────────────────
+# Built once per domain per process lifetime so audit runs don't repeat O(n²)
+# pairwise validation calls.
+
+_DOMAIN_CATEGORY_CACHE: Dict[str, Any] = {}
+
+
+def build_domain_category(domain: str):
+    """Return a cached chemistry category for *domain* (builds on first call).
+
+    Handles composite domains like "battery-polymer" by using the primary part.
+    Returns None if the domain bridge has no ``build_{domain}_category`` function.
+    """
+    primary = domain.split("-")[0] if "-" in domain else domain
+    if primary in _DOMAIN_CATEGORY_CACHE:
+        return _DOMAIN_CATEGORY_CACHE[primary]
+    cat = _try_build_domain_category(primary)
+    _DOMAIN_CATEGORY_CACHE[primary] = cat
+    return cat
+
+
+def _try_build_domain_category(primary_domain: str):
+    import importlib
+
+    for mod_path in (
+        f"{primary_domain}_bridge.integration",
+        f"{primary_domain}_bridge",
+    ):
+        try:
+            mod = importlib.import_module(mod_path)
+            builder_name = f"build_{primary_domain}_category"
+            if hasattr(mod, builder_name):
+                return getattr(mod, builder_name)()
+        except (ImportError, AttributeError, ModuleNotFoundError):
+            continue
+    return None
+
+
+# ─── Category adapter helpers (III-style and IV-style) ───────────────────────
+# III-style (categorical.category.Category): .objects is a dict, .morphisms is
+#   a dict; Morphism.source/.target are Object instances; confidence lives in
+#   Morphism.data['score'].
+# IV-style (core.category.Category): .objects() / .morphisms() are callable
+#   methods; Morphism.source/.target are plain strings; .confidence is a float.
+
+def _iter_morphisms_to(obj_name: str, category) -> List[Tuple[str, float]]:
+    """Return [(source_name, confidence)] for every non-identity X→obj_name morphism."""
+    result: List[Tuple[str, float]] = []
+
+    obj_attr = getattr(category, "morphisms", None)
+    if isinstance(obj_attr, dict):
+        # III-style
+        for m in obj_attr.values():
+            if m.data.get("is_identity"):
+                continue
+            t_name = m.target.name if hasattr(m.target, "name") else str(m.target)
+            if t_name == obj_name:
+                conf = float(m.data.get("score", m.data.get("confidence", 1.0)))
+                s_name = m.source.name if hasattr(m.source, "name") else str(m.source)
+                result.append((s_name, conf))
+    elif callable(getattr(category, "morphisms_to", None)):
+        # IV-style
+        for m in category.morphisms_to(obj_name):
+            result.append((str(m.source), float(m.confidence)))
+
+    return result
+
+
+def _iter_all_morphisms(category) -> List[Tuple[str, str, float, str]]:
+    """Return [(src, tgt, confidence, morph_name)] for all non-identity morphisms."""
+    result: List[Tuple[str, str, float, str]] = []
+
+    obj_attr = getattr(category, "morphisms", None)
+    if isinstance(obj_attr, dict):
+        # III-style
+        for m in obj_attr.values():
+            if m.data.get("is_identity"):
+                continue
+            s = m.source.name if hasattr(m.source, "name") else str(m.source)
+            t = m.target.name if hasattr(m.target, "name") else str(m.target)
+            conf = float(m.data.get("score", m.data.get("confidence", 1.0)))
+            result.append((s, t, conf, m.name))
+    elif callable(getattr(category, "morphisms", None)):
+        # IV-style
+        for m in category.morphisms():
+            result.append((str(m.source), str(m.target), float(m.confidence), m.name))
+
+    return result
+
+
+# ─── Formal Yoneda evidence ────────────────────────────────────────────────────
+
+def _build_formal_yoneda_evidence(obj_a: str, obj_b: str, category) -> Dict[str, Any]:
+    """Compute the formal Yoneda presheaf evidence for *obj_a* vs *obj_b*.
+
+    Builds representable presheaves y(A)=Hom(−,A) and y(B)=Hom(−,B), then
+    computes the weighted sieve distance d(y(A),y(B)) = |y(A)Δy(B)| / |y(A)∪y(B)|.
+
+    By the Yoneda Lemma two objects are structurally isomorphic iff d=0.
+    The presheaf_overlap = 1−d is the formally-grounded similarity score.
+    Returns a dict with proof steps and a shared-source evidence table for the UI.
+    """
+    proof_steps: List[str] = []
+
+    # Step 1: Build representable presheaves (identity morphism = confidence 1.0)
+    proof_steps.append(
+        f"Step 1: Build y({obj_a})=Hom(−,{obj_a}) and y({obj_b})=Hom(−,{obj_b})"
+    )
+    presheaf_a: Dict[str, float] = {obj_a: 1.0}
+    presheaf_b: Dict[str, float] = {obj_b: 1.0}
+
+    for src, conf in _iter_morphisms_to(obj_a, category):
+        presheaf_a[src] = max(presheaf_a.get(src, 0.0), conf)
+    for src, conf in _iter_morphisms_to(obj_b, category):
+        presheaf_b[src] = max(presheaf_b.get(src, 0.0), conf)
+
+    sources_a = set(presheaf_a)
+    sources_b = set(presheaf_b)
+    shared   = sources_a & sources_b
+    only_a   = sources_a - sources_b
+    only_b   = sources_b - sources_a
+
+    proof_steps.append(
+        f"Step 2: |Hom(−,{obj_a})|={len(sources_a)}, "
+        f"|Hom(−,{obj_b})|={len(sources_b)}"
+    )
+    proof_steps.append(
+        f"  Shared sources: {len(shared)} | "
+        f"Exclusive to {obj_a}: {len(only_a)} | "
+        f"Exclusive to {obj_b}: {len(only_b)}"
+    )
+
+    # Step 2: Compute weighted sieve distance
+    all_keys = sources_a | sources_b
+    if not all_keys:
+        return {
+            "presheaf_a": {}, "presheaf_b": {},
+            "shared_sources": [], "exclusive_to_a": [], "exclusive_to_b": [],
+            "sieve_distance": 1.0, "presheaf_overlap": 0.0,
+            "is_isomorphic": False, "proof_steps": proof_steps,
+            "max_transfer_threshold": 0.0,
+        }
+
+    sym_diff  = sum(abs(presheaf_a.get(k, 0.0) - presheaf_b.get(k, 0.0)) for k in all_keys)
+    union_w   = sum(max(presheaf_a.get(k, 0.0), presheaf_b.get(k, 0.0)) for k in all_keys)
+    inter_w   = sum(min(presheaf_a.get(k, 0.0), presheaf_b.get(k, 0.0)) for k in all_keys)
+
+    sieve_distance   = sym_diff / union_w if union_w > 0 else 1.0
+    presheaf_overlap = inter_w / union_w  if union_w > 0 else 0.0
+
+    proof_steps.append(
+        f"Step 3: d(y(A),y(B)) = |Δ|/|∪| = "
+        f"{sym_diff:.3f}/{union_w:.3f} = {sieve_distance:.4f}"
+    )
+    proof_steps.append(
+        f"  Presheaf overlap (1−d) = {presheaf_overlap:.4f}"
+    )
+
+    # Step 3: Isomorphism check (bidirectional high-confidence morphisms)
+    all_morphs = _iter_all_morphisms(category)
+    ab_confs = [c for s, t, c, _ in all_morphs if s == obj_a and t == obj_b]
+    ba_confs = [c for s, t, c, _ in all_morphs if s == obj_b and t == obj_a]
+    is_isomorphic = bool(ab_confs and ba_confs and max(ab_confs) * max(ba_confs) >= 0.95)
+
+    if sieve_distance == 0.0:
+        proof_steps.append(
+            f"Step 4: d=0 → {obj_a} ≅ {obj_b}  (Yoneda fully faithful)"
+        )
+    elif is_isomorphic:
+        proof_steps.append(
+            f"Step 4: Bidirectional morphisms confirm {obj_a} ≅ {obj_b}"
+        )
+    else:
+        proof_steps.append(
+            f"Step 4: d={sieve_distance:.4f} > 0, not isomorphic; "
+            f"max transfer threshold = {1.0 - sieve_distance:.4f}"
+        )
+
+    # Build shared-source evidence table (for UI)
+    shared_details = [
+        {
+            "source":     src,
+            "conf_to_a":  round(presheaf_a.get(src, 0.0), 4),
+            "conf_to_b":  round(presheaf_b.get(src, 0.0), 4),
+        }
+        for src in sorted(shared)
+    ]
+
+    return {
+        "presheaf_a":            {k: round(v, 4) for k, v in presheaf_a.items()},
+        "presheaf_b":            {k: round(v, 4) for k, v in presheaf_b.items()},
+        "shared_sources":        shared_details,
+        "exclusive_to_a":        sorted(only_a),
+        "exclusive_to_b":        sorted(only_b),
+        "sieve_distance":        round(sieve_distance, 4),
+        "presheaf_overlap":      round(presheaf_overlap, 4),
+        "is_isomorphic":         is_isomorphic,
+        "proof_steps":           proof_steps,
+        "max_transfer_threshold": round(1.0 - sieve_distance, 4),
+    }
+
+
+# ─── Public scoring functions ─────────────────────────────────────────────────
+
 def score_simplicial_yoneda(
     material_a: str,
     material_b: str,
     domain: str,
-    category: Optional[Category] = None,
+    category=None,
 ) -> Dict[str, Any]:
-    """Score compatibility via Yoneda similarity to known-compatible neighbors."""
+    """Score compatibility via Yoneda similarity to known-compatible neighbours.
+
+    Score formula is unchanged from the original Jaccard implementation so that
+    the audit benchmark is not disturbed.  The ``metadata`` dict is enriched with
+    a full ``yoneda_proof`` block for UI evidence display.
+    """
     if category is None:
-        # Try to build domain category if possible
-        category = _try_get_domain_category(domain)
+        category = build_domain_category(domain)
 
     if category is None:
         return {
@@ -39,25 +252,34 @@ def score_simplicial_yoneda(
             "compatible": True,
             "confidence": 0.3,
             "reason": f"simplicial yoneda: no category for {domain}",
-            "metadata": {}
+            "metadata": {"evidence_quality": "none"},
         }
 
-    # Use the strategy with the category
+    # Formal Yoneda evidence (A vs B directly — for audit chain)
+    try:
+        yoneda_proof = _build_formal_yoneda_evidence(material_a, material_b, category)
+    except Exception:
+        yoneda_proof = None
+
+    # Neighbour-based score (original logic — score unchanged)
     known_compatibles = _find_compatible_with(material_b, category)
     if not known_compatibles:
+        overlap = yoneda_proof["presheaf_overlap"] if yoneda_proof else 0.0
         return {
             "score": 0.5,
             "compatible": True,
             "confidence": 0.4,
             "reason": f"simplicial yoneda: no known compatibles for {material_b}",
-            "metadata": {}
+            "metadata": {
+                "evidence_quality": "formal" if yoneda_proof else "none",
+                "yoneda_proof": yoneda_proof,
+            },
         }
 
     best_sim = 0.0
     best_neighbor = ""
-    
     fp_a = _compute_yoneda_fingerprint(material_a, category)
-    
+
     for neighbor in known_compatibles:
         if neighbor == material_a:
             continue
@@ -72,21 +294,32 @@ def score_simplicial_yoneda(
             "score": 0.5 + (0.5 * best_sim),
             "compatible": True,
             "confidence": 0.4 + (0.5 * best_sim),
-            "reason": f"simplicial yoneda: similarity {best_sim:.3f} to {best_neighbor}",
+            "reason": (
+                f"simplicial yoneda: neighbour_sim={best_sim:.3f} to {best_neighbor}"
+                + (
+                    f", d(y(A),y(B))={yoneda_proof['sieve_distance']:.3f}"
+                    if yoneda_proof else ""
+                )
+            ),
             "metadata": {
-                "neighbor": best_neighbor, 
-                "similarity": best_sim,
-                "fingerprint_a": list(fp_a),
-                "fingerprint_n": list(_compute_yoneda_fingerprint(best_neighbor, category))
-            }
+                "evidence_quality": "formal" if yoneda_proof else "structural",
+                "yoneda_proof":     yoneda_proof,
+                "neighbor":         best_neighbor,
+                "similarity":       round(best_sim, 4),
+                "fingerprint_a":    list(fp_a),
+                "fingerprint_n":    list(_compute_yoneda_fingerprint(best_neighbor, category)),
+            },
         }
 
     return {
         "score": 0.5,
         "compatible": True,
         "confidence": 0.4,
-        "reason": "simplicial yoneda: no similar neighbors found",
-        "metadata": {}
+        "reason": "simplicial yoneda: no similar neighbours found",
+        "metadata": {
+            "evidence_quality": "formal" if yoneda_proof else "structural",
+            "yoneda_proof": yoneda_proof,
+        },
     }
 
 
@@ -94,11 +327,15 @@ def score_fibration_transport(
     material_a: str,
     material_b: str,
     domain: str,
-    category: Optional[Category] = None,
+    category=None,
 ) -> Dict[str, Any]:
-    """Score compatibility via fibration transport."""
+    """Score compatibility via fibration transport.
+
+    Score formula is unchanged; ``metadata`` is enriched with per-contributor
+    morphism details and shared property features.
+    """
     if category is None:
-        category = _try_get_domain_category(domain)
+        category = build_domain_category(domain)
 
     if category is None:
         return {
@@ -106,7 +343,7 @@ def score_fibration_transport(
             "compatible": True,
             "confidence": 0.3,
             "reason": "fibration transport: no category",
-            "metadata": {}
+            "metadata": {"evidence_quality": "none"},
         }
 
     targets_for_a = _find_compatible_with(material_a, category)
@@ -116,31 +353,49 @@ def score_fibration_transport(
             "compatible": True,
             "confidence": 0.4,
             "reason": "fibration transport: source has no known compatibles",
-            "metadata": {}
+            "metadata": {"evidence_quality": "structural", "transport_paths": []},
         }
 
     total_strength = 0.0
-    contributors = []
-    
+    transport_paths: List[Dict[str, Any]] = []
     fp_b = _get_property_fingerprint_from_cat(material_b, category)
-    
+
     for b_known in targets_for_a:
         if b_known == material_b:
             continue
         fp_known = _get_property_fingerprint_from_cat(b_known, category)
         strength = _jaccard_similarity(fp_b, fp_known)
         if strength > 0.2:
+            shared_props = sorted(fp_b & fp_known)
             total_strength += strength
-            contributors.append(b_known)
+            transport_paths.append({
+                "via":            b_known,
+                "strength":       round(strength, 4),
+                "shared_properties": shared_props,
+                "reasoning": (
+                    f"{material_a}→{b_known} (known), "
+                    f"{b_known}≈{material_b} via {len(shared_props)} shared props "
+                    f"(strength {strength:.3f})"
+                ),
+            })
 
-    if total_strength > 0:
+    if transport_paths:
         confidence = min(0.9, 0.4 + total_strength)
+        transport_paths.sort(key=lambda x: x["strength"], reverse=True)
         return {
             "score": 0.5 + (0.5 * min(1.0, total_strength)),
             "compatible": True,
             "confidence": confidence,
-            "reason": f"fibration transport from {len(contributors)} neighbors",
-            "metadata": {"contributors": contributors, "total_strength": total_strength}
+            "reason": (
+                f"fibration transport via {len(transport_paths)} path(s), "
+                f"total strength {total_strength:.3f}"
+            ),
+            "metadata": {
+                "evidence_quality": "formal",
+                "contributors":     [p["via"] for p in transport_paths],
+                "total_strength":   round(total_strength, 4),
+                "transport_paths":  transport_paths,
+            },
         }
 
     return {
@@ -148,7 +403,7 @@ def score_fibration_transport(
         "compatible": True,
         "confidence": 0.4,
         "reason": "fibration transport: no transport paths found",
-        "metadata": {}
+        "metadata": {"evidence_quality": "structural", "transport_paths": []},
     }
 
 
@@ -156,16 +411,16 @@ def score_rezk_equivalence(
     material_a: str,
     material_b: str,
     domain: str,
-    category: Optional[Category] = None,
+    category=None,
 ) -> Dict[str, Any]:
-    """
-    Score compatibility via Rezk-style equivalence completion.
-    
-    If Material A is equivalent to A', and (A', B) is compatible,
-    then (A, B) is compatible with high certainty.
+    """Score via Rezk-style equivalence completion.
+
+    If A≅A' (identical Yoneda presheaves) and (A',B) is compatible, then (A,B)
+    is compatible with mathematical certainty.  Score formula is unchanged;
+    ``metadata`` is enriched with the full isomorphism witness.
     """
     if category is None:
-        category = _try_get_domain_category(domain)
+        category = build_domain_category(domain)
 
     if category is None:
         return {
@@ -173,10 +428,9 @@ def score_rezk_equivalence(
             "compatible": True,
             "confidence": 0.3,
             "reason": "rezk equivalence: no category",
-            "metadata": {}
+            "metadata": {"evidence_quality": "none"},
         }
 
-    # Find equivalents for Material A
     equivalents = _find_rezk_equivalents(material_a, category)
     if not equivalents:
         return {
@@ -184,30 +438,61 @@ def score_rezk_equivalence(
             "compatible": True,
             "confidence": 0.4,
             "reason": "rezk equivalence: no equivalents found",
-            "metadata": {}
+            "metadata": {"evidence_quality": "structural", "equivalents_found": 0},
         }
 
-    # Check if any equivalent is compatible with Material B
-    best_conf = 0.0
+    best_conf  = 0.0
     matching_eq = ""
-    
+
     for eq in equivalents:
         if eq == material_a:
             continue
-        # Check for compatibility morphism (A_eq -> B)
         neighbors = _find_compatible_with(eq, category)
         if material_b in neighbors:
-            best_conf = 0.95 # Mathematical certainty of substitution
+            best_conf   = 0.95
             matching_eq = eq
             break
 
     if best_conf > 0:
+        # Build isomorphism witness: shared fingerprint + transport morphisms
+        fp_a  = _compute_yoneda_fingerprint(material_a, category)
+        fp_eq = _compute_yoneda_fingerprint(matching_eq, category)
+        shared_fp = fp_a & fp_eq
+
+        transport_morphs = [
+            {"morphism": name, "direction": "forward" if s == matching_eq else "reverse",
+             "confidence": round(conf, 4)}
+            for s, t, conf, name in _iter_all_morphisms(category)
+            if (s == matching_eq and t == material_b) or (s == material_b and t == matching_eq)
+        ]
+
+        isomorphism_witness = {
+            "equivalent":          matching_eq,
+            "shared_relations":    [list(r) for r in sorted(shared_fp)],
+            "shared_relation_count": len(shared_fp),
+            "transport_morphisms": transport_morphs,
+            "logic": (
+                f"Hom(−,{material_a}) = Hom(−,{matching_eq}) "
+                f"({len(shared_fp)} shared relations → identical presheaves → A≅A'); "
+                f"{matching_eq}→{material_b} exists "
+                f"({len(transport_morphs)} morphism(s)) → {material_a}→{material_b} holds."
+            ),
+        }
+
         return {
             "score": 0.95,
             "compatible": True,
             "confidence": best_conf,
-            "reason": f"rezk equivalence: {material_a} is isomorphic to {matching_eq} which is compatible with {material_b}",
-            "metadata": {"equivalent": matching_eq, "isomorphism": "full_presheaf_match"}
+            "reason": (
+                f"rezk: {material_a}≅{matching_eq} "
+                f"({len(shared_fp)} shared relations), "
+                f"{matching_eq}→{material_b} exists"
+            ),
+            "metadata": {
+                "evidence_quality":    "formal",
+                "equivalent":          matching_eq,
+                "isomorphism_witness": isomorphism_witness,
+            },
         }
 
     return {
@@ -215,98 +500,77 @@ def score_rezk_equivalence(
         "compatible": True,
         "confidence": 0.4,
         "reason": "rezk equivalence: no compatible equivalents found",
-        "metadata": {}
+        "metadata": {
+            "evidence_quality": "structural",
+            "equivalents_found": len(equivalents),
+        },
     }
 
 
-def _find_rezk_equivalents(obj_name: str, category: Category) -> List[str]:
-    """
-    Find materials that are Rezk-equivalent (isomorphic presheaves).
-    In this implementation, it means having the exact same Yoneda fingerprint.
-    """
+# ─── Private helpers (unchanged logic) ────────────────────────────────────────
+
+def _find_rezk_equivalents(obj_name: str, category) -> List[str]:
+    """Find materials with the exact same Yoneda fingerprint (≡ Rezk-equivalent)."""
     fp_target = _compute_yoneda_fingerprint(obj_name, category)
     if not fp_target:
         return []
 
-    equivalents = []
-    objects = []
-    if hasattr(category, "objects"):
+    objects: List[str] = []
+    if hasattr(category, "objects") and isinstance(getattr(category, "objects", None), dict):
         objects = list(category.objects.keys())
-    elif hasattr(category, "_objects"):
+    elif hasattr(category, "_objects") and isinstance(getattr(category, "_objects", None), dict):
         objects = list(category._objects.keys())
 
-    for other in objects:
-        if other == obj_name:
-            continue
-        fp_other = _compute_yoneda_fingerprint(other, category)
-        if fp_other == fp_target:
-            equivalents.append(other)
-            
-    return equivalents
+    return [
+        other for other in objects
+        if other != obj_name and _compute_yoneda_fingerprint(other, category) == fp_target
+    ]
 
 
-def _try_get_domain_category(domain: str) -> Optional[Category]:
-    """Try to load or build a category for the given domain."""
-    import importlib
-    
-    # Handle composite domains (e.g., battery-metal)
-    primary_domain = domain.split("-")[0] if "-" in domain else domain
-    
-    try:
-        mod = importlib.import_module(f"{primary_domain}_bridge.integration")
-        builder_name = f"build_{primary_domain}_category"
-        if hasattr(mod, builder_name):
-            return getattr(mod, builder_name)()
-    except (ImportError, AttributeError, ModuleNotFoundError):
-        pass
-        
-    # Second try: no .integration
-    try:
-        mod = importlib.import_module(f"{primary_domain}_bridge")
-        builder_name = f"build_{primary_domain}_category"
-        if hasattr(mod, builder_name):
-            return getattr(mod, builder_name)()
-    except (ImportError, AttributeError, ModuleNotFoundError):
-        pass
-        
-    return None
+def _compute_yoneda_fingerprint(obj_name: str, category) -> Set[Tuple[str, str]]:
+    """Compute the Yoneda presheaf fingerprint as a set of (neighbour, relation) pairs."""
+    fp: Set[Tuple[str, str]] = set()
 
-
-def _compute_yoneda_fingerprint(obj_name: str, category: Category) -> Set[Tuple[str, str]]:
-    """Compute fingerprint from Category object."""
-    fp = set()
-    # Handle both categorical.Category (III) and core.Category (IV)
-    if hasattr(category, "morphisms"):
-        # III style
-        for m in category.morphisms.values():
-            if m.source.name == obj_name:
-                fp.add((m.target.name, m.name))
-            if m.target.name == obj_name:
-                fp.add((m.source.name, m.name))
-    elif hasattr(category, "morphisms_from"):
-        # IV style
+    obj_attr = getattr(category, "morphisms", None)
+    if isinstance(obj_attr, dict):
+        # III-style
+        for m in obj_attr.values():
+            s = m.source.name if hasattr(m.source, "name") else str(m.source)
+            t = m.target.name if hasattr(m.target, "name") else str(m.target)
+            if s == obj_name:
+                fp.add((t, m.name))
+            if t == obj_name:
+                fp.add((s, m.name))
+    elif callable(getattr(category, "morphisms_from", None)):
+        # IV-style
         for m in category.morphisms_from(obj_name):
             fp.add((m.target, m.name))
         for m in category.morphisms_to(obj_name):
             fp.add((m.source, m.name))
+
     return fp
 
 
-def _find_compatible_with(obj_name: str, category: Category) -> List[str]:
-    """Find objects connected to obj_name via high-confidence/viable morphisms."""
-    neighbors = []
-    if hasattr(category, "morphisms"):
-        for m in category.morphisms.values():
-            if m.source.name == obj_name:
-                neighbors.append(m.target.name)
-            elif m.target.name == obj_name:
-                neighbors.append(m.source.name)
-    elif hasattr(category, "morphisms_from"):
+def _find_compatible_with(obj_name: str, category) -> List[str]:
+    """Return all objects connected to obj_name via any morphism."""
+    neighbours: List[str] = []
+
+    obj_attr = getattr(category, "morphisms", None)
+    if isinstance(obj_attr, dict):
+        for m in obj_attr.values():
+            s = m.source.name if hasattr(m.source, "name") else str(m.source)
+            t = m.target.name if hasattr(m.target, "name") else str(m.target)
+            if s == obj_name:
+                neighbours.append(t)
+            elif t == obj_name:
+                neighbours.append(s)
+    elif callable(getattr(category, "morphisms_from", None)):
         for m in category.morphisms_from(obj_name):
-            neighbors.append(m.target)
+            neighbours.append(m.target)
         for m in category.morphisms_to(obj_name):
-            neighbors.append(m.source)
-    return neighbors
+            neighbours.append(m.source)
+
+    return neighbours
 
 
 def _jaccard_similarity(s1: Set, s2: Set) -> float:
@@ -315,49 +579,45 @@ def _jaccard_similarity(s1: Set, s2: Set) -> float:
     return len(s1 & s2) / len(s1 | s2)
 
 
-def _get_property_fingerprint_from_cat(obj_name: str, category: Category) -> Set[str]:
-    fp = set()
+def _get_property_fingerprint_from_cat(obj_name: str, category) -> Set[str]:
+    fp: Set[str] = set()
     obj = None
-    if hasattr(category, "objects"):
-        obj = category.objects.get(obj_name)
-    elif hasattr(category, "get_object"):
+
+    obj_attr = getattr(category, "objects", None)
+    if isinstance(obj_attr, dict):
+        obj = obj_attr.get(obj_name)
+    elif callable(getattr(category, "get_object", None)):
         obj = category.get_object(obj_name)
-        
+
     if obj:
-        # III style
         if hasattr(obj, "type_info"):
             for k, v in obj.type_info.items():
                 fp.add(f"{k}:{v}")
-        # IV style
         if hasattr(obj, "type_name"):
             fp.add(f"type:{obj.type_name}")
         if hasattr(obj, "metadata"):
             for k, v in obj.metadata.items():
                 fp.add(f"{k}:{v}")
+
     return fp
 
 
-class SimplicialYonedaStrategy(InferenceStrategy):
-    """
-    Score compatibility via Yoneda distance to known-compatible neighbors.
+# ─── Strategy classes (InferenceStrategy subclasses) ──────────────────────────
 
-    Instead of embedding similarity, uses the Yoneda presheaf fingerprint:
-    the set of all incoming and outgoing morphisms.
-    """
+class SimplicialYonedaStrategy(InferenceStrategy):
+    """Predict compatibility via Yoneda presheaf fingerprint similarity."""
 
     name = "simplicial_yoneda"
 
     def predict(self, source: str, target: str) -> List[Prediction]:
-        """Predict compatibility via Yoneda similarity to neighbors."""
         predictions = []
 
-        # Find known compatible neighbors for target
         neighbors = self._find_compatible_neighbors(target)
         if not neighbors:
             return predictions
 
         best_similarity = 0.0
-        best_neighbor = ""
+        best_neighbor   = ""
 
         for neighbor in neighbors:
             if neighbor == source:
@@ -365,9 +625,9 @@ class SimplicialYonedaStrategy(InferenceStrategy):
             sim = self.yoneda_similarity(source, neighbor)
             if sim > best_similarity:
                 best_similarity = sim
-                best_neighbor = neighbor
+                best_neighbor   = neighbor
 
-        if best_similarity > 0.4:  # Threshold for "structural similarity"
+        if best_similarity > 0.4:
             predictions.append(Prediction(
                 source=source,
                 target=target,
@@ -375,72 +635,57 @@ class SimplicialYonedaStrategy(InferenceStrategy):
                 prediction_type=PredictionType.YONEDA_DISTANCE,
                 strategy_name=self.name,
                 confidence=best_similarity,
-                reasoning=f"Yoneda similarity {best_similarity:.4f} to known-compatible neighbor {best_neighbor}",
+                reasoning=(
+                    f"Yoneda similarity {best_similarity:.4f} to "
+                    f"known-compatible neighbour {best_neighbor}"
+                ),
                 evidence={
-                    "neighbor": best_neighbor,
+                    "neighbor":   best_neighbor,
                     "similarity": best_similarity,
-                    "metric": "Jaccard(YonedaFingerprint)"
-                }
+                    "metric":     "Jaccard(YonedaFingerprint)",
+                },
             ))
 
         return predictions
 
     def yoneda_fingerprint(self, obj_name: str) -> Set[Tuple[str, str]]:
-        """Compute the Yoneda presheaf fingerprint (incoming + outgoing)."""
         outgoing, incoming = self._build_morphism_index()
-
-        fp = set()
-        # Incoming: (source, relation)
+        fp: Set[Tuple[str, str]] = set()
         for m in incoming.get(obj_name, []):
             src = getattr(m, "source", getattr(m, "source_name", None))
             fp.add((src, m.name))
-        # Outgoing: (target, relation)
         for m in outgoing.get(obj_name, []):
             tgt = getattr(m, "target", getattr(m, "target_name", None))
             fp.add((tgt, m.name))
-
         return fp
 
     def yoneda_similarity(self, obj1: str, obj2: str) -> float:
-        """Jaccard similarity between Yoneda presheaf fingerprints."""
-        fp1 = self.yoneda_fingerprint(obj1)
-        fp2 = self.yoneda_fingerprint(obj2)
-
+        fp1, fp2 = self.yoneda_fingerprint(obj1), self.yoneda_fingerprint(obj2)
         if not fp1 and not fp2:
             return 0.0
-        union = fp1 | fp2
-        intersection = fp1 & fp2
-        return len(intersection) / len(union)
+        return len(fp1 & fp2) / len(fp1 | fp2)
 
     def _find_compatible_neighbors(self, target: str) -> List[str]:
-        """Find objects that have a 'compatible' morphism to target."""
         _, incoming = self._build_morphism_index()
-        neighbors = []
+        neighbours = []
         for m in incoming.get(target, []):
-            # Check if this morphism implies compatibility
             if m.name in {"compatible", "viable", "stable", "indication"}:
                 src = getattr(m, "source", getattr(m, "source_name", None))
-                neighbors.append(src)
-            elif m.confidence > 0.7:  # Heuristic fallback for high-confidence edges
+                neighbours.append(src)
+            elif m.confidence > 0.7:
                 src = getattr(m, "source", getattr(m, "source_name", None))
-                neighbors.append(src)
-        return neighbors
+                neighbours.append(src)
+        return neighbours
 
 
 class FibrationTransportStrategy(InferenceStrategy):
-    """
-    Score compatibility by transporting along base category morphisms.
-
-    If A is compatible with B, and B is 'similar' to B' (base morphism),
-    then A might be compatible with B'.
-    """
+    """Predict compatibility by transporting along base category morphisms."""
 
     name = "fibration_transport"
 
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        # Find all B_known such that source is compatible with B_known
         outgoing, _ = self._build_morphism_index()
         source_compatible_with = []
         for m in outgoing.get(source, []):
@@ -451,9 +696,8 @@ class FibrationTransportStrategy(InferenceStrategy):
         if not source_compatible_with:
             return predictions
 
-        # For each B_known, compute 'base strength' to target
         total_strength = 0.0
-        contributors = []
+        contributors   = []
 
         for b_known in source_compatible_with:
             if b_known == target:
@@ -464,77 +708,52 @@ class FibrationTransportStrategy(InferenceStrategy):
                 contributors.append(b_known)
 
         if total_strength > 0:
-            confidence = min(0.95, total_strength)
             predictions.append(Prediction(
                 source=source,
                 target=target,
                 predicted_relation="compatible",
                 prediction_type=PredictionType.FIBRATION_LIFT,
                 strategy_name=self.name,
-                confidence=confidence,
-                reasoning=f"Fibration transport from {len(contributors)} neighbors via base morphisms",
-                evidence={
-                    "contributors": contributors,
-                    "total_strength": total_strength
-                }
+                confidence=min(0.95, total_strength),
+                reasoning=(
+                    f"Fibration transport from {len(contributors)} "
+                    "neighbours via base morphisms"
+                ),
+                evidence={"contributors": contributors, "total_strength": total_strength},
             ))
 
         return predictions
 
     def base_morphism_strength(self, obj1: str, obj2: str) -> float:
-        """
-        Define base category morphism strength.
-        In chem, this could be shared functional groups or similar property sets.
-        """
-        # Fallback to Yoneda similarity if no explicit base morphisms
         fp1 = self._get_property_fingerprint(obj1)
         fp2 = self._get_property_fingerprint(obj2)
-
         if not fp1 or not fp2:
             return 0.0
-
-        intersection = fp1 & fp2
-        union = fp1 | fp2
-        return len(intersection) / len(union)
+        return len(fp1 & fp2) / len(fp1 | fp2)
 
     def _get_property_fingerprint(self, obj_name: str) -> Set[str]:
-        """Extract properties/metadata as a fingerprint."""
         obj_map = self._get_object_map()
         obj = obj_map.get(obj_name)
         if not obj:
             return set()
-
-        fp = set()
-        # Use type_name
-        fp.add(f"type:{obj.type_name}")
-        # Use metadata keys/values
+        fp: Set[str] = {f"type:{obj.type_name}"}
         for k, v in obj.metadata.items():
             if isinstance(v, (str, int, float, bool)):
                 fp.add(f"meta:{k}={v}")
             elif isinstance(v, list):
                 for item in v:
                     fp.add(f"meta:{k}:{item}")
-
         return fp
 
 
 class RezkEquivalenceStrategy(InferenceStrategy):
-    """
-    Materials that play identical roles are equivalent.
-    
-    If Hom(A, -) = Hom(A', -), then A and A' are Rezk-equivalent.
-    Compatibility can be safely propagated between equivalent materials.
-    """
-    
+    """Propagate compatibility through Rezk-equivalent (isomorphic presheaf) materials."""
+
     name = "rezk_equivalence"
-    
+
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
-        
-        # Check if source has an equivalent that is compatible with target
-        # Or if target has an equivalent that is compatible with source
-        
-        # We'll use the scoring function logic
+
         res = score_rezk_equivalence(source, target, "unknown")
         if res["confidence"] > 0.8:
             predictions.append(Prediction(
@@ -545,7 +764,7 @@ class RezkEquivalenceStrategy(InferenceStrategy):
                 strategy_name=self.name,
                 confidence=res["confidence"],
                 reasoning=res["reason"],
-                evidence=res["metadata"]
+                evidence=res["metadata"],
             ))
-            
+
         return predictions
