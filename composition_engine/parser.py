@@ -183,14 +183,35 @@ def parse_formula(formula: str) -> Dict[str, float]:
 
 def composition_vector(comp: Dict[str, float]) -> np.ndarray:
     """
-    Convert composition dict to fixed-length numpy vector.
+    Convert composition dict to a fixed-length stoichiometry vector.
 
-    Elements ordered by atomic number (0-117).
+    Elements are ordered by atomic number according to ELEMENT_ORDER. This
+    function intentionally returns only element dimensions so MPEntry,
+    KnownComposition, and other serialized vector consumers share a stable
+    shape.
+    """
+    vec = np.zeros(len(ELEMENT_ORDER))
+
+    for elem, amount in comp.items():
+        if elem in ELEMENT_TABLE:
+            idx = ELEMENT_ORDER.index(elem)
+            vec[idx] = amount
+
+    return vec
+
+
+def composition_feature_vector(comp: Dict[str, float]) -> np.ndarray:
+    """
+    Convert composition dict to an enriched vector for similarity search.
+
+    Starts with the stable element vector, then appends 2 dimensions for
+    chemical similarity:
     Appends 2 dimensions for chemical similarity:
-    - Index 118: Stoichiometry-weighted average Group (normalized 0-1)
-    - Index 119: Stoichiometry-weighted average Period (normalized 0-1)
+    - Stoichiometry-weighted average Group (normalized 0-1)
+    - Stoichiometry-weighted average Period (normalized 0-1)
     """
     vec = np.zeros(len(ELEMENT_ORDER) + 2)
+    vec[:len(ELEMENT_ORDER)] = composition_vector(comp)
     total_amt = sum(comp.values())
 
     g_sum = 0.0
@@ -198,11 +219,6 @@ def composition_vector(comp: Dict[str, float]) -> np.ndarray:
 
     for elem, amount in comp.items():
         if elem in ELEMENT_TABLE:
-            # Stoichiometric dimensions
-            idx = ELEMENT_ORDER.index(elem)
-            vec[idx] = amount
-
-            # Chemical similarity dimensions
             ed = ELEMENT_TABLE[elem]
             g_sum += amount * ed.group
             p_sum += amount * ed.period
@@ -219,8 +235,8 @@ def composition_distance(comp_a: Dict[str, float],
     """
     Euclidean distance in stoichiometry + chemical similarity space.
     """
-    vec_a = composition_vector(comp_a)
-    vec_b = composition_vector(comp_b)
+    vec_a = composition_feature_vector(comp_a)
+    vec_b = composition_feature_vector(comp_b)
     return float(np.linalg.norm(vec_a - vec_b))
 
 

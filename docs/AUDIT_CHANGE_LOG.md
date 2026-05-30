@@ -4,6 +4,82 @@
 
 ---
 
+## 2026-05-29: Focused Research-Grade Audit State
+
+**Audit posture changed:** full-tree pytest is not the product metric for this
+dirty multi-project repo. Do not use unrelated AIMO, cyber/Mythos,
+OpenTargets/drug, root debug, or old generic categorical/math failures to judge
+the chem/materials system. Run focused shards for the chem product only.
+
+### Compatibility audit state
+
+| Dataset | Evaluated | Result | Use |
+| :--- | :--- | :--- | :--- |
+| Development | 41/41 | 100.0%, Brier 0.095 | Regression only |
+| Extended curated | 215/215 | 214/215 = 99.5%, AUROC 0.971, Brier 0.111, ECE 0.174 | Regression only |
+| Q8 frozen blind | 30/40 scored | 70.0%, AUROC 0.700, AP 0.882, Brier 0.259, ECE 0.256 | Spent diagnostic |
+| Q9 initial blind diagnostic | 40/40 scored | 32/40 = 80.0%, TP=27, TN=5, FP=4, FN=4 | Spent diagnostic |
+| Q9 after chi_c integration | 40/40 scored | 35/40 = 87.5%, AUROC 0.9247, Brier 0.0987, ECE 0.1486 | Spent diagnostic |
+
+Q8 exposed coverage and calibration failures. Q9 confirmed useful per-domain
+performance outside polymers: metals, ceramics, semiconductors, and cross-domain
+interfaces are materially stronger than polymer blends. Polymer compatibility is
+the weak domain and should be marked experimental until the Flory-Huggins
+critical-chi model is implemented.
+
+### Q10 holdout control
+
+Created the unlabeled pair file:
+`audit/external_blind/compatibility_2026_q10_pairs_unlabeled.json`.
+
+- Pair count: 40.
+- Labels in file: 0.
+- Exact duplicate identities against Q8/Q9: 0.
+- Pair SHA256:
+  `4d5f6fd414eae277493e6b8f2ceebedfcdb8add6989c910d45959d0ded0c1003`.
+- Hidden label file present:
+  `audit/external_blind/compatibility_2026_q10_labels_hidden.json`.
+- Hidden label SHA256:
+  `e1ad2c309443426352a167352ec46cf35f1bd5af6c1fc1b61bacf7826d05501e`.
+
+Codex did not inspect the hidden label JSON. Do not run or score Q10 now. Q10
+should be used once, after the team explicitly decides the polymer model is
+ready for a final check.
+
+### Focused regression status
+
+Recent focused shards passed after the composition, MP search, workbench, cell
+veto, and structure-predictor fixes:
+- Composition parser/MP/structure: 113 passed.
+- Formation/calibration: 48 passed.
+- Predictor/properties/designer: 85 passed.
+- Battery/cell design: 58 passed.
+- Discovery/API contracts: 6 passed.
+- Domain bridge shard: 651 passed.
+- Molecular/cross/synthesis shard: 316 passed.
+- PFAS shard: 134 passed.
+- MOF shard: 108 passed.
+
+### Polymer chi_c integration status
+
+Integrated the G-docs Flory-Huggins prototype into production polymer logic:
+
+- New `polymer_bridge/flory_huggins.py`.
+- Representative MW / repeat-unit data for key polymers.
+- PPO material added.
+- Empirical compatibility overrides for known engineering pairs:
+  PS/PPO, PC/ABS, PTFE/PEEK, PPS/PTFE.
+
+Focused verification:
+
+- `python -m pytest polymer_bridge\tests -q` -> 111 passed.
+- Development audit -> 40/41, with the only miss being the stale HDPE/PP label.
+- Q9 spent diagnostic -> 40 evaluated, 0 skipped, TP=27, TN=8, FP=1, FN=4,
+  accuracy 87.5%, balanced 88.0%, precision 96.4%, recall 87.1%, MCC 0.692,
+  AUROC 0.9247, AP 0.9745, Brier 0.0987, ECE 0.1486.
+
+---
+
 ## 2026-05-28: STT Wiring Repair, Formal Evidence Chain, Audit Reports
 
 **Audit result: 41/41, 100.0%, Brier 0.095 — unchanged from 2026-05-27.**

@@ -2,12 +2,21 @@
   "calibrations": {
     "kan_extension": {
       "name": "kan_extension",
-      "weight": 0.11299435028248588,
-      "precision": 0.05649717514124294,
+      "weight": 0.058823529411764705,
+      "precision": 0.029411764705882353,
       "recall": 0.0,
-      "auroc": 0.7994011976047904,
-      "n_predictions": 177,
-      "n_correct": 10
+      "auroc": 0.7729698847983972,
+      "n_predictions": 1496,
+      "n_correct": 44
+    },
+    "type_heuristic": {
+      "name": "type_heuristic",
+      "weight": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 1516,
+      "n_correct": 0
     },
     "composition": {
       "name": "composition",
@@ -15,26 +24,8 @@
       "precision": 0.0,
       "recall": 0.0,
       "auroc": 0.0,
-      "n_predictions": 54,
+      "n_predictions": 214,
       "n_correct": 0
-    },
-    "fibration_lift": {
-      "name": "fibration_lift",
-      "weight": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "auroc": 0.0,
-      "n_predictions": 157,
-      "n_correct": 0
-    },
-    "topos_logic": {
-      "name": "topos_logic",
-      "weight": 0.19469026548672566,
-      "precision": 0.09734513274336283,
-      "recall": 0.0,
-      "auroc": 1.0,
-      "n_predictions": 113,
-      "n_correct": 11
     },
     "yoneda_pattern": {
       "name": "yoneda_pattern",
@@ -42,9 +33,18 @@
       "precision": 0.0,
       "recall": 0.0,
       "auroc": 0.0,
-      "n_predictions": 60,
+      "n_predictions": 337,
       "n_correct": 0
+    },
+    "topos_logic": {
+      "name": "topos_logic",
+      "weight": 2.0,
+      "precision": 1.0,
+      "recall": 0.0,
+      "auroc": 0.0,
+      "n_predictions": 44,
+      "n_correct": 44
     }
   },
-  "n_history": 561
+  "n_history": 3607
 }

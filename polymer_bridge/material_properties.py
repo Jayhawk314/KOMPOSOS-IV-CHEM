@@ -141,6 +141,12 @@ class PolymerMaterial:
     # Flory-Huggins chi parameters vs named partners
     chi_parameters: Dict[str, float] = field(default_factory=dict)
 
+    # Chain-length data for polymer-polymer Flory-Huggins critical chi.
+    # repeat_unit_mw_g_mol is the repeat/monomer mass; typical_mw_g_mol is a
+    # representative application-grade molecular weight, not a universal value.
+    repeat_unit_mw_g_mol: Optional[float] = None
+    typical_mw_g_mol: Optional[float] = None
+
     # Failure modes
     failure_modes: List[PolymerFailureMode] = field(default_factory=list)
 
@@ -173,6 +179,10 @@ class PolymerMaterial:
             result['tensile_strength_MPa'] = self.tensile_strength_MPa
         if self.elastic_modulus_GPa is not None:
             result['elastic_modulus_GPa'] = self.elastic_modulus_GPa
+        if self.repeat_unit_mw_g_mol is not None:
+            result['repeat_unit_mw_g_mol'] = self.repeat_unit_mw_g_mol
+        if self.typical_mw_g_mol is not None:
+            result['typical_mw_g_mol'] = self.typical_mw_g_mol
         if self.failure_modes:
             result['failure_modes'] = [fm.value for fm in self.failure_modes]
         return result
@@ -269,6 +279,36 @@ THERMOPLASTIC_POLYMERS['PS'] = PolymerMaterial(
         'Tg': 'Brandrup et al., Polymer Handbook 4th ed., 1999',
         'hansen': 'Hansen, HSP Handbook 2nd ed., 2007',
         'chi_PMMA': 'Russell et al., Macromolecules 1990',
+    },
+)
+
+# Polyphenylene oxide / ether (PPO/PPE)
+THERMOPLASTIC_POLYMERS['PPO'] = PolymerMaterial(
+    name='Polyphenylene Oxide',
+    abbreviation='PPO',
+    polymer_class=PolymerClass.THERMOPLASTIC,
+    structure=PolymerStructure.AMORPHOUS,
+    hansen=HansenParameters(delta_d=21.0, delta_p=4.7, delta_h=4.3),
+    glass_transition_C=210.0,
+    melting_point_C=None,
+    decomposition_temp_C=430.0,
+    tensile_strength_MPa=70.0,
+    elongation_at_break_pct=30.0,
+    elastic_modulus_GPa=2.5,
+    crystallinity_pct=0.0,
+    water_absorption_pct=0.07,
+    density_g_cm3=1.06,
+    chi_parameters={'PS': -0.05},
+    failure_modes=[
+        PolymerFailureMode.UV_DEGRADATION,
+    ],
+    sources={
+        'Tg': 'Brandrup et al., Polymer Handbook 4th ed., 1999',
+        'hansen': 'Hansen, HSP Handbook 2nd ed., 2007 (estimated)',
+        'chi_PS': 'Paul & Bucknall, Polymer Blends, 2000',
+    },
+    metadata={
+        'note': 'PPO/PPE forms commercially important miscible blends with PS/HIPS.',
     },
 )
 
@@ -1133,11 +1173,51 @@ ALL_POLYMERS.update(POLYMER_SOLVENTS)
 ALL_POLYMERS['PE'] = ALL_POLYMERS['HDPE']
 
 
+# Representative molecular-weight data for Flory-Huggins critical chi.
+# Values are intentionally stored as typical engineering-grade Mw estimates;
+# callers must treat chi_c verdicts as chain-length dependent.
+_POLYMER_MW_DEFAULTS: Dict[str, tuple] = {
+    # key: (repeat_unit_mw_g_mol, typical_mw_g_mol)
+    'HDPE': (28.05, 125_000.0),
+    'PP': (42.08, 250_000.0),
+    'PS': (104.15, 200_000.0),
+    'PPO': (120.15, 50_000.0),
+    'PMMA': (100.12, 100_000.0),
+    'PVC': (62.50, 100_000.0),
+    'PET': (192.17, 50_000.0),
+    'PA6': (113.16, 30_000.0),
+    'PA66': (226.32, 50_000.0),
+    'PC': (254.28, 45_000.0),
+    'PEEK': (288.30, 60_000.0),
+    'POM': (30.03, 60_000.0),
+    'ABS': (105.0, 100_000.0),
+    'PVDF': (64.03, 300_000.0),
+    'PEO': (44.05, 1_000_000.0),
+    'PTFE': (100.02, 500_000.0),
+    'PAN': (53.06, 150_000.0),
+    'PPS': (108.16, 40_000.0),
+    'SBR': (68.0, 150_000.0),
+    'PDMS': (74.15, 100_000.0),
+}
+
+for _polymer_key, (_repeat_mw, _typical_mw) in _POLYMER_MW_DEFAULTS.items():
+    _polymer = ALL_POLYMERS.get(_polymer_key)
+    if _polymer is not None:
+        _polymer.repeat_unit_mw_g_mol = _repeat_mw
+        _polymer.typical_mw_g_mol = _typical_mw
+        _polymer.sources.setdefault(
+            'molecular_weight',
+            'Representative engineering-grade Mw for Flory-Huggins screening; '
+            'grade-specific values should override in research use.',
+        )
+
+
 # Common synonyms -> canonical ALL_POLYMERS keys (general capability).
 _POLYMER_ALIASES: Dict[str, str] = {
     'Silicone': 'PDMS', 'Silicone_Rubber': 'PDMS', 'PDMS_Silicone': 'PDMS',
     'Nylon': 'PA6', 'Nylon_6': 'PA6', 'Nylon_66': 'PA66', 'Nylon_6,6': 'PA66',
     'Acrylic': 'PMMA', 'Teflon': 'PTFE', 'Epoxy_Resin': 'Epoxy',
+    'PPE': 'PPO', 'Polyphenylene_Oxide': 'PPO', 'Polyphenylene_Ether': 'PPO',
 }
 
 
@@ -1197,16 +1277,34 @@ KNOWN_GOOD_BLENDS = [
         'notes': 'Miscible blend; negative chi (Ito et al. 1987)',
     },
     {
-        'name': 'HDPE + PP',
-        'polymer_a': 'HDPE',
-        'polymer_b': 'PP',
-        'notes': 'Nearly miscible; chi ~0.01; common recycling blend',
-    },
-    {
         'name': 'PS + Toluene',
         'polymer_a': 'PS',
         'polymer_b': 'Toluene',
         'notes': 'PS dissolves readily in toluene; close Hansen parameters',
+    },
+    {
+        'name': 'PS + PPO',
+        'polymer_a': 'PS',
+        'polymer_b': 'PPO',
+        'notes': 'Miscible engineering blend; empirical favorable chi override',
+    },
+    {
+        'name': 'PC + ABS',
+        'polymer_a': 'PC',
+        'polymer_b': 'ABS',
+        'notes': 'Commercial engineering blend; empirical compatibility override',
+    },
+    {
+        'name': 'PTFE + PEEK',
+        'polymer_a': 'PTFE',
+        'polymer_b': 'PEEK',
+        'notes': 'Tribological composite interface; miscibility veto should not reject',
+    },
+    {
+        'name': 'PPS + PTFE',
+        'polymer_a': 'PPS',
+        'polymer_b': 'PTFE',
+        'notes': 'Self-lubricating composite interface; miscibility veto should not reject',
     },
 ]
 
@@ -1228,6 +1326,12 @@ KNOWN_BAD_BLENDS = [
         'polymer_a': 'PP',
         'polymer_b': 'PA6',
         'issue': 'Immiscible; large polarity mismatch; needs compatibilizer',
+    },
+    {
+        'name': 'HDPE + PP',
+        'polymer_a': 'HDPE',
+        'polymer_b': 'PP',
+        'issue': 'Low chi but high molecular weight gives chi > chi_c; phase separation without compatibilization',
     },
     {
         'name': 'Water + HDPE',

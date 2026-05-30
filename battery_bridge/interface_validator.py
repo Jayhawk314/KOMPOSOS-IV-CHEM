@@ -252,6 +252,9 @@ class BatteryInterfaceValidator:
         elif scores['electrochemical_stability'] < 0.3:
             is_viable = False
             all_details['veto'] = 'Electrochemical instability: electrolyte decomposes at electrode voltage'
+        elif scores['mechanical_compatibility'] < 0.3:
+            is_viable = False
+            all_details['veto'] = 'Mechanical incompatibility: expansion/contact loss risk'
 
         return BatteryInterfaceScore(
             total=total,

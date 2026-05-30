@@ -77,7 +77,7 @@ class TestKeyPolymersExist(unittest.TestCase):
     """Verify essential polymers are in the database."""
 
     KEY_POLYMERS = [
-        'HDPE', 'PP', 'PS', 'PMMA', 'PVC', 'PET', 'PA6', 'PA66',
+        'HDPE', 'PP', 'PS', 'PPO', 'PMMA', 'PVC', 'PET', 'PA6', 'PA66',
         'PC', 'PEEK', 'POM', 'ABS',
         'PVDF', 'PEO', 'PTFE', 'CMC', 'PAN',
         'SBR', 'NR', 'NBR', 'PDMS', 'EPDM',
@@ -246,6 +246,14 @@ class TestDataIntegrity(unittest.TestCase):
                 d = mat.to_dict()
                 self.assertIn('name', d)
                 self.assertIn('abbreviation', d)
+
+    def test_key_polymers_have_chain_length_data(self):
+        for name in ['HDPE', 'PP', 'PS', 'PPO', 'PMMA', 'PC', 'ABS', 'PVDF', 'PEO']:
+            mat = get_polymer(name)
+            with self.subTest(polymer=name):
+                self.assertIsNotNone(mat.repeat_unit_mw_g_mol)
+                self.assertIsNotNone(mat.typical_mw_g_mol)
+                self.assertGreater(mat.typical_mw_g_mol, mat.repeat_unit_mw_g_mol)
 
     def test_known_good_blends_exist(self):
         for blend in KNOWN_GOOD_BLENDS:

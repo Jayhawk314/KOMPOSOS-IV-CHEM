@@ -15,7 +15,12 @@ Replacement data sourced from:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from oracle.compatibility_service import (
+    run_compatibility_workflow,
+    CompatibilityWorkflowResult,
+)
 
 
 class UseCase(Enum):
@@ -529,6 +534,51 @@ def find_replacements(
         return result
 
     return []
+
+
+def find_compatible_replacements(
+    pfas_name: str,
+    adjoining_material: str,
+    use_case: UseCase = UseCase.GENERAL,
+    domain: Optional[str] = None,
+) -> List[Tuple[ReplacementCandidate, Optional[CompatibilityWorkflowResult]]]:
+    """
+    Find PFAS-free replacements and score their compatibility with an
+    adjoining material (e.g., electrolyte for a binder).
+
+    Returns list of (ReplacementCandidate, CompatibilityWorkflowResult)
+    sorted by a combined (overall_score + compatibility_score) metric.
+    """
+    candidates = find_replacements(pfas_name, use_case)
+    results = []
+
+    for candidate in candidates:
+        comp_res = None
+        # Normalize name for compatibility engine if needed
+        # e.g. "CMC+SBR" -> "CMC"
+        bridge_name = candidate.name.split("+")[0] if "+" in candidate.name else candidate.name
+        
+        try:
+            comp_res = run_compatibility_workflow(
+                bridge_name,
+                adjoining_material,
+                domain=domain
+            )
+        except Exception:
+            # Material might not be in the compatibility registry
+            pass
+        
+        results.append((candidate, comp_res))
+
+    # Rank by a composite of replacement quality and compatibility
+    def _rank_key(item):
+        cand, res = item
+        comp_score = res.scores.get("total", 0.0) if res else 0.5
+        # Weighted: 60% replacement quality, 40% compatibility
+        return 0.6 * cand.overall_score + 0.4 * comp_score
+
+    results.sort(key=_rank_key, reverse=True)
+    return results
 
 
 def score_replacement(

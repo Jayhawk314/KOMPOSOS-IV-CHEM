@@ -26,6 +26,7 @@ from polymer_bridge.interaction_scoring import (
     score_aging_penalty,
     score_all,
 )
+from polymer_bridge.flory_huggins import assess_flory_huggins, critical_chi
 
 
 # Select representative subset for pairwise tests
@@ -94,12 +95,29 @@ class TestSolubilityScoring(unittest.TestCase):
         result = score_solubility_compatibility(peo, pmma)
         self.assertGreater(result.score, 0.8, "PEO+PMMA should score high (miscible)")
 
-    def test_hdpe_pp_compatible(self):
-        """HDPE + PP: nearly miscible (chi ~0.01)."""
+    def test_hdpe_pp_chic_immiscible(self):
+        """HDPE + PP: low chi still exceeds high-MW critical chi."""
         hdpe = get_polymer('HDPE')
         pp = get_polymer('PP')
         result = score_solubility_compatibility(hdpe, pp)
-        self.assertGreater(result.score, 0.7, "HDPE+PP should score well (nearly miscible)")
+        self.assertLess(result.score, 0.4, "HDPE+PP should score low once chi_c is applied")
+        self.assertEqual(result.details.get('flory_huggins_reason'), 'chi_above_critical')
+
+    def test_ps_ppo_empirical_override(self):
+        """PS + PPO: known favorable interaction should override HSP-only rejection."""
+        ps = get_polymer('PS')
+        ppo = get_polymer('PPO')
+        result = score_solubility_compatibility(ps, ppo)
+        self.assertGreater(result.score, 0.8, "PS+PPO should score high from empirical chi")
+        self.assertEqual(result.details.get('flory_huggins_reason'), 'negative_empirical_chi')
+
+    def test_pc_abs_empirical_compatibility_override(self):
+        """PC + ABS should not be rejected by a pure HSP chi estimate."""
+        pc = get_polymer('PC')
+        abs_polymer = get_polymer('ABS')
+        result = score_solubility_compatibility(pc, abs_polymer)
+        self.assertGreater(result.score, 0.7)
+        self.assertEqual(result.details.get('chi_source'), 'empirical_compatibility_override')
 
     def test_water_hdpe_incompatible(self):
         """Water + HDPE: extreme polarity mismatch."""
@@ -122,6 +140,34 @@ class TestSolubilityScoring(unittest.TestCase):
         r1 = score_solubility_compatibility(pvdf, pmma)
         r2 = score_solubility_compatibility(pmma, pvdf)
         self.assertAlmostEqual(r1.score, r2.score, places=5)
+
+
+class TestFloryHugginsCriticalChi(unittest.TestCase):
+    """Chain-length-aware Flory-Huggins logic."""
+
+    def test_critical_chi_is_small_for_high_mw_polymers(self):
+        hdpe = get_polymer('HDPE')
+        pp = get_polymer('PP')
+        chi_c = critical_chi(hdpe, pp)
+        self.assertIsNotNone(chi_c)
+        self.assertLess(chi_c, 0.005)
+
+    def test_hdpe_pp_chi_exceeds_critical(self):
+        assessment = assess_flory_huggins(get_polymer('HDPE'), get_polymer('PP'))
+        self.assertFalse(assessment.miscible)
+        self.assertEqual(assessment.reason, 'chi_above_critical')
+        self.assertGreater(assessment.chi, assessment.critical_chi)
+
+    def test_ps_ppo_negative_chi_override(self):
+        assessment = assess_flory_huggins(get_polymer('PS'), get_polymer('PPO'))
+        self.assertTrue(assessment.miscible)
+        self.assertLess(assessment.chi, 0.0)
+        self.assertEqual(assessment.reason, 'negative_empirical_chi')
+
+    def test_ptfe_peek_empirical_interface_override(self):
+        assessment = assess_flory_huggins(get_polymer('PTFE'), get_polymer('PEEK'))
+        self.assertTrue(assessment.miscible)
+        self.assertEqual(assessment.chi_source, 'empirical_compatibility_override')
 
 
 class TestThermalScoring(unittest.TestCase):

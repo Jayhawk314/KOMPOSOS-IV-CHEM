@@ -203,8 +203,15 @@ class BatteryFlowAnalyzer:
             avg_score = sum(ir.score.total for ir in interface_results) / len(interface_results)
             # 75% bottleneck, 25% average -- cell is only as good as its weakest link
             overall = 0.75 * min_score + 0.25 * avg_score
+            nonviable_interfaces = [ir for ir in interface_results if not ir.score.viable]
+            if nonviable_interfaces:
+                warnings.extend(
+                    f"Non-viable interface: {ir.material_a}<->{ir.material_b}"
+                    for ir in nonviable_interfaces
+                )
         else:
             overall = 0.0
+            nonviable_interfaces = []
             warnings.append("No valid interfaces could be scored")
 
         # --- Cell voltage and energy density ---
@@ -220,7 +227,7 @@ class BatteryFlowAnalyzer:
         return CellAnalysis(
             cell_name=config.name,
             overall_viability=max(0.0, min(1.0, overall)),
-            viable=overall >= self.viability_threshold,
+            viable=overall >= self.viability_threshold and not nonviable_interfaces,
             interfaces=interface_results,
             bottleneck=bottleneck,
             degradation_cascades=cascades,

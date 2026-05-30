@@ -29,7 +29,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from .parser import (
-    parse_formula, composition_vector, ELEMENT_TABLE, SHORTHAND_MAP,
+    parse_formula, composition_vector, average_electronegativity,
+    ELEMENT_TABLE, SHORTHAND_MAP,
 )
 from .formation_energy import KNOWN_EF, _goldschmidt_tolerance
 from categorical.dempster_shafer import MassFunction, combine

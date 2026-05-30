@@ -32,6 +32,7 @@ from polymer_bridge.interaction_scoring import (
     score_aging_penalty,
     ScorerResult,
 )
+from polymer_bridge.flory_huggins import assess_flory_huggins
 
 
 @dataclass
@@ -242,23 +243,37 @@ class PolymerInterfaceValidator:
 
         # Veto check: High Flory-Huggins χ indicates immiscibility (phase separation)
         # Critical χ ≈ 0.04 for many polymer pairs (Krause 1972, Nishi & Wang 1975)
+        # Current implementation uses chain-length critical chi, not a fixed cutoff.
         is_viable = total >= self.viability_threshold
-        chi = None
-        if material_b.abbreviation in material_a.chi_parameters:
-            chi = material_a.chi_parameters[material_b.abbreviation]
-        elif material_a.abbreviation in material_b.chi_parameters:
-            chi = material_b.chi_parameters[material_a.abbreviation]
+        fh = assess_flory_huggins(material_a, material_b)
+        all_details['flory_huggins'] = fh.to_dict()
 
-        if chi is not None and chi > 0.15:
-            # Chi > 0.15 = strong immiscibility guarantee
+        if fh.miscible is False:
             is_viable = False
             total = min(total, 0.35)
-            all_details['veto'] = f'Immiscible blend (chi={chi:.3f} >> critical): phase separation expected'
-        elif chi is not None and chi >= 0.04 and scores['solubility'] < 0.4:
-            # Chi >= 0.04 plus low solubility score = incompatible
+            all_details['veto'] = (
+                f"Immiscible blend (chi={fh.chi:.4g} > chi_c={fh.critical_chi:.4g}): "
+                "Flory-Huggins phase separation expected"
+            )
+        elif fh.miscible is None and fh.chi is not None and fh.chi > 0.15:
             is_viable = False
             total = min(total, 0.45)
-            all_details['veto'] = f'Immiscible blend (chi={chi:.3f} >= critical 0.04): phase-separated system'
+            all_details['veto'] = (
+                f"Immiscible blend (chi={fh.chi:.3f}; missing chain length): "
+                "phase separation expected"
+            )
+        elif fh.chi is None and scores['solubility'] < 0.30:
+            # No tabulated chi: fall back to the Hansen solubility score. A very
+            # low solubility score = strongly mismatched cohesive energy density
+            # -> immiscibility. Same 0.30 threshold blend_analyzer already uses.
+            # NOTE: this only catches clearly mismatched pairs; it cannot detect
+            # crystallinity/entropy-driven immiscibility of solubility-matched
+            # polyolefins (e.g. HDPE/PP), which needs curated chi data.
+            is_viable = False
+            total = min(total, 0.45)
+            all_details['veto'] = (
+                f"Immiscible (no tabulated chi; solubility={scores['solubility']:.2f} < 0.30)"
+            )
 
         return PolymerInterfaceScore(
             total=total,

@@ -53,15 +53,33 @@ class TestKnownGoodBlends(unittest.TestCase):
         result = self.validator.validate('PEO', 'PMMA')
         self.assertTrue(result.viable, f"PEO+PMMA should be viable (total={result.total:.3f})")
 
-    def test_hdpe_pp_viable(self):
-        """HDPE + PP: nearly miscible polyolefin blend."""
+    def test_hdpe_pp_chic_veto(self):
+        """HDPE + PP: low chi, but high-MW blend still exceeds chi_c."""
         result = self.validator.validate('HDPE', 'PP')
-        self.assertTrue(result.viable, f"HDPE+PP should be viable (total={result.total:.3f})")
+        self.assertFalse(result.viable, f"HDPE+PP should phase-separate (total={result.total:.3f})")
+        self.assertIn('flory_huggins', result.details)
+        self.assertEqual(result.details['flory_huggins']['reason'], 'chi_above_critical')
 
     def test_ps_toluene_viable(self):
         """PS + Toluene: PS dissolves in toluene."""
         result = self.validator.validate('PS', 'Toluene')
         self.assertTrue(result.viable, f"PS+Toluene should be viable (total={result.total:.3f})")
+
+    def test_pc_abs_viable(self):
+        """PC + ABS: common engineering blend."""
+        result = self.validator.validate('PC', 'ABS')
+        self.assertTrue(result.viable, f"PC+ABS should be viable (total={result.total:.3f})")
+        self.assertEqual(result.details['flory_huggins']['chi_source'], 'empirical_compatibility_override')
+
+    def test_ptfe_peek_viable(self):
+        """PTFE + PEEK: compatible tribological composite interface."""
+        result = self.validator.validate('PTFE', 'PEEK')
+        self.assertTrue(result.viable, f"PTFE+PEEK should be viable (total={result.total:.3f})")
+
+    def test_pps_ptfe_viable(self):
+        """PPS + PTFE: compatible self-lubricating composite interface."""
+        result = self.validator.validate('PPS', 'PTFE')
+        self.assertTrue(result.viable, f"PPS+PTFE should be viable (total={result.total:.3f})")
 
 
 class TestKnownProblematicBlends(unittest.TestCase):
@@ -94,6 +112,25 @@ class TestKnownProblematicBlends(unittest.TestCase):
         # Solubility should be clearly low
         self.assertLess(result.solubility_compatibility, 0.3,
                         "PP+PA6 solubility should be low")
+
+    def test_abs_pvdf_chic_veto_from_hansen(self):
+        """ABS + PVDF: HSP-estimated chi exceeds chi_c, so it must veto."""
+        result = self.validator.validate('ABS', 'PVDF')
+        self.assertFalse(result.viable)
+        self.assertEqual(result.details['flory_huggins']['chi_source'], 'hansen_estimate')
+        self.assertEqual(result.details['flory_huggins']['reason'], 'chi_above_critical')
+
+    def test_pa66_peo_chic_veto_from_hansen(self):
+        """PA66 + PEO: polymer false positive should be rejected."""
+        result = self.validator.validate('PA66', 'PEO')
+        self.assertFalse(result.viable)
+        self.assertEqual(result.details['flory_huggins']['reason'], 'chi_above_critical')
+
+    def test_ps_ppo_empirical_override(self):
+        """PS + PPO: empirical favorable chi prevents an HSP-only false veto."""
+        result = self.validator.validate('PS', 'PPO')
+        self.assertTrue(result.viable, f"PS+PPO should remain viable (total={result.total:.3f})")
+        self.assertEqual(result.details['flory_huggins']['reason'], 'negative_empirical_chi')
 
 
 class TestBlendAnalysis(unittest.TestCase):

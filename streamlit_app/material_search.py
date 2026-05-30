@@ -4,9 +4,14 @@
 Reusable Streamlit components for searching and filtering 103k+ materials.
 """
 
+import heapq
 import streamlit as st
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+
+import numpy as np
+
+from composition_engine.parser import parse_formula, composition_vector
 
 
 @dataclass
@@ -79,6 +84,7 @@ class MaterialSearchEngine:
 
         # Formula index: formula -> entry
         self.by_formula = {}
+        self.by_formula_lower = {}
 
         # MP ID index: mp_id -> entry
         self.by_mp_id = {}
@@ -93,6 +99,7 @@ class MaterialSearchEngine:
         for entry in self.entries:
             # Formula index
             self.by_formula[entry.formula] = entry
+            self.by_formula_lower[entry.formula.lower()] = entry
 
             # MP ID index
             self.by_mp_id[entry.mp_id] = entry
@@ -171,29 +178,45 @@ class MaterialSearchEngine:
         # Strategy 1: Exact formula match
         if query in self.by_formula:
             entry = self.by_formula[query]
-            matches.append(self._entry_to_match(entry))
+            self._append_unique(matches, self._entry_to_match(entry))
+
+        # Case-insensitive exact formula match
+        query_lower = query.lower()
+        if query_lower in self.by_formula_lower:
+            entry = self.by_formula_lower[query_lower]
+            self._append_unique(matches, self._entry_to_match(entry))
 
         # Strategy 2: MP ID match
         if query.startswith("mp-") or query.startswith("mvc-"):
             if query in self.by_mp_id:
                 entry = self.by_mp_id[query]
-                matches.append(self._entry_to_match(entry))
+                self._append_unique(matches, self._entry_to_match(entry))
 
         # Strategy 3: Element search (contains element)
         if len(query) <= 2 and query.capitalize() in self.by_element:
             elem = query.capitalize()
             for entry in self.by_element[elem][:limit]:
-                matches.append(self._entry_to_match(entry))
+                self._append_unique(matches, self._entry_to_match(entry))
 
-        # Strategy 4: Substring search in formula
+        # Strategy 4: Category query (e.g., "perovskite", "battery_cathode")
+        if not matches or len(matches) < limit:
+            for match in self._category_query_matches(query, limit - len(matches)):
+                self._append_unique(matches, match)
+
+        # Strategy 5: Substring search in formula
         if not matches or len(matches) < limit:
             for formula, entry in self.by_formula.items():
                 if len(matches) >= limit:
                     break
                 if query.lower() in formula.lower():
                     match = self._entry_to_match(entry)
-                    if match not in matches:
-                        matches.append(match)
+                    self._append_unique(matches, match)
+
+        # Strategy 6: Composition-nearest fallback for aliases and formulas that
+        # MP stores under a nearby but not exact composition.
+        if not matches or len(matches) < limit:
+            for match in self._composition_nearest_matches(query, limit - len(matches)):
+                self._append_unique(matches, match)
 
         # Filter by category if specified
         if category and category != "all":
@@ -204,6 +227,62 @@ class MaterialSearchEngine:
             matches = [m for m in matches if m.is_stable]
 
         return matches[:limit]
+
+    @staticmethod
+    def _append_unique(matches: List[MaterialMatch], match: MaterialMatch) -> None:
+        if all(existing.mp_id != match.mp_id for existing in matches):
+            matches.append(match)
+
+    def _category_query_matches(self, query: str, limit: int) -> List[MaterialMatch]:
+        """Return category matches for semantic queries such as perovskite."""
+        if limit <= 0:
+            return []
+
+        q = query.strip().lower().replace(" ", "_").replace("-", "_")
+        category_names = [
+            category for category in self.by_category
+            if category.lower() == q
+            or category.lower().startswith(q)
+            or q in category.lower()
+        ]
+        if not category_names:
+            return []
+
+        entries = []
+        for category in category_names:
+            entries.extend(self.by_category.get(category, []))
+
+        entries.sort(key=lambda e: (e.energy_above_hull != 0.0, e.energy_above_hull, e.formula))
+        return [self._entry_to_match(entry) for entry in entries[:limit]]
+
+    def _composition_nearest_matches(self, query: str, limit: int) -> List[MaterialMatch]:
+        """Fallback to nearest MP compositions when exact formula text is absent."""
+        if limit <= 0:
+            return []
+
+        try:
+            comp = parse_formula(query)
+        except Exception:
+            return []
+        if len(comp) < 2:
+            return []
+
+        query_vec = composition_vector(comp)
+        if not np.any(query_vec):
+            return []
+
+        nearest = heapq.nsmallest(
+            max(limit * 3, limit),
+            self.entries,
+            key=lambda entry: float(np.linalg.norm(query_vec - entry.vector)),
+        )
+        nearest.sort(key=lambda e: (
+            float(np.linalg.norm(query_vec - e.vector)),
+            e.energy_above_hull != 0.0,
+            e.energy_above_hull,
+            e.formula,
+        ))
+        return [self._entry_to_match(entry) for entry in nearest[:limit]]
 
     def _entry_to_match(self, entry) -> MaterialMatch:
         """Convert MPEntry to MaterialMatch."""
@@ -243,7 +322,10 @@ class MaterialSearchEngine:
         for formula in popular_formulas:
             if formula in self.by_formula:
                 entry = self.by_formula[formula]
-                matches.append(self._entry_to_match(entry))
+                self._append_unique(matches, self._entry_to_match(entry))
+            else:
+                for match in self.search(formula, limit=1):
+                    self._append_unique(matches, match)
             if len(matches) >= limit:
                 break
 

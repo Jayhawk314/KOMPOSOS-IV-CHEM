@@ -64,6 +64,15 @@ from polymer_bridge.interaction_scoring import (
     score_all,
 )
 
+from polymer_bridge.flory_huggins import (
+    FloryHugginsAssessment,
+    assess_flory_huggins,
+    critical_chi,
+    degree_of_polymerization,
+    estimate_chi_from_hansen,
+    lookup_empirical_chi,
+)
+
 from polymer_bridge.interface_validator import (
     PolymerInterfaceValidator,
     PolymerInterfaceScore,
@@ -105,6 +114,9 @@ __all__ = [
     'ScorerResult', 'score_solubility_compatibility', 'score_thermal_compatibility',
     'score_mechanical_compatibility', 'score_chemical_resistance',
     'score_aging_penalty', 'score_all',
+    'FloryHugginsAssessment', 'assess_flory_huggins', 'critical_chi',
+    'degree_of_polymerization', 'estimate_chi_from_hansen',
+    'lookup_empirical_chi',
 
     # Validation
     'PolymerInterfaceValidator', 'PolymerInterfaceScore', 'PolymerWeights',

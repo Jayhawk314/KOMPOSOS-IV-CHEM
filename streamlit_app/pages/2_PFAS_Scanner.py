@@ -69,6 +69,12 @@ with tab1:
     with col2:
         use_case_label = st.selectbox("Application context", list(USE_CASE_OPTIONS.keys()))
 
+    adjoining_material = st.text_input(
+        "Adjoining material (optional compatibility check)",
+        value="",
+        help="Enter a material to check compatibility with replacements (e.g., LiPF6 if checking a binder).",
+    )
+
     if st.button("Check PFAS Status", type="primary", key="single_check"):
         if not require_access():
             st.stop()
@@ -76,7 +82,7 @@ with tab1:
 
         checker = PFASComplianceChecker()
         use_case = USE_CASE_OPTIONS[use_case_label]
-        result = checker.check(material_name, use_case=use_case)
+        result = checker.check(material_name, use_case=use_case, adjoining_material=adjoining_material)
         d = result.to_dict()
 
         # Status banner
@@ -113,10 +119,19 @@ with tab1:
             st.subheader(f"Replacement Alternatives ({len(replacements)} found)")
             import pandas as pd
             rows = []
+            
+            # Map compatibility results by material name
+            comp_map = {res["material_a"]: res for res in d.get("compatibility_results", [])}
+            
             for r in replacements:
+                name = r.get("name", r.get("replacement", "?"))
+                # Match "CMC+SBR" to "CMC" compatibility check
+                bridge_name = name.split("+")[0] if "+" in name else name
+                comp = comp_map.get(bridge_name)
+                
                 rows.append({
-                    "Replacement": r.get("name", r.get("replacement", "?")),
-                    "Evidence Level": r.get("evidence_tier", "Heuristic Prediction"),
+                    "Replacement": name,
+                    "Compatibility": comp.get("total") if comp else (None if adjoining_material else "N/A"),
                     "Score": r.get("overall_score", r.get("score", 0)),
                     "Performance": r.get("performance_match", 0),
                     "Processability": r.get("processability", 0),
@@ -124,14 +139,22 @@ with tab1:
                     "Availability": r.get("availability", 0),
                 })
             df = pd.DataFrame(rows).sort_values("Score", ascending=False)
+            
+            # If compatibility is checked, sort by a composite
+            if adjoining_material:
+                df["Rank"] = 0.6 * df["Score"] + 0.4 * df["Compatibility"].fillna(0.5)
+                df = df.sort_values("Rank", ascending=False).drop(columns=["Rank"])
+
             st.dataframe(
                 df.style.format({
+                    "Compatibility": "{:.2f}" if adjoining_material else "{}",
                     "Score": "{:.2f}",
                     "Performance": "{:.2f}",
                     "Processability": "{:.2f}",
                     "Cost Factor": "{:.2f}",
                     "Availability": "{:.2f}",
-                }).background_gradient(subset=["Score"], cmap="RdYlGn", vmin=0, vmax=1),
+                }).background_gradient(subset=["Score"], cmap="RdYlGn", vmin=0, vmax=1)
+                .background_gradient(subset=["Compatibility"], cmap="RdYlGn", vmin=0, vmax=1) if adjoining_material else df.style,
                 use_container_width=True,
                 hide_index=True,
             )

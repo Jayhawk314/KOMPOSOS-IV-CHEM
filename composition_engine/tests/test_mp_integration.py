@@ -23,7 +23,7 @@ import numpy as np
 
 from composition_engine.mp_loader import MPEntry, MPCache, classify_mp_domain
 from composition_engine.spatial_index import CompositionIndex
-from composition_engine.parser import parse_formula, composition_vector
+from composition_engine.parser import parse_formula, composition_vector, ELEMENT_ORDER
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -209,7 +209,7 @@ class TestMPEntry(unittest.TestCase):
 
     def test_vector_dimension(self):
         entry = MPEntry.from_dict(_make_mock_entries()[0])
-        self.assertEqual(len(entry.vector), 41)  # matches ELEMENT_ORDER
+        self.assertEqual(len(entry.vector), len(ELEMENT_ORDER))
 
     def test_to_dict_roundtrip(self):
         original = _make_mock_entries()[0]

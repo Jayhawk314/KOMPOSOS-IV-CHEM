@@ -31,6 +31,7 @@ from pfas_bridge.replacement_scorer import (
     ReplacementCandidate,
     UseCase,
     find_replacements,
+    find_compatible_replacements,
 )
 
 
@@ -48,6 +49,7 @@ class ComplianceResult:
     detection_tier: str = "unknown"  # exact / heuristic / structural / structural_resolved / unknown
     resolved_base: Optional[str] = None  # Base substance for heuristic matches
     resolved_smiles: Optional[str] = None  # SMILES used for a structural match
+    compatibility_results: List[Any] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         result = {
@@ -59,6 +61,10 @@ class ComplianceResult:
             "detection_tier": self.detection_tier,
             "regulations_violated": self.regulations_violated,
             "replacements": [r.to_dict() for r in self.replacements],
+            "compatibility_results": [
+                res.to_dict() if hasattr(res, "to_dict") else res
+                for res in self.compatibility_results
+            ],
         }
         if self.pfas_substance:
             result["pfas_name"] = self.pfas_substance.name
@@ -150,6 +156,7 @@ class PFASComplianceChecker:
         self,
         material_name: str,
         use_case: UseCase = UseCase.GENERAL,
+        adjoining_material: Optional[str] = None,
     ) -> ComplianceResult:
         """
         Check a single material for PFAS compliance.
@@ -157,17 +164,28 @@ class PFASComplianceChecker:
         Args:
             material_name: Material or substance name to check.
             use_case: Application context for replacement scoring.
+            adjoining_material: Optional material to check compatibility against
+                for each replacement candidate.
 
         Returns:
             ComplianceResult with PFAS status, urgency, and replacements.
         """
         substance = get_pfas(material_name)
+        comp_results = []
 
         if substance is not None:
             # Known PFAS substance -- exact match
             regulations_violated = self._get_violations(substance)
             urgency = self._compute_urgency(substance)
-            replacements = find_replacements(substance.abbreviation, use_case)
+            
+            if adjoining_material:
+                comp_replacements = find_compatible_replacements(
+                    substance.abbreviation, adjoining_material, use_case
+                )
+                replacements = [r[0] for r in comp_replacements]
+                comp_results = [r[1] for r in comp_replacements if r[1] is not None]
+            else:
+                replacements = find_replacements(substance.abbreviation, use_case)
 
             return ComplianceResult(
                 material_name=material_name,
@@ -179,6 +197,7 @@ class PFASComplianceChecker:
                 replacements=replacements,
                 heuristic_match=False,
                 detection_tier="exact",
+                compatibility_results=comp_results,
             )
 
         # Check heuristic detection (brand names, substrings)
@@ -195,9 +214,17 @@ class PFASComplianceChecker:
                 category = base_substance.category.value
                 urgency = self._compute_urgency(base_substance)
                 regulations_violated = self._get_violations(base_substance)
-                replacements = find_replacements(
-                    base_substance.abbreviation, use_case
-                )
+                
+                if adjoining_material:
+                    comp_replacements = find_compatible_replacements(
+                        base_substance.abbreviation, adjoining_material, use_case
+                    )
+                    replacements = [r[0] for r in comp_replacements]
+                    comp_results = [r[1] for r in comp_replacements if r[1] is not None]
+                else:
+                    replacements = find_replacements(
+                        base_substance.abbreviation, use_case
+                    )
 
             return ComplianceResult(
                 material_name=material_name,
@@ -210,6 +237,7 @@ class PFASComplianceChecker:
                 heuristic_match=True,
                 detection_tier="heuristic",
                 resolved_base=base_name,
+                compatibility_results=comp_results,
             )
 
         # Structural OECD rule on direct SMILES input

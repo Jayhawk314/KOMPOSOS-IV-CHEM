@@ -37,6 +37,7 @@ from polymer_bridge.material_properties import (
     PolymerMaterial, PolymerClass, PolymerFailureMode, PolymerStructure,
     HansenParameters, get_polymer,
 )
+from polymer_bridge.flory_huggins import assess_flory_huggins
 
 
 @dataclass
@@ -78,35 +79,56 @@ def score_solubility_compatibility(
     score = 0.5  # Default when no data
     details = {}
 
-    # --- Flory-Huggins chi parameter (most accurate if available) ---
-    chi = None
-    if material_b.abbreviation in material_a.chi_parameters:
-        chi = material_a.chi_parameters[material_b.abbreviation]
-    elif material_a.abbreviation in material_b.chi_parameters:
-        chi = material_b.chi_parameters[material_a.abbreviation]
+    # --- Flory-Huggins chi parameter with chain-length critical chi ---
+    fh = assess_flory_huggins(material_a, material_b)
+    if fh.chi is not None:
+        details['chi_parameter'] = round(fh.chi, 6)
+        details['chi_source'] = fh.chi_source
+        details['chi_c'] = round(fh.critical_chi, 6) if fh.critical_chi is not None else None
+        details['degree_polymerization_a'] = (
+            round(fh.degree_polymerization_a, 1)
+            if fh.degree_polymerization_a is not None else None
+        )
+        details['degree_polymerization_b'] = (
+            round(fh.degree_polymerization_b, 1)
+            if fh.degree_polymerization_b is not None else None
+        )
+        details['flory_huggins_reason'] = fh.reason
 
-    if chi is not None:
-        details['chi_parameter'] = chi
-        if chi < 0:
-            # Negative chi = favorable interaction (exothermic mixing)
-            score = min(1.0, 0.95 + abs(chi) * 0.05)
-            details['chi_interpretation'] = 'miscible (negative chi = favorable interaction)'
-        elif chi < 0.02:
-            score = 0.85
-            details['chi_interpretation'] = 'miscible (chi << critical, strong miscibility)'
-        elif chi < 0.04:
-            # Critical chi for many polymer pairs (Krause 1972, Nishi & Wang 1975)
-            score = 0.75
-            details['chi_interpretation'] = 'miscible (chi near critical, marginal miscibility)'
-        elif chi < 0.15:
-            # Above critical chi = immiscible or LCST phase-separated
-            score = 0.35
-            details['chi_interpretation'] = 'immiscible (chi > critical, phase separation expected)'
+        if fh.miscible is True:
+            if fh.chi < 0:
+                score = min(1.0, 0.95 + abs(fh.chi) * 0.05)
+                details['chi_interpretation'] = 'miscible (negative chi = favorable interaction)'
+            elif fh.critical_chi and fh.critical_chi > 0:
+                ratio = fh.chi / fh.critical_chi
+                score = max(0.70, 0.95 - 0.20 * ratio)
+                details['chi_interpretation'] = 'miscible (chi <= chain-length critical chi)'
+            else:
+                score = 0.85
+                details['chi_interpretation'] = 'miscible by empirical chi'
+            return ScorerResult(score=max(0.0, min(1.0, score)),
+                                label='solubility_compatibility', details=details)
+        elif fh.miscible is False:
+            ratio = fh.chi / fh.critical_chi if fh.critical_chi else None
+            if ratio is not None and ratio > 20:
+                score = 0.15
+            elif ratio is not None and ratio > 5:
+                score = 0.25
+            else:
+                score = 0.35
+            details['chi_ratio'] = round(ratio, 2) if ratio is not None else None
+            details['chi_interpretation'] = 'immiscible (chi > chain-length critical chi)'
+            return ScorerResult(score=max(0.0, min(1.0, score)),
+                                label='solubility_compatibility', details=details)
+        elif fh.chi > 0.15:
+            score = max(0.05, 0.2 - fh.chi * 0.02)
+            details['chi_interpretation'] = 'immiscible (high chi; chain length unavailable)'
+            return ScorerResult(score=max(0.0, min(1.0, score)),
+                                label='solubility_compatibility', details=details)
         else:
-            score = max(0.05, 0.2 - chi * 0.02)
-            details['chi_interpretation'] = 'immiscible (chi >> critical, severe incompatibility)'
-        return ScorerResult(score=max(0.0, min(1.0, score)),
-                            label='solubility_compatibility', details=details)
+            details['chi_interpretation'] = (
+                'uncertain (chi available but chain length unavailable); using Hansen distance'
+            )
 
     # --- Hansen distance (Ra) ---
     if material_a.hansen is not None and material_b.hansen is not None:
