@@ -128,12 +128,14 @@ class DesignResult:
     num_passed_filters: int
     strategies_used: List[str]
     elapsed_seconds: float
+    num_physical_gated: int = 0  # candidates rejected by physical gates (e.g. charge balance)
 
     def to_dict(self) -> Dict:
         return {
             "num_candidates": len(self.candidates),
             "num_evaluated": self.num_evaluated,
             "num_passed_filters": self.num_passed_filters,
+            "num_physical_gated": self.num_physical_gated,
             "strategies_used": self.strategies_used,
             "elapsed_seconds": round(self.elapsed_seconds, 3),
             "candidates": [c.to_dict() for c in self.candidates],
@@ -192,6 +194,7 @@ class CompositionDesigner:
 
     def design(self, spec: DesignSpec) -> DesignResult:
         """Main entry point: search for compositions matching spec."""
+        from composition_engine.physical_gates import passes_physical_gates
         t0 = time.perf_counter()
 
         # Generate candidate formulas from all strategies
@@ -232,6 +235,19 @@ class CompositionDesigner:
         # Rank by overall score descending
         scored.sort(key=lambda c: c.overall_score, reverse=True)
 
+        # Physical gate, applied POST-ranking: only the top candidates we would
+        # actually surface get the expensive pymatgen charge-balance check. The
+        # deep tail (never shown) is left ungated. Cheap-filters-first funnel.
+        GATE_SURFACE_CAP = 100
+        kept: List[DesignCandidate] = []
+        num_gated = 0
+        for c in scored:
+            if len(kept) < GATE_SURFACE_CAP and not passes_physical_gates(c.formula):
+                num_gated += 1
+                continue
+            kept.append(c)
+        scored = kept
+
         strategies_used = sorted(set(c.strategy for c in scored)) if scored else []
         elapsed = time.perf_counter() - t0
 
@@ -241,6 +257,7 @@ class CompositionDesigner:
             num_passed_filters=len(scored),
             strategies_used=strategies_used,
             elapsed_seconds=elapsed,
+            num_physical_gated=num_gated,
         )
 
     # ── Candidate generation ───────────────────────────────────────────
@@ -265,17 +282,21 @@ class CompositionDesigner:
         # Cap anchors to prevent combinatorial explosion with large DBs
         anchors = self._sample_anchors(entries)
 
-        # Strategy 1: Anchor perturbation (40% of budget)
-        candidates.extend(self._strategy_perturbation(anchors))
-
-        # Strategy 2: Interpolation sweeps (25% of budget)
-        candidates.extend(self._strategy_interpolation(anchors))
-
-        # Strategy 3: Element substitution (20% of budget)
-        candidates.extend(self._strategy_substitution(anchors))
-
-        # Strategy 4: Stoichiometry variation (15% of budget)
-        candidates.extend(self._strategy_stoichiometry(entries))
+        # Generate per-strategy, then round-robin interleave so the downstream
+        # evaluation budget (max_candidates) is shared across all four strategies
+        # rather than being consumed by whichever is generated first.
+        strategy_lists = [
+            self._strategy_perturbation(anchors),
+            self._strategy_interpolation(anchors),
+            self._strategy_substitution(anchors),
+            self._strategy_stoichiometry(entries),
+        ]
+        i = 0
+        while any(i < len(lst) for lst in strategy_lists):
+            for lst in strategy_lists:
+                if i < len(lst):
+                    candidates.append(lst[i])
+            i += 1
 
         return candidates
 
@@ -303,18 +324,26 @@ class CompositionDesigner:
         return selected[:self.MAX_ANCHORS]
 
     def _strategy_perturbation(self, entries) -> List[Tuple[str, str, Optional[str]]]:
-        """Perturb stoichiometries of known materials by +/-5%, 10%, 20%."""
+        """Vary element RATIOS, not the global scale.
+
+        Scaling every element by the same factor is a no-op in composition space
+        (it leaves the stoichiometric ratios unchanged). To actually explore, we
+        perturb one element at a time, and also emit the anchor itself (x1.0) so
+        known-good ratios are in the candidate pool.
+        """
         candidates = []
-        perturbations = [0.95, 1.05, 0.90, 1.10, 0.80, 1.20]
+        factors = [0.70, 0.85, 1.15, 1.30]
 
         for entry in entries:
             comp = entry.composition
-            for factor in perturbations:
-                new_comp = {}
-                for elem, amount in comp.items():
-                    new_comp[elem] = amount * factor
-                formula = self._comp_to_formula(new_comp)
-                candidates.append((formula, "perturbation", entry.name))
+            # anchor itself (ratios preserved as a candidate)
+            candidates.append((self._comp_to_formula(dict(comp)), "perturbation", entry.name))
+            for elem in list(comp.keys()):
+                for factor in factors:
+                    new_comp = dict(comp)
+                    new_comp[elem] = comp[elem] * factor
+                    formula = self._comp_to_formula(new_comp)
+                    candidates.append((formula, "perturbation", entry.name))
 
         return candidates
 
@@ -338,7 +367,7 @@ class CompositionDesigner:
                 for j in range(i + 1, n):
                     if pair_count >= max_pairs:
                         break
-                    for frac in [0.2, 0.4, 0.6, 0.8]:
+                    for frac in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
                         comp_a = group[i].composition
                         comp_b = group[j].composition
                         interp = self._interpolate_comp(comp_a, comp_b, frac)

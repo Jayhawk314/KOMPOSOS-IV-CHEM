@@ -673,6 +673,36 @@ class UncertaintyTier(str, Enum):
     HEURISTIC_ESTIMATE = "Heuristic Estimate"   # Rule-based only
 
 
+_CONFORMAL_CACHE = None
+
+
+def load_conformal_factors() -> Dict[str, float]:
+    """Per-level multipliers that rescale calibrated intervals to honest coverage.
+
+    Derived from leave-one-out errors by calibrate_formation_intervals.py and
+    stored at data/calibration/formation_energy_conformal.json. Returns {} (i.e.
+    identity, no change) when the file is absent -- so this is a safe no-op until
+    factors are computed, and it never touches the point prediction.
+    """
+    global _CONFORMAL_CACHE
+    if _CONFORMAL_CACHE is None:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parent.parent / "data" / "calibration" / "formation_energy_conformal.json"
+        try:
+            _CONFORMAL_CACHE = json.loads(p.read_text()).get("factors", {})
+        except Exception:
+            _CONFORMAL_CACHE = {}
+    return _CONFORMAL_CACHE
+
+
+def _apply_conformal_factors(intervals: Dict[str, float]) -> Dict[str, float]:
+    factors = load_conformal_factors()
+    if not factors:
+        return intervals
+    return {lvl: round(hw * factors.get(lvl, 1.0), 4) for lvl, hw in intervals.items()}
+
+
 @dataclass
 class FormationEnergyResult:
     """Complete formation energy prediction with confidence and constraints."""
@@ -958,6 +988,9 @@ class FormationEnergyPredictor:
                         ef_predicted = calibrated_mean
                         sources["phase16_mean_model"] = calibrated_mean
                     calibrated_intervals = model.intervals(total_error, chemistry_class)
+                    # Post-hoc conformal rescale to honest coverage (identity if
+                    # no factors file present). Point prediction is untouched.
+                    calibrated_intervals = _apply_conformal_factors(calibrated_intervals)
                     calibration_status = model.status_for(chemistry_class)
             except Exception:
                 calibration_status = "phase16_model_error"

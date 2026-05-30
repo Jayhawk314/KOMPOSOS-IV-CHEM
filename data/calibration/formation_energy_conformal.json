@@ -1,0 +1,16 @@
+{
+  "method": "split_conformal_multiplicative",
+  "target": "formation_energy_eV_per_atom",
+  "n_calibration": 179,
+  "factors": {
+    "50": 3.0598,
+    "80": 2.2881,
+    "95": 2.9684
+  },
+  "kfold_oos_coverage": {
+    "50": 0.508,
+    "80": 0.81,
+    "95": 0.95
+  },
+  "n_folds": 5
+}
