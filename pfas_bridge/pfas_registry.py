@@ -41,9 +41,11 @@ class PFASCategory(Enum):
     PFSA = "perfluorosulfonic_acid"
     FLUOROPOLYMER = "fluoropolymer"
     FLUOROSURFACTANT = "fluorosurfactant"
-    FLUOROTELOMER = "fluorotelomer"
+    FLUOROTELOMER = "fluorotelor"
     SIDE_CHAIN_FLUORINATED = "side_chain_fluorinated"
     PFAS_PRECURSOR = "pfas_precursor"
+    EPA_STRUCTURAL = "epa_structural_registry"
+
 
 
 class RegulationStatus(Enum):
@@ -904,6 +906,38 @@ def get_restricted_pfas() -> Dict[str, PFASSubstance]:
         k: v for k, v in PFAS_REGISTRY.items()
         if v.is_restricted()
     }
+
+
+def load_epa_registry(file_path: str = "data/EPA_PFASSTRUCTV4.txt") -> List[Dict]:
+    """Load the massive EPA structural PFAS registry."""
+    import os
+    if not os.path.exists(file_path):
+        return []
+        
+    results = []
+    try:
+        with open(file_path, "r") as f:
+            header = f.readline().strip().split("\t")
+            for line in f:
+                parts = line.strip().split("\t")
+                if len(parts) >= 2:
+                    results.append({
+                        "smiles": parts[0],
+                        "id": parts[1],
+                        "fw": parts[2] if len(parts) > 2 else None
+                    })
+    except Exception:
+        pass
+    return results
+
+_EPA_REGISTRY_CACHE = None
+
+def get_epa_registry() -> List[Dict]:
+    """Get the EPA registry (cached)."""
+    global _EPA_REGISTRY_CACHE
+    if _EPA_REGISTRY_CACHE is None:
+        _EPA_REGISTRY_CACHE = load_epa_registry()
+    return _EPA_REGISTRY_CACHE
 
 
 if __name__ == "__main__":

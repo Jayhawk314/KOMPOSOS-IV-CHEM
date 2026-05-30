@@ -21,12 +21,18 @@ st.markdown(
 # ---------------------------------------------------------------------------
 
 from pfas_bridge.compliance_checker import PFASComplianceChecker
-from pfas_bridge.pfas_registry import PFAS_REGISTRY, PFASCategory, get_pfas_by_category
+from pfas_bridge.pfas_registry import (
+    PFAS_REGISTRY,
+    PFASCategory,
+    get_pfas_by_category,
+    get_epa_registry,
+)
 from pfas_bridge.replacement_scorer import UseCase, find_replacements
 from reports.pfas_report import PFASComplianceReport, MaterialInput, LI_ION_DEMO_BOM
 from reports.pfas_pdf import generate_pfas_pdf
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from streamlit_app.validation_status import render_feature_status
+from streamlit_app.utils.material_library import get_all_material_names, get_materials_by_domain
 
 render_feature_status("pfas")
 render_login_sidebar()
@@ -59,13 +65,23 @@ tab1, tab2, tab3, tab4 = st.tabs(["Single Check", "Batch Scan", "Compliance Repo
 with tab1:
     st.subheader("Check a Single Material")
 
+    # Aggregate material names for autofill
+    all_known_materials = get_all_material_names()
+    material_options = ["Other..."] + all_known_materials
+
     col1, col2 = st.columns(2)
     with col1:
-        material_name = st.text_input(
+        material_choice = st.selectbox(
             "Material name",
-            value="PVDF",
-            help="Enter any material or substance name (e.g., PVDF, PTFE, Nafion, PEO)",
+            options=material_options,
+            index=material_options.index("PVDF") if "PVDF" in material_options else 0,
+            help="Select a known material or choose 'Other...' to type a custom name.",
         )
+        if material_choice == "Other...":
+            material_name = st.text_input("Enter custom material name", value="")
+        else:
+            material_name = material_choice
+            
     with col2:
         use_case_label = st.selectbox("Application context", list(USE_CASE_OPTIONS.keys()))
 
@@ -180,30 +196,40 @@ with tab2:
         "Accepts exact names (PVDF), commercial brands (Kynar), or any text."
     )
 
-    with st.expander("Material Name Reference (click to expand)"):
-        st.markdown("""
-**Standard Li-Ion Battery BOM** (copy-paste ready):
-```
-NMC811, NMC622, LFP, LCO, Graphite, Si, Li_metal, LTO
-EC, DMC, DEC, EMC, PC, LiPF6, LiTFSI, LiBF4
-PVDF, CMC, SBR, PAA, PEO, PAN
-LLZO, LGPS, Li3PS4, NASICON
-Cu, Al, Ni, Cu_foil, Al_foil
-PP, PE, PEEK, PTFE, Nafion
-Carbon Black, NMP
-```
+    # Quick-Fill Section
+    with st.expander("Batch Quick-Fill (Browse Materials)", expanded=False):
+        def _on_quick_fill(domain_key):
+            selected = st.session_state[domain_key]
+            if not selected:
+                return
+            current = st.session_state.get("batch_input_text", "")
+            added = ""
+            for m in selected:
+                if m not in current:
+                    added += f"{m}\n"
+            st.session_state["batch_input_text"] = current + added
+            # Clear multiselect after adding
+            st.session_state[domain_key] = []
 
-**Commercial brands auto-detected as PFAS**:
-Kynar (→PVDF), Teflon (→PTFE), Viton/Fluorel/Tecnoflon (→FKM),
-Solef/Hylar (→PVDF), Dyneon (→PTFE), Kalrez (→FKM)
-
-**Unknown materials**: Anything not recognized is flagged for manual review.
-""")
+        domains = get_materials_by_domain()
+        cols = st.columns(len(domains))
+        for i, (domain, mats) in enumerate(domains.items()):
+            with cols[i]:
+                st.markdown(f"**{domain}**")
+                st.multiselect(
+                    f"Select {domain}",
+                    options=mats,
+                    key=f"qf_{domain}",
+                    on_change=_on_quick_fill,
+                    args=(f"qf_{domain}",),
+                    label_visibility="collapsed"
+                )
 
     materials_text = st.text_area(
         "Materials (one per line)",
         value="PVDF\nKynar PVDF 741\nPTFE\nTeflon tape\nPEO\nNafion\nCMC\nSBR\nPEEK\nMystery Binder X",
         height=200,
+        key="batch_input_text"
     )
 
     if st.button("Scan All", type="primary", key="batch_scan"):
@@ -427,24 +453,48 @@ with tab3:
 
 with tab4:
     st.subheader("PFAS Substance Registry")
-    st.markdown(f"**{len(PFAS_REGISTRY)}** PFAS substances across **{len(PFASCategory)}** categories.")
+    
+    reg_tab1, reg_tab2 = st.tabs(["Curated Registry (Top 35)", "EPA Structural Dataset (10,776)"])
+    
+    with reg_tab1:
+        st.markdown(f"**{len(PFAS_REGISTRY)}** PFAS substances across **{len(PFASCategory)}** categories.")
 
-    for cat in PFASCategory:
-        substances = get_pfas_by_category(cat)
-        if not substances:
-            continue
-        with st.expander(f"{cat.value.replace('_', ' ').title()} ({len(substances)} substances)"):
+        for cat in PFASCategory:
+            if cat == PFASCategory.EPA_STRUCTURAL:
+                continue
+            substances = get_pfas_by_category(cat)
+            if not substances:
+                continue
+            with st.expander(f"{cat.value.replace('_', ' ').title()} ({len(substances)} substances)"):
+                import pandas as pd
+                rows = []
+                for name, pfas in sorted(substances.items()):
+                    banned = "BANNED" if pfas.is_banned() else ""
+                    restricted = "RESTRICTED" if pfas.is_restricted() else ""
+                    status = banned or restricted or "Under review"
+                    rows.append({
+                        "Name": pfas.name,
+                        "CAS": pfas.cas_number or "-",
+                        "Formula": pfas.formula or "-",
+                        "Status": status,
+                    })
+                if rows:
+                    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    with reg_tab2:
+        st.markdown(
+            "The **EPA PFASSTRUCT v4** dataset contains 10,776 substances identified by the US EPA "
+            "as matching their structural definition of PFAS. This list is used by the scanner "
+            "to provide 'Structural Match' validation for novel or non-standard substances."
+        )
+        epa_data = get_epa_registry()
+        if epa_data:
             import pandas as pd
-            rows = []
-            for name, pfas in sorted(substances.items()):
-                banned = "BANNED" if pfas.is_banned else ""
-                restricted = "RESTRICTED" if pfas.is_restricted else ""
-                status = banned or restricted or "Under review"
-                rows.append({
-                    "Name": pfas.name,
-                    "CAS": pfas.cas_number or "-",
-                    "Formula": pfas.formula or "-",
-                    "Status": status,
-                })
-            if rows:
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+            df_epa = pd.DataFrame(epa_data)
+            st.dataframe(
+                df_epa.rename(columns={"smiles": "Structure (SMILES)", "id": "DTXSID", "fw": "Mol Weight"}),
+                use_container_width=True,
+                hide_index=True,
+            )
+        else:
+            st.warning("EPA Dataset (data/EPA_PFASSTRUCTV4.txt) not found or empty.")
