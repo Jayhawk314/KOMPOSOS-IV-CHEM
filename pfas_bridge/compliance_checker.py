@@ -16,7 +16,7 @@ Urgency levels:
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pfas_bridge.pfas_registry import (
     PFASSubstance,
