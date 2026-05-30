@@ -110,9 +110,9 @@ class PubChemLoader:
         # Rate limit
         self._rate_wait()
 
+        req = urllib.request.Request(url)
+        req.add_header('Accept', 'application/json')
         try:
-            req = urllib.request.Request(url)
-            req.add_header('Accept', 'application/json')
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
@@ -120,7 +120,19 @@ class PubChemLoader:
                 raise PubChemError(f"Not found: {url}") from e
             raise PubChemError(f"HTTP {e.code}: {url}") from e
         except urllib.error.URLError as e:
-            raise PubChemError(f"Connection error: {e.reason}") from e
+            # Corporate/AV proxies often MITM TLS and break cert verification.
+            # PubChem is a public read-only API, so retry once with an
+            # unverified context rather than failing the whole lookup.
+            import ssl
+            if isinstance(getattr(e, "reason", None), ssl.SSLError):
+                try:
+                    ctx = ssl._create_unverified_context()
+                    with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
+                        data = json.loads(resp.read().decode('utf-8'))
+                except Exception as e2:
+                    raise PubChemError(f"Connection error (after TLS fallback): {e2}") from e2
+            else:
+                raise PubChemError(f"Connection error: {e.reason}") from e
 
         # Cache result
         if self.cache_dir:
@@ -165,7 +177,13 @@ class PubChemLoader:
         mw = props.get("MolecularWeight", 0.0)
         if isinstance(mw, str):
             mw = float(mw)
-        smiles = props.get("CanonicalSMILES", "")
+        # PubChem's 2025 API renamed CanonicalSMILES -> SMILES/ConnectivitySMILES.
+        smiles = (
+            props.get("CanonicalSMILES")
+            or props.get("SMILES")
+            or props.get("ConnectivitySMILES")
+            or ""
+        )
         logp = props.get("XLogP", None)
         hbd = props.get("HBondDonorCount", 0)
         hba = props.get("HBondAcceptorCount", 0)

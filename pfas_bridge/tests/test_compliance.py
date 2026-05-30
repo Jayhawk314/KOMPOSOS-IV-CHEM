@@ -94,7 +94,8 @@ class TestHeuristicDetection(unittest.TestCase):
         self.assertTrue(result.heuristic_match)
 
     def test_heuristic_urgency_is_moderate(self):
-        result = self.checker.check("NewFluoroCompound")
+        # reliable PFAS signal (perfluoro) -> heuristic match, moderate urgency
+        result = self.checker.check("NewPerfluoroCompound")
         self.assertEqual(result.urgency, "moderate")
 
     def test_heuristic_no_replacements(self):

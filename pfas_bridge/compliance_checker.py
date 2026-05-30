@@ -23,7 +23,9 @@ from pfas_bridge.pfas_registry import (
     RegulationStatus,
     get_pfas,
     is_pfas,
+    matches_pfas_substring,
     resolve_base_pfas,
+    smiles_is_pfas,
 )
 from pfas_bridge.replacement_scorer import (
     ReplacementCandidate,
@@ -43,8 +45,9 @@ class ComplianceResult:
     urgency: str = "none"    # critical / high / moderate / low / none
     replacements: List[ReplacementCandidate] = field(default_factory=list)
     heuristic_match: bool = False   # True if detected by substring, not registry
-    detection_tier: str = "unknown"  # "exact", "heuristic", or "unknown"
+    detection_tier: str = "unknown"  # exact / heuristic / structural / structural_resolved / unknown
     resolved_base: Optional[str] = None  # Base substance for heuristic matches
+    resolved_smiles: Optional[str] = None  # SMILES used for a structural match
 
     def to_dict(self) -> Dict:
         result = {
@@ -62,6 +65,8 @@ class ComplianceResult:
             result["cas_number"] = self.pfas_substance.cas_number
         if self.resolved_base:
             result["resolved_base"] = self.resolved_base
+        if self.resolved_smiles:
+            result["resolved_smiles"] = self.resolved_smiles
         return result
 
 
@@ -100,13 +105,46 @@ class PFASComplianceChecker:
     assessment, and replacement suggestions.
     """
 
-    def __init__(self, reference_date: Optional[date] = None):
+    def __init__(self, reference_date: Optional[date] = None, resolve_unknown: bool = True):
         """
         Args:
             reference_date: Date to use for deadline calculations.
                           Defaults to today.
+            resolve_unknown: If True, unknown names are resolved to a SMILES via
+                          PubChem (cached, best-effort) so the OECD structural
+                          rule can catch novel PFAS not in the registry.
         """
         self.reference_date = reference_date or date.today()
+        self.resolve_unknown = resolve_unknown
+        self._pubchem = None  # lazy PubChemLoader
+
+    def _resolve_to_smiles(self, name: str) -> Optional[str]:
+        """Best-effort name -> SMILES via PubChem (cached). None on any failure."""
+        if not self.resolve_unknown:
+            return None
+        try:
+            from data.pubchem_loader import PubChemLoader
+            if self._pubchem is None:
+                self._pubchem = PubChemLoader()
+            mol = self._pubchem.fetch_by_name(name, fetch_cas=False)
+            return mol.smiles or None
+        except Exception:
+            return None  # no network / not found / loader unavailable
+
+    def _structural_result(self, material_name: str, smiles: str, tier: str) -> "ComplianceResult":
+        """Build a result for a structurally-detected PFAS (not in the registry)."""
+        return ComplianceResult(
+            material_name=material_name,
+            is_pfas=True,
+            pfas_substance=None,
+            pfas_category="unknown_fluorinated (OECD structural match)",
+            regulations_violated=[],
+            urgency="moderate",
+            replacements=[],
+            heuristic_match=False,
+            detection_tier=tier,
+            resolved_smiles=smiles,
+        )
 
     def check(
         self,
@@ -144,7 +182,7 @@ class PFASComplianceChecker:
             )
 
         # Check heuristic detection (brand names, substrings)
-        if is_pfas(material_name):
+        if matches_pfas_substring(material_name):
             # Try to resolve to a known base substance for replacements
             base_name = resolve_base_pfas(material_name)
             base_substance = get_pfas(base_name) if base_name else None
@@ -174,12 +212,23 @@ class PFASComplianceChecker:
                 resolved_base=base_name,
             )
 
-        # Not PFAS (or unknown)
+        # Structural OECD rule on direct SMILES input
+        if smiles_is_pfas(material_name):
+            return self._structural_result(material_name, material_name, "structural")
+
+        # Resolve an unknown name to a SMILES (PubChem) and apply the OECD rule.
+        # This is what lets the scanner catch a NOVEL PFAS not in the registry.
+        resolved = self._resolve_to_smiles(material_name)
+        if resolved and smiles_is_pfas(resolved):
+            return self._structural_result(material_name, resolved, "structural_resolved")
+
+        # Not PFAS (or unresolvable -> manual review)
         return ComplianceResult(
             material_name=material_name,
             is_pfas=False,
             urgency="none",
             detection_tier="unknown",
+            resolved_smiles=resolved,
         )
 
     def check_batch(

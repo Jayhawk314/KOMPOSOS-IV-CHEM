@@ -21,6 +21,15 @@ from datetime import date
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
+try:
+    from rdkit import Chem
+    _RDKIT_AVAILABLE = True
+    _CF3_PATTERN = Chem.MolFromSmarts('[#6X4;H0;!$(*~[Cl,Br,I])](F)(F)F')
+    _CF2_PATTERN = Chem.MolFromSmarts('[#6X4;H0;!$(*~[Cl,Br,I])](F)(F)')
+except ImportError:
+    _RDKIT_AVAILABLE = False
+
+
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -775,9 +784,13 @@ POLYMER_BRIDGE_PFAS: Set[str] = {"PVDF", "PTFE"}
 # Heuristic patterns for detecting potential PFAS not in registry
 # ---------------------------------------------------------------------------
 
+# NOTE: bare "fluoro" is intentionally NOT here — it matches mono/partially
+# fluorinated non-PFAS (fluorobenzene, 5-fluorouracil, fluoxetine). Names with a
+# generic "fluoro" fall through to the structural OECD path, which distinguishes
+# them correctly. "perfluoro*" IS a reliable PFAS signal and is kept.
 _PFAS_SUBSTRINGS = [
-    # Chemical names
-    "fluoro", "ptfe", "pvdf", "fep", "pfa", "etfe", "pctfe",
+    # Chemical names / reliable PFAS prefixes and polymer abbreviations
+    "perfluoro", "fluoropolymer", "ptfe", "pvdf", "fep", "pfa", "etfe", "pctfe",
     "nafion", "pfas", "pfoa", "pfos", "genx", "pfhxa", "pfbs",
     # Commercial brand names (all lowercase for matching)
     "teflon", "kynar", "viton", "dyneon", "solef", "hylar",
@@ -830,22 +843,39 @@ def get_pfas(name: str) -> Optional[PFASSubstance]:
     return None
 
 
-def is_pfas(name: str) -> bool:
-    """
-    Check if a material name is a known PFAS substance.
+def smiles_is_pfas(smiles: str) -> bool:
+    """Strict OECD 2021 structural test on a SMILES string.
 
-    Uses registry lookup first, then heuristic substring matching
-    for unregistered materials that are likely fluorinated.
+    True if the molecule contains a fully fluorinated -CF2- or -CF3 carbon
+    (no H, and not bonded to Cl/Br/I). Returns False for invalid/unparseable
+    SMILES or when RDKit is unavailable.
+    """
+    if not _RDKIT_AVAILABLE:
+        return False
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return False
+    return mol.HasSubstructMatch(_CF3_PATTERN) or mol.HasSubstructMatch(_CF2_PATTERN)
+
+
+def matches_pfas_substring(name: str) -> bool:
+    """Brand/keyword heuristic match (e.g. 'Kynar' -> PVDF)."""
+    name_lower = name.lower()
+    return any(pattern in name_lower for pattern in _PFAS_SUBSTRINGS)
+
+
+def is_pfas(name: str) -> bool:
+    """Check if a material name or SMILES is PFAS.
+
+    Safe cascade: registry exact -> brand/keyword substring -> structural OECD
+    rule on a valid SMILES. Registry/brand are checked first so a known material
+    is never shadowed by a coincidental SMILES parse.
     """
     if get_pfas(name) is not None:
         return True
-    # Heuristic: check if name contains known PFAS substrings
-    name_lower = name.lower()
-    for pattern in _PFAS_SUBSTRINGS:
-        if pattern in name_lower:
-            return True
-    return False
-
+    if matches_pfas_substring(name):
+        return True
+    return smiles_is_pfas(name)
 
 def get_pfas_by_category(category: PFASCategory) -> Dict[str, PFASSubstance]:
     """Get all PFAS substances of a given category."""

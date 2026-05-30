@@ -169,9 +169,13 @@ class TestLookupFunctions(unittest.TestCase):
         self.assertTrue(is_pfas("PFOA"))
 
     def test_is_pfas_heuristic(self):
-        """Heuristic should catch fluorinated materials."""
+        """Heuristic catches reliable PFAS signals (fluoropolymer, perfluoro, brands)."""
         self.assertTrue(is_pfas("fluoropolymer_X"))
-        self.assertTrue(is_pfas("SomeNewFluoroCompound"))
+        self.assertTrue(is_pfas("SomePerfluoroCompound"))
+        # Bare 'fluoro' is intentionally NOT a PFAS signal: fluorobenzene,
+        # 5-fluorouracil, etc. are fluorinated but not PFAS. They route to the
+        # structural OECD path instead.
+        self.assertFalse(is_pfas("fluorobenzene"))
 
     def test_is_pfas_non_pfas(self):
         self.assertFalse(is_pfas("HDPE"))
