@@ -9,6 +9,7 @@ if _root not in sys.path:
 
 import streamlit as st
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="Composition Predictor", page_icon="🧪", layout="wide")
 st.title("Composition Predictor")
@@ -20,6 +21,7 @@ st.markdown(
     f"Enter any chemical formula to predict material properties using "
     f"**Kan extension + Dempster-Shafer fusion** over {_mat_count:,} known materials."
 )
+render_feature_status("composition_predictor")
 
 # ---------------------------------------------------------------------------
 # Imports

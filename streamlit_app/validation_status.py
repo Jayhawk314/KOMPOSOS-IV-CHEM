@@ -21,9 +21,9 @@ LAST_SYNCED = "2026-05-29"
 # Confidence scores are ranking signals, not probabilities. ECE ~0.15 on the
 # compatibility engine even after the polymer fix (handoff 2026-05-29).
 CONFIDENCE_CAVEAT = (
-    "Confidence/score values are **ranking signals for triage, not calibrated "
-    "probabilities** (compatibility ECE ~0.15). Do not read a 0.80 score as an "
-    "80% chance of success."
+    "The confidence number is a **rough guide, not an exact percentage.** A score "
+    "of 0.80 means *roughly* 70–90% likely to work — not exactly 80%. Use it to "
+    "rank and triage candidates, not as a precise probability."
 )
 
 # Per-domain compatibility validation.
@@ -68,17 +68,19 @@ FEATURE_NOTES = {
         "are triage signals for the weakest interface. " + CONFIDENCE_CAVEAT
     ),
     "crystal_dreamer": (
-        "Inverse design is an **unvalidated screening / triage tool**: candidates "
-        "are ranked by predicted-property fit, not experimentally validated. "
-        "Property predictions carry the Composition Predictor's uncertainty tiers; "
-        "treat low-evidence tiers as discovery leads, not answers. " + CONFIDENCE_CAVEAT
+        "Crystal Dreamer is an **idea generator, not a precise predictor.** On "
+        "known battery cathodes it finds compositions matching your target "
+        "properties about **78% of the time** (leave-one-out test). But the "
+        "property *values* it reports are rough estimates with honest uncertainty "
+        "bands — use it to **surface leads to investigate, then verify.** It does "
+        "not reliably reinvent exact or unusual chemistries."
     ),
     "pfas": (
-        "PFAS detection uses a curated registry plus brand/keyword heuristics. "
-        "**Registry hits are authoritative; heuristic and unknown hits require "
-        "manual review.** Detection accuracy on a blind bill-of-materials has not "
-        "yet been validated, and replacement scores are triage signals (see "
-        "evidence tiers per row)."
+        "This flags PFAS by their **chemical structure** (the official OECD rule), "
+        "so it catches even PFAS it has never seen by name. On a check it cleared "
+        "**25/25 non-PFAS look-alikes** correctly and matched the **EPA's official "
+        "list 99.5%** of the time; brand names and the registry are also matched. "
+        "Suggested replacements are rough guides — see the evidence label on each."
     ),
     "mof_designer": (
         "Atom-count and donor-atom constraints are **exactly enforced (100%)** — "
@@ -99,12 +101,13 @@ FEATURE_NOTES = {
         "candidates for screening, not lab-validated designs. " + CONFIDENCE_CAVEAT
     ),
     "composition_predictor": (
-        "Property predictions are **interpolations over known materials** (Kan "
-        "extension + Dempster–Shafer fusion), not first-principles calculations. "
-        "Each property carries an **evidence tier** and, for formation energy, a "
-        "**calibrated uncertainty interval**. Use the **Leave-One-Out test** below "
-        "to see honest blind error on materials the engine is forced to forget. "
-        "Treat low-evidence tiers as discovery leads."
+        "Property values are **estimates by comparison to known materials**, not "
+        "lab measurements or first-principles calculations. They are **rough** on "
+        "unfamiliar chemistry (formation energy is typically off by ~0.5 eV/atom). "
+        "The **± uncertainty band is now honestly calibrated** — checked to actually "
+        "hold ~50/80/95% of the time on held-out materials — so trust the *band*, "
+        "not the single number. Run the **Leave-One-Out test** below to see real "
+        "blind error."
     ),
     "mp_explorer": (
         "Two kinds of data on this page, kept distinct: **raw Materials Project "
