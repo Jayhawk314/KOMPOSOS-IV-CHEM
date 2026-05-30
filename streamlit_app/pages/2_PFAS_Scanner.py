@@ -21,7 +21,7 @@ st.markdown(
 # ---------------------------------------------------------------------------
 
 from pfas_bridge.compliance_checker import PFASComplianceChecker
-from pfas_bridge.pfas_registry import (
+from pfas_bridge import (
     PFAS_REGISTRY,
     PFASCategory,
     get_pfas_by_category,
@@ -65,12 +65,22 @@ tab1, tab2, tab3, tab4 = st.tabs(["Single Check", "Batch Scan", "Compliance Repo
 with tab1:
     st.subheader("Check a Single Material")
 
-    # Aggregate material names for autofill
-    all_known_materials = get_all_material_names()
-    material_options = ["Other..."] + all_known_materials
-
     col1, col2 = st.columns(2)
     with col1:
+        # Hierarchical Selection
+        domains = get_materials_by_domain()
+        domain_choice = st.selectbox(
+            "Filter by Domain / Category", 
+            ["All Domains"] + list(domains.keys()),
+            help="Narrow down the material list by chemical domain."
+        )
+        
+        if domain_choice == "All Domains":
+            all_known = get_all_material_names()
+            material_options = ["Other..."] + all_known
+        else:
+            material_options = ["Other..."] + domains[domain_choice]
+
         material_choice = st.selectbox(
             "Material name",
             options=material_options,
@@ -491,8 +501,44 @@ with tab4:
         if epa_data:
             import pandas as pd
             df_epa = pd.DataFrame(epa_data)
+            
+            # Filter UI
+            st.markdown("---")
+            col_f1, col_f2, col_f3 = st.columns([2, 2, 3])
+            with col_f1:
+                search_q = st.text_input("🔍 Search SMILES or DTXSID", key="epa_search_q")
+            with col_f2:
+                family_options = sorted(df_epa["family"].unique())
+                selected_families = st.multiselect("🧬 Chemical Family", family_options, key="epa_family_filter")
+            with col_f3:
+                min_fw = float(df_epa["fw"].min() or 0)
+                max_fw = float(df_epa["fw"].max() or 2000)
+                mw_range = st.slider("⚖️ Molecular Weight", min_fw, max_fw, (min_fw, max_fw), key="epa_mw_filter")
+
+            # Apply Filters
+            filtered_df = df_epa.copy()
+            if search_q:
+                filtered_df = filtered_df[
+                    filtered_df["smiles"].str.contains(search_q, case=False, na=False) | 
+                    filtered_df["id"].str.contains(search_q, case=False, na=False)
+                ]
+            if selected_families:
+                filtered_df = filtered_df[filtered_df["family"].isin(selected_families)]
+            
+            filtered_df = filtered_df[
+                (filtered_df["fw"].fillna(0) >= mw_range[0]) & 
+                (filtered_df["fw"].fillna(0) <= mw_range[1])
+            ]
+
+            st.write(f"Showing **{len(filtered_df)}** of {len(df_epa)} substances")
+            
             st.dataframe(
-                df_epa.rename(columns={"smiles": "Structure (SMILES)", "id": "DTXSID", "fw": "Mol Weight"}),
+                filtered_df.rename(columns={
+                    "smiles": "Structure (SMILES)", 
+                    "id": "DTXSID", 
+                    "fw": "Mol Weight",
+                    "family": "Chemical Family"
+                }),
                 use_container_width=True,
                 hide_index=True,
             )

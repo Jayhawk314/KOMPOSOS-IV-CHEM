@@ -900,6 +900,43 @@ def get_banned_pfas() -> Dict[str, PFASSubstance]:
     }
 
 
+# ---------------------------------------------------------------------------
+# Family Detection (SMARTS)
+# ---------------------------------------------------------------------------
+
+_FAMILY_PATTERNS = {}
+if _RDKIT_AVAILABLE:
+    _FAMILY_PATTERNS = {
+        "Carboxylic Acid": Chem.MolFromSmarts("[CX3](=O)[OX2H1,OX1-0]"),
+        "Sulfonic Acid": Chem.MolFromSmarts("S(=O)(=O)[OX2H1,OX1-0]"),
+        "Sulfonamide": Chem.MolFromSmarts("S(=O)(=O)N"),
+        "Ether": Chem.MolFromSmarts("[#6X4,c][OD2][#6X4,c]"),
+        "Alcohol": Chem.MolFromSmarts("[OX2H1]"),
+        "Amine": Chem.MolFromSmarts("[NX3;H2,H1,H0]"),
+        "Amide": Chem.MolFromSmarts("[NX3][CX3](=[OX1])"),
+        "Phosphonic Acid": Chem.MolFromSmarts("P(=O)(O)O"),
+        "Ester": Chem.MolFromSmarts("[#6X3](=[OX1])O[#6X4]"),
+    }
+
+def get_pfas_family(smiles: str) -> str:
+    """Identify chemical family from SMILES using functional group patterns."""
+    if not _RDKIT_AVAILABLE or not smiles:
+        return "Unknown"
+    
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if not mol:
+            return "Invalid SMILES"
+            
+        for family, pattern in _FAMILY_PATTERNS.items():
+            if mol.HasSubstructMatch(pattern):
+                return family
+                
+        return "Other / Poly-fluorinated"
+    except Exception:
+        return "Error"
+
+
 def get_restricted_pfas() -> Dict[str, PFASSubstance]:
     """Get all PFAS that are banned or restricted in any jurisdiction."""
     return {
@@ -909,7 +946,7 @@ def get_restricted_pfas() -> Dict[str, PFASSubstance]:
 
 
 def load_epa_registry(file_path: str = "data/EPA_PFASSTRUCTV4.txt") -> List[Dict]:
-    """Load the massive EPA structural PFAS registry."""
+    """Load the massive EPA structural PFAS registry with families."""
     import os
     if not os.path.exists(file_path):
         return []
@@ -917,14 +954,26 @@ def load_epa_registry(file_path: str = "data/EPA_PFASSTRUCTV4.txt") -> List[Dict
     results = []
     try:
         with open(file_path, "r") as f:
-            header = f.readline().strip().split("\t")
+            # Skip header: Structure(SMILES) DTXSID FW
+            header = f.readline()
             for line in f:
                 parts = line.strip().split("\t")
                 if len(parts) >= 2:
+                    smiles = parts[0]
+                    # Parse FW, handle possible salt weight suffix like "434.9019 (427.9615+6.9405)"
+                    fw_raw = parts[2] if len(parts) > 2 else None
+                    fw = None
+                    if fw_raw:
+                        try:
+                            fw = float(fw_raw.split()[0])
+                        except (ValueError, IndexError):
+                            pass
+                            
                     results.append({
-                        "smiles": parts[0],
+                        "smiles": smiles,
                         "id": parts[1],
-                        "fw": parts[2] if len(parts) > 2 else None
+                        "fw": fw,
+                        "family": get_pfas_family(smiles)
                     })
     except Exception:
         pass

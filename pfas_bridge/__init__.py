@@ -20,7 +20,10 @@ from pfas_bridge.pfas_registry import (
     get_pfas,
     get_pfas_by_category,
     is_pfas,
+    get_epa_registry,
+    load_epa_registry,
     POLYMER_BRIDGE_PFAS,
+    PFAS_REGISTRY,
 )
 from pfas_bridge.replacement_scorer import (
     ReplacementCandidate,
