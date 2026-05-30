@@ -82,9 +82,15 @@ FEATURE_NOTES = {
     ),
     "mof_designer": (
         "Atom-count and donor-atom constraints are **exactly enforced (100%)** — "
-        "the generator never fabricates the count. The 5 KOMPOSOS verdicts "
-        "(including synthesizability) are **not experimentally validated**: treat "
-        "them as generation guidance, not a synthesis guarantee."
+        "the generator never fabricates the count. Candidate quality is now scored "
+        "by a **validated grounded funnel** (chemical sanity, ≥2 coordinating "
+        "sites, SAscore, donor geometry, + novelty vs. known linkers): **~94% "
+        "recall on held-out real synthesized linkers, AUROC ~0.88** vs. raw "
+        "generator output (MOFSimplify + CoRE-MOF; see "
+        "docs/MOF_LINKER_BENCHMARK_RESULTS.md). The older 5 self-graded verdicts "
+        "are retained only as legacy/unvalidated. A high funnel score means "
+        "'indistinguishable from real linkers on every computable axis' — **not a "
+        "wet-lab synthesis guarantee.**"
     ),
     "workbench": (
         "This is a **composition-first prototype** that chains inverse design → "
