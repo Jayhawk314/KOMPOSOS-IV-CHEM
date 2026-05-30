@@ -9,6 +9,7 @@ if _root not in sys.path:
 
 import streamlit as st
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="MOF Linker Designer", page_icon="@", layout="wide")
 st.title("MOF Linker Designer")
@@ -16,8 +17,10 @@ render_login_sidebar()
 
 st.markdown(
     "Design novel organic ligands for Metal-Organic Frameworks. "
-    "Specify an exact atom count and get back validated candidates."
+    "Specify an exact atom count and get back candidates with exact-count "
+    "constraints enforced."
 )
+render_feature_status("mof_designer")
 
 # ---------------------------------------------------------------------------
 # Imports
@@ -28,6 +31,12 @@ try:
     _MOF_OK = True
 except ImportError:
     _MOF_OK = False
+
+try:
+    from mof_bridge.benchmark.scorer import score_linker, is_available as _funnel_is_available
+    _FUNNEL_OK = _funnel_is_available()
+except Exception:
+    _FUNNEL_OK = False
 
 try:
     from rdkit import Chem
@@ -182,10 +191,38 @@ if "mof_result" in st.session_state:
 
     st.subheader(f"Results: {len(filtered)} ligands with {target_atoms} heavy atoms")
 
+    # Validated grounded funnel: score every candidate (chemical sanity,
+    # coordination, synthesizability, geometry) + novelty vs known linkers.
+    scored = [(c, score_linker(c.linker_smiles) if _FUNNEL_OK else None) for c in filtered]
+    if _FUNNEL_OK:
+        scored.sort(key=lambda cf: cf[1]["score"], reverse=True)
+    n_passed_gates = sum(1 for _, fr in scored if fr and fr["passed_all"])
+
     m1, m2, m3 = st.columns(3)
     m1.metric("Generated", res.num_generated)
-    m2.metric("Passed All Verdicts", res.num_passed_all)
+    m2.metric(
+        "Passed grounded gates" if _FUNNEL_OK else "Passed All Verdicts",
+        n_passed_gates if _FUNNEL_OK else res.num_passed_all,
+    )
     m3.metric("After Donor Filter", len(filtered))
+
+    if _FUNNEL_OK:
+        st.caption(
+            "Grounded funnel (validated): ~94% recall on held-out real synthesized "
+            "linkers, AUROC ~0.88 vs. raw generator output "
+            "(see docs/MOF_LINKER_BENCHMARK_RESULTS.md). Gates: chemical sanity, "
+            ">=2 coordinating sites, SAscore, donor geometry. Novelty = 1 - similarity "
+            "to nearest known linker. A high score is NOT a synthesis guarantee."
+        )
+
+    _GATE_LABEL = {
+        None: "PASS",
+        "G1_parse": "fail: invalid",
+        "G1_pains_brenk": "flag: PAINS/Brenk",
+        "G2_coordination": "fail: <2 donors",
+        "G3_sascore": "fail: hard to synthesize",
+        "G4_geometry": "fail: donor geometry",
+    }
 
     if not filtered:
         st.warning(
@@ -196,27 +233,27 @@ if "mof_result" in st.session_state:
         import pandas as pd
 
         rows = []
-        for c in filtered[:50]:
+        for c, fr in scored[:50]:
             row = {
                 "Formula": _formula(c.linker_smiles),
                 "Atoms": _heavy(c.linker_smiles),
                 "MW": _mw(c.linker_smiles),
                 "SMILES": c.linker_smiles,
-                "Viable": "Yes" if c.overall_viable else "No",
             }
-            # Add donor atom counts
+            if fr:
+                row["Funnel"] = _GATE_LABEL.get(fr["died_at"], fr["died_at"] or "PASS")
+                row["Coord"] = fr["n_coord"]
+                row["SAscore"] = fr["sascore"] if fr["sascore"] is not None else "—"
+                row["Novelty"] = round(1 - fr["max_tanimoto"], 2) if fr["max_tanimoto"] is not None else "—"
             for d in ["N", "O", "S"]:
                 row[d] = _count_donor_atoms(c.linker_smiles, d)
-            # Add verdict summary
-            verdicts = list(c.verdicts.values())
-            row["Verdicts"] = f"{sum(1 for v in verdicts if v == 'AGREE')}/5 AGREE"
             rows.append(row)
 
         df = pd.DataFrame(rows)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
         # Top candidate detail
-        best = filtered[0]
+        best, best_fr = scored[0]
         st.subheader("Top Candidate")
         st.code(best.linker_smiles, language="text")
 
@@ -234,10 +271,24 @@ if "mof_result" in st.session_state:
                 st.markdown(f"**Donor atoms:** {donors_str}")
 
         with bc2:
-            for vn, vv in best.verdicts.items():
-                icon = _verdict_icon(vv)
-                score = best.verdict_scores.get(vn, 0)
-                st.write(f"{icon} {vn}: {score:.2f}")
+            if best_fr:
+                st.markdown("**Grounded funnel**")
+                if best_fr["passed_all"]:
+                    st.success("PASS — clears every grounded gate")
+                else:
+                    st.warning(f"Stopped at {_GATE_LABEL.get(best_fr['died_at'], best_fr['died_at'])}")
+                st.write(f"Coordinating sites: {best_fr['n_coord']}")
+                if best_fr["sascore"] is not None:
+                    st.write(f"SAscore (lower = easier to make): {best_fr['sascore']}")
+                if best_fr["geometry_ok"] is not None:
+                    st.write(f"Ditopic-capable geometry: {'yes' if best_fr['geometry_ok'] else 'no'}")
+                if best_fr["max_tanimoto"] is not None:
+                    st.write(f"Novelty (1 - nearest-known): {round(1 - best_fr['max_tanimoto'], 2)}")
+                if best_fr["pains_brenk_flag"]:
+                    st.caption("Trips PAINS/Brenk drug filters — common for real MOF linkers; informational only.")
+            with st.expander("Legacy self-graded verdicts (not validated)"):
+                for vn, vv in best.verdicts.items():
+                    st.write(f"{_verdict_icon(vv)} {vn}: {best.verdict_scores.get(vn, 0):.2f}")
 
         if best.reasoning_traces:
             with st.expander("Reasoning traces"):

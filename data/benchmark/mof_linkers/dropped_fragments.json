@@ -1,0 +1,506 @@
+{
+  "n_invalid": 0,
+  "n_open_valence_radical": 875,
+  "examples": [
+    {
+      "smiles": "CC(=O)[CH]C(=O)c1ccc(-c2ccncc2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "C[C]([N-]/N=C(\\C)c1cccnc1)c1cccnc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "C[C]([N-][N-][C](C)c1ccncc1)c1ccncc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(C(=O)[O-])cc([O+]2[C][C]3[C][C]3[C]2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1c[c]c(-c2ccc(C(=O)[O-])cc2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1N=C[N-]N1Cc1ccc(Cn2cncn2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])[C@@H]1[CH]C=C(C2=C[CH][C@@H](C(=O)[O-])C=C2)C=C1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "CC(C)(C)[N+]([O-])c1cccc(-c2cncnc2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1[c]c(C(=O)[O-])c(C(=O)[O-])[c]c1C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1[c]c(C(=O)[O-])c(C(=O)[O-])cc1C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])[C]1C2([H-][NH2+]2)[C](C(=O)[O-])C2([H-][NH2+]2)[C](C(=O)[O-])C12[H-][NH2+]2",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[C]c1[c]c2n[c][n-]c2[c]c1[C][C]c1[c][c]c2n[c][n-]c2[c]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[C]N(c1ccc(C(=O)[O-])cc1)c1ccc(C(=O)[O-])cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(N[C]c2ccncc2)cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1[c]c(NCc2ccncc2)cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([N-]c1cc(C(=O)[O-])cc(C(=O)[O-])c1)c1[c]n[nH]c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])[C]1[CH][CH]C([O-])=C(c2nc(C(=O)[O-])ccc2[O-])[N-]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])[C]N([C][C]N([C]C(=O)[O-])[C]C(=O)[O-])[C]C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1ccc(N2C=C[C](c3ccncc3)C=C2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1[N-]C=CN1c1cc(-n2ccnc2)cc(-n2ccnc2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "Cc1[c]c(C)c(Cn2ccnc2)c(C)c1Cn1ccnc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1ccc(C(=O)[O-])c(NC(=O)c2cc[c]cc2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "C[C](C)[C@H]([N-]C(=O)C(=O)[N-][C@@H]([C](C)C)C(=O)[O-])C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1[CH][C](/C=C/c2ccc(/C=C/c3ccncc3)cc2)[CH][CH][N-]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "c1c[n-]c([C](c2ccc(-n3ccnc3)cc2)c2ccc[n-]2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1ccc(-n2cnc3cc4c(cc32)[CH][CH][CH][CH]4)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[O-][C]([O-])c1ccc(-n2cnc3cc4ccccc4cc32)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "c1cc(-c2cc(C3=N[N]N=N3)cc(C3=N[N]N=N3)c2)ccn1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[O]N1C(=O)c2ccc3c4c(ccc(c24)C1=O)C(=O)N([O])C3=O",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(C(=O)[O-])c(C2=NN=N[N]2)cc1C1=NN=N[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])[C]1C=C(/N=N/C2=C[CH]C(=O)C(C(=O)[O-])=C2)C=CC1=O",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(N2[CH]N=C[N]2)c(C(=O)[O-])cc1N1[CH]N=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(C(=O)[O-])c(N2[CH]N=C[N]2)cc1N1[CH]N=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(C(=O)[O-])c(-n2cncn2)cc1N1[CH]N=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])C1=CN(Cc2cc(C(=O)[O-])cc(C(=O)[O-])c2)[CH]C=C1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])C1=CC=CN(Cc2cc(C(=O)[O-])cc(C(=O)[O-])c2)[CH]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "C1=C[C]([C]2N=C(c3ccncc3)N=C2c2ccncc2)C=CN1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C(O)c1cc(C(=O)O)c(N2[CH]N=C[N]2)cc1N1[CH]N=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C(O)c1cc(C(=O)O)c(-n2cncn2)cc1N1[CH]N=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1N2[C@@H]3[C@H]2[C@H]2[C@@H]3[N@@+]12c1cc(-n2ccnc2)cc(-n2ccnc2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1ccc([C]2N=C(c3ccc(C(=O)[O-])cc3)[N-]N2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1N=C[N-]N1Cc1ccc(-c2ccc(CN3[CH]N=C[N-]3)cc2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[CH]1[N-][CH]N(Cc2ccc(-c3ccc(CN4[CH]N=C[N-]4)cc3)cc2)[N-]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "[O]P([O])(=O)c1ccc(-c2cc(C(=O)[O-])cc(C(=O)[O-])c2)cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C1[CH]c2c3c(c4c(c2[CH]C1=O)[CH]C(=O)C(=O)[CH]4)[CH]C(=O)C(=O)[CH]3",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(C(=O)[O-])cc(N2C=C[C](c3ccncc3)C=C2)c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1c[c]c(-c2[c]cc(C(=O)[O-])cc2[N+](=O)[O-])c([N+](=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=P([O-])([O-])[C]1N2[C][C]N([C][C]2)[C](P(=O)([O-])[O-])N2[C][C]N1[C][C]2",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(Cc2cc(C(=O)[O-])cc(C(=O)O)c2)cc([C]([O-])[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C1[CH][C](c2ccc(C(=O)[O-])cc2)[C]([O-])[CH][C]1c1ccc(C(=O)[O-])cc1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=[P@]([O-])(O)[C]N1CC[C]([C]2CCN([C][P@](=O)([O-])O)CC2)CC1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=P([O-])([O-])[C][C]N1[C][C]/C(=C2/[C][C]N([C][C]P(=O)([O-])[O-])[C]=[C]2)[C]=[C]1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "O=C([O-])CN1[CH]N(Cc2ccc(CN3[CH]N(CC(=O)[O-])C=C3)cc2)C=C1",
+      "reason": "open_valence_radical",
+      "source": "mofsimplify"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccccc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccccc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CC2=C(c3ccncc3)C3=CC=C([N]3)C(c3ccncc3)=C3C=CC(=N3)C(c3ccncc3)=C3C=CC(=C(c4ccncc4)C1=N2)[N]3",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]P(=O)(O)CC12c3ccccc3C(c3ccccc31)C1(CP([O])(=O)O)c3ccccc3C2c2ccccc21",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])[CH][CH]C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=NC=N[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=NC=N[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]P([O])(=O)CCC(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "CC1=NC=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[CH]1C=NN=N1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "C1=CN=N[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]S([O])([O])c1cc(C(=O)[O-])cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])c1ccc(C2=C3C=CC(=C(c4ccc(C(=O)[O-])cc4)C4=NC(=C(c5ccc(C(=O)[O-])cc5)C5=CC=C([N]5)C(c5ccc(C(=O)[O-])cc5)=C5C=CC2=N5)C=C4)[N]3)cc1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "NC1=NN=C(N)[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "NC1=N[N]C=N1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "NC1=NC=N[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "NC1=NN=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "NC1=N[N]C=N1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1cc(C2=NN=N[N]2)ccn1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1cc(C2=N[N]N=N2)ccn1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])C1=CN=N[CH]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])[C]1C=NN=C1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])CN1[CH]C=C(C(=O)[O-])C=C1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])C1=NN=C(C(=O)[O-])[CH]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]P([O])(=O)c1cc(C(=O)[O-])c(C(=O)[O-])cc1C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]S([O])([O])c1cccc2c(S([O])([O])[O])cccc12",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "CC1=NC=C[N]1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "CC1=N[CH]C=N1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "Fc1cc([C]2C=NN=C2)c(F)cc1[C]1C=NN=C1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[CH]1N=NC=C1c1ccc(C2=C[N]N=C2)cc1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "Cc1cc(C2=C[N]N=C2)c(C)cc1[C]1C=NN=C1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[CH]1N=C[N]N1Cc1ccc(Cn2cncn2)cc1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[CH]1N=C[N]N1Cc1ccc(CN2[CH]N=C[N]2)cc1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1cc(C2=Nc3ccccc3[N]2)cc(C2=Nc3ccccc3[N]2)c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1cc(C2=Nc3ccccc3[N]2)cc(C2=Nc3ccccc3[N]2)c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1cc(C2=Nc3ccccc3[N]2)cc(C2=Nc3ccccc3[N]2)c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(Oc2ccc(C3=NN=N[N]3)cc2)cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(Oc2ccc(C3=NN=N[N]3)cc2)cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "c1ccc(C2=NN=C(c3ccncc3)[N]2)nc1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "O=C([O-])c1cc(Oc2ccc(C3=NN=N[N]3)cc2)cc(C(=O)[O-])c1",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[O]c1cc(C(=O)[O-])c([O])cc1C(=O)[O-]",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    },
+    {
+      "smiles": "[CH]1C(c2ccncc2)=CC=C2[N]C(c3ccc(-c4ccncc4)cc3)CN12",
+      "reason": "open_valence_radical",
+      "source": "core_mof"
+    }
+  ]
+}

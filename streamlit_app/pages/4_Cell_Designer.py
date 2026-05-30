@@ -10,6 +10,7 @@ if _root not in sys.path:
 import streamlit as st
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from streamlit_app.md_controls import render_md_input_controls, render_md_result
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="Cell Designer", page_icon="🔋", layout="wide")
 st.title("Solid-State Cell Designer")
@@ -19,6 +20,7 @@ st.markdown(
     "Design a battery cell spanning multiple material domains. "
     "The cross-bridge analyzer evaluates every interface and finds the bottleneck."
 )
+render_feature_status("cell_designer")
 
 # ---------------------------------------------------------------------------
 # Load materials

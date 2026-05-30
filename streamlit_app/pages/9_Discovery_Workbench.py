@@ -12,13 +12,16 @@ import pandas as pd
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from discovery.workbench_service import DiscoveryWorkbenchService, DiscoveryGoal, DiscoveryCandidate
 from composition_engine.designer import PropertyTarget
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="Discovery Workbench", page_icon="ðŸ”¬", layout="wide")
-st.title("Autonomous Discovery Workbench")
+st.title("Discovery Workbench")
 st.markdown(
-    "Unify all 8 KOMPOSOS-IV features into a single discovery pipeline. "
-    "Set your discovery goal below to generate, screen, verify, and plan synthesis for novel materials."
+    "A **composition-first prototype** pipeline. It chains inverse design → PFAS "
+    "screening → compatibility context → synthesis planning to generate and triage "
+    "candidate materials. Crystal- and MOF-specific modes are planned next."
 )
+render_feature_status("workbench")
 
 render_login_sidebar()
 
@@ -68,11 +71,11 @@ with st.sidebar:
     st.subheader("1. Target Properties")
     if "workbench_targets" not in st.session_state:
         st.session_state.workbench_targets = [{
-            "name": "ionic_conductivity",
+            "name": "voltage",
             "use_min": True,
-            "min": 0.01,
-            "use_max": False,
-            "max": 0.0,
+            "min": 3.0,
+            "use_max": True,
+            "max": 4.5,
             "weight": 1.0,
         }]
 

@@ -26,7 +26,9 @@ from pfas_bridge.replacement_scorer import UseCase, find_replacements
 from reports.pfas_report import PFASComplianceReport, MaterialInput, LI_ION_DEMO_BOM
 from reports.pfas_pdf import generate_pfas_pdf
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
+from streamlit_app.validation_status import render_feature_status
 
+render_feature_status("pfas")
 render_login_sidebar()
 
 

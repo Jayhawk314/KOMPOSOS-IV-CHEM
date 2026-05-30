@@ -1,0 +1,40 @@
+{
+  "schema": "mof_linker_benchmark.v1_clean",
+  "sa_threshold_from_seed_p95": 4.592,
+  "n_seed": 253,
+  "n_eval_real": 423,
+  "n_eval_gold": 120,
+  "recall_on_held_out_reals": {
+    "G1_sanity": 1.0,
+    "G2_coordination": 0.9858,
+    "G3_sascore": 0.9456,
+    "G4_geometry_passed_all": 0.9433
+  },
+  "recall_on_gold_tier": {
+    "G1_sanity": 1.0,
+    "G2_coordination": 1.0,
+    "G3_sascore": 0.9083,
+    "G4_geometry_passed_all": 0.9
+  },
+  "auroc_real_vs_decoy": {
+    "generator_raw": 0.8843,
+    "perturbed_real": 0.7922,
+    "random_valid": 0.9654
+  },
+  "decoy_pass_all_rate": {
+    "generator_raw": 0.2575,
+    "perturbed_real": 0.2638,
+    "random_valid": 0.0489
+  },
+  "claim_22_atom": {
+    "n_eval_real_22": 20,
+    "recall_pass_all_22": 0.95,
+    "auroc_22_vs_generator_raw": 0.9013
+  },
+  "novelty_frontier_generator": {
+    "n_generated": 233,
+    "n_passed_all_gates": 60,
+    "n_novel_and_passed": 14,
+    "median_tanimoto_of_passers": 0.524
+  }
+}

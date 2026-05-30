@@ -19,6 +19,12 @@ from oracle.simplicial_strategies import (
     FibrationTransportStrategy,
     build_domain_category,
 )
+from categorical.dempster_shafer import MassFunction, combine, discount
+
+
+_DS_VIABLE = frozenset({"viable"})
+_DS_INCOMPATIBLE = frozenset({"incompatible"})
+_DS_THETA = frozenset({"viable", "incompatible"})
 
 
 GRAY_ACTIVE_SEVERITY_THRESHOLD = 0.35
@@ -467,23 +473,68 @@ def _direct_authority(strategy: str) -> float:
     }.get(strategy, 1.0)
 
 
+def _vote_mass(vote: StrategyVote) -> MassFunction:
+    """Map a strategy vote to a Dempster-Shafer mass function over {viable, incompatible}.
+
+    Confidence becomes belief commitment; the remainder (1 - confidence) is mass on
+    the full frame (ignorance). The score splits the committed mass between viable
+    and incompatible.
+    """
+    c = max(0.0, min(1.0, float(vote.confidence)))
+    s = max(0.0, min(1.0, float(vote.score)))
+    return MassFunction({
+        _DS_VIABLE: s * c,
+        _DS_INCOMPATIBLE: (1.0 - s) * c,
+        _DS_THETA: 1.0 - c,
+    })
+
+
 def _combine_votes(votes: List[StrategyVote], features: Dict[str, Any], weights: Dict[str, float]) -> float:
+    """Dempster-Shafer fusion of the strategy votes.
+
+    Each vote is discounted by its per-strategy reliability (the strategy weight,
+    normalized to [0, 1]) and combined with Dempster's rule. The returned score is
+    the pignistic probability of "viable"; belief/plausibility/conflict are stashed
+    in ``features`` for the uncertainty display.
+    """
     if not votes:
         return 0.0
-    total_weight = sum(weights.get(vote.strategy, 1.0) * vote.confidence for vote in votes)
-    weighted = sum(
-        weights.get(vote.strategy, 1.0) * vote.confidence * vote.score
-        for vote in votes
-    ) / total_weight if total_weight else 0.0
 
-    z = -2.0
-    z += 4.0 * weighted
-    z += 1.2 * float(features.get("min_confidence", 0.0))
-    z += 0.25 * float(features.get("num_strategies", 0.0))
-    z += 1.0 * float(features.get("strategy_agreement", 0.0))
-    z += 0.8 if features.get("has_direct_evidence") else -0.4
-    logistic = 1.0 / (1.0 + math.exp(-z))
-    return round(0.72 * weighted + 0.28 * logistic, 4)
+    max_w = max(weights.values()) if weights else 1.0
+    if max_w <= 0:
+        max_w = 1.0
+
+    discounted = [
+        discount(_vote_mass(vote), weights.get(vote.strategy, 1.0) / max_w)
+        for vote in votes
+    ]
+
+    fused = discounted[0]
+    max_conflict = 0.0
+    for mass in discounted[1:]:
+        try:
+            fused, conflict = combine(fused, mass)
+            max_conflict = max(max_conflict, conflict)
+        except ValueError:
+            # Total contradiction (K=1) between this source and the running fusion;
+            # keep the accumulated belief and flag the conflict honestly.
+            max_conflict = 1.0
+            continue
+
+    belief = fused.belief(_DS_VIABLE)
+    plausibility = fused.plausibility(_DS_VIABLE)
+    pignistic = fused.pignistic_probability("viable")
+
+    features["dempster_shafer"] = {
+        "method": "dempster_shafer",
+        "pignistic_viable": round(pignistic, 4),
+        "belief_viable": round(belief, 4),
+        "plausibility_viable": round(plausibility, 4),
+        "uncertainty": round(plausibility - belief, 4),
+        "max_conflict": round(max_conflict, 4),
+        "num_sources": len(discounted),
+    }
+    return round(pignistic, 4)
 
 
 def _combined_confidence(votes: List[StrategyVote], features: Dict[str, Any]) -> float:

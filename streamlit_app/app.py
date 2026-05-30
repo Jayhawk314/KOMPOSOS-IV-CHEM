@@ -14,6 +14,7 @@ if _root not in sys.path:
 
 import streamlit as st
 from streamlit_app.access_control import render_login_sidebar  # no-op
+from streamlit_app.validation_status import render_global_status
 
 st.set_page_config(
     page_title="KOMPOSOS-IV-CHEM",
@@ -67,7 +68,7 @@ dual-engine constraints.
 - **{_mat_count:,} composition records loaded locally**; optional Materials Project cache expands discovery and structure lookup when available
 - **Physics-embedded search**: composition vectors combine stoichiometry with periodic-table features for chemically aware neighbor selection
 - **Active verification**: compatibility checks can run GROMACS when a real `.gro`/`.top` input bundle is supplied; missing inputs return an explicit no-verdict readiness state
-- **Validation grounding**: development compatibility is currently reported as 41/41 on the tuned development set; Q8 is frozen as the next 40-pair blind holdout and is not a completed validation claim
+- **Validation grounding**: accuracy is reported *per domain* with uncertainty (see the Validation Status panel below). No single global accuracy number is headlined, and no dataset is currently blind — the Q10 sealed exam has not been scored
 - **Materials Project integration**: optional 103K+ DFT-computed structure cache with lattice parameters, formation energies, and convex hull distances when installed
 - **Empirical bond constraints**: local bond distributions with optional ColabFit cache/API support; not a live dynamic potential service in this build
 
@@ -91,6 +92,9 @@ page should be used as a screening and triage tool, not as a final lab validatio
 
 No GPUs required for the core reasoning path.
 """)
+
+st.divider()
+render_global_status()
 
 if _has_mp:
     st.sidebar.success(f"{_mat_count:,} composition records loaded (MP cached)")

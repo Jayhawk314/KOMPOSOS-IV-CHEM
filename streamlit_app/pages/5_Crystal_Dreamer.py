@@ -12,6 +12,7 @@ if _root not in sys.path:
 
 import streamlit as st
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="Crystal Dreamer", page_icon="💎", layout="wide")
 st.title("Crystal Dreamer")
@@ -26,6 +27,7 @@ st.markdown(
     f"and the engine searches composition space for candidates that match. "
     f"Searching over **{_scale}** via Kan extension."
 )
+render_feature_status("crystal_dreamer")
 
 # ---------------------------------------------------------------------------
 # Imports

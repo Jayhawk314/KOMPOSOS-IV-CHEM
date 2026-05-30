@@ -13,6 +13,7 @@ from utils.molecule_autocomplete import molecule_selector, show_molecule_referen
 from oracle.compatibility_service import run_compatibility_workflow
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
 from streamlit_app.md_controls import render_md_input_controls, render_md_result
+from streamlit_app.validation_status import render_feature_status
 from reports.compatibility_report import (
     build_compatibility_report,
     render_markdown,
@@ -22,6 +23,7 @@ from reports.compatibility_report import (
 st.set_page_config(page_title="Compatibility Checker", page_icon="chem", layout="wide")
 st.title("Material Compatibility Checker")
 st.markdown("Select two materials from the same domain to check compatibility.")
+render_feature_status("compatibility")
 
 render_login_sidebar()
 
@@ -32,7 +34,6 @@ DOMAIN_IMPORTS = {
     "ceramic": ("ceramic_bridge.material_properties", "ALL_CERAMICS"),
     "semiconductor": ("semiconductor_bridge.material_properties", "ALL_SEMICONDUCTORS"),
     "glass": ("glass_bridge.material_properties", "ALL_GLASSES"),
-    "bio": ("domains.bio.loader", "BioDomainLoader"),
 }
 
 
@@ -43,12 +44,6 @@ def get_all_materials():
 
     result = {}
     for domain, (mod_path, attr) in DOMAIN_IMPORTS.items():
-        if domain == "bio":
-            # Bio loader needs instantiation
-            loader = importlib.import_module(mod_path).BioDomainLoader()
-            result[domain] = sorted([obj.name for obj in loader.get_objects()])
-            continue
-            
         mod = importlib.import_module(mod_path)
         materials = getattr(mod, attr)
         result[domain] = sorted(materials.keys())
@@ -182,12 +177,48 @@ else:
         calibration = scores.get("calibration", {})
         if calibration:
             st.caption(
-                "Calibrated compatibility probability: "
+                "Calibrated compatibility score: "
                 f"{calibration.get('calibrated_probability', total):.3f} "
-                f"via {calibration.get('calibrator', 'unknown')}"
+                f"via {calibration.get('calibrator', 'unknown')} "
+                "— a ranking signal, not a reliable probability (ECE ~0.15)."
             )
 
         ensemble = scores.get("ensemble", {})
+
+        # ── Evidence fusion (Dempster-Shafer) uncertainty interval ──────────
+        ds = (
+            ensemble.get("path_features", {}).get("dempster_shafer", {})
+            if isinstance(ensemble, dict) else {}
+        )
+        if ds:
+            st.markdown("**Evidence Fusion (Dempster–Shafer)**")
+            d1, d2, d3 = st.columns(3)
+            d1.metric(
+                "Belief (viable)", f"{ds.get('belief_viable', 0.0):.2f}",
+                help="Lower bound — mass that positively supports compatibility.",
+            )
+            d2.metric(
+                "Plausibility (viable)", f"{ds.get('plausibility_viable', 0.0):.2f}",
+                help="Upper bound — belief plus unresolved (ignorance) mass.",
+            )
+            d3.metric(
+                "Ignorance band", f"{ds.get('uncertainty', 0.0):.2f}",
+                help="Plausibility − Belief. A wide band means thin/uncommitted evidence.",
+            )
+            conflict = float(ds.get("max_conflict", 0.0))
+            if conflict >= 0.4:
+                st.warning(
+                    f"Evidence conflict {conflict:.2f}: the reasoning strategies disagree "
+                    "(e.g. categorical vs. physics). Treat this verdict as **contested** — "
+                    "inspect the votes below before relying on it."
+                )
+            else:
+                st.caption(
+                    f"True compatibility lies in [{ds.get('belief_viable', 0.0):.2f}, "
+                    f"{ds.get('plausibility_viable', 0.0):.2f}]; evidence conflict {conflict:.2f} "
+                    f"across {ds.get('num_sources', 0)} sources (low = sources agree)."
+                )
+
         gray = ensemble.get("gray_coherence", {}) if isinstance(ensemble, dict) else {}
         if gray.get("checked"):
             if gray.get("coherent", True):
