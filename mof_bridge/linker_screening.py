@@ -41,6 +41,10 @@ class LinkerScreeningSpec:
     functional_groups: Optional[List[str]] = None
     exclude_elements: Optional[List[str]] = None
     ranking_mode: str = "morphism_integrity"  # "morphism_integrity" or "verdict_count"
+    # Directed-generation controls (optional; default = stochastic discovery)
+    strategy_weights: Optional[Dict[str, float]] = None  # substitution/modification/template mix
+    seed_smiles: Optional[str] = None  # pin generation to derivatives of this molecule
+    required_groups: Optional[List[str]] = None  # functional groups every candidate must carry
 
 
 @dataclass
@@ -138,6 +142,9 @@ class LinkerScreener:
             application_context=spec.application_context,
             functional_groups=spec.functional_groups,
             exclude_elements=spec.exclude_elements,
+            strategy_weights=spec.strategy_weights,
+            seed_smiles=spec.seed_smiles,
+            required_groups=spec.required_groups,
         )
         print(f"  Generated {len(candidate_smiles)} candidates\n")
 

@@ -25,6 +25,28 @@ from dataclasses import dataclass
 from mof_bridge.mp_mof_loader import MOFLinker
 
 
+# SMARTS patterns for functional groups a researcher can require on every
+# candidate. Used both to bias template selection and to hard-filter results.
+REQUIRED_GROUP_SMARTS: Dict[str, str] = {
+    "carboxyl": "[CX3](=O)[OX2H1]",
+    "hydroxyl": "[OX2H]",
+    "amino": "[NX3;H2,H1;!$(NC=O)]",
+    "nitro": "[$([NX3](=O)=O),$([NX3+](=O)[O-])]",
+    "cyano": "[NX1]#[CX2]",
+    "fluoro": "[F]",
+    "chloro": "[Cl]",
+    "sulfonic": "[SX4](=O)(=O)[OX2H]",
+    "pyridyl": "[$([nX2]1ccccc1)]",
+}
+
+# Default strategy mix when the caller does not direct it.
+DEFAULT_STRATEGY_WEIGHTS: Dict[str, float] = {
+    "substitution": 0.5,
+    "modification": 0.3,
+    "template": 0.2,
+}
+
+
 @dataclass
 class GenerationStrategy:
     """A strategy for generating novel linkers."""
@@ -82,17 +104,29 @@ class LinkerGenerator:
         application_context: str,
         functional_groups: Optional[List[str]] = None,
         exclude_elements: Optional[List[str]] = None,
+        strategy_weights: Optional[Dict[str, float]] = None,
+        seed_smiles: Optional[str] = None,
+        required_groups: Optional[List[str]] = None,
     ) -> List[str]:
-        """Generate novel 22-atom linker SMILES strings.
+        """Generate novel linker SMILES strings.
 
         Args:
             n_candidates: Number of candidates to generate
             application_context: Application (breath_VOC_sensing, food_safety, etc.)
             functional_groups: Preferred functional groups to include
             exclude_elements: Elements to exclude (e.g., ['F', 'Cl'])
+            strategy_weights: Directed-generation mix, e.g.
+                {"substitution": 1.0, "modification": 0.0, "template": 0.0}.
+                Defaults to DEFAULT_STRATEGY_WEIGHTS. Normalized internally.
+            seed_smiles: Pin generation to derivatives of this exact molecule
+                instead of sampling random known linkers. Disables the
+                template strategy (it cannot mutate a specific molecule).
+            required_groups: Functional group names (keys of
+                REQUIRED_GROUP_SMARTS) that every returned candidate MUST
+                contain. Biases template selection and hard-filters output.
 
         Returns:
-            List of novel SMILES strings (validated, 22 heavy atoms)
+            List of novel SMILES strings (validated, within atom range)
 
         Note:
             Phase 1 implementation uses simplified generation.
@@ -103,37 +137,68 @@ class LinkerGenerator:
         except ImportError:
             raise ImportError("RDKit required. Install: pip install rdkit")
 
+        # --- Resolve directed-generation controls -------------------------
+        weights = dict(strategy_weights or DEFAULT_STRATEGY_WEIGHTS)
+
+        # Validate seed (if pinned) and force substitution/modification only.
+        if seed_smiles:
+            seed_smiles = seed_smiles.strip()
+            if Chem.MolFromSmiles(seed_smiles) is None:
+                raise ValueError(f"Seed SMILES is not valid: {seed_smiles!r}")
+            weights["template"] = 0.0  # template ignores the seed
+
+        # Compile required-group SMARTS once.
+        req_patts = []
+        for name in required_groups or []:
+            smarts = REQUIRED_GROUP_SMARTS.get(name)
+            patt = Chem.MolFromSmarts(smarts) if smarts else None
+            if patt is not None:
+                req_patts.append((name, patt))
+
+        strategy_names = ["substitution", "modification", "template"]
+        strategy_w = [max(0.0, float(weights.get(s, 0.0))) for s in strategy_names]
+        if sum(strategy_w) <= 0:
+            strategy_w = [DEFAULT_STRATEGY_WEIGHTS[s] for s in strategy_names]
+
         candidates = []
         seen_smiles = set()  # Track unique SMILES to avoid duplicates
         attempts = 0
-        max_attempts = n_candidates * 10  # Allow retries
+        # Required groups thin the yield; give the search more headroom.
+        max_attempts = n_candidates * (20 if req_patts else 10)
 
         print(
             f"\nGenerating {n_candidates} novel {self.min_atoms}-{self.max_atoms} atom linkers..."
         )
         print(f"Application: {application_context}")
         print(f"Known linkers: {len(self.known_linkers)}")
+        if seed_smiles:
+            print(f"Seed (pinned): {seed_smiles}")
+        if req_patts:
+            print(f"Required groups: {[n for n, _ in req_patts]}")
+        print(f"Strategy weights: {dict(zip(strategy_names, strategy_w))}")
 
         while len(candidates) < n_candidates and attempts < max_attempts:
             attempts += 1
 
             # Strategy selection (weighted random)
-            strategy = random.choices(
-                ["substitution", "modification", "template"],
-                weights=[0.5, 0.3, 0.2],
-                k=1,
-            )[0]
+            strategy = random.choices(strategy_names, weights=strategy_w, k=1)[0]
 
-            if strategy == "substitution" and self.known_linkers:
+            # Pick the template this attempt operates on: the pinned seed, a
+            # known linker that already carries the required groups, or any.
+            template_smiles = self._pick_template_smiles(seed_smiles, req_patts)
+
+            if strategy == "substitution" and template_smiles:
                 # Strategy 1: Functional group substitution
                 candidate = self._generate_by_substitution(
+                    template_smiles=template_smiles,
                     functional_groups=functional_groups,
                     exclude_elements=exclude_elements,
                 )
 
-            elif strategy == "modification" and self.known_linkers:
+            elif strategy == "modification" and template_smiles:
                 # Strategy 2: Modify known linker (add/remove atoms)
                 candidate = self._generate_by_modification(
+                    template_smiles=template_smiles,
                     exclude_elements=exclude_elements,
                 )
 
@@ -146,7 +211,9 @@ class LinkerGenerator:
                 )
 
             # Validate candidate and check for duplicates
-            if candidate and self._is_valid_candidate(candidate, exclude_elements):
+            if candidate and self._is_valid_candidate(
+                candidate, exclude_elements, req_patts
+            ):
                 if candidate not in seen_smiles:
                     candidates.append(candidate)
                     seen_smiles.add(candidate)
@@ -157,12 +224,47 @@ class LinkerGenerator:
         print(f"Generated {len(candidates)} candidates after {attempts} attempts")
         return candidates
 
+    def _has_all_groups(self, smiles: str, req_patts: List) -> bool:
+        """True if `smiles` matches every required-group SMARTS pattern."""
+        if not req_patts:
+            return True
+        try:
+            from rdkit import Chem
+        except ImportError:
+            return False
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return False
+        return all(mol.HasSubstructMatch(patt) for _, patt in req_patts)
+
+    def _pick_template_smiles(
+        self, seed_smiles: Optional[str], req_patts: List
+    ) -> Optional[str]:
+        """Choose the template SMILES for one generation attempt.
+
+        Priority: pinned seed > a known linker already carrying the required
+        groups > any known linker.
+        """
+        if seed_smiles:
+            return seed_smiles
+        if not self.known_linkers:
+            return None
+        pool = self.known_linkers
+        if req_patts:
+            matching = [
+                l for l in self.known_linkers if self._has_all_groups(l.smiles, req_patts)
+            ]
+            if matching:
+                pool = matching
+        return random.choice(pool).smiles
+
     def _generate_by_substitution(
         self,
+        template_smiles: str,
         functional_groups: Optional[List[str]],
         exclude_elements: Optional[List[str]],
     ) -> Optional[str]:
-        """Generate by substituting functional groups on known linker.
+        """Generate by substituting functional groups on a template linker.
 
         REAL implementation using SMARTS patterns to swap functional groups.
         """
@@ -172,9 +274,7 @@ class LinkerGenerator:
         except ImportError:
             return None
 
-        # Pick random known linker as template
-        template = random.choice(self.known_linkers)
-        mol = Chem.MolFromSmiles(template.smiles)
+        mol = Chem.MolFromSmiles(template_smiles)
         if mol is None:
             return None
 
@@ -253,9 +353,10 @@ class LinkerGenerator:
 
     def _generate_by_modification(
         self,
+        template_smiles: str,
         exclude_elements: Optional[List[str]],
     ) -> Optional[str]:
-        """Generate by adding/removing atoms from known linker.
+        """Generate by adding/removing atoms from a template linker.
 
         REAL implementation using molecular graph editing.
         """
@@ -265,15 +366,10 @@ class LinkerGenerator:
         except ImportError:
             return None
 
-        # Pick random known linker with !=22 heavy atoms
-        templates = [l for l in self.known_linkers if l.heavy_atom_count != 22]
-        if not templates:
-            templates = self.known_linkers
-
-        template = random.choice(templates)
-        mol = Chem.RWMol(Chem.MolFromSmiles(template.smiles))
-        if mol is None:
+        base = Chem.MolFromSmiles(template_smiles)
+        if base is None:
             return None
+        mol = Chem.RWMol(base)
 
         current_heavy = mol.GetNumHeavyAtoms()
         # Sample a target size within allowed range
@@ -421,6 +517,7 @@ class LinkerGenerator:
         self,
         smiles: str,
         exclude_elements: Optional[List[str]],
+        req_patts: Optional[List] = None,
     ) -> bool:
         """Validate a candidate SMILES.
 
@@ -429,6 +526,7 @@ class LinkerGenerator:
         - Heavy atom count in [18, 30]
         - Not in known set (novelty)
         - Doesn't contain excluded elements
+        - Contains every required functional group (if any)
         """
         try:
             from rdkit import Chem
@@ -454,6 +552,10 @@ class LinkerGenerator:
             mol_elements = set(atom.GetSymbol() for atom in mol.GetAtoms())
             if any(elem in mol_elements for elem in exclude_elements):
                 return False
+
+        # Enforce required functional groups (hard guarantee)
+        if req_patts and not all(mol.HasSubstructMatch(patt) for _, patt in req_patts):
+            return False
 
         # Check for radicals or invalid valences
         try:

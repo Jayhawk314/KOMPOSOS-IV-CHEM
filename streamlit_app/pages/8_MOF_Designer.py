@@ -130,6 +130,75 @@ with st.expander("Advanced"):
     require_all_agree = st.checkbox("Require all 5 verdicts AGREE", value=True)
     allow_hollow = st.checkbox("Allow HOLLOW verdicts (exploratory)", value=False)
 
+with st.expander("Directed Generation Controls (steer the search)"):
+    st.caption(
+        "By default the generator explores randomly. These controls turn it from a "
+        "'slot machine' into a 'microscope' — lock onto one molecule, bias the "
+        "strategy mix, or force specific functional groups onto every candidate."
+    )
+
+    st.markdown("**Strategy mix** — how the generator builds each candidate.")
+    sc1, sc2, sc3 = st.columns(3)
+    with sc1:
+        w_sub = st.slider(
+            "Functional-group substitution", 0.0, 1.0, 0.5, step=0.05,
+            help="Swap groups (–OH, –NH2, –F, …) on an existing backbone. Keeps the skeleton, varies decoration."
+        )
+    with sc2:
+        w_mod = st.slider(
+            "Backbone modification", 0.0, 1.0, 0.3, step=0.05,
+            help="Add/remove atoms from an existing linker to resize/reshape it."
+        )
+    with sc3:
+        w_tmpl = st.slider(
+            "Template (new backbones)", 0.0, 1.0, 0.2, step=0.05,
+            help="Build from application-specific scaffolds. Best for entirely new topological ideas."
+        )
+
+    seed_smiles_in = st.text_input(
+        "Seed molecule (SMILES) — pin generation to derivatives of this exact molecule",
+        value="",
+        help="Paste a SMILES (e.g. a top candidate from a previous run). The engine will "
+             "only mutate THIS molecule. Disables the template strategy automatically.",
+    )
+    seed_valid = True
+    if seed_smiles_in.strip():
+        if _RDK and Chem.MolFromSmiles(seed_smiles_in.strip()) is None:
+            seed_valid = False
+            st.error("Seed SMILES is not valid — fix it or clear the field.")
+        else:
+            _seed_heavy = _heavy(seed_smiles_in.strip())
+            st.caption(f"Pinned to {_formula(seed_smiles_in.strip())} "
+                       f"({_seed_heavy} heavy atoms). "
+                       "Template strategy is ignored while a seed is pinned.")
+            if _seed_heavy != exact_atoms:
+                st.warning(
+                    f"Seed has {_seed_heavy} heavy atoms but the target is {exact_atoms}. "
+                    "Only the **Backbone modification** strategy can resize it to the target — "
+                    "give that slider weight, or set the target to "
+                    f"{_seed_heavy} for substitution-only variations."
+                )
+
+    _GROUP_LABELS = {
+        "Carboxyl (–COOH)": "carboxyl",
+        "Hydroxyl (–OH)": "hydroxyl",
+        "Amino (–NH2)": "amino",
+        "Nitro (–NO2)": "nitro",
+        "Cyano (–C≡N)": "cyano",
+        "Fluoro (–F)": "fluoro",
+        "Chloro (–Cl)": "chloro",
+        "Sulfonic (–SO3H)": "sulfonic",
+        "Pyridyl ring": "pyridyl",
+    }
+    required_group_labels = st.multiselect(
+        "Required functional groups — every candidate MUST contain all of these",
+        list(_GROUP_LABELS.keys()),
+        default=[],
+        help="Hard constraint. Requiring groups thins the yield, so the generator "
+             "is given extra attempts and prefers seed linkers that already carry them.",
+    )
+    required_groups = [_GROUP_LABELS[g] for g in required_group_labels]
+
 # ---------------------------------------------------------------------------
 # Generate
 # ---------------------------------------------------------------------------
@@ -139,7 +208,17 @@ st.divider()
 if st.button("GENERATE LIGANDS", type="primary", use_container_width=True):
     if not require_access():
         st.stop()
+    if not seed_valid:
+        st.error("Cannot generate: the seed SMILES is invalid. Fix or clear it first.")
+        st.stop()
     consume_use()
+
+    # Directed-generation controls: only pass non-default values through.
+    _seed = seed_smiles_in.strip() or None
+    _weights = {"substitution": w_sub, "modification": w_mod, "template": w_tmpl}
+    if (w_sub + w_mod + w_tmpl) <= 0:
+        st.warning("All strategy weights are zero — falling back to the default mix.")
+        _weights = None
 
     spec = LinkerScreeningSpec(
         application_context=application,
@@ -147,6 +226,9 @@ if st.button("GENERATE LIGANDS", type="primary", use_container_width=True):
         require_all_agree=require_all_agree,
         allow_hollow=allow_hollow,
         exclude_elements=exclude if exclude else None,
+        strategy_weights=_weights,
+        seed_smiles=_seed,
+        required_groups=required_groups if required_groups else None,
     )
 
     try:
@@ -169,6 +251,11 @@ if st.button("GENERATE LIGANDS", type="primary", use_container_width=True):
     st.session_state.mof_result = result
     st.session_state.mof_required_donors = required_donors
     st.session_state.mof_exact_atoms = exact_atoms
+    st.session_state.mof_directed = {
+        "strategy_weights": _weights,
+        "seed_smiles": _seed,
+        "required_groups": required_groups or [],
+    }
     st.rerun()
 
 # ---------------------------------------------------------------------------
@@ -329,7 +416,8 @@ if "mof_result" in st.session_state:
                 "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade Designer)",
                 "design_constraints": {
                     "target_atoms": target_atoms,
-                    "required_donors": list(required_donors)
+                    "required_donors": list(required_donors),
+                    "directed_generation": st.session_state.get("mof_directed", {}),
                 },
                 "candidates_audit": [
                     {
