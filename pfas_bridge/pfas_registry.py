@@ -852,8 +852,14 @@ def smiles_is_pfas(smiles: str) -> bool:
     (no H, and not bonded to Cl/Br/I). Returns False for invalid/unparseable
     SMILES or when RDKit is unavailable.
     """
-    if not _RDKIT_AVAILABLE:
+    if not _RDKIT_AVAILABLE or not smiles:
         return False
+    
+    # Heuristic: only attempt RDKit parse if it looks like SMILES 
+    # (prevents massive error logs for names like "HDPE", "Epoxy")
+    if not any(c in smiles for c in "(=#@") and len(smiles) < 10:
+        return False
+        
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return False
@@ -981,10 +987,10 @@ def load_epa_registry(file_path: str = "data/EPA_PFASSTRUCTV4.txt") -> List[Dict
 
 _EPA_REGISTRY_CACHE = None
 
-def get_epa_registry() -> List[Dict]:
+def get_epa_registry(force_reload: bool = False) -> List[Dict]:
     """Get the EPA registry (cached)."""
     global _EPA_REGISTRY_CACHE
-    if _EPA_REGISTRY_CACHE is None:
+    if _EPA_REGISTRY_CACHE is None or force_reload:
         _EPA_REGISTRY_CACHE = load_epa_registry()
     return _EPA_REGISTRY_CACHE
 

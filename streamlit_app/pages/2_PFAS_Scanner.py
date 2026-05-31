@@ -502,18 +502,36 @@ with tab4:
             import pandas as pd
             df_epa = pd.DataFrame(epa_data)
             
+            # Force reload if stale cache detected (missing family column)
+            if "family" not in df_epa.columns:
+                epa_data = get_epa_registry(force_reload=True)
+                df_epa = pd.DataFrame(epa_data)
+
             # Filter UI
             st.markdown("---")
             col_f1, col_f2, col_f3 = st.columns([2, 2, 3])
+            
+            # Ensure family column exists before unique()
+            family_col = "family" if "family" in df_epa.columns else None
+            
             with col_f1:
                 search_q = st.text_input("🔍 Search SMILES or DTXSID", key="epa_search_q")
             with col_f2:
-                family_options = sorted(df_epa["family"].unique())
-                selected_families = st.multiselect("🧬 Chemical Family", family_options, key="epa_family_filter")
+                if family_col:
+                    family_options = sorted(df_epa[family_col].unique())
+                    selected_families = st.multiselect("🧬 Chemical Family", family_options, key="epa_family_filter")
+                else:
+                    selected_families = []
+                    st.info("Family detection initializing...")
             with col_f3:
-                min_fw = float(df_epa["fw"].min() or 0)
-                max_fw = float(df_epa["fw"].max() or 2000)
-                mw_range = st.slider("⚖️ Molecular Weight", min_fw, max_fw, (min_fw, max_fw), key="epa_mw_filter")
+                # Use columns that actually exist
+                fw_col = "fw" if "fw" in df_epa.columns else None
+                if fw_col:
+                    min_fw = float(df_epa[fw_col].min() or 0)
+                    max_fw = float(df_epa[fw_col].max() or 2000)
+                    mw_range = st.slider("⚖️ Molecular Weight", min_fw, max_fw, (min_fw, max_fw), key="epa_mw_filter")
+                else:
+                    mw_range = (0.0, 2000.0)
 
             # Apply Filters
             filtered_df = df_epa.copy()
@@ -522,23 +540,29 @@ with tab4:
                     filtered_df["smiles"].str.contains(search_q, case=False, na=False) | 
                     filtered_df["id"].str.contains(search_q, case=False, na=False)
                 ]
-            if selected_families:
-                filtered_df = filtered_df[filtered_df["family"].isin(selected_families)]
+            if selected_families and family_col:
+                filtered_df = filtered_df[filtered_df[family_col].isin(selected_families)]
             
-            filtered_df = filtered_df[
-                (filtered_df["fw"].fillna(0) >= mw_range[0]) & 
-                (filtered_df["fw"].fillna(0) <= mw_range[1])
-            ]
+            if fw_col:
+                filtered_df = filtered_df[
+                    (filtered_df[fw_col].fillna(0) >= mw_range[0]) & 
+                    (filtered_df[fw_col].fillna(0) <= mw_range[1])
+                ]
 
             st.write(f"Showing **{len(filtered_df)}** of {len(df_epa)} substances")
             
+            # Rename for display
+            display_cols = {
+                "smiles": "Structure (SMILES)", 
+                "id": "DTXSID", 
+                "fw": "Mol Weight",
+                "family": "Chemical Family"
+            }
+            # Only rename columns that exist
+            rename_map = {k: v for k, v in display_cols.items() if k in filtered_df.columns}
+            
             st.dataframe(
-                filtered_df.rename(columns={
-                    "smiles": "Structure (SMILES)", 
-                    "id": "DTXSID", 
-                    "fw": "Mol Weight",
-                    "family": "Chemical Family"
-                }),
+                filtered_df.rename(columns=rename_map),
                 use_container_width=True,
                 hide_index=True,
             )
