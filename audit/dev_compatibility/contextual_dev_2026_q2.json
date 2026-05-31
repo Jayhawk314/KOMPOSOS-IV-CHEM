@@ -136,10 +136,10 @@
       "material_a": "HDPE",
       "material_b": "PP",
       "domain": "polymer",
-      "expected_compatible": true,
-      "citation": "PolymerDatabase.com, polymer blend compatibility notes",
+      "expected_compatible": false,
+      "citation": "Robeson, Polymer Blends: A Comprehensive Review (2007); PE/PP is the canonical immiscible polyolefin blend.",
       "url": "https://polymerdatabase.com/polymer%20physics/Polymer%20Compatibility.html",
-      "evidence_basis": "Polyolefin pairs are commonly blended and co-processed.",
+      "evidence_basis": "HDPE and PP are thermodynamically immiscible (positive Flory-Huggins chi); they phase-separate without a compatibilizer. Co-processing in recycled streams gives weak two-phase blends, not a compatible blend. Relabeled 2026-05-30: prior 'true' used a looser co-processability sense inconsistent with the rest of the polymer set (PP+PET, PS+PP also false).",
       "used_for_tuning": true
     },
     {

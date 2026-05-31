@@ -36,7 +36,9 @@ Python: 3.10+
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
 - Current blind benchmark: `audit/external_blind/compatibility_2026_q8.json` (Frozen 2026-05-27)
 - Q2-Q7 are spent diagnostic evidence.
-- Development benchmark: `41/41`, `100.0%`, `0` skips. (Verified 2026-05-28)
+- Development benchmark: `41/41`, `100.0%`, `0` skips. (Re-verified 2026-05-30 after
+  relabeling HDPE+PP polymer pair to immiscible/incompatible — the Flory-Huggins
+  veto correctly flags it; prior `true` label was thermodynamically wrong.)
 - Q8 blind benchmark: Active and frozen for next validation claim.
 - STT reasoning (Yoneda, Fibration, Rezk) is integrated, calibrated, and wired:
   domain category is built once per process (cached), passed to all three strategies,
