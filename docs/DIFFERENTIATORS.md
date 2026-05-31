@@ -67,8 +67,16 @@ KOMPOSOS occupies a gap none of them fill: **Interpretable, multi-domain, proof-
 - **5-Tier COG Audit**: Every prediction traces through 5 levels of rigor.
 - **Ricci Flow Analysis**: Detects bottleneck interfaces in 6-material cell designs.
 - **Kulik Challenge**: Solves the 22-atom ligand constraint exactly via categorical search.
-- **100% Accuracy**: On Q6 spent diagnostic benchmark.
-- **92% Generalization**: On held-out internal benchmarks.
+- **Directed MOF design**: strategy weights, seed pinning, required groups + a validated
+  grounded funnel (~94% recall on real linkers, AUROC 0.88).
+- **Calibrated, not black-box**: compatibility confidence is a real probability (isotonic,
+  honest out-of-sample ECE 0.072) — a 0.70 means ~70%, with the calibration method chosen
+  by held-out data, not asserted.
+- **PFAS → fits your cell**: replacements ranked by calibrated compatibility with the whole
+  stack (weakest-interface bottleneck), not just "not PFAS."
+- **Development benchmark**: 41/41, 100%, Brier 0.095. Formation-energy MAE 0.304 eV/atom.
+- **Honest blind posture**: no dataset currently held blind; spent diagnostics labeled as
+  such; Q10 sealed. (We don't report tuned numbers as blind claims.)
 
 ---
 

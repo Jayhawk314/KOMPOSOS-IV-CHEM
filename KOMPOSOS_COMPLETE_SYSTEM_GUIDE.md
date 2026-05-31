@@ -1,11 +1,11 @@
 # KOMPOSOS-IV Chemistry - Complete System Guide
 ## Categorical Runtime & Compositional Reasoning Engine
 
-**Version:** 1.6.0
-**Date:** May 22, 2026
+**Version:** 1.7.0
+**Date:** May 30, 2026
 **Author:** James Hawkins
 
-## 2026-05-22 IV-CHEM Update
+## 2026-05-30 IV-CHEM Update
 
 KOMPOSOS-IV-CHEM is a **categorical runtime** for chemistry and materials science. Unlike traditional materials informatics tools or Version III's static bridge pattern, Version IV treats **execution itself as a category**. 
 
@@ -16,11 +16,18 @@ This repo combines:
 - the **OPTIMUS** decision engine for game-theoretic trade-off optimization
 - **Simplicial Type Theory (STT)**: Rigorous structural similarity (Yoneda distance) and transport laws replace heuristic weights.
 
-Current audit state:
-- Q5-derived development tuning: `41/41`, `100.0%`
-- Q6 spent diagnostic: Perfect first blind run
-- Q7 current blind benchmark: `35/35`, `91.4%`, protocol pass true
-- Master audit status: **PASS** (Accuracy, Physical grounding, Computational, Integration)
+Current audit state (source of truth: `audit/dataset_registry.json`):
+- Development tuning: `41/41`, `100.0%`, Brier 0.095.
+- Formation-energy surrogate: MAE **0.304 eV/atom** (−36%; RandomForest sparse-discovery model).
+- Compatibility confidence: **calibrated** (isotonic, out-of-sample ECE 0.072; a 0.70 ≈ 70%).
+- **No dataset is currently blind** (`current_blind_version: null`). Q2–Q8 are spent
+  diagnostics; **Q8 was demoted to spent_diagnostic on 2026-05-29** (latest run 89.5%,
+  not a blind claim). Freeze Q9 before the next blind validation claim. Q10 is sealed.
+- Master audit status: development + computational **PASS**.
+
+Latest features (2026-05-30): **directed MOF generation** (strategy weights, seed pinning,
+required groups), **isotonic compatibility calibration**, and **PFAS → cell-compatible
+alternatives** (replacements ranked by calibrated compatibility with the whole stack).
 
 ---
 
@@ -182,18 +189,24 @@ In Version IV, linker generation is treated as a **Search for Factorizations** i
 The system loads 274 known linkers from Materials Project MOF structures as "Anchor Objects".
 
 **Step 2: Combinatorial Generation (Morphism Deformation)**
-Three strategies are used to generate novel linkers, each represented as a deformation of an existing morphism:
-1. **Functional Group Substitution**: Small perturbations of molecular properties.
-2. **Ring Fusion**: Composing two ring objects into a higher-order structure.
-3. **Saturation/Desaturation**: Adjusting internal bond morphisms.
+Three strategies generate novel linkers, each a deformation of an existing molecule:
+1. **Functional Group Substitution**: swap groups (–OH, –NH₂, –F, …) on a backbone.
+2. **Backbone Modification**: add/remove atoms to resize/reshape a linker.
+3. **Template**: build from application-specific scaffolds (new backbones).
 
-**Step 3: Verification via COG Tier 3 & 4**
-Each candidate passes through 5 independent verdict modules:
-- **Synthesizability**: Retrosynthetic path existence in the category.
-- **Toxicity**: Distance to "Toxic Object" clusters in 120D space.
-- **Stability**: Energy-based coherence check against constraints.
-- **Activity**: Coordination potential verified via ZFC witnesses.
-- **Conductivity**: Homology-based check for π-conjugation.
+**Directed generation (2026-05-30):** the researcher can steer the search instead of
+relying on chance — **strategy-weight sliders** (e.g. substitution-only), **seed-molecule
+pinning** (generate only derivatives of one SMILES), and **required functional groups**
+(every candidate must carry chosen groups, enforced by SMARTS). Turns "slot machine"
+random discovery into "microscope" directed optimization.
+
+**Step 3: Grounded funnel (validated) + descriptor verdicts**
+Candidate quality is scored by a **validated grounded funnel** — chemical sanity, ≥2
+coordinating donor sites, SAscore (synthesizability), donor geometry, plus novelty vs.
+known linkers. **~94% recall on held-out real synthesized linkers, AUROC ~0.88** vs. raw
+generator output. The legacy 5-verdict descriptors (synthesizability/toxicity/stability/
+activity/conductivity) are retained as *unvalidated* dynamic descriptors, not the headline
+claim. A high score is NOT a synthesis guarantee (no wet-lab validation).
 
 ---
 
@@ -248,15 +261,26 @@ Version IV uses **normalized Gaussian typicality** for bond plausibility, ensuri
 
 ## 9. Validation and Benchmarks
 
-### Internal Benchmark (215 unique pairs)
-- **Tuning split** (102 pairs): 96.1% accuracy.
-- **Held-out split** (113 pairs): 92.0% accuracy.
-- **Master Status**: PASS (Stricter 2026-05-22 criteria).
+### Compatibility
+- **Development set**: `41/41`, `100.0%`, Brier 0.095.
+- **Confidence calibration**: isotonic, honest out-of-sample **ECE 0.072** (Brier 0.049),
+  down from raw ~0.194 — the score is now a real probability (a 0.70 ≈ 70%).
+- **Blind status**: **no dataset is currently blind** (`current_blind_version: null`).
+  Q2–Q8 are spent diagnostics; Q8 demoted 2026-05-29 (latest run 89.5%, MCC 0.797,
+  Brier 0.107 — coverage tracking only, NOT a blind claim). Freeze Q9 next. Q10 sealed.
+
+### Formation Energy Surrogate
+- **179 curated (LOO)**: MAE **0.304 eV/atom**, RMSE 0.454; held-out MP MAE 0.133.
+- Intervals conformally calibrated to honest 50/80/95% coverage.
 
 ### MOF Linker Validation
-- **Exact Atom Count**: 100% (50/50 test).
-- **Novelty**: 100% (No duplicates against MP).
-- **Donor atom filter**: 100% pass.
+- **Exact Atom Count**: 100% — the generator never fabricates the count.
+- **Grounded funnel**: ~94% recall on held-out real synthesized linkers, AUROC ~0.88.
+- **Novelty**: scored as 1 − similarity to nearest known linker.
+
+### PFAS Detection
+- 100% specificity on a 25-molecule hard-negative panel; 99.5% concordance with the EPA
+  structural list; catches novel PFAS by name (PubChem) + OECD structural rule.
 
 ---
 
@@ -268,8 +292,11 @@ Version IV uses **normalized Gaussian typicality** for bond plausibility, ensuri
 - Optimize binder selection using OPTIMUS trade-offs.
 
 ### PFAS Compliance
-- Screen bill-of-materials against 2026 EU/US regulations.
+- Screen bill-of-materials against 2026 EU/US regulations (OECD structural rule + EPA list).
 - Generate auditable compliance reports with replacement scoring.
+- **Cell-aware replacements**: list the adjoining materials and each PFAS-free candidate is
+  scored for **calibrated compatibility** against the whole stack, surfacing the weakest
+  interface — "PFAS-free AND compatible with your cell," not just "not PFAS."
 
 ---
 

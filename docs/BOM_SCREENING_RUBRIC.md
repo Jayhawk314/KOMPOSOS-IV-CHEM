@@ -70,12 +70,16 @@ There are 3 layers to PFAS compliance. You need to know where your service sits.
 
 **KOMPOSOS adds:**
 - Application-context replacement scoring (battery binder vs. gasket vs. membrane)
-- Cross-domain compatibility analysis (does the replacement work with your cathode?)
+- **Cell-aware compatibility**: each replacement is scored for **calibrated compatibility**
+  against every adjoining material in the BOM, surfacing the weakest interface — "PFAS-free
+  AND compatible with your cell" (e.g. CMC+SBR is fine for a graphite anode but fails against
+  an NMC811 cathode, so PAN is promoted for a full NMC cell).
+- **Novel-PFAS detection** via the OECD structural rule (name→PubChem→SMILES), not just list-matching
 - Urgency quantification with days-to-deadline
 - Prioritized action plan with risk-if-delayed
 - Full provenance chain (every score traceable to published data)
 
-**No existing compliance platform does application-specific replacement scoring.** Certivo, Assent, GreenSoft, and Source Intelligence all flag PFAS but cannot answer "what replaces PVDF specifically in my battery binder application, and will it work with NMC811?" That's your differentiator.
+**No existing compliance platform does application-specific, cell-aware replacement scoring.** Certivo, Assent, GreenSoft, and Source Intelligence all flag PFAS but cannot answer "what replaces PVDF specifically in my battery binder application, and will it work with NMC811?" — KOMPOSOS answers exactly that, with a calibrated probability. That's your differentiator.
 
 ### Compliance Workflow: Where You Fit in the Client's Process
 
@@ -288,7 +292,8 @@ print(f"Report {report.report_id}: {report.summary}")
 |------|--------------|-------------|
 | **Exact** | Material is in the PFAS registry by name or CAS | High confidence. Report as-is. |
 | **Heuristic** | Detected via brand name (Kynar, Teflon, etc.) | Confirm with client: "Is your Kynar product PVDF-based?" |
-| **Unknown** | Material not recognized by the system | Flag for manual review. Research the material yourself or ask client for SDS (Safety Data Sheet). |
+| **Structural / Structural-resolved** | Not in the registry, but its structure (direct SMILES, or name→PubChem) matches the **OECD structural rule** (CF2/CF3) | High confidence it's a fluorinated/PFAS substance — this catches *novel* PFAS. Note the resolved SMILES in the report. |
+| **Unknown** | Material not recognized and no structure resolvable | Flag for manual review. Research the material yourself or ask client for SDS (Safety Data Sheet). |
 
 ### 4.3 Replacement Verdict Guide
 
@@ -297,6 +302,11 @@ print(f"Report {report.report_id}: {report.summary}")
 | **VALIDATED** | 0.70 - 1.00 | "This replacement is supported by published data and cross-domain compatibility analysis. Recommended for pilot testing." |
 | **CAUTION** | 0.40 - 0.69 | "This replacement shows promise but has limitations in one or more scoring dimensions. Requires additional qualification testing." |
 | **VETOED** | 0.00 - 0.39 | "This replacement does not meet minimum compatibility thresholds for your application. Not recommended." |
+
+> **Cell-aware tip:** when you provide the adjoining materials, each replacement also gets a
+> **calibrated compatibility probability** against the whole stack, and the report surfaces
+> the *weakest interface*. A replacement with great standalone scores can still be VETOED for
+> *your* cell if one interface fails — tell the client the bottleneck material, not just the score.
 
 ### 4.4 What to Review Before Sending
 
@@ -367,9 +377,9 @@ KOMPOSOS Compliance Services
 | Question | Your Answer |
 |----------|------------|
 | "Is this a legal opinion?" | "No. This is a technical screening and compatibility assessment. For legal compliance advice, consult your regulatory counsel. This report gives them the technical evidence they need." |
-| "How accurate are the replacement scores?" | "Replacement scores are based on published material property data, cross-domain compatibility analysis, and 1,575 validated test cases. However, scores indicate compatibility potential -- any replacement should be pilot-tested in your specific application before production use." |
+| "How accurate are the replacement scores?" | "Replacement scores combine published material property data with **cell-aware compatibility** — each candidate is scored against your adjoining materials and the result is a **calibrated probability** (isotonic calibration, honest out-of-sample ECE ~0.07; a 70% means roughly 7 in 10 such pairs are compatible). The compatibility engine is 41/41 on our development benchmark. Scores indicate compatibility *potential* -- any replacement should be pilot-tested in your specific application before production use." |
 | "Can you guarantee compliance?" | "No tool can guarantee compliance because regulations change and material specifications vary. What this report does is identify PFAS exposure, quantify urgency, and provide evidence-based replacement candidates ranked by your specific application context." |
-| "Why should I trust a computational tool?" | "Every score in this report has a provenance chain -- you can trace each number back to published property data, CAS numbers, and peer-reviewed sources. The system runs 1,575 automated validation tests on every build. It's not a black box." |
+| "Why should I trust a computational tool?" | "Every score in this report has a provenance chain -- you can trace each number back to published property data, CAS numbers, and peer-reviewed sources. Compatibility confidence is a *calibrated* probability (not a black-box number), and the engine passes a full regression + calibration test suite on every build. It's not a black box." |
 | "What if a material shows as Unknown?" | "Unknown means the material isn't in our curated database. I'll research it using the Safety Data Sheet (SDS) and add it to the analysis. This typically adds 30-60 minutes to the engagement." |
 
 ---

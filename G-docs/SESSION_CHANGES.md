@@ -1,5 +1,10 @@
 # Session Changes Log (2026-05-29)
 
+> **Later sessions (2026-05-30):** see `SESSION_SUMMARY_2026-05-30_Workbench.md` (Advanced
+> Triage Workbench) and the root `SESSION_SUMMARY.md` (directed MOF generation, isotonic
+> compatibility calibration, PFAS cell-fit). Note: the "Q8 blind set" referenced below was
+> **demoted to spent_diagnostic on 2026-05-29** — no dataset is currently held blind.
+
 This document tracks all files created, modified, or evaluated during this session.
 
 ## 1. Directory Creation

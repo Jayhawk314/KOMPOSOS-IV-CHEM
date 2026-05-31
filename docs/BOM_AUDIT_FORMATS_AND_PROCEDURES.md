@@ -1,7 +1,7 @@
 # BOM Audit Formats & Procedures
 
-**Version:** 1.0.0
-**Last Updated:** 2026-04-03
+**Version:** 1.1.0
+**Last Updated:** 2026-05-30
 **Status:** Production Ready
 
 ## Table of Contents
@@ -387,9 +387,16 @@ ITEM-007,DMC,30,mL,solvent,Mitsubishi,616-38-6
 - Examples: `24937-79-9` → `PVDF`
 - **Confidence:** 100%
 
-#### 4. Unknown Materials
-- Not in KOMPOSOS validated pairs (259 across 6 domains)
-- Not in PFAS registry (35 substances)
+#### 4. Structural Match (Novel PFAS)
+- Name isn't a known substance or brand, but its structure (direct SMILES, or
+  name→PubChem→SMILES) matches the **OECD structural rule** (CF2/CF3 definition)
+- Detection tiers: `structural` (direct SMILES) / `structural_resolved` (via PubChem)
+- **This catches novel PFAS not in any list.** Specificity 100% on a 25-molecule
+  hard-negative panel; 99.5% concordance with the EPA structural list
+- **Confidence:** High (regulatory structural definition); note the resolved SMILES
+
+#### 5. Unknown Materials
+- Not in the registry, not a known brand, and no structure resolvable
 - **Action:** Flag for manual chemical analysis
 
 ### Urgency Levels
@@ -423,6 +430,13 @@ score = (
 - **Score 0.60-0.74:** Good replacement (yellow)
 - **Score 0.40-0.59:** Acceptable replacement (orange)
 - **Score < 0.40:** Poor replacement (red) — not recommended
+
+**Cell-aware ranking (`find_replacements_for_cell`):** when adjoining materials are
+supplied, each replacement is additionally scored for **calibrated compatibility**
+(isotonic, out-of-sample ECE ~0.07) against *every* adjoining material, and the **weakest
+interface (bottleneck)** is surfaced. A replacement with good standalone scores can still
+be unsuitable for *your* cell if one interface fails — the report names the bottleneck
+material. (e.g. CMC+SBR is fine for a graphite anode but fails an NMC811 cathode interface.)
 
 **Domain-Specific Replacements:**
 
@@ -710,10 +724,11 @@ print(f"Multi-domain score: {multi['overall_score']}")
 
 #### 7. Audit Certificate
 - **Audit ID:** PFAS-2026-0403-0001
-- **Auditor:** KOMPOSOS-III LAMBDA-max-3D-chem v1.2.0
-- **Test Suite:** 1,575 passing tests
-- **Database Version:** Internal compatibility benchmark (6 domains), 35 PFAS substances
-- **Verification Method:** Exact match + heuristic + CAS lookup
+- **Auditor:** KOMPOSOS-IV-CHEM
+- **Test Suite:** full regression + calibration suite passing on build
+- **Database Version:** Internal compatibility benchmark (6 domains), 35 PFAS substances + EPA structural dataset
+- **Verification Method:** Exact match + heuristic + CAS lookup + OECD structural rule (PubChem)
+- **Compatibility confidence:** calibrated probability (isotonic, out-of-sample ECE ~0.07)
 - **Validation Status:** PASSED
 - **Materials Screened:** [N]
 - **Detections:** [N]
@@ -825,7 +840,7 @@ print(f"Multi-domain score: {multi['overall_score']}")
 
 **Pre-Release Checklist:**
 
-- [ ] All 1,575 tests pass
+- [ ] Full regression + calibration test suite passes (incl. PFAS, compatibility, MOF)
 - [ ] PFAS registry up-to-date (check ECHA, EPA quarterly)
 - [ ] Replacement scores validated with literature
 - [ ] PDF/DOCX reports render correctly
@@ -1167,11 +1182,12 @@ assert "PAA" in POLYMER_PROPERTIES  # False → fallback triggered
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | 2026-04-03 | Initial release |
+| 1.1.0 | 2026-05-30 | Added structural/novel PFAS detection tier; cell-aware calibrated replacement ranking; calibrated compatibility confidence (isotonic, OOS ECE ~0.07); softened unverifiable test-count claims |
 
 ---
 
-**Document Owner:** KOMPOSOS-III LAMBDA-max-3D-chem Project
-**Last Review:** 2026-04-03
-**Next Review:** 2026-07-03 (quarterly)
+**Document Owner:** KOMPOSOS-IV-CHEM Project
+**Last Review:** 2026-05-30
+**Next Review:** 2026-08-30 (quarterly)
 
-**Status:** ✅ Production Ready — All procedures validated with 1,575 passing tests
+**Status:** ✅ Production Ready — validated by the full regression + calibration test suite

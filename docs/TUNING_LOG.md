@@ -1,6 +1,35 @@
 # KOMPOSOS-IV Bridge Tuning Log
 
-*Updated 2026-05-30 - Formation Energy + Categorical Runtime*
+*Updated 2026-05-30 - Compatibility calibration + Formation Energy + Categorical Runtime*
+
+---
+
+## 2026-05-30: Compatibility Confidence Calibration (isotonic)
+
+### Calibrator selection study (out-of-sample)
+The compatibility score was a ranking signal, not a probability (raw ECE ~0.19). Compared
+calibrators by k-fold **out-of-sample** ECE/Brier on 277 labeled pairs (dev + Q2–Q9; Q10
+sealed) via `audit/fit_compat_calibration.py`:
+
+| method | OOS ECE | OOS Brier |
+|---|---|---|
+| raw | 0.167 | 0.113 |
+| Platt (logistic) | 0.158 | 0.106 |
+| **isotonic** | **0.095** | **0.098** |
+
+**Winner: isotonic** — best out-of-sample, and it is monotonic (preserves ranking).
+
+### Deployment
+- `audit/build_compatibility_calibration.py` now fits a **global isotonic** calibrator on
+  the leak-controlled dev+spent calibration pool (98 deduped rows; current-blind excluded)
+  and stores monotonic `(x, y)` breakpoints + honest k-fold metrics in
+  `audit/calibration/compatibility_calibration_2026_q4_dev.json`
+  (**OOS ECE 0.072, Brier 0.049**; raw ECE 0.194 on the same pool).
+- Runtime `oracle/compatibility_calibration.py` interpolates the breakpoints
+  **dependency-free** and prefers isotonic; binned/domain calibrators remain the fallback.
+- **No score-formula or vote-weight change**; verdicts are unchanged. Development stays
+  **41/41 / 100% / Brier 0.095**; Q8 spent-diagnostic 89.5% (MCC 0.797). 22/22 calibration tests pass.
+- Rebuild: `python audit/build_compatibility_calibration.py`; measure: `python audit/run_compat_calibration.py`.
 
 ---
 

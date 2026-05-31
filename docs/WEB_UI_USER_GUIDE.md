@@ -2,8 +2,8 @@
 
 **Interactive Categorical Reasoning Interface**
 
-Version: 1.7.0
-Date: 2026-05-28
+Version: 1.7.1
+Date: 2026-05-30
 Platform: Streamlit — `streamlit run streamlit_app/app.py`
 
 ---
@@ -21,6 +21,7 @@ Platform: Streamlit — `streamlit run streamlit_app/app.py`
 | **7 — MOF Explorer** | Screen 30 MOFs against operating conditions |
 | **8 — MOF Designer** | Generate novel MOF linkers with atom count and donor-atom control |
 | **9 — Discovery Workbench** | Composition-first pipeline: inverse design → PFAS → compatibility → synthesis |
+| **10 — Advanced Triage Workbench** | Mixed-fidelity: fast triage → ZFC charge-balance gates → multi-domain full-cell context, with surfaced uncertainty |
 
 ---
 
@@ -45,6 +46,10 @@ Two independent reasoning engines are shown side by side:
 |---|---|
 | **Categorical Oracle** | Weighted ensemble of structural, calibration, and transport strategies |
 | **ZFC Logic Oracle** | Hard constraint verification — logical rules derived from known chemistry |
+
+The result also shows a **calibrated probability of compatibility** (isotonic calibration,
+honest out-of-sample ECE ~0.07): a 70% means roughly 7 in 10 such pairs are compatible — a
+real probability now, not just a ranking signal.
 
 The combined verdict is one of four states:
 
@@ -118,11 +123,15 @@ Full JSON of all scores for debugging and programmatic use.
 
 Screens materials against 2026 PFAS regulations.
 
-- **Single Check** — one material against the PFAS registry.
-- **Batch Scan** — screen a full bill of materials.
+- **Single Check** — one material against the registry, brand heuristics, AND the OECD
+  structural rule (name→PubChem→SMILES) so novel PFAS are caught even when unseen by name.
+  Add your cell's **adjoining materials** (one per line) and each PFAS-free replacement is
+  ranked by **calibrated compatibility** with the whole stack, surfacing the weakest
+  interface ("PFAS-free AND compatible with your cell").
+- **Batch Scan** — screen a full bill of materials with detection tiers.
 - **Compliance Report** — generates a 7-section auditable PDF for regulatory filings,
   with replacement candidates scored for specific use cases.
-- **PFAS Registry** — browse the full known-PFAS database.
+- **PFAS Registry** — browse the curated registry + the EPA structural dataset (10,776).
 
 ---
 
@@ -184,8 +193,15 @@ Generate novel MOF linkers with exact atom count and donor-atom control.
 
 - Set target heavy atom count (5–60).
 - Filter by donor atom type (N, O, S, mixed).
-- 5 KOMPOSOS verdicts per candidate: Synthesizability, Toxicity, Stability,
-  Activity, Conductivity.
+- **Grounded funnel (validated)** scores each candidate: chemical sanity, ≥2 coordinating
+  donors, SAscore, donor geometry, + novelty vs. known linkers (~94% recall on real
+  synthesized linkers, AUROC ~0.88). The legacy 5 descriptor verdicts
+  (Synthesizability/Toxicity/Stability/Activity/Conductivity) are shown as *unvalidated* extras.
+- **Directed Generation Controls** (expander): steer the search instead of relying on chance —
+  **strategy-weight sliders** (substitution / backbone modification / template),
+  **seed-molecule pinning** (paste a SMILES to generate only its derivatives), and
+  **required functional groups** (every candidate must carry them). A reproducibility bundle
+  records the exact controls used.
 - SMILES output ready for retrosynthesis tools.
 
 ---
@@ -206,6 +222,24 @@ Current stages:
 
 ---
 
+## Page 10: Advanced Triage Workbench
+
+A **mixed-fidelity** pipeline: fast inverse-design triage, then high-precision
+verification of each candidate.
+
+1. **Fast triage** generates candidate compositions.
+2. **ZFC verification** rejects candidates failing fundamental charge-balance checks.
+3. **Multi-domain context** evaluates each survivor in a full-cell reference system
+   (e.g. against an electrolyte and collector) to catch cross-domain bottlenecks; novel
+   formulas are mapped to a known topological proxy when a registered name is required.
+4. **Uncertainty is surfaced explicitly** (e.g. `4.3 V [4.1–4.5] (conf 0.85)`), so high
+   uncertainty is a visible trigger for deeper structural derivation.
+
+> Triage phase casts a wide net; the precision phase (ZFC + multi-domain) filters out
+> physically impossible hallucinations. Frame results as triage, not lab-validated design.
+
+---
+
 ## Molecule Constraint Search (bottom of Compatibility Checker)
 
 Exact-match search across the 37-molecule molecular library.
@@ -223,14 +257,18 @@ Scores do not change between runs on the same input. The domain category is buil
 from the same pairwise validation rules used in the benchmark audit.
 
 Current benchmark: **41/41 development pairs, 100.0% accuracy, Brier 0.095**
-(verified 2026-05-28). Q8 blind benchmark frozen for next independent validation.
+(verified 2026-05-30). Confidence is **calibrated** (isotonic, out-of-sample ECE ~0.07).
+**No dataset is currently held blind** (`current_blind_version: null`); Q2–Q8 are spent
+diagnostics (Q8 demoted 2026-05-30) — freeze Q9 before the next blind claim. Q10 is sealed.
 
 Audit commands:
 ```powershell
 python audit\run_audit.py --module development
+python audit\build_compatibility_calibration.py   # rebuild calibration
+python audit\run_compat_calibration.py             # measure ECE/Brier
 python audit\run_master_audit.py
 ```
 
 ---
 
-*KOMPOSOS-IV-CHEM | James Ray Hawkins | 2026-05-28*
+*KOMPOSOS-IV-CHEM | James Ray Hawkins | 2026-05-30*

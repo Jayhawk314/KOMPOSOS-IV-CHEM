@@ -30,6 +30,19 @@ the claim type depends on how much the set has been inspected.
   must not inspect the labels or score the set until after the polymer
   chi_c/MW model is implemented.
 
+> **Blind status (registry source of truth):** `current_blind_version: null`. Q2–Q8 are
+> all `spent_diagnostic`. **No dataset is currently held blind.** Freeze Q9 (uninspected
+> recent-literature pairs) before the next blind validation claim.
+
+### Compatibility calibration artifact (2026-05-30)
+- The compatibility score is mapped to a **calibrated probability** by a **global isotonic**
+  calibrator, built only from `development` + `spent_diagnostic` rows (leak-controlled dedup;
+  current-blind excluded) by `audit/build_compatibility_calibration.py`.
+- Artifact: `audit/calibration/compatibility_calibration_2026_q4_dev.json` (monotonic (x,y)
+  breakpoints + honest k-fold metrics). **Out-of-sample ECE 0.072, Brier 0.049** (raw 0.194).
+  Method chosen over raw/Platt by out-of-sample ECE (`audit/fit_compat_calibration.py`).
+- Latest Q8 spent-diagnostic run (post-calibration): 89.5%, MCC 0.797, Brier 0.107.
+
 The first Flory-Huggins $\chi_c$ production fix is now in place. The remaining
 research-grade step is to validate on sealed Q10 after replacing representative
 MW values with cited, grade-specific data where possible.

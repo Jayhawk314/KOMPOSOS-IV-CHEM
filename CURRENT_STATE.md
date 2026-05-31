@@ -1,6 +1,6 @@
 # KOMPOSOS-IV Current State
 
-Date: 2026-05-30 (updated: Formation Energy Accuracy + Stability Framework)
+Date: 2026-05-30 (updated: Directed MOF generation, compatibility calibration, PFAS cell-fit)
 
 ## Project Identity
 
@@ -9,16 +9,34 @@ KOMPOSOS-IV is a **categorical runtime** for multi-domain discovery. It is deplo
 - **Track A (Bio/Pharm)**: Drug repurposing over a curated drug-target-disease graph.
 - **Track C (Chem/Materials)**: Advanced material compatibility and inverse design (Batteries, Polymers, etc.).
 
+## 2026-05-30 Latest Frontier (3 features shipped)
+
+- **Directed MOF generation**: the linker generator went from random discovery to
+  directed optimization — strategy-weight sliders, seed-molecule pinning (generate only
+  derivatives of one SMILES), and required functional groups (hard SMARTS filter).
+- **Compatibility confidence calibration**: scores are now a **calibrated probability**
+  via global **isotonic** calibration. Honest out-of-sample **ECE 0.072** (Brier 0.049),
+  down from raw ~0.194 — a 0.70 now means ~70%. Dev verdicts unchanged (41/41).
+- **PFAS → cell-compatible alternatives**: each PFAS-free replacement is scored against
+  every adjoining material; the calibrated bottleneck (weakest interface) is surfaced, so
+  output is "PFAS-free AND compatible with your cell," not just "not PFAS."
+
 ## 2026-05-30 Accuracy & Stability Frontier
 
 Formation-energy surrogate accuracy improved **36%** (MAE 0.473 → 0.304 eV/atom). Integrated nonlinear sparse-discovery model (RandomForest on leak-free MP split). Fixed name-vs-formula parsing trust bug and duplicate composition leakage. Crystal Dreamer property recovery unchanged (78%, different property path). All regression tests green.
 
 ### Key Accomplishments (2026-05-27 through 2026-05-30)
+- **Directed MOF Generation**: `strategy_weights`, `seed_smiles`, `required_groups` in
+  `mof_bridge/linker_generator.py`, wired to `LinkerScreeningSpec` + MOF Designer UI.
+- **Compatibility Calibration (isotonic)**: `audit/build_compatibility_calibration.py`
+  fits a global isotonic calibrator (OOS ECE 0.072); runtime interpolates dependency-free.
+- **PFAS Cell-Fit**: `find_replacements_for_cell()` ranks replacements by calibrated
+  compatibility with the user's whole stack; fixed a latent `to_dict` bug that broke the
+  old single-material compatibility column.
 - **Formation Energy Accuracy**: MAE **0.304 eV/atom** (−36%), RMSE **0.454** (−40%), median **0.215** (−37%). Sparse-discovery model upgraded from linear ridge to RandomForest; validation: 0.133 eV/atom on 2498 held-out MP materials.
 - **Trust Bug Fixed**: Name-vs-formula parsing (predict("Cordierite") was read as "Co") and duplicate LOO leakage both resolved.
 - **Interval Recalibration**: Confidence intervals now honest at 50/80/95% coverage; conformal factors tighter due to better point predictions.
 - **Simplicial Weight Calibration**: Optimized ensemble weights via grid search (`yoneda=0.75`, `transport=0.25`).
-- **Q8 Blind Benchmark Frozen**: 40 new literature-backed pairs (2024-2026) are registered as the current blind benchmark for the next validation claim.
 - **Rezk Equivalence**: Enabled mathematical material substitution via isomorphic presheaf detection.
 - **Cross-Domain Functors**: Formalized inter-bridge reasoning in the core categorical architecture.
 - **UI Simplicial Visualization**: Added interactive Presheaf Overlap comparison to the Compatibility Checker.
@@ -29,11 +47,15 @@ Formation-energy surrogate accuracy improved **36%** (MAE 0.473 → 0.304 eV/ato
 ## Current Audit State (Verified 2026-05-30)
 
 ### Materials Compatibility (Track C)
-- **Development Set (Q5)**: `41/41`, `100.0%` accuracy (polymer label HDPE+PP corrected 2026-05-29).
-- **Q8 External Blind**: `30/40` scored, `70.0%` accuracy (frozen 2026-05-27; spent diagnostic).
-- **Q9 Blind Diagnostic**: `35/40 = 87.5%` after STT integration (spent diagnostic).
-- **Protocol Status**: **PASS** (Accuracy, Physical grounding, Computational, Integration).
-- **Q10 Sealed Holdout**: 40 unlabeled pairs; labels hidden. Do not score until polymer model complete.
+- **Development Set**: `41/41`, `100.0%` accuracy, Brier 0.095 (polymer label HDPE+PP corrected 2026-05-29).
+- **Blind status**: **No dataset is currently blind** (`current_blind_version: null`).
+  Q2–Q8 are all spent diagnostics. **Q8 was demoted to spent_diagnostic on 2026-05-29**
+  (skip/fail cases inspected; 14/40 identity overlap) — its numbers are coverage/error-family
+  tracking only and must NOT be reported as a blind claim. Freeze Q9 before any new blind claim.
+- **Q8 spent-diagnostic latest run**: 89.5% (TP22/TN12/FP0/FN4), MCC 0.797, Brier 0.107.
+- **Confidence calibration**: isotonic, honest out-of-sample ECE 0.072 (down from raw ~0.194).
+- **Protocol Status**: development + computational **PASS**.
+- **Q10 Sealed Holdout**: 40 unlabeled pairs; labels hidden. Do not score until ready.
 
 ### Formation Energy Surrogate (Track C, new 2026-05-30)
 - **Training Set (179 curated, LOO)**: MAE **0.304 eV/atom**, RMSE **0.454**, median **0.215**.
@@ -53,9 +75,10 @@ Formation-energy surrogate accuracy improved **36%** (MAE 0.473 → 0.304 eV/ato
 - **PFAS Scanner** provides auditable compliance reports.
 
 ## Immediate Next Steps
-1. **Run Q8 Blind Validation**: Report results against `audit/external_blind/compatibility_2026_q8.json` before further scorer tuning.
+1. **Freeze Q9** (uninspected recent-literature pairs) and report it as the next blind claim with full calibration metrics. No dataset is currently blind.
 2. **Expand Workbench Pipelines**: Add CRYSTAL and MOF pipeline modes beyond the current composition-first path.
-3. **Data Leakage Monitoring**: Continuously run `check_data_leakage.py` during dataset expansion to ensure evaluation integrity.
+3. **Crystal Dreamer point accuracy**: target-aware anchors for isolated chemistries (LTO, LiMnO₂).
+4. **Data Leakage Monitoring**: Continuously run `check_data_leakage.py` during dataset expansion to ensure evaluation integrity.
 
 ---
 

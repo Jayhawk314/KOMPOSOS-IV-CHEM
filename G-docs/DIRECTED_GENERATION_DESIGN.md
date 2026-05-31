@@ -1,5 +1,12 @@
 # Design Document: Directed MOF Generation (Reducing Randomness)
 
+> **STATUS: IMPLEMENTED (2026-05-30).** All three controls shipped.
+> `mof_bridge/linker_generator.py` `generate_candidates` accepts `strategy_weights`,
+> `seed_smiles`, and `required_groups` (via `REQUIRED_GROUP_SMARTS`); threaded through
+> `LinkerScreeningSpec` and surfaced in the MOF Designer UI ("Directed Generation Controls").
+> Seed pinning disables the template strategy and warns when seed atom count ≠ target.
+> Required groups are a hard SMARTS filter that also biases template selection.
+
 ## 1. The Problem
 Currently, the `LinkerGenerator` uses a highly stochastic (random) approach. It randomly selects between three strategies:
 1. `substitution` (50% chance): Randomly swapping functional groups on a known linker.

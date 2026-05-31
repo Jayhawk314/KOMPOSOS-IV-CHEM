@@ -15,6 +15,13 @@ This folder contains a comprehensive set of documents describing the KOMPOSOS-IV
 9.  **[PFAS_SCANNER_UPGRADE_DESIGN.md](./PFAS_SCANNER_UPGRADE_DESIGN.md)**: Roadmap for transitioning the PFAS scanner from a static name registry to a generalized, structural OECD SMARTS detector.
 10. **[DRUG_VS_MATERIAL_DESIGN.md](./DRUG_VS_MATERIAL_DESIGN.md)**: Comparative analysis showing why the materials track requires hard-physics ZFC vetoes compared to the graph-based pharmaceutical modules.
 11. **[VALIDATION_STRATEGY_MASTER.md](./VALIDATION_STRATEGY_MASTER.md)**: A comprehensive guide on the required Gold Standard datasets and metric shapes (AUROC vs. Recovery Recall) for auditing every current and future UI pipeline.
+12. **[DIRECTED_GENERATION_DESIGN.md](./DIRECTED_GENERATION_DESIGN.md)**: Directed MOF generation (strategy weights, seed pinning, required groups) — **IMPLEMENTED 2026-05-30**.
+13. **[EXPLORATION_REPORT_2026-05-30.md](./EXPLORATION_REPORT_2026-05-30.md)** + **[SESSION_SUMMARY_2026-05-30_Workbench.md](./SESSION_SUMMARY_2026-05-30_Workbench.md)**: Advanced Triage Workbench (mixed-fidelity: triage → ZFC gates → multi-domain).
+14. **[SESSION_CHANGES.md](./SESSION_CHANGES.md)**: 2026-05-29 session change log (PFAS structural upgrade, polymer χc).
+
+> **Latest (2026-05-30):** compatibility confidence is now calibrated (isotonic, OOS ECE
+> 0.072); directed MOF generation and PFAS cell-compatible alternatives shipped. No dataset
+> is currently held blind (Q8 demoted to spent_diagnostic). See root `SESSION_SUMMARY.md`.
 
 ## Personal Test Space
 

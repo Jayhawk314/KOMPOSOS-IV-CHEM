@@ -1,5 +1,12 @@
 # KOMPOSOS-IV-CHEM: PFAS Scanner Structural Upgrade Design
 
+> **STATUS: IMPLEMENTED.** The structural OECD detector is live in
+> `pfas_bridge/pfas_registry.py` (RDKit SMARTS) with name→PubChem resolution for novel
+> substances (detection tiers: exact / heuristic / structural / structural_resolved / unknown).
+> **Follow-on (2026-05-30): replacements are now cell-aware** — `find_replacements_for_cell`
+> scores each PFAS-free candidate for calibrated compatibility against every adjoining
+> material and surfaces the weakest interface ("PFAS-free AND compatible with your cell").
+
 ## 1. Problem Context
 The current PFAS Scanner (UI Feature #2) operates via the `pfas_bridge` using a static, name-based registry. It contains roughly 30 curated PFAS substances (e.g., PFOA, PFOS) and heuristic brand mappings (e.g., Kynar $\to$ PVDF). 
 

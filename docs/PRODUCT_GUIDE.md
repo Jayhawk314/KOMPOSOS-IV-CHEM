@@ -12,7 +12,9 @@ A battery company picks a cathode, an electrolyte, a binder, a separator, and a 
 
 - Will PEO binder survive the voltage of an NMC811 cathode? (No -- it oxidizes above 3.8V)
 - Is PVDF binder PFAS-regulated? (Yes -- EU ban proposed for 2027)
-- What can replace PVDF? (CMC+SBR, scored 0.84, water-based processing)
+- What can replace PVDF *for my cell*? Each PFAS-free option is scored for calibrated
+  compatibility against your whole stack. (e.g. CMC+SBR is great for a graphite anode but
+  fails against an NMC811 cathode -- so for a full NMC cell the tool promotes PAN instead.)
 - **Synthesis planning**: Tells you HOW to make it ($47/batch solid-state synthesis).
 - **Interpretable Reasoning**: Every score traces back to a citation. Users can distinguish between Literature-Backed data, Cross-Bridge Analysis, and Heuristic Predictions via explicit **Uncertainty Tiers**.
 - **Active Verification (NEW)**: GROMACS molecular dynamics for high-stakes or low-confidence queries when a prepared `.gro`/`.top` input bundle is supplied. Missing inputs produce a no-verdict readiness report, not a fake simulation verdict.
@@ -238,7 +240,7 @@ These are porous crystalline materials used for gas storage, catalysis, separati
 
 All 30 MOFs have DOI citations and experimental data (BET surface area, pore diameter, thermal stability, water stability).
 
-**MOF Linker Inverse Design**: Generate novel organic linkers for MOFs with exact atom count control (5-60 atoms, default 22). 5 KOMPOSOS verdicts (synthesizability, toxicity, stability, activity, conductivity). Donor atom filtering (N, O, S). Built for **Prof. Heather Kulik** (MIT) to solve her #1 LLM challenge: "I just ask it, please design me a ligand that has 22 atoms. I can never get an answer that has 22 atoms." KOMPOSOS guarantees exact count.
+**MOF Linker Inverse Design**: Generate novel organic linkers for MOFs with exact atom count control (5-60 atoms, default 22). Candidates are scored by a **validated grounded funnel** (chemical sanity, ≥2 coordinating donors, SAscore, donor geometry, + novelty vs. known linkers): ~94% recall on held-out real synthesized linkers, AUROC ~0.88. Donor atom filtering (N, O, S). **Directed generation** lets a researcher steer the search — strategy-weight sliders, seed-molecule pinning (only derivatives of one SMILES), and required functional groups. Built for **Prof. Heather Kulik** (MIT) to solve her #1 LLM challenge: "I just ask it, please design me a ligand that has 22 atoms. I can never get an answer that has 22 atoms." KOMPOSOS guarantees exact count.
 
 ### Also: 37 Molecules (molecular-level analysis)
 
@@ -344,9 +346,17 @@ When you give a client their code (e.g., "ATEIOS2026"), they type it in the side
    - Anything containing "fluoro" or "pfas" -> flagged
    - Brand names auto-resolve to base PFAS substance, so heuristic matches get the same quality results as exact matches
 
-3. **Unknown** (detection tier: `unknown`): If neither matches, the material is marked PFAS-FREE.
+3. **Structural / novel match** (detection tier: `structural` or `structural_resolved`):
+   If the name isn't a known substance or brand, the scanner resolves it to a structure
+   (direct SMILES, or name→PubChem→SMILES) and applies the **OECD structural rule**
+   (CF2/CF3 definition). This is what lets it catch a **novel PFAS never seen by name**.
 
-Each result includes a `detection_tier` field (exact/heuristic/unknown) and a `resolved_base` field showing what PFAS substance was identified.
+4. **Unknown** (detection tier: `unknown`): If nothing matches and no structure can be
+   resolved, the material is flagged for manual review (treated as not-detected).
+
+Each result includes a `detection_tier` field (exact/heuristic/structural/structural_resolved/
+unknown) and a `resolved_base`/`resolved_smiles` field showing what was identified.
+Specificity is 100% on a 25-molecule hard-negative panel; 99.5% concordance with the EPA list.
 
 ### What information you need from the client
 
@@ -371,7 +381,14 @@ The scanner works on **names**. If a client gives you "Polymer X" or "Coating 7B
 
 The scanner is a first-pass screening tool, not a lab analysis. It catches the obvious PFAS (PVDF, PTFE, FEP, Nafion) that show up in battery/industrial BOMs. For regulatory filing, the client still needs analytical testing (LC-MS/MS) to confirm.
 
-**Validation Grounding** (updated 2026-05-19): The internal literature benchmark (215 unique pairs) reports **100% accuracy** on tuned pairs and **92.0% accuracy** on held-out generalization. Structure prediction achieved **96% accuracy** after Phase 12 physics refinements. Physical constraints are grounded in empirical distributions from crystallographic databases (Gagne & Hawthorne 2015, ICSD 2020, Vurgaftman 2001) and ColabFit Exchange. High-stakes validation is now supported via integrated **GROMACS Molecular Dynamics**.
+**Validation Grounding** (updated 2026-05-30): The compatibility **development set** is
+**41/41 (100%), Brier 0.095**, and confidence is now a **calibrated probability** (isotonic,
+honest out-of-sample ECE 0.072 — a 0.70 means ~70%). **No dataset is currently held blind**
+(`current_blind_version: null`); Q2–Q8 are spent diagnostics (Q8 demoted 2026-05-30, latest
+run 89.5%) — we do not report tuned numbers as blind claims. Formation-energy surrogate MAE
+**0.304 eV/atom**. Physical constraints are grounded in empirical distributions from
+crystallographic databases (Gagné & Hawthorne 2015, ICSD 2020, Vurgaftman 2001) and ColabFit
+Exchange. High-stakes validation is supported via integrated **GROMACS Molecular Dynamics**.
 
 ---
 
@@ -448,9 +465,9 @@ This is a services component -- you're adding value by curating the data for eac
 
 ### What to show in a demo
 
-1. **PFAS Scanner** (2 minutes): Enter their materials or use the demo BOM. Show the red "PFAS DETECTED" verdicts. Show the replacement analysis with domain-specific scores (Adhesion, Electrolyte, Thermal, Cathode). Download the branded PDF compliance report with their company name on it.
+1. **PFAS Scanner** (2 minutes): Enter their materials or use the demo BOM. Show the red "PFAS DETECTED" verdicts (incl. a *novel* PFAS caught by the structural rule). List their cell's adjoining materials and show each PFAS-free replacement ranked by **calibrated compatibility with their whole stack** (weakest-interface bottleneck). Download the branded PDF compliance report with their company name on it.
 
-2. **Compatibility Checker** (1 minute): Pick two materials from their domain. Show the dual-engine verdict (AGREE/HOLLOW/ORPHAN/REJECT) and 5-scorer breakdown. Show how HOLLOW states catch failures that black-box AI would miss.
+2. **Compatibility Checker** (1 minute): Pick two materials from their domain. Show the dual-engine verdict (AGREE/HOLLOW/ORPHAN/REJECT), the **calibrated probability** (a real %, not a black-box score), and the 5-scorer breakdown. Show how HOLLOW states catch failures that black-box AI would miss.
 
 3. **Composition Predictor** (1 minute): Enter a chemical formula. Show predicted voltage, capacity, structure type, and derived crystal structure with MP provenance. This is the "wow" moment -- it predicts properties from composition alone.
 
@@ -497,7 +514,8 @@ Client says "what about Material X with Material Y?" -- you run the query and gi
 | Is that enough for production? | No -- you add client materials |
 | What does sign-in do? | Limits free analyses (3 demo, custom for clients) |
 | Do you need sign-in for a demo? | No, 3 free scans is enough |
-| How does PFAS detection work? | Name matching against 35 substances + 36 heuristics (incl. 11 brand names) with 3 detection tiers (exact/heuristic/unknown) |
+| How does PFAS detection work? | Name match (35 substances) + brand heuristics + **OECD structural rule via PubChem** for novel PFAS; tiers exact/heuristic/structural/structural_resolved/unknown |
+| What about replacements? | Ranked by **calibrated compatibility with your whole cell** (weakest-interface bottleneck), not just "not PFAS" |
 | What does the client need to provide? | Material names (ideally chemical names, not just trade names) |
 | How do you add materials? | Add entries to `material_properties.py` in the relevant bridge |
 | What's the pricing angle? | PFAS compliance -- EU ban Aug 2026, US EPA Oct 2026 |

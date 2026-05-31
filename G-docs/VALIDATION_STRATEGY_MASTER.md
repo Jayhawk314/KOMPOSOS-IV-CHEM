@@ -11,9 +11,16 @@ Each feature requires a specific "Gold Standard" ground truth dataset and a math
 
 ### 1. Compatibility Checker
 *   **The Task**: Binary classification (Compatible vs. Incompatible) between two materials across continuous interfaces (Battery, Polymer, Ceramic, etc.).
-*   **Gold Standard Data**: The **Q8 External Blind Dataset**. 40 pairs extracted strictly from primary literature, never seen by the model during tuning.
-*   **Metric Shape**: **AUROC** and **Brier Score** (Calibration).
-*   **Current Baseline**: AUROC: 0.9038, Brier Score: 0.119 (Excellent calibration).
+*   **Gold Standard Data**: Tuned **development set** (41 pairs) + **spent diagnostics** Q2–Q8.
+    **No dataset is currently held blind** (`current_blind_version: null`): Q8 was demoted to
+    spent_diagnostic on 2026-05-29 after its skip/fail cases were inspected (14/40 identity
+    overlap). **Freeze Q9 (uninspected recent-literature pairs) before the next blind claim.**
+*   **Metric Shape**: Accuracy/MCC + **Brier Score** and **ECE** (calibration).
+*   **Current Baseline**: Development **41/41 (100%), Brier 0.095**. Confidence is now a
+    **calibrated probability** via global isotonic calibration: honest k-fold **out-of-sample
+    ECE 0.072** (Brier 0.049), chosen over raw/Platt by held-out ECE
+    (`audit/fit_compat_calibration.py`). Q8 spent-diagnostic latest run 89.5%, MCC 0.797.
+    *(The earlier "AUROC 0.9038 on Q8 blind" predates the demotion — Q8 is no longer a blind claim.)*
 
 ### 2. MOF Designer
 *   **The Task**: Generative exact-constraint design (e.g., exactly 22 atoms, exactly 2 Nitrogen donors).
@@ -22,10 +29,11 @@ Each feature requires a specific "Gold Standard" ground truth dataset and a math
 *   **Current Baseline**: 94% Recall on real synthesized linkers, AUROC 0.88 against raw/unfiltered generator output, 100% exact constraint adherence.
 
 ### 3. PFAS Scanner
-*   **The Task**: Binary classification (PFAS vs. Non-PFAS) of massive industrial BOMs.
+*   **The Task**: Binary classification (PFAS vs. Non-PFAS) of massive industrial BOMs, **plus** ranking PFAS-free replacements by compatibility with the user's cell.
 *   **Gold Standard Data**: **EPA CompTox PFASSTRUCT Dataset** (~10,700+ SMILES) and a curated negative set of non-PFAS fluorinated molecules.
 *   **Metric Shape**: **Specificity** (on a hard-negative panel of fluorinated-but-not-PFAS molecules) + **concordance/recall** vs the EPA list. NOT AUROC — a binary OECD substructure rule has no ROC curve.
 *   **Current Baseline**: Specificity **100% on a 25-molecule hard-negative panel**; **99.5% concordance** with EPA PFASSTRUCT v4 (consistency with EPA's structural definition, not independent validation); 4/4 positive controls. (Prior "0.9976 AUROC" was balanced accuracy on 8 negatives; corrected.)
+*   **Replacements (2026-05-30)**: each PFAS-free candidate is scored for **calibrated compatibility** against every adjoining material (`find_replacements_for_cell`); the weakest-interface bottleneck inherits the compatibility calibration above.
 
 ---
 

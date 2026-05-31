@@ -13,10 +13,14 @@ This plan provides a roadmap for future agents to build upon the Accuracy Milest
 - **Status**: Deployed and wired in `oracle/compatibility_ensemble.py`.
 - **Reference**: `docs/AUDIT_CHANGE_LOG.md`.
 
-### ✅ 1.2 Freeze Q8 Blind Benchmark — DONE
+### ⚠️ 1.2 Q8 Blind Benchmark — DEMOTED to spent_diagnostic (2026-05-29)
 - **Result**: `audit/external_blind/compatibility_2026_q8.json`, 40 pairs frozen 2026-05-27.
-- **Audit**: Q8 = 30/40 (70%), spent diagnostic.
-- **Status**: Q9 (87.5%) + Q10 (sealed) complete the blind suite.
+- **Status**: **Demoted from current_blind → spent_diagnostic** because its skip/fail cases
+  were inspected during remediation and 14/40 pairs overlap existing identities (never a
+  clean holdout). `current_blind_version` is now `null` — **no dataset is currently blind.**
+- **Latest Q8 spent-diagnostic run**: 89.5% (TP22/TN12/FP0/FN4), MCC 0.797, Brier 0.107 —
+  coverage/error-family tracking only, NOT a blind claim.
+- **Next**: freeze Q9 (uninspected recent-literature pairs) before the next blind claim.
 
 ### ✅ 1.3 Formation Energy Surrogate Accuracy — DONE (NEW, 2026-05-30)
 Highest-priority triage bottleneck tackled. The forward model accuracy gates all stability/synthesizability screening, and it was the roughest component.
@@ -25,18 +29,34 @@ Highest-priority triage bottleneck tackled. The forward model accuracy gates all
 - **Validation**: 261 composition tests pass; Crystal Dreamer unchanged (78%); all audits green.
 - **Reference**: `docs/FORWARD_MODEL_ACCURACY_2026-05-30.md`, `composition_engine/sparse_mean_model.py`.
 
+### ✅ 1.4 Compatibility Confidence Calibration — DONE (2026-05-30)
+- **Improvement**: scores now map to a **calibrated probability** via global **isotonic**
+  calibration. Honest k-fold **OOS ECE 0.072** (Brier 0.049), down from raw ECE ~0.194.
+- **Method chosen by data**: `audit/fit_compat_calibration.py` (raw 0.167 / Platt 0.158 /
+  isotonic 0.095 OOS on 277 pairs). Stored as monotonic breakpoints; runtime interpolates
+  dependency-free and prefers isotonic, binned/domain as fallback.
+- **No regression**: dev 41/41 / 100% / Brier 0.095; Q8 diag 89.5%; 22/22 calibration tests.
+- **Reference**: `docs/AUDIT_CHANGE_LOG.md`, `oracle/compatibility_calibration.py`.
+
+### ✅ 1.5 Directed MOF Generation — DONE (2026-05-30)
+- Strategy-weight sliders, seed-molecule pinning, and required functional groups in
+  `mof_bridge/linker_generator.py`, wired to `LinkerScreeningSpec` + MOF Designer UI.
+
+### ✅ 1.6 PFAS → Cell-Compatible Alternatives — DONE (2026-05-30)
+- `find_replacements_for_cell()` ranks PFAS-free replacements by calibrated compatibility
+  with the user's whole cell, surfacing the weakest interface. PFAS Scanner Tab 1 updated.
+
 ---
 
-## Phase 2: Triage Calibration & Confidence (High Priority)
-
----
-
-## Phase 2: Triage Confidence & Blind Validation (High Priority)
+## Phase 2: Blind Validation (High Priority)
 
 The formation-energy accuracy is now at screening-grade (0.30 eV/atom). Next frontier is **calibration and blind validation of the whole triage pipeline** (compatibility + formation energy + inverse design together).
 
-### 2.1 Freeze & Validate Compatibility Confidence on Q10
-Compatibility confidence is near its ceiling but not yet validated on a fresh blind benchmark. Q10 is sealed.
+### 2.1 Freeze Q9, then Validate on Q10
+Confidence is now **calibrated** (isotonic, OOS ECE 0.072), but calibration was fit on
+dev+spent diagnostics — it still needs a **fresh blind** confirmation. No dataset is
+currently blind. Freeze Q9 (uninspected recent-literature pairs) and report it first;
+Q10 stays the sealed final exam.
 *   **When Ready**: After polymer model is complete (Flory-Huggins + DKLT).
 *   **Procedure**:
     1. Unseal `audit/external_blind/compatibility_2026_q10_labels_hidden.json`.
@@ -97,9 +117,11 @@ Crystal Dreamer's property recovery is 78% (good), but composition recovery is 6
 *   **Expected Gain**: ~5–10% composition recovery on isolated chemistries (LTO, LiMnO₂).
 
 ### 4.2 PFAS Replacement Coverage Expansion
-Only 4 PFAS have curated replacements. Some candidates (PAA, Alginate) aren't in the polymer compat registry.
-*   **Scope**: Research + add candidates; validate via full compat + formation-energy pipeline.
-*   **Expected**: Higher-quality replacement suggestions for lower-volume PFAS.
+The **cell-compatibility ranking is done** (`find_replacements_for_cell`, calibrated
+bottleneck). Remaining gap is *coverage*: only 4 PFAS have curated replacements, and some
+candidates (PAA, Alginate) aren't in the polymer compat registry so they can't be cell-scored.
+*   **Scope**: Research + add candidates and their compat-registry entries.
+*   **Expected**: Higher-quality, cell-scored replacement suggestions for lower-volume PFAS.
 
 ---
 

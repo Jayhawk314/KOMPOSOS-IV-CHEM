@@ -1,6 +1,6 @@
 # KOMPOSOS-IV Chemistry: Complete Feature Reference
 
-*Updated 2026-05-22 - Version IV Categorical Runtime*
+*Updated 2026-05-30 - Version IV Categorical Runtime*
 
 ---
 
@@ -8,8 +8,8 @@
 
 KOMPOSOS-IV is a **categorical runtime** and **compositional reasoning engine**. It transitions from static database lookups to an **Execution as Category** model ($ \infty $-cosmos).
 
-1. **"Will these materials work together?"** — Checked via Morphism Composition in the runtime category.
-2. **"What properties does this composition have?"** — Predicted via Pointwise Kan Extensions.
+1. **"Will these materials work together?"** — Checked via Morphism Composition in the runtime category. Confidence is a **calibrated probability** (isotonic, out-of-sample ECE 0.072 — a 0.70 means ~70%).
+2. **"What properties does this composition have?"** — Predicted via Pointwise Kan Extensions (formation-energy MAE 0.304 eV/atom, honest calibrated intervals).
 3. **"What composition gives me these properties?"** — Optimized via OPTIMUS Game-Theoretic Search.
 
 No black-box neural networks. No training data. Tiered verification via the COG Engine.
@@ -76,7 +76,12 @@ Loaded via the **Bridge ABC**, providing data for 103K+ materials.
 
 - **Exact Atom Count Control**: Generate linkers with exactly 5-60 heavy atoms.
 - **Search for Factorizations**: Uses the categorical runtime to "grow" molecules.
-- **5-Verdict Screening**: Verified via COG Tier 3/4 (Synthesizability, Toxicity, Stability, Activity, Conductivity).
+- **Grounded funnel (validated)**: chemical sanity, ≥2 coordinating donors, SAscore, donor
+  geometry, + novelty vs. known linkers — **~94% recall on held-out real synthesized
+  linkers, AUROC ~0.88**. (Legacy 5-verdict descriptors retained as unvalidated extras.)
+- **Directed generation (2026-05-30)**: steer the search instead of relying on chance —
+  **strategy-weight sliders**, **seed-molecule pinning** (only derivatives of one SMILES),
+  and **required functional groups** (every candidate must carry them, SMARTS-enforced).
 - **Kulik 22-Atom Challenge**: Guaranteed results for exact heavy atom counts.
 
 ---
@@ -84,8 +89,13 @@ Loaded via the **Bridge ABC**, providing data for 103K+ materials.
 ## 6. PFAS Compliance & Replacement Scoring
 
 - **Regulatory Tracking**: EU/US/Stockholm Convention status for 35+ PFAS substances.
+- **Structural + novel detection**: OECD structural rule (CF2/CF3) + name→PubChem catches
+  PFAS never seen by name. 100% specificity on 25 hard negatives; 99.5% EPA-list match.
 - **Urgency Alerts**: Critical (BANNED) to Low (UNDER_REVIEW).
 - **Application-Specific Scoring**: Replacements scored for specific contexts (e.g., PVDF in Battery vs. PTFE in Gasket).
+- **Cell-compatible alternatives (2026-05-30)**: list your cell's adjoining materials and
+  each PFAS-free replacement is scored for **calibrated compatibility** against all of them,
+  surfacing the weakest interface — "PFAS-free AND compatible with your cell."
 - **Auditable Reports**: 7-section compliance reports with full provenance.
 
 ---

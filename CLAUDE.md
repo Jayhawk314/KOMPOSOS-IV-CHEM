@@ -48,12 +48,45 @@ Python: 3.10+
 
 ### Compatibility & Development Benchmarks
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
-- Current blind benchmark: `audit/external_blind/compatibility_2026_q8.json` (Frozen 2026-05-27)
-- Q2-Q7 are spent diagnostic evidence.
-- Development benchmark: `41/41`, `100.0%`, `0` skips. (Re-verified 2026-05-30 after
-  relabeling HDPE+PP polymer pair to immiscible/incompatible — the Flory-Huggins
-  veto correctly flags it; prior `true` label was thermodynamically wrong.)
-- Q8 blind benchmark: Active and frozen for next validation claim.
+- **No dataset is currently blind** (`current_blind_version: null`). Q2–Q8 are all
+  `spent_diagnostic`. Q8 was demoted from current_blind to spent_diagnostic on
+  2026-05-29 (its skip/fail cases were inspected; 14/40 pairs overlap existing
+  identities — never a clean holdout). **Never report any Q8 number as a blind claim.**
+  Freeze Q9 (uninspected recent-literature pairs) before the next blind validation claim.
+- Development benchmark: `41/41`, `100.0%`, `0` skips, Brier 0.095. (Re-verified
+  2026-05-30 after relabeling HDPE+PP polymer pair to immiscible/incompatible — the
+  Flory-Huggins veto correctly flags it; prior `true` label was thermodynamically wrong.)
+- Q8 spent-diagnostic latest run: 89.5% (TP22/TN12/FP0/FN4), MCC 0.797, Brier 0.107 —
+  coverage/error-family regression tracking only, NOT a blind claim.
+- Q10 is the sealed final exam (labels hashed/hidden); do not score until ready.
+
+### Compatibility Confidence Calibration (2026-05-30)
+- Compatibility scores are mapped to a **calibrated probability** via a global
+  **isotonic** calibrator (chosen over raw/Platt by out-of-sample ECE in
+  `audit/fit_compat_calibration.py`). Honest k-fold **OOS ECE 0.072** (Brier 0.049),
+  down from raw ECE ~0.194. A 0.70 now means ~70% of such pairs are compatible.
+- Built by `audit/build_compatibility_calibration.py` (dev + spent diagnostics only,
+  leak-controlled; current-blind excluded), stored as monotonic (x,y) breakpoints in
+  `audit/calibration/compatibility_calibration_2026_q4_dev.json`. Runtime
+  (`oracle/compatibility_calibration.py`) interpolates them dependency-free and prefers
+  isotonic; binned/domain calibrators remain the fallback. Dev verdicts unchanged.
+- Rebuild: `python audit/build_compatibility_calibration.py`; measure:
+  `python audit/run_compat_calibration.py`.
+
+### MOF Directed Generation (2026-05-30)
+- `mof_bridge/linker_generator.py` `generate_candidates` accepts `strategy_weights`
+  (substitution/modification/template mix), `seed_smiles` (pin to derivatives of one
+  molecule; disables the template strategy), and `required_groups` (hard SMARTS filter
+  + biases template selection). Threaded through `LinkerScreeningSpec` and the MOF
+  Designer UI ("Directed Generation Controls"). Turns random discovery into directed
+  optimization. Grounded funnel (~94% recall on real linkers, AUROC 0.88) unchanged.
+
+### PFAS → Cell-Compatible Alternatives (2026-05-30)
+- `pfas_bridge/replacement_scorer.py` `find_replacements_for_cell()` scores each
+  PFAS-free replacement against every adjoining material and surfaces the **calibrated
+  bottleneck** (weakest interface): output is "PFAS-free AND compatible with your cell."
+  Surfaced in PFAS Scanner Tab 1. (e.g. CMC+SBR is high-quality but its NMC811 interface
+  fails, so PAN is correctly promoted for a full NMC cell.)
 
 ### Core Architecture
 - STT reasoning (Yoneda, Fibration, Rezk) is integrated, calibrated, and wired:
