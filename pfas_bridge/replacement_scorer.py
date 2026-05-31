@@ -34,6 +34,22 @@ class UseCase(Enum):
     GENERAL = "general"
 
 
+# A replacement's use-case IS the role of its interfaces in the product. These
+# are coexistence/dispersion roles (binder, separator, coating, ...) where the
+# compatibility engine's polymer immiscibility veto is the wrong criterion, so we
+# pass the role through to the workflow to activate its role-aware gate. GENERAL
+# stays unset (strict default behaviour preserved).
+_USECASE_TO_INTERFACE_ROLE: Dict[UseCase, Optional[str]] = {
+    UseCase.BATTERY_BINDER: "binder",
+    UseCase.SEAL_GASKET: "seal_gasket",
+    UseCase.MEMBRANE: "membrane",
+    UseCase.WIRE_INSULATION: "wire_insulation",
+    UseCase.NON_STICK_COATING: "non_stick_coating",
+    UseCase.CHEMICAL_RESISTANT_LINER: "chemical_resistant_liner",
+    UseCase.GENERAL: None,
+}
+
+
 @dataclass
 class ReplacementCandidate:
     """A PFAS-free alternative for a specific use case."""
@@ -562,7 +578,8 @@ def find_compatible_replacements(
             comp_res = run_compatibility_workflow(
                 bridge_name,
                 adjoining_material,
-                domain=domain
+                domain=domain,
+                role=_USECASE_TO_INTERFACE_ROLE.get(use_case),
             )
         except Exception:
             # Material might not be in the compatibility registry
@@ -620,7 +637,10 @@ def find_replacements_for_cell(
                 "domain": None, "evaluated": False,
             }
             try:
-                res = run_compatibility_workflow(bridge_name, mat, domain=domain)
+                res = run_compatibility_workflow(
+                    bridge_name, mat, domain=domain,
+                    role=_USECASE_TO_INTERFACE_ROLE.get(use_case),
+                )
                 entry.update(
                     score=res.scores.get("total"),
                     calibrated=res.calibrated_probability,

@@ -61,6 +61,7 @@ _VERDICT_COLORS = {
     "VALIDATED": _GREEN,
     "CAUTION": _AMBER,
     "VETOED": _RED,
+    "REVIEW": (0, 128, 204),  # cell fit not scorable - manual review
 }
 
 # PFAS full names for narrative text
@@ -253,36 +254,23 @@ def _render_cover(pdf: _KompososPDF, report: ReportData):
     # Narrative paragraph
     detected = s.get("detected", 0)
     if detected > 0:
-        # Find nearest future deadline
-        nearest_reg = ""
-        nearest_days = None
-        for tl in report.regulatory_timeline:
-            if tl.days_remaining is not None and tl.days_remaining > 0:
-                if nearest_days is None or tl.days_remaining < nearest_days:
-                    nearest_days = tl.days_remaining
-                    nearest_reg = tl.regulation
-
-        deadline_text = ""
-        if nearest_days is not None:
-            deadline_text = (
-                f" The nearest upcoming deadline is the {nearest_reg}, "
-                f"effective in {nearest_days} days."
-            )
-
         _body_text(
             pdf,
             f"This report screens {n_materials} materials in "
-            f"{client}'s bill of materials against 35 curated PFAS substances "
-            f"mapped to EU, US EPA, and Stockholm Convention regulations. "
-            f"{detected} material(s) contain PFAS compounds subject to "
-            f"current or proposed restrictions.{deadline_text}"
+            f"{client}'s bill of materials against curated PFAS substances and "
+            f"the OECD structural rule, mapped to US (state and federal), EU, and "
+            f"Stockholm Convention regulatory regimes. "
+            f"{detected} material(s) contain PFAS compounds subject to current or "
+            f"proposed restrictions. Specific deadlines vary by jurisdiction and "
+            f"are moving; verify current dates against primary sources."
         )
         _body_text(
             pdf,
             "For each flagged material, this report provides: the specific PFAS "
-            "substance detected, the applicable regulation and deadline, scored "
-            "replacement candidates with application-specific compatibility "
-            "analysis, and a full audit trail traceable to source data."
+            "substance detected, the applicable regulatory regime and status, scored "
+            "replacement candidates with cell-aware compatibility analysis "
+            "(weakest-interface bottleneck), and a full audit trail traceable to "
+            "source data."
         )
     else:
         _body_text(
@@ -302,50 +290,41 @@ def _render_timeline(pdf: _KompososPDF, report: ReportData):
 
     usable = pdf.w - pdf.l_margin - pdf.r_margin
     cols = [
-        ("Date", usable * 0.15),
+        ("Jurisdiction", usable * 0.16),
         ("Regulation", usable * 0.40),
-        ("Scope", usable * 0.22),
-        ("Status", usable * 0.23),
+        ("Scope", usable * 0.20),
+        ("Timeframe", usable * 0.24),
     ]
     _table_header(pdf, cols)
 
+    scope_map = {
+        "banned": "Manufacturing + import ban",
+        "restricted": "Reporting / restriction",
+        "proposed_ban": "Proposed restriction",
+    }
+
     for i, tl in enumerate(report.regulatory_timeline):
-        days_str, days_color = _days_label(tl.days_remaining)
         fill = i % 2 == 1
         if fill:
             pdf.set_fill_color(250, 250, 252)
 
-        # Date column
-        date_str = tl.effective_date or "TBD"
-        if len(date_str) > 4:
-            # Format as "Oct 4, 2026" style
-            try:
-                from datetime import date as _d
-                dt = _d.fromisoformat(date_str)
-                date_str = dt.strftime("%b %d, %Y")
-            except (ValueError, TypeError):
-                pass
-
         pdf.set_font("Helvetica", "", 8)
         pdf.set_draw_color(*_TABLE_BORDER)
         pdf.set_text_color(*_DARK_TEXT)
-        pdf.cell(cols[0][1], 6, date_str, border=1, fill=fill, align="L")
+        pdf.cell(cols[0][1], 6, tl.jurisdiction[:22], border=1, fill=fill, align="L")
         pdf.cell(cols[1][1], 6, tl.regulation[:50], border=1, fill=fill, align="L")
-
-        # Scope - derive from status
-        scope_map = {
-            "banned": "Manufacturing + import ban",
-            "restricted": "Mandatory reporting",
-            "proposed_ban": "Proposed restriction",
-        }
-        scope = scope_map.get(tl.status, tl.status)
-        pdf.cell(cols[2][1], 6, scope[:30], border=1, fill=fill, align="L")
-
-        # Status/Days column with color
-        pdf.set_text_color(*days_color)
-        pdf.set_font("Helvetica", "B", 8)
-        pdf.cell(cols[3][1], 6, days_str, border=1, fill=fill, align="C")
+        pdf.cell(cols[2][1], 6, scope_map.get(tl.status, tl.status)[:26],
+                 border=1, fill=fill, align="L")
+        pdf.cell(cols[3][1], 6, tl.timeframe[:34], border=1, fill=fill, align="L")
         pdf.ln()
+
+    pdf.ln(2)
+    _body_text(
+        pdf,
+        "Timeframes are qualitative by design. Specific deadlines vary by "
+        "jurisdiction and change frequently - verify current dates against "
+        "primary sources (ECHA, US EPA, and state agencies) before filing.",
+    )
 
 
 def _render_detections(pdf: _KompososPDF, report: ReportData):
@@ -589,6 +568,29 @@ def _render_replacements(pdf: _KompososPDF, report: ReportData):
                 f"more domains and require(s) further testing before qualification."
             )
 
+        # Honest fallback: no candidate cleared cell-aware screening.
+        if not validated and not caution:
+            vetoed = [r for r in det.replacements if r.verdict == "VETOED"]
+            review = [r for r in det.replacements if r.verdict == "REVIEW"]
+            if vetoed:
+                v = vetoed[0]
+                rec_parts.append(
+                    f"No curated replacement cleared cell-aware screening for this "
+                    f"stack: each evaluated candidate fails at least one interface "
+                    f"(e.g. {v.name} at its {v.cell_bottleneck_material} interface). "
+                    f"This narrows the problem to a specific interface rather than "
+                    f"endorsing a drop-in swap."
+                )
+            if review:
+                rec_parts.append(
+                    f"{', '.join(r.name for r in review)} could not be scored "
+                    f"in-cell (not in the compatibility registry) and need manual review."
+                )
+            rec_parts.append(
+                "Recommend lab evaluation / interface engineering rather than a "
+                "direct substitution."
+            )
+
         if rec_parts:
             pdf.set_font("Helvetica", "B", 9)
             pdf.set_text_color(*_NAVY)
@@ -802,10 +804,14 @@ def _render_methodology(pdf: _KompososPDF, report: ReportData):
 
     _body_text(
         pdf,
-        "Compatibility scores represent multi-domain analysis: each replacement is "
-        "scored against the cathode, electrolyte environment, thermal stability, and "
-        "mechanical adhesion simultaneously using cross-bridge functors. Scores above "
-        "0.75 are classified VALIDATED; 0.60-0.75 CAUTION; below 0.60 VETOED."
+        "Replacement analysis is cell-aware: each candidate is scored (calibrated, "
+        "isotonic) against every remaining material in the cell, and the WEAKEST "
+        "interface (the bottleneck) governs the verdict - a strong standalone score "
+        "does not override a failing interface. Verdicts: VALIDATED (bottleneck "
+        "compatible and well-supported), CAUTION (bottleneck marginal), VETOED "
+        "(an interface fails), REVIEW (cell fit could not be scored - manual review; "
+        "NOT promoted on standalone score alone). Calibrated values have limited "
+        "resolution in the low band; verify low-bottleneck cases by test."
     )
 
     # NEW: Data Fidelity section

@@ -126,6 +126,46 @@ class PolymerWeights:
             aging=0.35,
         )
 
+    @classmethod
+    def coexistence_focus(cls) -> 'PolymerWeights':
+        """Weights for interfaces where the two polymers COEXIST rather than
+        form a single miscible phase (binder dispersions, binder vs separator,
+        coatings, liners). Miscibility is not the governing criterion here — what
+        matters is whether they chemically attack each other and survive aging —
+        so solubility is heavily de-emphasized and chemical resistance/aging lead.
+        """
+        return cls(
+            solubility=0.10,
+            thermal=0.25,
+            mechanical=0.15,
+            chemical_resistance=0.30,
+            aging=0.20,
+        )
+
+
+# Interface roles where two polymers COEXIST (dispersion / adjacent layers /
+# coating-on-substrate) rather than being asked to form one miscible phase.
+# For these, the Flory-Huggins immiscibility veto is the WRONG criterion
+# (e.g. CMC+SBR is the industry-standard aqueous binder, used together as a
+# dispersion; CMC vs PP separator merely coexist). The veto is gated off for
+# these roles. Any other role — including None/unknown and explicit blend/alloy
+# roles — keeps the strict veto, preserving blend-miscibility behaviour.
+COEXISTENCE_INTERFACE_ROLES = frozenset({
+    "binder", "binder_dispersion", "dispersion",
+    "separator", "membrane",
+    "coating", "non_stick_coating", "insulation", "wire_insulation",
+    "seal", "gasket", "seal_gasket",
+    "liner", "chemical_resistant_liner",
+    "current_collector", "encapsulant", "coexisting",
+})
+
+
+def _is_coexistence_role(role: Optional[str]) -> bool:
+    """True if `role` is a coexistence/dispersion interface (veto should be gated off)."""
+    if not role:
+        return False
+    return role.strip().lower().replace("-", "_").replace(" ", "_") in COEXISTENCE_INTERFACE_ROLES
+
 
 class PolymerInterfaceValidator:
     """
@@ -153,6 +193,7 @@ class PolymerInterfaceValidator:
         polymer_a: str,
         polymer_b: str,
         conditions: Optional[PolymerConditions] = None,
+        interface_role: Optional[str] = None,
     ) -> PolymerInterfaceScore:
         """
         Validate an interface between two polymers by name.
@@ -161,6 +202,11 @@ class PolymerInterfaceValidator:
             polymer_a: Name/abbreviation of first polymer
             polymer_b: Name/abbreviation of second polymer
             conditions: Optional operating conditions
+            interface_role: Optional role of the interface. For coexistence/
+                dispersion roles (binder, separator, coating, ...) the
+                Flory-Huggins immiscibility veto is gated off and solubility is
+                de-emphasized; for blend/alloy/unknown roles the strict veto
+                applies (default).
 
         Returns:
             PolymerInterfaceScore with component breakdown
@@ -175,13 +221,14 @@ class PolymerInterfaceValidator:
         if mat_b is None:
             raise ValueError(f"Unknown polymer: '{polymer_b}'")
 
-        return self.validate_materials(mat_a, mat_b, conditions)
+        return self.validate_materials(mat_a, mat_b, conditions, interface_role)
 
     def validate_materials(
         self,
         material_a: PolymerMaterial,
         material_b: PolymerMaterial,
         conditions: Optional[PolymerConditions] = None,
+        interface_role: Optional[str] = None,
     ) -> PolymerInterfaceScore:
         """
         Validate an interface between two PolymerMaterial objects.
@@ -215,13 +262,19 @@ class PolymerInterfaceValidator:
             scores, material_a, material_b, conditions
         )
 
+        # Role-aware gate: for coexistence/dispersion interfaces, miscibility is
+        # not the governing criterion, so down-weight solubility and (below) skip
+        # the immiscibility veto. Unknown/blend roles keep the default weights.
+        coexistence = _is_coexistence_role(interface_role)
+        weights = PolymerWeights.coexistence_focus() if coexistence else self.weights
+
         # Weighted composite
         total = (
-            self.weights.solubility * scores['solubility'] +
-            self.weights.thermal * scores['thermal'] +
-            self.weights.mechanical * scores['mechanical'] +
-            self.weights.chemical_resistance * scores['chemical_resistance'] +
-            self.weights.aging * scores['aging']
+            weights.solubility * scores['solubility'] +
+            weights.thermal * scores['thermal'] +
+            weights.mechanical * scores['mechanical'] +
+            weights.chemical_resistance * scores['chemical_resistance'] +
+            weights.aging * scores['aging']
         )
 
         # Collect details
@@ -248,7 +301,18 @@ class PolymerInterfaceValidator:
         fh = assess_flory_huggins(material_a, material_b)
         all_details['flory_huggins'] = fh.to_dict()
 
-        if fh.miscible is False:
+        if coexistence:
+            # Coexistence/dispersion interface: immiscibility is expected and fine
+            # (e.g. CMC+SBR aqueous binder, CMC binder vs PP separator). Skip the
+            # Flory-Huggins phase-separation veto entirely — it is the wrong
+            # criterion here. Chemical-resistance/aging (now weighted up) still
+            # drive viability through `total`.
+            all_details['role_gate'] = (
+                f"coexistence interface (role={interface_role}): Flory-Huggins "
+                "immiscibility veto skipped; solubility down-weighted "
+                "(coexistence_focus weights)"
+            )
+        elif fh.miscible is False:
             is_viable = False
             total = min(total, 0.35)
             all_details['veto'] = (
@@ -365,10 +429,16 @@ def validate_interface(
     polymer_a: str,
     polymer_b: str,
     conditions: Optional[PolymerConditions] = None,
+    interface_role: Optional[str] = None,
 ) -> PolymerInterfaceScore:
-    """Convenience function for quick interface validation."""
+    """Convenience function for quick interface validation.
+
+    `interface_role` is forwarded to the validator's role-aware gate; the shared
+    compatibility service (`_call_validator`) auto-supplies it from the request
+    context, so coexistence/dispersion interfaces skip the immiscibility veto.
+    """
     validator = PolymerInterfaceValidator()
-    return validator.validate(polymer_a, polymer_b, conditions)
+    return validator.validate(polymer_a, polymer_b, conditions, interface_role)
 
 
 if __name__ == "__main__":

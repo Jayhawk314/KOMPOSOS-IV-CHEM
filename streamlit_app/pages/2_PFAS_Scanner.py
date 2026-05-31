@@ -455,24 +455,29 @@ with tab3:
                                 )
                                 st.caption("Evidence: 'Literature Backed' (experimental) | 'Cross-Bridge' (physics) | 'Heuristic' (rules)")
 
-                # Regulatory timeline
+                # Regulatory landscape (date-free by design)
                 if report.regulatory_timeline:
-                    st.subheader("Regulatory Timeline")
+                    st.subheader("Regulatory Landscape")
+                    _STATUS_ICON = {
+                        "banned": URGENCY_COLORS.get("critical", ""),
+                        "proposed_ban": URGENCY_COLORS.get("high", ""),
+                        "restricted": URGENCY_COLORS.get("moderate", ""),
+                    }
                     tl_rows = []
                     for t in report.regulatory_timeline:
-                        status_icon = URGENCY_COLORS.get(
-                            "critical" if (t.days_remaining is not None and t.days_remaining < 0) else
-                            "high" if (t.days_remaining is not None and t.days_remaining < 180) else
-                            "moderate", ""
-                        )
                         tl_rows.append({
-                            "": status_icon,
+                            "": _STATUS_ICON.get(t.status, ""),
                             "Jurisdiction": t.jurisdiction,
                             "Regulation": t.regulation,
-                            "Effective": t.effective_date or "TBD",
-                            "Days Remaining": t.days_remaining if t.days_remaining is not None else "N/A",
+                            "Status": t.status.replace("_", " ").title(),
+                            "Timeframe": t.timeframe,
                         })
                     st.dataframe(pd.DataFrame(tl_rows), use_container_width=True, hide_index=True)
+                    st.caption(
+                        "Timeframes are qualitative. Specific deadlines vary by "
+                        "jurisdiction and change frequently — verify current dates "
+                        "against primary sources before filing."
+                    )
 
                 # Action plan
                 if report.action_plan:

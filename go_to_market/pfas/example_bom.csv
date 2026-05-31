@@ -1,0 +1,14 @@
+material_name,function,cas_number,quantity,unit
+NMC811,cathode active material,,45.0,kg
+Graphite,anode active material,,30.0,kg
+PVDF,cathode binder,24937-79-9,2.5,kg
+CMC,anode binder,9004-32-4,1.0,kg
+SBR,anode binder,9003-55-8,0.8,kg
+PTFE,separator coating,9002-84-0,0.5,kg
+EC,electrolyte solvent,96-49-1,8.0,kg
+DMC,electrolyte solvent,616-38-6,8.0,kg
+LiPF6,electrolyte salt,21324-40-3,4.0,kg
+Cu foil,anode current collector,7440-50-8,12.0,kg
+Al foil,cathode current collector,7429-90-5,8.0,kg
+PP,separator,9003-07-0,3.0,kg
+Carbon Black,conductive additive,1333-86-4,1.5,kg

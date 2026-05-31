@@ -8,7 +8,7 @@ object with 7 sections: executive summary, regulatory timeline,
 screening results, replacement analysis with provenance, action plan,
 methodology, and audit certificate.
 
-Wires together existing modules — does NOT reimplement PFAS screening
+Wires together existing modules  - does NOT reimplement PFAS screening
 or compatibility scoring.
 
 Usage:
@@ -32,7 +32,11 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
 from pfas_bridge.compliance_checker import PFASComplianceChecker, ComplianceResult
-from pfas_bridge.replacement_scorer import UseCase, ReplacementCandidate
+from pfas_bridge.replacement_scorer import (
+    UseCase,
+    ReplacementCandidate,
+    find_replacements_for_cell,
+)
 
 # Cross-bridge scoring for domain-specific replacement analysis
 try:
@@ -82,6 +86,11 @@ class ReplacementWithProvenance:
     evidence_tier: str = "Heuristic Prediction" # NEW: Quality tier
     domain_scores: Dict[str, float] = field(default_factory=dict)
     cross_bridge_details: Dict[str, Any] = field(default_factory=dict)
+    # Cell-aware compatibility (calibrated, against the whole remaining cell)
+    cell_bottleneck_material: Optional[str] = None
+    cell_bottleneck_calibrated: Optional[float] = None
+    cell_interfaces_evaluated: int = 0
+    cell_interface_scores: Dict[str, Optional[float]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -98,6 +107,13 @@ class ReplacementWithProvenance:
             "evidence_tier": self.evidence_tier,
             "domain_scores": self.domain_scores,
             "cross_bridge_details": self.cross_bridge_details,
+            "cell_bottleneck_material": self.cell_bottleneck_material,
+            "cell_bottleneck_calibrated": (
+                round(self.cell_bottleneck_calibrated, 4)
+                if self.cell_bottleneck_calibrated is not None else None
+            ),
+            "cell_interfaces_evaluated": self.cell_interfaces_evaluated,
+            "cell_interface_scores": self.cell_interface_scores,
         }
 
 
@@ -130,12 +146,17 @@ class PFASDetection:
 
 @dataclass
 class RegulatoryTimeline:
-    """A single regulatory deadline."""
+    """A regulatory regime relevant to the BOM.
+
+    Intentionally date-free: we carry a *qualitative* timeframe (In force /
+    Near-term / In progress / Pending) rather than hardcoded effective dates,
+    which go stale and create lock-in. The report directs the reader to verify
+    current dates against primary sources.
+    """
     jurisdiction: str
     regulation: str
     status: str
-    effective_date: Optional[str]
-    days_remaining: Optional[int]
+    timeframe: str
     substances_affected: int
 
     def to_dict(self) -> Dict[str, Any]:
@@ -143,8 +164,7 @@ class RegulatoryTimeline:
             "jurisdiction": self.jurisdiction,
             "regulation": self.regulation,
             "status": self.status,
-            "effective_date": self.effective_date,
-            "days_remaining": self.days_remaining,
+            "timeframe": self.timeframe,
             "substances_affected": self.substances_affected,
         }
 
@@ -249,13 +269,36 @@ def _extract_replacement_provenance(
 def _compute_verdict(
     candidate: ReplacementCandidate,
     provenance: List[Dict[str, Any]],
+    bottleneck_calibrated: Optional[float] = None,
+    bottleneck_viable: Optional[bool] = None,
+    interfaces_evaluated: int = 0,
+    cell_context: bool = False,
 ) -> str:
-    """Determine verdict: VALIDATED / CAUTION / VETOED.
+    """Determine verdict: VALIDATED / CAUTION / VETOED / REVIEW.
 
-    - VALIDATED: overall_score >= 0.7 and at least 3 provenance entries
-    - CAUTION: overall_score >= 0.4
-    - VETOED: overall_score < 0.4
+    Cell-aware (`cell_context=True`): the *weakest interface* (bottleneck)
+    governs - a replacement with a great standalone score is still VETOED if one
+    interface in the cell fails. If cell context was attempted but NO interface
+    could be scored, the verdict is **REVIEW** (we cannot claim cell fit) - it is
+    NOT promoted to VALIDATED on the standalone score alone, which would let an
+    unscored candidate masquerade as validated.
+
+    Standalone (`cell_context=False`, the 2-arg call): score-based verdict,
+    preserved for backward compatibility.
     """
+    if cell_context:
+        if interfaces_evaluated and bottleneck_calibrated is not None:
+            if bottleneck_viable is False or bottleneck_calibrated < 0.40:
+                return "VETOED"
+            if bottleneck_calibrated < 0.70:
+                return "CAUTION"
+            if candidate.overall_score >= 0.7 and len(provenance) >= 3:
+                return "VALIDATED"
+            return "CAUTION"
+        # Cell context, but no interface could be scored -> needs manual review.
+        return "REVIEW"
+
+    # Standalone fallback (no cell context at all)
     if candidate.overall_score >= 0.7 and len(provenance) >= 3:
         return "VALIDATED"
     elif candidate.overall_score >= 0.4:
@@ -268,87 +311,80 @@ def _compute_verdict(
 # Regulatory timeline builder
 # ---------------------------------------------------------------------------
 
+# Generic, date-free regulatory landscape. We deliberately do NOT hardcode
+# effective dates: specific deadlines move, vary by state, and go stale, and a
+# wrong date in a client report is a credibility/liability risk. Each regime
+# carries a qualitative `timeframe` + `status`; the report tells the reader to
+# verify current dates against primary sources. (Maintained date detail for your
+# own reference, not baked into deliverables: go_to_market/pfas/COMPLIANCE_CLOCK_2026.md.)
 _KNOWN_REGULATIONS = [
     {
-        "jurisdiction": "EU",
-        "regulation": "PFHxA restriction (C6 PFCAs)",
-        "status": "proposed_ban",
-        "effective_date": date(2026, 10, 1),
-        "description": "EU-wide restriction on PFHxA and related C6 PFCAs",
-    },
-    {
-        "jurisdiction": "EU",
-        "regulation": "Universal PFAS restriction",
-        "status": "proposed_ban",
-        "effective_date": date(2027, 6, 1),
-        "description": "Broad restriction on all PFAS (5000+ substances)",
-    },
-    {
-        "jurisdiction": "EU",
-        "regulation": "PFOA + C9-C14 PFCA ban",
-        "status": "banned",
-        "effective_date": date(2020, 7, 4),
-        "description": "REACH Annex XVII entry 68",
-    },
-    {
-        "jurisdiction": "Stockholm Convention",
-        "regulation": "PFOS elimination",
-        "status": "banned",
-        "effective_date": date(2009, 5, 22),
-        "description": "Annex A/B listing",
-    },
-    {
-        "jurisdiction": "US",
-        "regulation": "EPA PFAS reporting",
+        "jurisdiction": "US (state)",
+        "regulation": "State PFAS reporting & product restrictions "
+                      "(e.g. MN, ME, NM, CA, CO, WA)",
         "status": "restricted",
-        "effective_date": date(2024, 1, 1),
-        "description": "Mandatory reporting for PFAS manufacturers/importers",
+        "timeframe": "Near-term - earliest reporting/label deadlines already "
+                     "active; staggered by state",
+        "order": 0,
     },
     {
-        "jurisdiction": "US",
-        "regulation": "EPA MCL (drinking water)",
+        "jurisdiction": "US (federal)",
+        "regulation": "EPA TSCA PFAS reporting",
         "status": "restricted",
-        "effective_date": date(2024, 4, 10),
-        "description": "Maximum contaminant levels for PFOA/PFOS (4 ppt), GenX (10 ppt)",
+        "timeframe": "Pending / in flux - start date being finalized",
+        "order": 1,
+    },
+    {
+        "jurisdiction": "EU",
+        "regulation": "REACH universal PFAS restriction (proposal)",
+        "status": "proposed_ban",
+        "timeframe": "In progress - multi-year; application not imminent; sector "
+                     "derogations under discussion",
+        "order": 2,
+    },
+    {
+        "jurisdiction": "EU",
+        "regulation": "PFOA / C9-C14 PFCA restriction (REACH Annex XVII)",
+        "status": "banned",
+        "timeframe": "In force",
+        "order": 3,
+    },
+    {
+        "jurisdiction": "Global",
+        "regulation": "Stockholm Convention POPs (PFOS, PFOA, PFHxS)",
+        "status": "banned",
+        "timeframe": "In force",
+        "order": 4,
+    },
+    {
+        "jurisdiction": "US (federal)",
+        "regulation": "EPA drinking-water MCLs (water systems, not articles)",
+        "status": "restricted",
+        "timeframe": "In force",
+        "order": 5,
     },
 ]
 
 
 def _build_regulatory_timeline(
     detections: List[PFASDetection],
-    reference_date: date,
+    reference_date: Optional[date] = None,
 ) -> List[RegulatoryTimeline]:
-    """Build regulatory timeline with days_remaining."""
-    # Gather which jurisdictions are relevant
-    jurisdictions = set()
-    for det in detections:
-        for reg in det.regulations:
-            jurisdictions.add(reg.get("jurisdiction", ""))
+    """Build the (date-free) regulatory landscape, ordered most-urgent-first.
 
+    `reference_date` is accepted for backward compatibility but unused — the
+    timeline is qualitative by design (no hardcoded dates to go stale).
+    """
+    n_affected = len(detections)  # every detected PFAS is in scope of PFAS regimes
     timelines: List[RegulatoryTimeline] = []
-    for reg_info in _KNOWN_REGULATIONS:
-        eff = reg_info.get("effective_date")
-        days_remaining = (eff - reference_date).days if eff else None
-
-        # Count affected substances in this report
-        affected = 0
-        for det in detections:
-            for r in det.regulations:
-                if r.get("jurisdiction") == reg_info["jurisdiction"]:
-                    affected += 1
-                    break
-
+    for reg_info in sorted(_KNOWN_REGULATIONS, key=lambda r: r["order"]):
         timelines.append(RegulatoryTimeline(
             jurisdiction=reg_info["jurisdiction"],
             regulation=reg_info["regulation"],
             status=reg_info["status"],
-            effective_date=eff.isoformat() if eff else None,
-            days_remaining=days_remaining,
-            substances_affected=affected,
+            timeframe=reg_info["timeframe"],
+            substances_affected=n_affected,
         ))
-
-    # Sort by days_remaining (soonest first, None last)
-    timelines.sort(key=lambda t: t.days_remaining if t.days_remaining is not None else 99999)
     return timelines
 
 
@@ -480,7 +516,7 @@ class PFASComplianceReport:
     - Provenance extraction for audit trails
     """
 
-    ENGINE_VERSION = "1.2.0"
+    ENGINE_VERSION = "1.3.0"
 
     def __init__(self, reference_date: Optional[date] = None):
         self.reference_date = reference_date or date.today()
@@ -507,18 +543,28 @@ class PFASComplianceReport:
         # Detect cathode material from BOM for cross-bridge scoring
         cathode_name = self._detect_cathode(materials)
 
-        # Screen all materials
+        # Pass 1: classify every BOM line.
+        screened = [
+            (mat, self._map_function_to_use_case(mat.function, use_case))
+            for mat in materials
+        ]
+        screened = [(mat, uc, self.checker.check(mat.name, use_case=uc))
+                    for (mat, uc) in screened]
+
+        # The "cell" a replacement must live in = the materials that REMAIN
+        # (the clean lines). Other detected-PFAS lines are themselves leaving, so
+        # scoring a replacement against them would be misleading.
+        clean_cell = [m.name for (m, _uc, r) in screened if not r.is_pfas]
+
+        # Pass 2: build detections (cell-aware replacements) and clean list.
         detections: List[PFASDetection] = []
         clean_materials: List[Dict[str, Any]] = []
 
-        for mat in materials:
-            # Map function to use_case if specific
-            uc = self._map_function_to_use_case(mat.function, use_case)
-            result = self.checker.check(mat.name, use_case=uc)
-
+        for mat, uc, result in screened:
             if result.is_pfas:
                 replacements_with_prov = self._build_replacements(
-                    result, cathode_name=cathode_name,
+                    result, clean_cell=clean_cell, use_case=uc,
+                    cathode_name=cathode_name,
                 )
 
                 pfas_name = "unknown"
@@ -572,8 +618,11 @@ class PFASComplianceReport:
                 "Stockholm Convention on POPs",
                 "US EPA PFAS Strategic Roadmap",
             ],
-            "scoring_method": "Weighted composite: 40% performance + 20% processability "
-                              "+ 20% cost + 20% availability",
+            "scoring_method": "Replacement quality (40% performance + 20% processability "
+                              "+ 20% cost + 20% availability), then CELL-AWARE calibrated "
+                              "compatibility against every remaining material  - the weakest "
+                              "interface (bottleneck) governs the verdict. Calibration is "
+                              "isotonic (out-of-sample ECE ~0.07).",
             "validation_stats": {
                 "pfas_registry_size": 35,
                 "replacement_candidates": 30,
@@ -581,9 +630,16 @@ class PFASComplianceReport:
                 "pass_rate": "100%",
             },
             "caveats": [
-                "Scores based on published literature data; pilot testing recommended",
-                "Heuristic detection may produce false positives for non-PFAS fluorinated materials",
-                "Regulatory dates based on current proposals; subject to legislative changes",
+                "Triage aid  - NOT a compliance determination or legal advice; not a "
+                "substitute for analytical lab testing (EPA 533/537.1, TOF/TOP).",
+                "Replacement ranking has no held-out baseline yet; treat as triage, not "
+                "validated recommendation.",
+                "Calibrated compatibility is a probability, but resolution is poor in the "
+                "raw 0.35-0.55 band (calibration floor)  - verify low-bottleneck cases.",
+                "Heuristic detection may flag non-PFAS fluorinated materials for review.",
+                "Regulatory dates corrected per go_to_market/pfas/COMPLIANCE_CLOCK_2026.md; "
+                "US-state deadlines are the near-term teeth, EU restriction would not apply "
+                "before 2029. Still verify against primary sources before filing.",
                 f"Report generated relative to reference date {self.reference_date.isoformat()}",
             ],
         }
@@ -599,7 +655,7 @@ class PFASComplianceReport:
                 "PFAS Substance Registry v1.0 (35 substances)",
                 "PFAS Replacement Scorer v1.0 (30+ candidates)",
             ],
-            "methodology_hash": "sha256:pfas-report-v1.2.0",
+            "methodology_hash": "sha256:pfas-report-v1.3.0",
         }
 
         return ReportData(
@@ -624,28 +680,75 @@ class PFASComplianceReport:
     def _build_replacements(
         self,
         result: ComplianceResult,
+        clean_cell: List[str],
+        use_case: UseCase,
         cathode_name: Optional[str] = None,
     ) -> List[ReplacementWithProvenance]:
-        """Wrap replacement candidates with provenance chains and cross-bridge scores."""
-        replacements: List[ReplacementWithProvenance] = []
-        for cand in result.replacements:
-            prov = _extract_replacement_provenance(cand)
-            verdict = _compute_verdict(cand, prov)
+        """Cell-aware replacement analysis.
 
-            # Cross-bridge domain-specific scores
+        Each PFAS-free candidate is scored (calibrated) against EVERY remaining
+        material in the cell via `find_replacements_for_cell`, and the weakest
+        interface (bottleneck) is surfaced. Candidates are ordered honestly:
+        interface-evaluated first (best bottleneck first), then candidates whose
+        interfaces could not be scored ("manual review"). Cross-bridge cathode
+        scores are retained as a supplementary detail.
+        """
+        # Replacement key the scorer understands (abbreviation / resolved base).
+        key = None
+        if result.pfas_substance is not None:
+            key = result.pfas_substance.abbreviation
+        elif result.resolved_base:
+            key = result.resolved_base
+        if not key:
+            return []
+
+        ranked = find_replacements_for_cell(key, clean_cell, use_case=use_case)
+
+        # Honest ordering: evaluated candidates first, ranked by their weakest
+        # interface (bottleneck)  - a low bottleneck is disqualifying however good
+        # the standalone score. No-interface-data candidates go last.
+        evaluated = [it for it in ranked if it["n_evaluated"] > 0]
+        no_data = [it for it in ranked if it["n_evaluated"] == 0]
+        evaluated.sort(
+            key=lambda it: (
+                it["bottleneck_calibrated"] if it["bottleneck_calibrated"] is not None else -1.0,
+                it["candidate"].overall_score,
+            ),
+            reverse=True,
+        )
+        no_data.sort(key=lambda it: it["candidate"].overall_score, reverse=True)
+
+        replacements: List[ReplacementWithProvenance] = []
+        for it in evaluated + no_data:
+            cand = it["candidate"]
+            prov = _extract_replacement_provenance(cand)
+            verdict = _compute_verdict(
+                cand, prov,
+                bottleneck_calibrated=it["bottleneck_calibrated"],
+                bottleneck_viable=it["bottleneck_viable"],
+                interfaces_evaluated=it["n_evaluated"],
+                cell_context=True,
+            )
+
+            # Supplementary cross-bridge cathode scores (narrower, kept for detail).
             domain_scores, cb_details = self._compute_domain_scores(
                 cand.name, cathode_name,
             )
-            
-            # Evidence Tier logic
-            # LITERATURE_BACKED: if we have multiple citations
-            # CROSS_BRIDGE_ANALYSIS: if we have cross-bridge data
-            # HEURISTIC_PREDICTION: default
-            tier = "Heuristic Prediction"
-            if len([p for p in prov if p.get('source_type') == 'literature']) >= 2:
+
+            # Evidence tier: cell-aware compatibility is the strongest signal.
+            if it["n_evaluated"] > 0:
+                tier = "Cell-Aware Compatibility"
+            elif len([p for p in prov if p.get("source_type") == "literature"]) >= 2:
                 tier = "Literature Backed"
             elif domain_scores:
                 tier = "Cross-Bridge Analysis"
+            else:
+                tier = "Heuristic Prediction"
+
+            cell_scores = {
+                mat: e["calibrated"]
+                for mat, e in it["interfaces"].items() if e["evaluated"]
+            }
 
             replacements.append(ReplacementWithProvenance(
                 name=cand.name,
@@ -661,6 +764,10 @@ class PFASComplianceReport:
                 evidence_tier=tier,
                 domain_scores=domain_scores,
                 cross_bridge_details=cb_details,
+                cell_bottleneck_material=it["bottleneck_material"],
+                cell_bottleneck_calibrated=it["bottleneck_calibrated"],
+                cell_interfaces_evaluated=it["n_evaluated"],
+                cell_interface_scores=cell_scores,
             ))
         return replacements
 
@@ -784,7 +891,7 @@ LI_ION_DEMO_BOM = [
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("PFAS Compliance Report Generator — Demo")
+    print("PFAS Compliance Report Generator  - Demo")
     print("=" * 70)
 
     gen = PFASComplianceReport()
