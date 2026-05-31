@@ -139,6 +139,9 @@ with st.sidebar:
 
 # --- EXECUTION ENGINE ---
 
+if "adv_wb_candidates" not in st.session_state:
+    st.session_state.adv_wb_candidates = None
+
 if st.button("Run Advanced Discovery Pipeline", type="primary"):
     if not require_access():
         st.stop()
@@ -195,8 +198,11 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
                 except Exception as e:
                     c.compatibility_metadata["context_error"] = str(e)
 
+        st.session_state.adv_wb_candidates = candidates
         status.update(label="Advanced Discovery Complete!", state="complete", expanded=False)
 
+if st.session_state.adv_wb_candidates is not None:
+    candidates = st.session_state.adv_wb_candidates
     if not candidates:
         st.error("No candidates survived the triage phase.")
     else:
