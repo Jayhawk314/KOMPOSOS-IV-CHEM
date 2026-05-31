@@ -139,6 +139,25 @@ if st.button("Predict Properties", type="primary"):
                 hide_index=True,
             )
 
+    # --- REPRODUCIBILITY BUNDLE EXPORT ---
+    st.divider()
+    import json
+    import datetime
+    
+    bundle = {
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade Predictor)",
+        "prediction_audit": d
+    }
+    
+    st.download_button(
+        label="📥 Download Reproducibility Bundle (JSON)",
+        data=json.dumps(bundle, indent=2),
+        file_name=f"komposos_prediction_{d['formula']}.json",
+        mime="application/json",
+        help="Download an auditable JSON bundle containing the exact mathematical bounds, dataset anchors, and structural proofs used for this prediction."
+    )
+
     # Structure prediction
     if hasattr(result, "predicted_structure") and result.predicted_structure:
         sp = result.predicted_structure
