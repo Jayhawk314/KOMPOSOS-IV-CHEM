@@ -75,6 +75,11 @@ def get_element_options():
         "Tm", "Ts", "U", "V", "W", "Xe", "Y", "Yb", "Zn", "Zr",
     ], key=lambda s: s.lower())
 
+@st.cache_resource
+def get_cached_predictor():
+    from composition_engine.predictor import CompositionPredictor
+    return CompositionPredictor()
+
 _PROP_META = {
     "voltage": ("Voltage", "V"),
     "theoretical_capacity": ("Theoretical Capacity", "mAh/g"),
@@ -234,16 +239,19 @@ if st.session_state.adv_wb_candidates is not None:
         )
 
         # --- DEEP DIVE ---
-        selected_formula = st.selectbox("Candidate Deep Dive", [c.formula for c in candidates])
+        st.divider()
+        st.subheader("Candidate Deep Dive")
+        selected_formula = st.selectbox("Select a candidate to view precise prediction bounds and logical metadata:", [c.formula for c in candidates])
         if selected_formula:
             c = next(cand for cand in candidates if cand.formula == selected_formula)
             col1, col2 = st.columns(2)
             with col1:
                 st.write("**Predicted Properties (With Uncertainty)**")
+                st.caption("Shows the central triage value, followed by the rigorous [Lower to Upper] bounds. Narrow bounds indicate high calculation precision based on known topological neighbors.")
+                
                 # Re-run predictor on the selected candidate to get full uncertainty bounds
                 # (Designer strips bounds for speed, we need them for transparency)
-                from composition_engine.predictor import CompositionPredictor
-                predictor = CompositionPredictor()
+                predictor = get_cached_predictor()
                 try:
                     full_prediction = predictor.predict(c.formula, domain=c.domain)
                     display_props = {}
@@ -264,6 +272,7 @@ if st.session_state.adv_wb_candidates is not None:
                     st.json(c.predicted_properties)
             with col2:
                 st.write("**Verification Metadata (Precision)**")
+                st.caption("Details the exact logical checks performed on this candidate. Look for 'zfc_charge_balance' failures or 'bottlenecks' discovered during the Multi-Domain reference system simulation.")
                 st.json(c.compatibility_metadata)
                 if c.safety_vetoes:
                     st.error(f"Vetoes: {', '.join(c.safety_vetoes)}")
