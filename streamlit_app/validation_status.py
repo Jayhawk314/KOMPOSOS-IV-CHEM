@@ -105,6 +105,23 @@ FEATURE_NOTES = {
         "MOF-specific pipeline modes are planned next. Outputs are triage "
         "candidates for screening, not lab-validated designs. " + CONFIDENCE_CAVEAT
     ),
+    "advanced_workbench": (
+        "A **mixed-fidelity** pipeline. The **triage phase** (inverse design) proposes "
+        "candidate formulas — these are *suggestions* and can be hallucinations. The "
+        "**precision phase** adds two checks you can trust more:\n\n"
+        "1. **ZFC charge-balance veto** — rejects compositions with no valid "
+        "oxidation-state assignment. A real, cheap physics filter (unassessable → pass, "
+        "never fabricated).\n"
+        "2. **Full-cell compatibility** — the cell number is a **calibrated probability** "
+        "(isotonic, out-of-sample ECE ~0.07) from the compatibility engine "
+        "(77–100% per domain on spent diagnostics).\n\n"
+        "**Two honesty caveats on the cell check:** (a) it scores the candidate's "
+        "**nearest known analog** (a proxy), *not* the novel formula itself — the further "
+        "that analog sits in composition space, the weaker the signal, so the scorecard "
+        "shows the **proxy distance** and flags far proxies; (b) the reference cell is "
+        "**battery-only**, so non-battery candidates are not cell-scored. "
+        "**Trust the vetoes more than the suggestions.**"
+    ),
     "composition_predictor": (
         "Property values are **estimates by comparison to known materials**, not "
         "lab measurements or first-principles calculations. They are **rough** on "

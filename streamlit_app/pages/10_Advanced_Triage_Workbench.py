@@ -21,6 +21,7 @@ from streamlit_app.validation_status import render_feature_status
 # --- High Fidelity Integrations ---
 from composition_engine.physical_gates import charge_balanceable
 from cross_bridge.multi_domain import MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent
+from oracle.compatibility_calibration import load_default_calibration
 
 st.set_page_config(page_title="Advanced Triage Workbench", page_icon="🧬", layout="wide")
 st.title("Advanced Triage Workbench")
@@ -30,25 +31,26 @@ st.markdown(
     "device compatibility verification."
 )
 
-with st.expander("ℹ️ Transparency & Accuracy (How to interpret results)"):
+with st.expander("ℹ️ How the pipeline works (mechanics)"):
     st.markdown("""
-    This workbench uses a **Mixed-Fidelity** pipeline to balance speed and accuracy:
-    
-    1. **Triage Phase (The Generator)**:
-       - Uses inverse design and stoichiometry search to generate candidate formulas based on your target properties.
-       - **Accuracy**: ~85% (LOO). These are *suggestions*, not proven physical materials. Hallucinations are possible here.
-       - **Scorecard Column**: `Triage Confidence`, `Design Score`.
-    
-    2. **Precision Phase (The Filter)**:
-       - Applies strict mathematical and physical rules to veto bad triage guesses.
-       - **ZFC Integrity**: Rejects formulas that violate fundamental chemistry (e.g., charge imbalance). 
-       - **Cell Viability**: Uses the `MultiDomainAnalyzer` (~94.6% accuracy) to verify if the candidate will survive inside the chosen reference system (e.g., won't corrode the collector). 
-       - **Scorecard Column**: `Integrity (ZFC)`, `Cell Viability`.
-       
-    **How to use:** Trust the *vetoes* (Precision Phase) more than the *suggestions* (Triage Phase). A candidate with high Triage Confidence but a ZFC failure is unphysical.
+    A **Mixed-Fidelity** pipeline that balances speed and rigor:
+
+    1. **Triage Phase (The Generator)** — inverse design + stoichiometry search proposes
+       candidate formulas from your target properties. These are *suggestions* (hallucinations
+       are possible). Scorecard: `Triage Confidence`, `Design Score`.
+    2. **Precision Phase (The Filter)** — strict checks that veto bad guesses:
+       - **ZFC Integrity** — rejects formulas with no valid oxidation-state assignment.
+       - **Cell Compatibility** — scores the candidate's *nearest known analog* inside the
+         chosen reference cell and reports a **calibrated probability**. The scorecard shows
+         the **proxy distance**; a far proxy is a weak stand-in. Non-battery candidates are
+         not cell-scored (the reference cell is battery-only).
+       Scorecard: `Integrity (ZFC)`, `Cell Compat. (cal.)`, `Proxy (dist)`.
+
+    **How to use:** trust the *vetoes* (Precision Phase) more than the *suggestions*. See the
+    accuracy banner below for the honest, sourced numbers.
     """)
 
-render_feature_status("workbench")
+render_feature_status("advanced_workbench")
 render_login_sidebar()
 
 # --- Shared UI Helpers (Mirrored from 9_Discovery_Workbench for consistency) ---
@@ -179,6 +181,7 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
         # STEP 3: Multi-Domain Context (High Precision)
         if use_multi_domain and candidates:
             st.write(f"Step 3: Running Multi-Domain Context Analysis...")
+            calibrator = load_default_calibration()
             for c in candidates:
                 try:
                     # Multi-domain bridges rely on known material properties.
@@ -188,6 +191,17 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
                         c.compatibility_metadata["error"] = "No known proxy material for context check."
                         continue
 
+                    # The reference cell is battery-only. Scoring a non-battery proxy as a
+                    # "cathode" would be meaningless, so gate the cell check on proxy domain.
+                    proxy_domain = material_registry.get(proxy_name)
+                    if proxy_domain != "battery":
+                        c.compatibility_metadata["proxy_used"] = proxy_name
+                        c.compatibility_metadata["cell_check_skipped"] = (
+                            f"proxy '{proxy_name}' is {proxy_domain or 'unknown'}-domain; "
+                            "reference cell is battery-only"
+                        )
+                        continue
+
                     query_components = [
                         MultiDomainComponent(name=proxy_name, role="cathode", domain="battery"),
                         MultiDomainComponent(name=ref_electrolyte, role="electrolyte"),
@@ -195,9 +209,14 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
                     ]
                     query = MultiDomainQuery(name=f"Context:{c.formula}", components=query_components, electrolyte=ref_electrolyte)
                     analysis = analyzer.analyze(query)
-                    c.compatibility_score = analysis.overall_score
+
+                    # Surface the CALIBRATED probability, not the raw composite score.
+                    cal = calibrator.calibrate(analysis.overall_score, "battery")
+                    c.compatibility_score = cal.get("calibrated_probability", analysis.overall_score)
                     c.compatibility_viable = analysis.viable
                     c.compatibility_metadata["proxy_used"] = proxy_name
+                    c.compatibility_metadata["raw_multidomain_score"] = round(analysis.overall_score, 4)
+                    c.compatibility_metadata["cell_calibrator"] = cal.get("calibrator")
                     if analysis.bottleneck:
                         c.compatibility_metadata["bottleneck"] = f"{analysis.bottleneck.functor_used} ({analysis.bottleneck.score:.2f})"
                 except Exception as e:
@@ -214,28 +233,53 @@ if st.session_state.adv_wb_candidates is not None:
         st.success(f"Processed {len(candidates)} candidates through mixed-fidelity verification.")
 
         # --- SCORECARD ---
+        _FAR_PROXY = 0.5  # composition-space distance above which a proxy is a weak stand-in
         rows = []
         for c in candidates:
-            zfc_status = "✅" if c.compatibility_metadata.get("zfc_charge_balance") is True else ("❌" if c.compatibility_metadata.get("zfc_charge_balance") is False else "❔")
+            meta = c.compatibility_metadata
+            zfc_status = "✅" if meta.get("zfc_charge_balance") is True else ("❌" if meta.get("zfc_charge_balance") is False else "❔")
+
+            # Cell compatibility: calibrated prob if scored; n/a if skipped (non-battery).
+            if meta.get("cell_check_skipped"):
+                cell_display = "n/a"
+            elif c.compatibility_viable:
+                cell_display = round(float(c.compatibility_score), 3)
+            else:
+                cell_display = "FAIL"
+
+            # Proxy + distance (flag far proxies whose cell score is a weak signal).
+            proxy = meta.get("proxy_used")
+            dist = meta.get("proxy_distance")
+            if proxy is None:
+                proxy_display = "—"
+            elif dist is None:
+                proxy_display = proxy
+            else:
+                flag = " ⚠️far" if dist > _FAR_PROXY else ""
+                proxy_display = f"{proxy} ({dist:.2f}){flag}"
+
             rows.append({
                 "Formula": c.formula,
                 "Integrity (ZFC)": zfc_status,
-                "Triage Confidence": c.overall_confidence,
-                "Cell Viability": c.compatibility_score if c.compatibility_viable else 0.0,
-                "Bottleneck": c.compatibility_metadata.get("bottleneck", "N/A"),
-                "Design Score": c.design_score,
+                "Triage Confidence": round(float(c.overall_confidence), 3),
+                "Cell Compat. (cal.)": cell_display,
+                "Proxy (dist)": proxy_display,
+                "Bottleneck": meta.get("bottleneck", "N/A"),
+                "Design Score": round(float(c.design_score), 3),
                 "Safe": "✅" if c.is_pfas_free else "❌",
             })
 
         df = pd.DataFrame(rows)
         st.dataframe(
-            df.style.format({
-                "Triage Confidence": "{:.3f}", 
-                "Design Score": "{:.3f}",
-                "Cell Viability": lambda v: f"{v:.3f}" if v > 0 else "FAIL"
-            })
-            .background_gradient(subset=["Triage Confidence", "Cell Viability"], cmap="RdYlGn"),
+            df.style.background_gradient(subset=["Triage Confidence"], cmap="RdYlGn"),
             use_container_width=True, hide_index=True
+        )
+        st.caption(
+            "**Cell Compat. (cal.)** is a calibrated probability of compatibility for the "
+            "candidate's nearest known battery analog in the reference cell — `n/a` = "
+            "non-battery candidate (not cell-scored), `FAIL` = below the viability threshold. "
+            "**Proxy (dist)** is that analog and its composition-space distance; ⚠️far (>"
+            f"{_FAR_PROXY}) means the cell score is a weak stand-in for the novel formula."
         )
 
         # --- DEEP DIVE ---

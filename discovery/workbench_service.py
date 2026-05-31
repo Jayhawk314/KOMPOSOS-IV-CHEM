@@ -216,8 +216,14 @@ class DiscoveryWorkbenchService:
         return candidates
 
     def _resolve_known_proxy(self, candidate: DiscoveryCandidate) -> Optional[str]:
-        """Return a known material name for services that cannot score arbitrary formulas."""
+        """Return a known material name for services that cannot score arbitrary formulas.
+
+        Also records, on the candidate, the proxy's composition-space *distance* so
+        callers can judge how trustworthy a proxy-based score is (a distant proxy is
+        a weak stand-in for the candidate's own chemistry).
+        """
         if candidate.proxy_material:
+            candidate.compatibility_metadata.setdefault("proxy_distance", 0.0)
             return candidate.proxy_material
 
         try:
@@ -226,7 +232,9 @@ class DiscoveryWorkbenchService:
             return None
 
         if prediction.nearest_known:
-            return prediction.nearest_known[0][0]
+            name, distance = prediction.nearest_known[0]
+            candidate.compatibility_metadata["proxy_distance"] = round(float(distance), 4)
+            return name
         return None
 
     @staticmethod
