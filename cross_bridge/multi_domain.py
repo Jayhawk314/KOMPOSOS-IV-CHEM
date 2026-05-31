@@ -22,7 +22,27 @@ Example query:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+
+
+# Physical adjacency for a battery cell, by component ROLE. A real cell is a
+# layered stack:
+#   cathode_collector -- cathode -- electrolyte -- anode -- anode_collector
+# with binder mixed into both electrode coatings. Only components that are
+# physically in contact share an interface; e.g. the cathode-side (Al) collector
+# never touches the anode. Passing this as MultiDomainQuery.adjacency restricts
+# scoring to real interfaces and drops phantom ones (the Al<->anode bottleneck).
+BATTERY_CELL_ADJACENCY: Set[FrozenSet[str]] = {
+    frozenset({"cathode_collector", "cathode"}),
+    frozenset({"cathode_collector", "electrolyte"}),
+    frozenset({"anode_collector", "anode"}),
+    frozenset({"anode_collector", "electrolyte"}),
+    frozenset({"binder", "cathode"}),
+    frozenset({"binder", "anode"}),
+    frozenset({"binder", "electrolyte"}),
+    frozenset({"cathode", "electrolyte"}),
+    frozenset({"anode", "electrolyte"}),
+}
 
 from cross_bridge.battery_polymer import (
     score_polymer_electrode_compatibility,
@@ -168,6 +188,11 @@ class MultiDomainQuery:
     electrolyte: Optional[str] = None   # For battery-metal functor
     viability_threshold: float = 0.50
     scoring_mode: Optional[str] = None  # "bottleneck" | "weighted" | None (auto)
+    # Optional physical adjacency by ROLE (set of frozenset({role_a, role_b})).
+    # When None (default), every cross-domain pair is scored (legacy behaviour).
+    # When provided, only pairs whose roles are adjacent are scored — see
+    # BATTERY_CELL_ADJACENCY.
+    adjacency: Optional[Set[FrozenSet[str]]] = None
 
 
 class MultiDomainAnalyzer:
@@ -219,6 +244,12 @@ class MultiDomainAnalyzer:
         for i, comp_a in enumerate(query.components):
             for comp_b in query.components[i+1:]:
                 if comp_a.domain == 'unknown' or comp_b.domain == 'unknown':
+                    continue
+
+                # Physical adjacency filter (opt-in): skip pairs that are not in
+                # contact (e.g. cathode-side collector vs anode).
+                if query.adjacency is not None and \
+                        frozenset({comp_a.role, comp_b.role}) not in query.adjacency:
                     continue
 
                 # Try each functor that applies to this domain pair

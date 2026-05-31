@@ -299,7 +299,8 @@ with tab2:
     with col_o2:
         st.markdown("**Lock Components (optional)**")
         opt_fixed_elec = st.selectbox("Fixed Electrolyte", ["Any"] + (ELECTROLYTES_SOLID if opt_cell_type == "Solid" else ELECTROLYTES_LIQUID))
-        opt_fixed_col = st.selectbox("Fixed Collector", ["Any"] + COLLECTORS)
+        opt_fixed_col = st.selectbox("Fixed Cathode Collector", ["Any"] + COLLECTORS,
+                                     help="Cathode-side current collector (swept). The anode-side collector defaults to Cu, the physical standard.")
 
     if st.button("Run Optimization Sweep", type="primary"):
         if not require_access():
@@ -311,7 +312,7 @@ with tab2:
         if opt_fixed_elec != "Any":
             fixed["electrolyte"] = opt_fixed_elec
         if opt_fixed_col != "Any":
-            fixed["collector"] = opt_fixed_col
+            fixed["cathode_collector"] = opt_fixed_col
             
         with st.spinner("Optimizing cell stacks (Stage 1 + Stage 2)..."):
             results = optimizer.optimize(

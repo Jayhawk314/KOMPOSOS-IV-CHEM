@@ -40,7 +40,8 @@ class OptimizedCell:
     anode: str
     electrolyte: str
     binder: str
-    collector: str
+    cathode_collector: str   # cathode-side current collector (e.g. Al)
+    anode_collector: str     # anode-side current collector (e.g. Cu)
     energy_density: float  # Wh/kg
     viability: float       # 0-1
     is_pfas_free: bool
@@ -55,7 +56,8 @@ class OptimizedCell:
             "anode": self.anode,
             "electrolyte": self.electrolyte,
             "binder": self.binder,
-            "collector": self.collector,
+            "cathode_collector": self.cathode_collector,
+            "anode_collector": self.anode_collector,
             "energy_density": round(self.energy_density, 2),
             "viability": round(self.viability, 3),
             "is_pfas_free": self.is_pfas_free,
@@ -147,19 +149,22 @@ class BatteryOptimizer:
     def _elite_sweep(self, fixed: Dict[str, str], pfas_free_only: bool) -> List[OptimizedCell]:
         """Sweep combinations of high-trust materials.
 
-        The cross-domain composite factorizes: binder and collector never interface
-        each other ({polymer,metal} has no functor). So a combo's interface scores
-        split into three groups: (a) core-core scores among cathode/anode/electrolyte
-        (constant for a given core, e.g. a metal anode<->cathode pair), (b) binder<->
-        core scores (depend only on binder), (c) collector<->core scores (depend only
-        on collector). We precompute each group once per (cathode, anode, electrolyte)
-        core, then assemble the composite cheaply instead of running a full
-        5-component analyze() per (binder x collector) pair. Provably equivalent to
-        the old full-analyze sweep (verified), but avoids the redundant functor calls
-        that made a full scan slow.
+        Models the real bimetallic cell stack with PHYSICAL ADJACENCY:
+            cathode_collector -- cathode -- electrolyte -- anode -- anode_collector
+        with the binder in both electrode coatings. Only components in contact are
+        scored, so the cathode-side collector is never scored against the anode (and
+        vice-versa) -- this removes the phantom Al<->anode interface. Mirrors
+        MultiDomainAnalyzer + BATTERY_CELL_ADJACENCY exactly (verified).
 
-        Each material's *actual* domain (via the analyzer's registry) decides which
-        functor applies, so this mirrors analyze() rather than assuming role==domain.
+        The composite factorizes, so we precompute the adjacency-correct partial
+        scores once per (cathode, anode, electrolyte) core and assemble cheaply:
+          core-core      : cathode<->electrolyte, anode<->electrolyte
+          binder<->       : cathode, anode, electrolyte
+          cathode_coll<-> : cathode, electrolyte
+          anode_coll<->   : anode, electrolyte
+        Each material's actual domain (Si->semiconductor, etc.) drives functor
+        choice. The anode collector defaults to Cu (the universal standard; Al
+        alloys with Li at low potential), overridable via fixed['anode_collector'].
         """
         from cross_bridge.battery_polymer import score_polymer_electrode_compatibility
         from cross_bridge.battery_metal import score_collector_compatibility
@@ -183,16 +188,24 @@ class BatteryOptimizer:
         if pfas_free_only:
             binders = [b for b in binders if not self.pfas_checker.check(b).is_pfas]
 
-        collectors = [c for c in self.collectors if fixed.get("collector") in (None, c)]
+        # Cathode-side collector is swept; anode-side defaults to Cu (physical
+        # standard) unless the user locks a specific one.
+        cath_collectors = [c for c in self.collectors
+                           if fixed.get("cathode_collector") in (None, c)]
+        if fixed.get("anode_collector"):
+            anode_collectors = [fixed["anode_collector"]]
+        elif "Cu_foil" in self.collectors:
+            anode_collectors = ["Cu_foil"]
+        else:
+            anode_collectors = [self.collectors[0]] if self.collectors else []
 
         # Precompute per-binder PFAS status once (independent of the sweep).
         binder_pfas_free = {b: not self.pfas_checker.check(b).is_pfas for b in binders}
 
         # Memoize pairwise functor scores across the whole sweep. Each underlying
         # scorer is a pure function of its argument names. Returns None when no
-        # functor applies to the domain pair or the scorer raises, mirroring the old
-        # per-combo behaviour (an unscorable pair contributes no interface; a raised
-        # analyze() yielded viability 0.0 and was filtered out).
+        # functor applies to the domain pair or the scorer raises (an unscorable
+        # pair simply contributes no interface).
         score_memo: Dict[tuple, Optional[float]] = {}
 
         def pair_score(name_a: str, dom_a: str, name_b: str, dom_b: str, elec: str) -> Optional[float]:
@@ -217,64 +230,75 @@ class BatteryOptimizer:
             score_memo[key] = val
             return val
 
+        def scores_against(name: str, neighbours) -> List[float]:
+            """Functor scores of `name` against each adjacent (nbr_name, elec)."""
+            dom = domain_of(name)
+            out = []
+            for nbr, dn, elec in neighbours:
+                v = pair_score(name, dom, nbr, dn, elec)
+                if v is not None:
+                    out.append(v)
+            return out
+
         for cat in cathodes:
             v_c = cat.voltage_window.nominal if cat.voltage_window else 4.0
             cap = cat.theoretical_capacity or 200.0
+            d_cat = domain_of(cat.name)
             for ano in anodes:
                 v_a = ano.voltage_window.nominal if ano.voltage_window else 0.1
                 cell_v = v_c - v_a
                 if cell_v <= 0:
                     continue
                 ed = cell_v * cap  # depends only on (cathode, anode)
+                d_ano = domain_of(ano.name)
 
                 for elec in electrolytes:
-                    # The core components and their actual domains.
-                    core = [
-                        (cat.name, domain_of(cat.name)),
-                        (ano.name, domain_of(ano.name)),
-                        (elec, domain_of(elec)),
-                    ]
+                    d_elec = domain_of(elec)
 
-                    # Core-core interfaces (e.g. a metal anode <-> battery cathode):
-                    # constant for this core, shared by every binder/collector combo.
+                    # Core-core: only adjacent pairs (cathode<->elec, anode<->elec);
+                    # cathode and anode are NOT in contact (electrolyte separates).
                     core_scores: List[float] = []
-                    for i in range(len(core)):
-                        for j in range(i + 1, len(core)):
-                            v = pair_score(core[i][0], core[i][1], core[j][0], core[j][1], elec)
-                            if v is not None:
-                                core_scores.append(v)
+                    for v in (pair_score(cat.name, d_cat, elec, d_elec, elec),
+                              pair_score(ano.name, d_ano, elec, d_elec, elec)):
+                        if v is not None:
+                            core_scores.append(v)
 
-                    # Partial interface scores for each binder / collector vs the core.
-                    binder_scores: Dict[str, List[float]] = {}
-                    for b in binders:
-                        db = domain_of(b)
-                        s = [pair_score(b, db, n, dn, elec) for n, dn in core]
-                        binder_scores[b] = [v for v in s if v is not None]
+                    # Binder touches both electrodes and the electrolyte.
+                    binder_nbrs = [(cat.name, d_cat, elec), (ano.name, d_ano, elec),
+                                   (elec, d_elec, elec)]
+                    binder_scores = {b: scores_against(b, binder_nbrs) for b in binders}
 
-                    collector_scores: Dict[str, List[float]] = {}
-                    for col in collectors:
-                        dc = domain_of(col)
-                        s = [pair_score(col, dc, n, dn, elec) for n, dn in core]
-                        collector_scores[col] = [v for v in s if v is not None]
+                    # Cathode-side collector touches the cathode and electrolyte.
+                    cc_nbrs = [(cat.name, d_cat, elec), (elec, d_elec, elec)]
+                    cc_scores = {cc: scores_against(cc, cc_nbrs) for cc in cath_collectors}
+
+                    # Anode-side collector touches the anode and electrolyte.
+                    ac_nbrs = [(ano.name, d_ano, elec), (elec, d_elec, elec)]
+                    ac_scores = {ac: scores_against(ac, ac_nbrs) for ac in anode_collectors}
 
                     for b in binders:
                         bs = binder_scores[b]
-                        for col in collectors:
-                            viability = self._overall_score(core_scores + bs + collector_scores[col])
-                            if viability < self.viability_threshold:
-                                continue
-                            results.append(OptimizedCell(
-                                rank=0,
-                                type="Elite",
-                                cathode=cat.name,
-                                anode=ano.name,
-                                electrolyte=elec,
-                                binder=b,
-                                collector=col,
-                                energy_density=ed,
-                                viability=viability,
-                                is_pfas_free=binder_pfas_free[b],
-                            ))
+                        for cc in cath_collectors:
+                            ccs = cc_scores[cc]
+                            for ac in anode_collectors:
+                                viability = self._overall_score(
+                                    core_scores + bs + ccs + ac_scores[ac]
+                                )
+                                if viability < self.viability_threshold:
+                                    continue
+                                results.append(OptimizedCell(
+                                    rank=0,
+                                    type="Elite",
+                                    cathode=cat.name,
+                                    anode=ano.name,
+                                    electrolyte=elec,
+                                    binder=b,
+                                    cathode_collector=cc,
+                                    anode_collector=ac,
+                                    energy_density=ed,
+                                    viability=viability,
+                                    is_pfas_free=binder_pfas_free[b],
+                                ))
 
         return results
 
@@ -329,7 +353,8 @@ class BatteryOptimizer:
                         anode=base.anode,
                         electrolyte=base.electrolyte,
                         binder=base.binder,
-                        collector=base.collector,
+                        cathode_collector=base.cathode_collector,
+                        anode_collector=base.anode_collector,
                         energy_density=ed,
                         viability=viability,
                         is_pfas_free=base.is_pfas_free,

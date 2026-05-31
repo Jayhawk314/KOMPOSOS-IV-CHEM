@@ -41,35 +41,41 @@ sys.path.insert(0, str(ROOT))
 from battery_bridge.optimizer import BatteryOptimizer
 from battery_bridge.material_properties import get_material
 from cross_bridge.multi_domain import (
-    MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent,
+    MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent, BATTERY_CELL_ADJACENCY,
 )
 
 # Known commercial / well-documented cell designs, components mapped to library
-# names. (cathode, anode, electrolyte, binder, collector, cell_type, note)
+# names. Real cells are bimetallic: Al on the cathode collector, Cu on the anode.
+# (cathode, anode, electrolyte, binder, cathode_collector, anode_collector,
+#  cell_type, note)
 COMMERCIAL_CELLS = [
-    ("LFP",    "Graphite", "EC", "PVDF", "Al_foil", "liquid", "CATL/BYD LFP (EV, ESS)"),
-    ("NMC811", "Graphite", "EC", "PVDF", "Al_foil", "liquid", "Modern NMC811 EV cell"),
-    ("NCA",    "Graphite", "EC", "PVDF", "Al_foil", "liquid", "Panasonic/Tesla NCA 2170"),
-    ("LCO",    "Graphite", "EC", "PVDF", "Al_foil", "liquid", "Consumer electronics LCO"),
-    ("NMC622", "Graphite", "EC", "PVDF", "Al_foil", "liquid", "NMC622 EV cell"),
-    ("LMO",    "LTO",      "EC", "PVDF", "Al_foil", "liquid", "LMO/LTO fast-charge"),
-    ("NMC811", "Si",       "EC", "PVDF", "Al_foil", "liquid", "NMC811/Si-anode (high energy)"),
+    ("LFP",    "Graphite", "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "CATL/BYD LFP (EV, ESS)"),
+    ("NMC811", "Graphite", "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "Modern NMC811 EV cell"),
+    ("NCA",    "Graphite", "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "Panasonic/Tesla NCA 2170"),
+    ("LCO",    "Graphite", "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "Consumer electronics LCO"),
+    ("NMC622", "Graphite", "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "NMC622 EV cell"),
+    ("LMO",    "LTO",      "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "LMO/LTO fast-charge"),
+    ("NMC811", "Si",       "EC", "PVDF", "Al_foil", "Cu_foil", "liquid", "NMC811/Si-anode (high energy)"),
 ]
 
 VIABILITY_THRESHOLD = 0.50
 
 
-def _analyze(analyzer, cathode, anode, elec, binder, collector):
+def _analyze(analyzer, cathode, anode, elec, binder, cath_col, anode_col):
+    # Adjacency-aware bimetallic cell: cathode-side and anode-side collectors are
+    # scored only against the components they physically touch.
     q = MultiDomainQuery(
         name=f"{cathode}+{elec}+{anode}",
         components=[
             MultiDomainComponent(name=cathode, role="cathode"),
             MultiDomainComponent(name=elec, role="electrolyte"),
             MultiDomainComponent(name=binder, role="binder"),
-            MultiDomainComponent(name=collector, role="collector"),
+            MultiDomainComponent(name=cath_col, role="cathode_collector"),
+            MultiDomainComponent(name=anode_col, role="anode_collector"),
             MultiDomainComponent(name=anode, role="anode"),
         ],
         electrolyte=elec,
+        adjacency=BATTERY_CELL_ADJACENCY,
     )
     return analyzer.analyze(q)
 
@@ -78,8 +84,8 @@ def audit_no_false_veto():
     print("\n[1] NO FALSE VETO -- real commercial cells must be marked viable")
     analyzer = MultiDomainAnalyzer(viability_threshold=VIABILITY_THRESHOLD)
     passed = 0
-    for cath, ano, elec, binder, col, _ctype, note in COMMERCIAL_CELLS:
-        a = _analyze(analyzer, cath, ano, elec, binder, col)
+    for cath, ano, elec, binder, ccol, acol, _ctype, note in COMMERCIAL_CELLS:
+        a = _analyze(analyzer, cath, ano, elec, binder, ccol, acol)
         ok = a.overall_score >= VIABILITY_THRESHOLD
         passed += ok
         bn = a.bottleneck
@@ -138,13 +144,14 @@ def audit_constrained_hits():
     o = BatteryOptimizer(viability_threshold=VIABILITY_THRESHOLD)
     hits = 0
     checked = 0
-    for cath, ano, elec, binder, col, ctype, note in COMMERCIAL_CELLS:
+    for cath, ano, elec, binder, ccol, acol, ctype, note in COMMERCIAL_CELLS:
         res = o.optimize(
             fixed_components={"cell_type": ctype, "cathode": cath, "electrolyte": elec},
             pfas_free_only=False, enable_discovery=False, limit=99999,
         )
         found = any(
-            c.cathode == cath and c.anode == ano and c.binder == binder and c.collector == col
+            c.cathode == cath and c.anode == ano and c.binder == binder
+            and c.cathode_collector == ccol and c.anode_collector == acol
             for c in res
         )
         checked += 1

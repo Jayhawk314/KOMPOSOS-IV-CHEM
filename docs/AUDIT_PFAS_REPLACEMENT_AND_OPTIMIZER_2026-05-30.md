@@ -70,14 +70,19 @@ NMC811/Si. Max theoretical Wh/kg (cathode-active basis): S8 3518 ≫ LCO 1069 �
 family ~1045 > LMO 607 > LFP 578 — the expected ordering.
 
 **Honest findings & limitations:**
-- **Single-collector model is unphysical for the anode side.** Real cells use a
-  bimetallic construction (Al foil on the cathode, **Cu** on the anode, because Al
-  alloys with Li at low potential). The optimizer/cell model has only **one**
-  collector slot, so for an Al collector the `Al_foil ↔ graphite/anode` interface
-  is the bottleneck at ~0.18 in every commercial cell. The compatibility score is
-  *correct* (Al on an anode really is bad); the **model can't express the standard
-  two-collector design**. This is the biggest structural gap — fixing it means
-  adding separate cathode-side / anode-side collectors.
+- **FIXED (2026-05-30): bimetallic two-collector model with physical adjacency.**
+  Previously the cell had one collector slot and scored every pair, so an Al
+  collector was scored against the anode (`Al_foil ↔ graphite` = 0.18) — a
+  *phantom* interface that doesn't physically exist (Al never touches the anode;
+  cells use Al on the cathode, **Cu** on the anode). Added opt-in role-based
+  adjacency (`BATTERY_CELL_ADJACENCY` in `cross_bridge/multi_domain.py`) and split
+  the optimizer into cathode-side + anode-side collectors. Only physically-
+  adjacent interfaces are now scored. Effect: the phantom bottleneck is gone, the
+  bottleneck is now the real `Al_foil ↔ EC` (0.68), and commercial-cell viability
+  rose from ~0.79 to ~0.82–0.86. The optimizer's factorized sweep was verified
+  bit-identical (maxdiff 2e-16) to `analyze()` with adjacency, and is backward-
+  compatible (callers that don't pass adjacency, e.g. the Q8/Q9 audits, are
+  unchanged). Anode collector defaults to Cu (overridable).
 - Reported energy density is **theoretical** (cathode-active only); real
   cell-level Wh/kg is ~40–55% after anode + packaging mass. UI already labels it
   theoretical — keep that.
@@ -106,6 +111,7 @@ from the prior audit.
 
 PFAS replacement and the battery optimizer both pass their honest verifications.
 The replacement engine's PFAS-free guarantee (100%) and the optimizer's no-false-
-veto + objective correctness (100%) are **checkable facts**. The real limitations
-are scope (replacement coverage, compat-registry coverage) and one structural
-model gap (single collector), all documented above — none are correctness bugs.
+veto + objective correctness (100%) are **checkable facts**. The one structural
+model gap found (single collector → phantom Al↔anode interface) has been **fixed**
+with an adjacency-aware bimetallic model. Remaining limitations are scope
+(replacement coverage, compat-registry coverage) — none are correctness bugs.
