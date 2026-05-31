@@ -176,12 +176,22 @@ else:
 
         calibration = scores.get("calibration", {})
         if calibration:
-            st.caption(
-                "Calibrated compatibility score: "
-                f"{calibration.get('calibrated_probability', total):.3f} "
-                f"via {calibration.get('calibrator', 'unknown')} "
-                "— a ranking signal, not a reliable probability (ECE ~0.15)."
-            )
+            _cal_prob = calibration.get("calibrated_probability", total)
+            _calibrator = calibration.get("calibrator", "unknown")
+            _oos_ece = calibration.get("oos_ece")
+            if _calibrator == "isotonic_global" and _oos_ece is not None:
+                st.caption(
+                    f"**Calibrated probability of compatibility: {_cal_prob:.0%}** "
+                    f"(isotonic calibration, held-out ECE {_oos_ece:.3f}). "
+                    "This is now a real probability — a 70% here means roughly 7 in 10 "
+                    "such pairs are compatible — not just a ranking signal."
+                )
+            else:
+                st.caption(
+                    "Calibrated compatibility score: "
+                    f"{_cal_prob:.3f} via {_calibrator} "
+                    "— a ranking signal; calibration artifact unavailable, treat as approximate."
+                )
 
         ensemble = scores.get("ensemble", {})
 

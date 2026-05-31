@@ -169,6 +169,28 @@ def _default_artifact_path() -> Path:
     )
 
 
+def _isotonic_interpolate(score: float, payload: Dict[str, Any]) -> Optional[float]:
+    """Map a raw score to a calibrated probability via the stored isotonic
+    breakpoints (piecewise-linear, clipped at the ends). Dependency-free."""
+    xs = payload.get("x")
+    ys = payload.get("y")
+    if not xs or not ys or len(xs) != len(ys):
+        return None
+    raw = max(0.0, min(1.0, float(score)))
+    if raw <= xs[0]:
+        return float(ys[0])
+    if raw >= xs[-1]:
+        return float(ys[-1])
+    for i in range(1, len(xs)):
+        if raw <= xs[i]:
+            x0, x1 = float(xs[i - 1]), float(xs[i])
+            y0, y1 = float(ys[i - 1]), float(ys[i])
+            if x1 == x0:
+                return y1
+            return y0 + (y1 - y0) * (raw - x0) / (x1 - x0)
+    return float(ys[-1])
+
+
 def _calibrate_from_payload(score: float, payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     raw = max(0.0, min(1.0, float(score)))
     min_bin_count = int(payload.get("min_bin_count", 3))
@@ -218,6 +240,21 @@ class CompatibilityCalibrationStore:
                 "artifact_version": None,
                 "note": self.artifact.get("unavailable_reason", "calibration unavailable"),
             }
+
+        # Primary: global isotonic calibrator (best out-of-sample ECE).
+        isotonic = self.artifact.get("isotonic_calibrator")
+        if isotonic and isotonic.get("available") and isotonic.get("x"):
+            prob = _isotonic_interpolate(raw, isotonic)
+            if prob is not None:
+                return {
+                    "raw_score": round(raw, 4),
+                    "calibrated_probability": round(max(0.0, min(1.0, prob)), 4),
+                    "calibrator": "isotonic_global",
+                    "support_n": int(isotonic.get("n") or 0),
+                    "oos_ece": isotonic.get("oos_ece"),
+                    "oos_brier": isotonic.get("oos_brier"),
+                    "artifact_version": version,
+                }
 
         if domain:
             domain_payload = self.artifact.get("domain_calibrators", {}).get(domain, {}).get("calibrator")

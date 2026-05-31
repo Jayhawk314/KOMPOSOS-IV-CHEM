@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-05-30: Compatibility Confidence Calibration (isotonic)
+
+**Improvement:** compatibility scores are now mapped to a **calibrated probability**
+via a global isotonic calibrator (fit on dev + spent diagnostics, leak-controlled
+dedup; current-blind excluded). Honest k-fold **out-of-sample ECE 0.072** (Brier
+0.049), down from raw ECE ~0.194. The 277-pair dev+Q2–Q9 measurement shows
+calibrated ECE 0.058 (in-sample) vs raw 0.154.
+
+- Method chosen by `audit/fit_compat_calibration.py` (raw 0.167 / Platt 0.158 /
+  **isotonic 0.095** OOS ECE on 277 pairs); isotonic generalized best.
+- Stored as monotonic (x, y) breakpoints in
+  `audit/calibration/compatibility_calibration_2026_q4_dev.json` so the runtime
+  interpolates **without sklearn**. `CompatibilityCalibrationStore.calibrate()`
+  prefers isotonic; binned/domain remain the fallback.
+- **No verdict regression:** development **41/41, 100%, Brier 0.095** (unchanged);
+  Q8 diagnostic 89.5%, MCC 0.797, Brier 0.107 (not degraded). 22/22 calibration
+  unit tests pass.
+- UI now states the calibrated probability honestly (a 70% ≈ 7-in-10); the stale
+  "ECE ~0.15 / not a probability" wording is removed. `validation_status.py`
+  `CONFIDENCE_CAVEAT` updated (single source of truth).
+- Rebuild: `python audit/build_compatibility_calibration.py`; measure:
+  `python audit/run_compat_calibration.py`.
+
+---
+
 ## 2026-05-30: Formation Energy Accuracy + Trust Bug Fixes
 
 **Major improvement:** Composition predictor formation-energy accuracy **MAE 0.473 → 0.304 eV/atom (−36%)**; RMSE 0.753 → 0.454 (−40%).

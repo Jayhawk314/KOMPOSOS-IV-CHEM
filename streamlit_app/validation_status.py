@@ -18,12 +18,14 @@ import streamlit as st
 
 LAST_SYNCED = "2026-05-29"
 
-# Confidence scores are ranking signals, not probabilities. ECE ~0.15 on the
-# compatibility engine even after the polymer fix (handoff 2026-05-29).
+# The compatibility score is now mapped to a calibrated probability via an
+# isotonic calibrator fit on dev+spent diagnostics (audit/build_compatibility_
+# calibration.py). Honest held-out (k-fold OOS) ECE ~0.07, down from ~0.19 raw.
 CONFIDENCE_CAVEAT = (
-    "The confidence number is a **rough guide, not an exact percentage.** A score "
-    "of 0.80 means *roughly* 70–90% likely to work — not exactly 80%. Use it to "
-    "rank and triage candidates, not as a precise probability."
+    "The **calibrated probability** is now a real probability: a 70% means roughly "
+    "7 in 10 such pairs are compatible (isotonic calibration, held-out ECE ~0.07, "
+    "down from ~0.19 uncalibrated). It is still a triage estimate, not a lab "
+    "guarantee — verify shortlisted pairs."
 )
 
 # Per-domain compatibility validation.

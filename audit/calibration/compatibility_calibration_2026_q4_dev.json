@@ -1,6 +1,6 @@
 {
   "version": "compatibility_calibration.2026_q4_dev.v1",
-  "created_at": "2026-05-21",
+  "created_at": "2026-05-30",
   "registry_version": "dataset_registry.2026-05-21.v1",
   "purpose": "Binned reliability calibration for compatibility scores using development and spent diagnostic data only.",
   "method": "domain-specific binned reliability with global fallback",
@@ -32,11 +32,11 @@
       "version": "dev_compatibility.contextual.2026_q2.v2",
       "path": "audit\\dev_compatibility\\contextual_dev_2026_q2.json",
       "role": "development",
-      "sha256": "4996fe7b5e7f6b67ded02748e78b16ecb5c29a70fe6985dd032922f27e925de2",
+      "sha256": "7d1777bdf86507dea895a92902c5aca1532d792d426958f2aa2fe2ebfd4982ee",
       "registry_sha256": "4996fe7b5e7f6b67ded02748e78b16ecb5c29a70fe6985dd032922f27e925de2",
       "pair_count": 14,
       "used_for_calibration": true,
-      "sha256_matches_registry": true
+      "sha256_matches_registry": false
     },
     {
       "version": "dev_compatibility.failure_families.2026_q2.v1",
@@ -67,6 +67,16 @@
       "pair_count": 4,
       "used_for_calibration": true,
       "sha256_matches_registry": true
+    },
+    {
+      "version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "path": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "role": "development",
+      "sha256": "be042f17432adaeadfafdfbd2ddc420ce89633ec39be79e5817d21e440b2cabe",
+      "registry_sha256": "be042f17432adaeadfafdfbd2ddc420ce89633ec39be79e5817d21e440b2cabe",
+      "pair_count": 5,
+      "used_for_calibration": true,
+      "sha256_matches_registry": true
     }
   ],
   "excluded_sources": [
@@ -75,31 +85,55 @@
       "path": "audit/external_blind/compatibility_2026_q4.json",
       "role": "spent_diagnostic",
       "reason": "current blind or not marked for calibration"
+    },
+    {
+      "version": "external_blind.compatibility.2026_q5.v1",
+      "path": "audit/external_blind/compatibility_2026_q5.json",
+      "role": "spent_diagnostic",
+      "reason": "current blind or not marked for calibration"
+    },
+    {
+      "version": "external_blind.compatibility.2026_q6.v1",
+      "path": "audit/external_blind/compatibility_2026_q6.json",
+      "role": "spent_diagnostic",
+      "reason": "current blind or not marked for calibration"
+    },
+    {
+      "version": "external_blind.compatibility.2026_q7.v1",
+      "path": "audit/external_blind/compatibility_2026_q7.json",
+      "role": "spent_diagnostic",
+      "reason": "current blind or not marked for calibration"
+    },
+    {
+      "version": "external_blind.compatibility.2026_q8.v1",
+      "path": "audit/external_blind/compatibility_2026_q8.json",
+      "role": "spent_diagnostic",
+      "reason": "current blind or not marked for calibration"
     }
   ],
-  "raw_pair_count": 102,
-  "raw_row_count": 102,
-  "calibration_row_count": 93,
+  "raw_pair_count": 107,
+  "raw_row_count": 107,
+  "calibration_row_count": 98,
   "duplicate_identity_count": 9,
   "metrics": {
-    "evaluated": 93,
+    "evaluated": 98,
     "abstentions": 0,
     "no_verdict": 0,
     "coverage": 1.0,
-    "tp": 50,
-    "tn": 43,
-    "fp": 0,
-    "fn": 0,
-    "accuracy": 1.0,
-    "precision": 1.0,
-    "recall": 1.0,
-    "specificity": 1.0,
-    "negative_predictive_value": 1.0,
-    "f1": 1.0,
-    "balanced_accuracy": 1.0,
-    "matthews_correlation_coefficient": 1.0,
-    "brier_score": 0.0813,
-    "expected_calibration_error": 0.2001,
+    "tp": 49,
+    "tn": 46,
+    "fp": 1,
+    "fn": 2,
+    "accuracy": 0.9694,
+    "precision": 0.98,
+    "recall": 0.9608,
+    "specificity": 0.9787,
+    "negative_predictive_value": 0.9583,
+    "f1": 0.9703,
+    "balanced_accuracy": 0.9698,
+    "matthews_correlation_coefficient": 0.9389,
+    "brier_score": 0.0901,
+    "expected_calibration_error": 0.1943,
     "score_bins": [
       {
         "bin": "0.0-0.1",
@@ -135,21 +169,21 @@
         "bin": "0.3-0.4",
         "lower": 0.3,
         "upper": 0.4,
-        "n": 14,
-        "mean_score": 0.3481,
-        "observed_positive_rate": 0.0,
-        "accuracy": 1.0,
-        "calibration_error": 0.3481
+        "n": 23,
+        "mean_score": 0.3543,
+        "observed_positive_rate": 0.087,
+        "accuracy": 0.913,
+        "calibration_error": 0.2673
       },
       {
         "bin": "0.4-0.5",
         "lower": 0.4,
         "upper": 0.5,
-        "n": 6,
-        "mean_score": 0.4547,
+        "n": 4,
+        "mean_score": 0.4453,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.4547
+        "calibration_error": 0.4453
       },
       {
         "bin": "0.5-0.6",
@@ -165,37 +199,37 @@
         "bin": "0.6-0.7",
         "lower": 0.6,
         "upper": 0.7,
-        "n": 9,
-        "mean_score": 0.6466,
-        "observed_positive_rate": 0.7778,
+        "n": 8,
+        "mean_score": 0.6528,
+        "observed_positive_rate": 1.0,
         "accuracy": 1.0,
-        "calibration_error": 0.1311
+        "calibration_error": 0.3472
       },
       {
         "bin": "0.7-0.8",
         "lower": 0.7,
         "upper": 0.8,
-        "n": 5,
-        "mean_score": 0.7356,
+        "n": 3,
+        "mean_score": 0.7467,
         "observed_positive_rate": 1.0,
         "accuracy": 1.0,
-        "calibration_error": 0.2644
+        "calibration_error": 0.2533
       },
       {
         "bin": "0.8-0.9",
         "lower": 0.8,
         "upper": 0.9,
         "n": 13,
-        "mean_score": 0.8599,
-        "observed_positive_rate": 1.0,
-        "accuracy": 1.0,
-        "calibration_error": 0.1401
+        "mean_score": 0.8588,
+        "observed_positive_rate": 0.9231,
+        "accuracy": 0.9231,
+        "calibration_error": 0.0642
       },
       {
         "bin": "0.9-1.0",
         "lower": 0.9,
         "upper": 1.0,
-        "n": 24,
+        "n": 25,
         "mean_score": 0.9424,
         "observed_positive_rate": 1.0,
         "accuracy": 1.0,
@@ -205,20 +239,136 @@
   },
   "failure_memory": {
     "dataset": "compatibility_calibration_2026_q4_dev",
-    "episode_count": 0,
+    "episode_count": 3,
     "include_correct": false,
-    "pattern_counts": {},
-    "verdict_counts": {},
-    "decision_status_counts": {},
-    "delta_distribution": {},
-    "resolution_distribution": {},
-    "episodes": []
+    "pattern_counts": {
+      "false_negative:polymer": 2,
+      "false_positive:battery_polymer_context": 1
+    },
+    "verdict_counts": {
+      "FN": 2,
+      "FP": 1
+    },
+    "decision_status_counts": {
+      "compatible": 1,
+      "incompatible": 2
+    },
+    "delta_distribution": {
+      "HOLLOW": 1,
+      "ORPHAN": 2
+    },
+    "resolution_distribution": {
+      "REFUTED": 3
+    },
+    "episodes": [
+      {
+        "episode_id": "compat-9703ce1ee19755ac",
+        "source_row_id": 9117,
+        "material_a": "CMC",
+        "material_b": "LCO",
+        "domain": "battery-polymer",
+        "relation": "compatible_with",
+        "pattern": "false_positive:battery_polymer_context",
+        "verdict": "FP",
+        "decision_status": "compatible",
+        "delta_type": "HOLLOW",
+        "resolution": "REFUTED",
+        "resolution_notes": "false_positive:battery_polymer_context",
+        "score": 0.852,
+        "expected_compatible": false,
+        "predicted_compatible": true,
+        "cat_confidence": 0.7724,
+        "evidence_confidence": 1.0,
+        "context": {},
+        "missing_context": [
+          "role"
+        ]
+      },
+      {
+        "episode_id": "compat-e24a6560d562d3da",
+        "source_row_id": 9126,
+        "material_a": "ABS",
+        "material_b": "PMMA",
+        "domain": "polymer",
+        "relation": "compatible_with",
+        "pattern": "false_negative:polymer",
+        "verdict": "FN",
+        "decision_status": "incompatible",
+        "delta_type": "ORPHAN",
+        "resolution": "REFUTED",
+        "resolution_notes": "false_negative:polymer",
+        "score": 0.35,
+        "expected_compatible": true,
+        "predicted_compatible": false,
+        "cat_confidence": 0.53,
+        "evidence_confidence": 1.0,
+        "context": {},
+        "missing_context": []
+      },
+      {
+        "episode_id": "compat-f0e691185a7898dc",
+        "source_row_id": 9221,
+        "material_a": "ABS",
+        "material_b": "PVC",
+        "domain": "polymer",
+        "relation": "compatible_with",
+        "pattern": "false_negative:polymer",
+        "verdict": "FN",
+        "decision_status": "incompatible",
+        "delta_type": "ORPHAN",
+        "resolution": "REFUTED",
+        "resolution_notes": "false_negative:polymer",
+        "score": 0.35,
+        "expected_compatible": true,
+        "predicted_compatible": false,
+        "cat_confidence": 0.53,
+        "evidence_confidence": 1.0,
+        "context": {
+          "processing_route": "melt_blend"
+        },
+        "missing_context": []
+      }
+    ]
+  },
+  "isotonic_calibrator": {
+    "method": "isotonic",
+    "available": true,
+    "n": 98,
+    "x": [
+      0.12,
+      0.3461,
+      0.35,
+      0.5152,
+      0.5337,
+      0.5949,
+      0.603,
+      0.852,
+      0.8575,
+      0.9815
+    ],
+    "y": [
+      0.0,
+      0.0,
+      0.071429,
+      0.071429,
+      0.333333,
+      0.333333,
+      0.941176,
+      0.941176,
+      1.0,
+      1.0
+    ],
+    "oos_ece": 0.0722,
+    "oos_brier": 0.0492,
+    "in_pool_ece": 0.0,
+    "raw_ece": 0.1943,
+    "note": "Maps a raw compatibility score to a calibrated probability. Runtime interpolates linearly between (x, y) breakpoints."
   },
   "global_calibrator": {
     "method": "binned_reliability",
     "num_bins": 10,
     "min_bin_count": 3,
-    "global_positive_rate": 0.5376,
+    "global_positive_rate": 0.5204,
     "bins": [
       {
         "bin": "0.0-0.1",
@@ -254,21 +404,21 @@
         "bin": "0.3-0.4",
         "lower": 0.3,
         "upper": 0.4,
-        "n": 14,
-        "mean_score": 0.3481,
-        "observed_positive_rate": 0.0,
-        "accuracy": 1.0,
-        "calibration_error": 0.3481
+        "n": 23,
+        "mean_score": 0.3543,
+        "observed_positive_rate": 0.087,
+        "accuracy": 0.913,
+        "calibration_error": 0.2673
       },
       {
         "bin": "0.4-0.5",
         "lower": 0.4,
         "upper": 0.5,
-        "n": 6,
-        "mean_score": 0.4547,
+        "n": 4,
+        "mean_score": 0.4453,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.4547
+        "calibration_error": 0.4453
       },
       {
         "bin": "0.5-0.6",
@@ -284,37 +434,37 @@
         "bin": "0.6-0.7",
         "lower": 0.6,
         "upper": 0.7,
-        "n": 9,
-        "mean_score": 0.6466,
-        "observed_positive_rate": 0.7778,
+        "n": 8,
+        "mean_score": 0.6528,
+        "observed_positive_rate": 1.0,
         "accuracy": 1.0,
-        "calibration_error": 0.1311
+        "calibration_error": 0.3472
       },
       {
         "bin": "0.7-0.8",
         "lower": 0.7,
         "upper": 0.8,
-        "n": 5,
-        "mean_score": 0.7356,
+        "n": 3,
+        "mean_score": 0.7467,
         "observed_positive_rate": 1.0,
         "accuracy": 1.0,
-        "calibration_error": 0.2644
+        "calibration_error": 0.2533
       },
       {
         "bin": "0.8-0.9",
         "lower": 0.8,
         "upper": 0.9,
         "n": 13,
-        "mean_score": 0.8599,
-        "observed_positive_rate": 1.0,
-        "accuracy": 1.0,
-        "calibration_error": 0.1401
+        "mean_score": 0.8588,
+        "observed_positive_rate": 0.9231,
+        "accuracy": 0.9231,
+        "calibration_error": 0.0642
       },
       {
         "bin": "0.9-1.0",
         "lower": 0.9,
         "upper": 1.0,
-        "n": 24,
+        "n": 25,
         "mean_score": 0.9424,
         "observed_positive_rate": 1.0,
         "accuracy": 1.0,
@@ -789,24 +939,24 @@
     },
     "battery-polymer": {
       "metrics": {
-        "evaluated": 19,
+        "evaluated": 20,
         "abstentions": 0,
         "no_verdict": 0,
         "coverage": 1.0,
         "tp": 13,
         "tn": 6,
-        "fp": 0,
+        "fp": 1,
         "fn": 0,
-        "accuracy": 1.0,
-        "precision": 1.0,
+        "accuracy": 0.95,
+        "precision": 0.9286,
         "recall": 1.0,
-        "specificity": 1.0,
+        "specificity": 0.8571,
         "negative_predictive_value": 1.0,
-        "f1": 1.0,
-        "balanced_accuracy": 1.0,
-        "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.0343,
-        "expected_calibration_error": 0.1471,
+        "f1": 0.963,
+        "balanced_accuracy": 0.9286,
+        "matthews_correlation_coefficient": 0.8921,
+        "brier_score": 0.0689,
+        "expected_calibration_error": 0.1435,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -892,11 +1042,11 @@
             "bin": "0.8-0.9",
             "lower": 0.8,
             "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8707,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.1293
+            "n": 4,
+            "mean_score": 0.866,
+            "observed_positive_rate": 0.75,
+            "accuracy": 0.75,
+            "calibration_error": 0.116
           },
           {
             "bin": "0.9-1.0",
@@ -914,7 +1064,7 @@
         "method": "binned_reliability",
         "num_bins": 10,
         "min_bin_count": 3,
-        "global_positive_rate": 0.6842,
+        "global_positive_rate": 0.65,
         "bins": [
           {
             "bin": "0.0-0.1",
@@ -1000,11 +1150,11 @@
             "bin": "0.8-0.9",
             "lower": 0.8,
             "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8707,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.1293
+            "n": 4,
+            "mean_score": 0.866,
+            "observed_positive_rate": 0.75,
+            "accuracy": 0.75,
+            "calibration_error": 0.116
           },
           {
             "bin": "0.9-1.0",
@@ -1021,11 +1171,11 @@
     },
     "ceramic": {
       "metrics": {
-        "evaluated": 13,
+        "evaluated": 14,
         "abstentions": 0,
         "no_verdict": 0,
         "coverage": 1.0,
-        "tp": 6,
+        "tp": 7,
         "tn": 7,
         "fp": 0,
         "fn": 0,
@@ -1037,8 +1187,8 @@
         "f1": 1.0,
         "balanced_accuracy": 1.0,
         "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.1453,
-        "expected_calibration_error": 0.2876,
+        "brier_score": 0.096,
+        "expected_calibration_error": 0.2903,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -1074,21 +1224,21 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 3,
-            "mean_score": 0.3426,
+            "n": 6,
+            "mean_score": 0.3613,
             "observed_positive_rate": 0.0,
             "accuracy": 1.0,
-            "calibration_error": 0.3426
+            "calibration_error": 0.3613
           },
           {
             "bin": "0.4-0.5",
             "lower": 0.4,
             "upper": 0.5,
-            "n": 1,
-            "mean_score": 0.497,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.497
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.5-0.6",
@@ -1104,11 +1254,11 @@
             "bin": "0.6-0.7",
             "lower": 0.6,
             "upper": 0.7,
-            "n": 3,
-            "mean_score": 0.618,
-            "observed_positive_rate": 0.3333,
+            "n": 1,
+            "mean_score": 0.6237,
+            "observed_positive_rate": 1.0,
             "accuracy": 1.0,
-            "calibration_error": 0.2846
+            "calibration_error": 0.3763
           },
           {
             "bin": "0.7-0.8",
@@ -1124,11 +1274,11 @@
             "bin": "0.8-0.9",
             "lower": 0.8,
             "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8554,
+            "n": 4,
+            "mean_score": 0.8516,
             "observed_positive_rate": 1.0,
             "accuracy": 1.0,
-            "calibration_error": 0.1446
+            "calibration_error": 0.1484
           },
           {
             "bin": "0.9-1.0",
@@ -1146,7 +1296,7 @@
         "method": "binned_reliability",
         "num_bins": 10,
         "min_bin_count": 3,
-        "global_positive_rate": 0.4615,
+        "global_positive_rate": 0.5,
         "bins": [
           {
             "bin": "0.0-0.1",
@@ -1182,21 +1332,21 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 3,
-            "mean_score": 0.3426,
+            "n": 6,
+            "mean_score": 0.3613,
             "observed_positive_rate": 0.0,
             "accuracy": 1.0,
-            "calibration_error": 0.3426
+            "calibration_error": 0.3613
           },
           {
             "bin": "0.4-0.5",
             "lower": 0.4,
             "upper": 0.5,
-            "n": 1,
-            "mean_score": 0.497,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.497
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.5-0.6",
@@ -1212,11 +1362,11 @@
             "bin": "0.6-0.7",
             "lower": 0.6,
             "upper": 0.7,
-            "n": 3,
-            "mean_score": 0.618,
-            "observed_positive_rate": 0.3333,
+            "n": 1,
+            "mean_score": 0.6237,
+            "observed_positive_rate": 1.0,
             "accuracy": 1.0,
-            "calibration_error": 0.2846
+            "calibration_error": 0.3763
           },
           {
             "bin": "0.7-0.8",
@@ -1232,11 +1382,11 @@
             "bin": "0.8-0.9",
             "lower": 0.8,
             "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8554,
+            "n": 4,
+            "mean_score": 0.8516,
             "observed_positive_rate": 1.0,
             "accuracy": 1.0,
-            "calibration_error": 0.1446
+            "calibration_error": 0.1484
           },
           {
             "bin": "0.9-1.0",
@@ -1717,24 +1867,24 @@
     },
     "polymer": {
       "metrics": {
-        "evaluated": 13,
+        "evaluated": 16,
         "abstentions": 0,
         "no_verdict": 0,
         "coverage": 1.0,
-        "tp": 5,
-        "tn": 8,
+        "tp": 3,
+        "tn": 11,
         "fp": 0,
-        "fn": 0,
-        "accuracy": 1.0,
+        "fn": 2,
+        "accuracy": 0.875,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.6,
         "specificity": 1.0,
-        "negative_predictive_value": 1.0,
-        "f1": 1.0,
-        "balanced_accuracy": 1.0,
-        "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.0986,
-        "expected_calibration_error": 0.2995,
+        "negative_predictive_value": 0.8462,
+        "f1": 0.75,
+        "balanced_accuracy": 0.8,
+        "matthews_correlation_coefficient": 0.7125,
+        "brier_score": 0.1484,
+        "expected_calibration_error": 0.1966,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -1770,21 +1920,21 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 7,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 13,
+            "mean_score": 0.3526,
+            "observed_positive_rate": 0.1538,
+            "accuracy": 0.8462,
+            "calibration_error": 0.1988
           },
           {
             "bin": "0.4-0.5",
             "lower": 0.4,
             "upper": 0.5,
-            "n": 1,
-            "mean_score": 0.45,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.45
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.5-0.6",
@@ -1800,41 +1950,41 @@
             "bin": "0.6-0.7",
             "lower": 0.6,
             "upper": 0.7,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.6331,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3669
           },
           {
             "bin": "0.7-0.8",
             "lower": 0.7,
             "upper": 0.8,
-            "n": 2,
-            "mean_score": 0.7189,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.2811
-          },
-          {
-            "bin": "0.8-0.9",
-            "lower": 0.8,
-            "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8562,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.1438
-          },
-          {
-            "bin": "0.9-1.0",
-            "lower": 0.9,
-            "upper": 1.0,
             "n": 0,
             "mean_score": null,
             "observed_positive_rate": null,
             "accuracy": null,
             "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 1,
+            "mean_score": 0.8625,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1375
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 1,
+            "mean_score": 0.9425,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0575
           }
         ]
       },
@@ -1842,7 +1992,7 @@
         "method": "binned_reliability",
         "num_bins": 10,
         "min_bin_count": 3,
-        "global_positive_rate": 0.3846,
+        "global_positive_rate": 0.3125,
         "bins": [
           {
             "bin": "0.0-0.1",
@@ -1878,21 +2028,21 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 7,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 13,
+            "mean_score": 0.3526,
+            "observed_positive_rate": 0.1538,
+            "accuracy": 0.8462,
+            "calibration_error": 0.1988
           },
           {
             "bin": "0.4-0.5",
             "lower": 0.4,
             "upper": 0.5,
-            "n": 1,
-            "mean_score": 0.45,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.45
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.5-0.6",
@@ -1908,41 +2058,41 @@
             "bin": "0.6-0.7",
             "lower": 0.6,
             "upper": 0.7,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.6331,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.3669
           },
           {
             "bin": "0.7-0.8",
             "lower": 0.7,
             "upper": 0.8,
-            "n": 2,
-            "mean_score": 0.7189,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.2811
-          },
-          {
-            "bin": "0.8-0.9",
-            "lower": 0.8,
-            "upper": 0.9,
-            "n": 3,
-            "mean_score": 0.8562,
-            "observed_positive_rate": 1.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.1438
-          },
-          {
-            "bin": "0.9-1.0",
-            "lower": 0.9,
-            "upper": 1.0,
             "n": 0,
             "mean_score": null,
             "observed_positive_rate": null,
             "accuracy": null,
             "calibration_error": null
+          },
+          {
+            "bin": "0.8-0.9",
+            "lower": 0.8,
+            "upper": 0.9,
+            "n": 1,
+            "mean_score": 0.8625,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1375
+          },
+          {
+            "bin": "0.9-1.0",
+            "lower": 0.9,
+            "upper": 1.0,
+            "n": 1,
+            "mean_score": 0.9425,
+            "observed_positive_rate": 1.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0575
           }
         ]
       }
@@ -2586,15 +2736,15 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.35,
-      "predicted_compatible": false,
+      "score": 0.852,
+      "predicted_compatible": true,
       "expected_compatible": false,
-      "decision_status": "incompatible",
+      "decision_status": "compatible",
       "decision": {
-        "status": "incompatible",
-        "score": 0.35,
-        "predicted_compatible": false,
-        "confidence": 0.53,
+        "status": "compatible",
+        "score": 0.852,
+        "predicted_compatible": true,
+        "confidence": 0.7724,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -2603,8 +2753,8 @@
           ]
         }
       },
-      "verdict": "TN",
-      "correct": true
+      "verdict": "FP",
+      "correct": false
     },
     {
       "id": 30011,
@@ -2617,22 +2767,22 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.865,
-      "predicted_compatible": true,
-      "expected_compatible": true,
-      "decision_status": "compatible",
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
       "decision": {
-        "status": "compatible",
-        "score": 0.865,
-        "predicted_compatible": true,
-        "confidence": 0.788,
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
           "missing_context": []
         }
       },
-      "verdict": "TP",
+      "verdict": "TN",
       "correct": true
     },
     {
@@ -2706,23 +2856,23 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.8653,
-      "predicted_compatible": true,
+      "score": 0.35,
+      "predicted_compatible": false,
       "expected_compatible": true,
-      "decision_status": "compatible",
+      "decision_status": "incompatible",
       "decision": {
-        "status": "compatible",
-        "score": 0.8653,
-        "predicted_compatible": true,
-        "confidence": 0.7883,
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
           "missing_context": []
         }
       },
-      "verdict": "TP",
-      "correct": true
+      "verdict": "FN",
+      "correct": false
     },
     {
       "id": 9127,
@@ -2735,15 +2885,15 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.7375,
+      "score": 0.9425,
       "predicted_compatible": true,
       "expected_compatible": true,
       "decision_status": "compatible",
       "decision": {
         "status": "compatible",
-        "score": 0.7375,
+        "score": 0.9425,
         "predicted_compatible": true,
-        "confidence": 0.6351,
+        "confidence": 0.881,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3561,23 +3711,23 @@
       "context": {
         "processing_route": "melt_blend"
       },
-      "score": 0.8384,
-      "predicted_compatible": true,
+      "score": 0.35,
+      "predicted_compatible": false,
       "expected_compatible": true,
-      "decision_status": "compatible",
+      "decision_status": "incompatible",
       "decision": {
-        "status": "compatible",
-        "score": 0.8384,
-        "predicted_compatible": true,
-        "confidence": 0.7561,
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
           "missing_context": []
         }
       },
-      "verdict": "TP",
-      "correct": true
+      "verdict": "FN",
+      "correct": false
     },
     {
       "id": 30205,
@@ -3592,15 +3742,15 @@
       "context": {
         "processing_route": "filled_compound"
       },
-      "score": 0.7003,
+      "score": 0.8625,
       "predicted_compatible": true,
       "expected_compatible": true,
       "decision_status": "compatible",
       "decision": {
         "status": "compatible",
-        "score": 0.7003,
+        "score": 0.8625,
         "predicted_compatible": true,
-        "confidence": 0.5904,
+        "confidence": 0.785,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3656,15 +3806,15 @@
         "processing_route": "melt_blend",
         "compatibilizer": "none"
       },
-      "score": 0.45,
+      "score": 0.35,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.45,
+        "score": 0.35,
         "predicted_compatible": false,
-        "confidence": 0.41,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3687,15 +3837,15 @@
       "context": {
         "interface_type": "adhesive_contact"
       },
-      "score": 0.35,
+      "score": 0.3844,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.3844,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.4887,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3936,15 +4086,15 @@
       "context": {
         "interface_type": "oxide_nitride_dielectric_mismatch"
       },
-      "score": 0.6244,
+      "score": 0.38,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.6244,
+        "score": 0.38,
         "predicted_compatible": false,
-        "confidence": 0.4992,
+        "confidence": 0.494,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4658,15 +4808,15 @@
       "context": {
         "interface_type": "oxide_ceramic_reactive_pair"
       },
-      "score": 0.497,
+      "score": 0.38,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.497,
+        "score": 0.38,
         "predicted_compatible": false,
-        "confidence": 0.3536,
+        "confidence": 0.494,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4689,15 +4839,15 @@
       "context": {
         "interface_type": "silica_network_family_with_cte_warning"
       },
-      "score": 0.6058,
+      "score": 0.38,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.6058,
+        "score": 0.38,
         "predicted_compatible": false,
-        "confidence": 0.4769,
+        "confidence": 0.494,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -5049,6 +5199,162 @@
       },
       "verdict": "TP",
       "correct": true
+    },
+    {
+      "id": 30401,
+      "dataset_version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "domain": "battery-polymer",
+      "material_a": "CMC",
+      "material_b": "LFP",
+      "electrolyte": null,
+      "role": "cathode_binder",
+      "context": {
+        "role": "cathode_binder"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30402,
+      "dataset_version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "domain": "polymer",
+      "material_a": "PAN",
+      "material_b": "PEO",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend"
+      },
+      "score": 0.6331,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.6331,
+        "predicted_compatible": true,
+        "confidence": 0.5097,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
+    },
+    {
+      "id": 30403,
+      "dataset_version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "domain": "polymer",
+      "material_a": "ABS",
+      "material_b": "PTFE",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30404,
+      "dataset_version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "domain": "polymer",
+      "material_a": "PA66",
+      "material_b": "POM",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "processing_route": "melt_blend",
+        "compatibilizer": "none"
+      },
+      "score": 0.35,
+      "predicted_compatible": false,
+      "expected_compatible": false,
+      "decision_status": "incompatible",
+      "decision": {
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TN",
+      "correct": true
+    },
+    {
+      "id": 30405,
+      "dataset_version": "dev_compatibility.q5_failure_families.2026_q5.v1",
+      "dataset_role": "development",
+      "source": "audit\\dev_compatibility\\q5_failure_family_dev_2026_q5.json",
+      "domain": "ceramic",
+      "material_a": "AlN",
+      "material_b": "TiN",
+      "electrolyte": null,
+      "role": null,
+      "context": {
+        "interface_type": "nitride_ceramic_composite"
+      },
+      "score": 0.84,
+      "predicted_compatible": true,
+      "expected_compatible": true,
+      "decision_status": "compatible",
+      "decision": {
+        "status": "compatible",
+        "score": 0.84,
+        "predicted_compatible": true,
+        "confidence": 0.758,
+        "missing_context": [],
+        "reasons": [],
+        "metadata": {
+          "missing_context": []
+        }
+      },
+      "verdict": "TP",
+      "correct": true
     }
   ],
   "duplicate_rows_excluded": [
@@ -5063,23 +5369,23 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.865,
-      "predicted_compatible": true,
+      "score": 0.35,
+      "predicted_compatible": false,
       "expected_compatible": true,
-      "decision_status": "compatible",
+      "decision_status": "incompatible",
       "decision": {
-        "status": "compatible",
-        "score": 0.865,
-        "predicted_compatible": true,
-        "confidence": 0.788,
+        "status": "incompatible",
+        "score": 0.35,
+        "predicted_compatible": false,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
           "missing_context": []
         }
       },
-      "verdict": "TP",
-      "correct": true
+      "verdict": "FN",
+      "correct": false
     },
     {
       "id": 9223,
@@ -5127,15 +5433,15 @@
         "processing_route": "melt_blend",
         "compatibilizer": "none"
       },
-      "score": 0.45,
+      "score": 0.35,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.45,
+        "score": 0.35,
         "predicted_compatible": false,
-        "confidence": 0.41,
+        "confidence": 0.53,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -5158,15 +5464,15 @@
       "context": {
         "interface_type": "adhesive_contact"
       },
-      "score": 0.35,
+      "score": 0.3844,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.3844,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.4887,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -5189,15 +5495,15 @@
       "context": {
         "processing_route": "filled_compound"
       },
-      "score": 0.7003,
+      "score": 0.8625,
       "predicted_compatible": true,
       "expected_compatible": true,
       "decision_status": "compatible",
       "decision": {
         "status": "compatible",
-        "score": 0.7003,
+        "score": 0.8625,
         "predicted_compatible": true,
-        "confidence": 0.5904,
+        "confidence": 0.785,
         "missing_context": [],
         "reasons": [],
         "metadata": {

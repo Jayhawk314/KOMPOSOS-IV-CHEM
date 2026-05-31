@@ -171,6 +171,76 @@ def _dedupe_rows(rows: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List
     return list(selected.values()), duplicates
 
 
+def _isotonic_ece(scores, labels, n_bins: int = 10) -> float:
+    import numpy as np
+
+    scores = np.asarray(scores, dtype=float)
+    labels = np.asarray(labels, dtype=float)
+    n = len(scores) or 1
+    ece = 0.0
+    for b in range(n_bins):
+        lo, hi = b / n_bins, (b + 1) / n_bins
+        mask = (scores >= lo) & (scores < hi if b < n_bins - 1 else scores <= hi)
+        if mask.any():
+            ece += mask.mean() * abs(scores[mask].mean() - labels[mask].mean())
+    return float(ece)
+
+
+def _fit_isotonic_calibrator(rows: List[Dict[str, Any]], n_folds: int = 5) -> Dict[str, Any]:
+    """Fit a global isotonic score->probability calibrator.
+
+    Stored as monotonic (x, y) breakpoints so the runtime can interpolate
+    without sklearn. Includes honest k-fold OUT-OF-SAMPLE ECE/Brier so the
+    deployed calibration claim is the held-out number, not the in-pool fit.
+    Isotonic beat raw/Platt out-of-sample (see audit/fit_compat_calibration.py).
+    """
+    import numpy as np
+    from sklearn.isotonic import IsotonicRegression
+
+    data = [
+        (float(r["score"]), 1.0 if r["expected_compatible"] else 0.0)
+        for r in rows
+        if r.get("score") is not None and r.get("expected_compatible") is not None
+    ]
+    if len(data) < 10:
+        return {"method": "isotonic", "available": False, "reason": "insufficient labeled rows", "n": len(data)}
+
+    S = np.array([d[0] for d in data])
+    Y = np.array([d[1] for d in data])
+
+    def brier(scores, labels):
+        return float(np.mean((np.asarray(scores) - np.asarray(labels)) ** 2))
+
+    idx = np.arange(len(S))
+    oos_e, oos_b = [], []
+    for k in range(n_folds):
+        test = idx[idx % n_folds == k]
+        train = idx[idx % n_folds != k]
+        if len(test) == 0 or len(train) == 0 or len(set(Y[train])) < 2:
+            continue
+        iso = IsotonicRegression(out_of_bounds="clip").fit(S[train], Y[train])
+        p = iso.predict(S[test])
+        oos_e.append(_isotonic_ece(p, Y[test]))
+        oos_b.append(brier(p, Y[test]))
+
+    full = IsotonicRegression(out_of_bounds="clip").fit(S, Y)
+    xs = [round(float(x), 6) for x in full.X_thresholds_]
+    ys = [round(float(y), 6) for y in full.y_thresholds_]
+    return {
+        "method": "isotonic",
+        "available": True,
+        "n": len(data),
+        "x": xs,
+        "y": ys,
+        "oos_ece": round(sum(oos_e) / len(oos_e), 4) if oos_e else None,
+        "oos_brier": round(sum(oos_b) / len(oos_b), 4) if oos_b else None,
+        "in_pool_ece": round(_isotonic_ece(full.predict(S), Y), 4),
+        "raw_ece": round(_isotonic_ece(S, Y), 4),
+        "note": "Maps a raw compatibility score to a calibrated probability. "
+                "Runtime interpolates linearly between (x, y) breakpoints.",
+    }
+
+
 def _build_domain_calibrators(rows: List[Dict[str, Any]], min_bin_count: int) -> Dict[str, Any]:
     domains: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for row in rows:
@@ -243,6 +313,7 @@ def build_calibration(
         "duplicate_identity_count": len(duplicate_rows),
         "metrics": _compute_classification_metrics(calibration_rows),
         "failure_memory": build_failure_memory(calibration_rows, dataset_name="compatibility_calibration_2026_q4_dev"),
+        "isotonic_calibrator": _fit_isotonic_calibrator(calibration_rows),
         "global_calibrator": global_calibrator.to_dict(),
         "domain_calibrators": _build_domain_calibrators(calibration_rows, min_bin_count),
         "rows": calibration_rows,
