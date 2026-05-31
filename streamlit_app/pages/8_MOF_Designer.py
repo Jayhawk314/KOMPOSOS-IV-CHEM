@@ -286,16 +286,8 @@ if "mof_result" in st.session_state:
                     st.write(f"Novelty (1 - nearest-known): {round(1 - best_fr['max_tanimoto'], 2)}")
                 if best_fr["pains_brenk_flag"]:
                     st.caption("Trips PAINS/Brenk drug filters — common for real MOF linkers; informational only.")
-            with st.expander("Legacy self-graded verdicts (not validated)"):
-                for vn, vv in best.verdicts.items():
-                    st.write(f"{_verdict_icon(vv)} {vn}: {best.verdict_scores.get(vn, 0):.2f}")
-
-        if best.reasoning_traces:
-            with st.expander("Reasoning traces"):
-                for vn, trace in best.reasoning_traces.items():
-                    st.markdown(f"**{vn}:**")
-                    safe = trace.encode("ascii", "replace").decode()
-                    st.caption(safe)
+            
+            st.info("ℹ️ **Legacy Verdicts Deprecated**\n\nThe unvalidated self-graded verdicts (Synthesizability, Toxicity, etc.) have been removed. Linkers are now strictly evaluated using the validated **Grounded Funnel** (SAscore, Coordination, Geometry).")
 
         # Export
         st.divider()
