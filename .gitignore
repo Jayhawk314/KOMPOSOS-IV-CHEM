@@ -99,11 +99,14 @@ foundation/
 
 # Archive candidates & old scripts
 archive/
+# Math/optimus-infra tests tied to ignored modules (hott/, game/, etc.) stay ignored:
 tests/test_optimus_integration.py
 tests/test_infinity_cosmos.py
 tests/test_higher_order_yoneda.py
 tests/stress_test_full_stack.py
-test_*.py
+# NOTE: `test_*.py` is intentionally NOT blanket-ignored — the test suites are
+# part of the repo so the code is verifiable on clone / CI. (Was previously
+# ignored, which silently kept every test out of version control.)
 verify_*.py
 measure_*.py
 calibrate_*.py
