@@ -53,6 +53,7 @@ from target properties to candidate materials before expensive lab or simulation
 | **MOF Explorer** | Screen 30 Metal-Organic Frameworks against operating conditions with a 5-scorer breakdown |
 | **MOF Designer** | Generate novel MOF linkers with exact atom count control, donor atom filtering, and 5 KOMPOSOS verdicts |
 | **Discovery Workbench** | Run the current composition-first pipeline: inverse design, element constraints, PFAS screening, compatibility context, and synthesis planning |
+| **Advanced Triage Workbench** | **NEW:** A mixed-fidelity pipeline separating fast discovery (triage) from strict logical verification (ZFC charge balance and Multi-Domain cell bottlenecks), explicitly surfacing calculation uncertainty. |
 
 ---
 
@@ -76,15 +77,18 @@ dual-engine constraints.
 
 ## Current Workbench Status
 
-The Discovery Workbench is a working **composition-first prototype**. It currently chains:
+The Discovery Workbench is a working **composition-first prototype**, now available in two modes:
 
-1. **Target property bounds** with optional min/max controls.
-2. **Element constraints** with searchable element selectors.
-3. **Compatibility context** with searchable material and interface-role selectors.
-4. **Synthesis planning** through the current route planner.
+**1. Discovery Workbench (Standard)**
+Chains Target Property Bounds → Element Constraints → Compatibility Context → Synthesis Planning. Best used for rapid exploration and bulk triage.
 
-CRYSTAL-specific and MOF-specific pipeline modes are planned next; the current
-page should be used as a screening and triage tool, not as a final lab validation system.
+**2. Advanced Triage Workbench (Mixed-Fidelity)**
+A rigorous evolution separating **Triage** from **Precision Verification**. 
+- Highlights explicit **Calculation Uncertainty** (e.g., Voltage `[4.1 - 4.5V]`) so researchers know when the engine is guessing vs. certain.
+- Uses **ZFC Physical Gates** to immediately veto mathematically "correct" but physically impossible formulas (e.g., charge imbalance).
+- Evaluates discovered materials in a **Full-Cell Context** using the `MultiDomainAnalyzer` to catch cross-domain bottlenecks.
+
+CRYSTAL-specific and MOF-specific pipeline modes are planned next.
 
 - **5 independent scorers** per bridge where available
 - **Dempster-Shafer fusion** for multi-source evidence combination
