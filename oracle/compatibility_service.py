@@ -28,6 +28,26 @@ class CompatibilityWorkflowResult:
     viable: bool
     md_results: Optional[Dict[str, Any]] = None
 
+    @property
+    def calibrated_probability(self) -> Optional[float]:
+        """Calibrated probability of compatibility (isotonic), if available."""
+        cal = self.scores.get("calibration") if isinstance(self.scores, dict) else None
+        if isinstance(cal, dict):
+            return cal.get("calibrated_probability")
+        return None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "material_a": self.material_a,
+            "material_b": self.material_b,
+            "domain": self.domain,
+            "viable": self.viable,
+            "total": self.scores.get("total") if isinstance(self.scores, dict) else None,
+            "calibrated_probability": self.calibrated_probability,
+            "scores": self.scores,
+            "md_results": self.md_results,
+        }
+
 
 def run_compatibility_workflow(
     material_a: str,

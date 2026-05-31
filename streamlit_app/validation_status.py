@@ -82,7 +82,10 @@ FEATURE_NOTES = {
         "so it catches even PFAS it has never seen by name. On a check it cleared "
         "**25/25 non-PFAS look-alikes** correctly and matched the **EPA's official "
         "list 99.5%** of the time; brand names and the registry are also matched. "
-        "Suggested replacements are rough guides — see the evidence label on each."
+        "Suggested replacements are rough guides (see each evidence label), but if "
+        "you list your cell's adjoining materials, each replacement is also scored "
+        "for **calibrated compatibility** against them — surfacing the weakest "
+        "interface so you get 'PFAS-free AND fits your cell', not just 'not PFAS'."
     ),
     "mof_designer": (
         "Atom-count and donor-atom constraints are **exactly enforced (100%)** — "

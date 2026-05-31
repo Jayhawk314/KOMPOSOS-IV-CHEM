@@ -581,6 +581,89 @@ def find_compatible_replacements(
     return results
 
 
+def find_replacements_for_cell(
+    pfas_name: str,
+    adjoining_materials: List[str],
+    use_case: UseCase = UseCase.GENERAL,
+    domain: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Score PFAS-free replacements against EVERY adjoining material in a cell/stack.
+
+    A replacement is only as good for *your cell* as its weakest interface, so we
+    report the per-interface calibrated compatibility probability AND the
+    bottleneck (the worst one). This turns "not PFAS" into
+    "PFAS-clean AND compatible with your cell".
+
+    Returns a list of dicts (one per replacement), each:
+        {
+          "candidate": ReplacementCandidate,
+          "interfaces": {adjoining_material: {score, calibrated, viable, domain, evaluated}},
+          "bottleneck_material": str | None,   # weakest interface
+          "bottleneck_calibrated": float | None,
+          "bottleneck_viable": bool | None,
+          "n_evaluated": int,                  # interfaces the engine could score
+          "combined_rank": float,              # 0.6*quality + 0.4*bottleneck
+        }
+    sorted by combined_rank (best first).
+    """
+    adjoining = [m.strip() for m in adjoining_materials if m and m.strip()]
+    candidates = find_replacements(pfas_name, use_case)
+    out: List[Dict[str, Any]] = []
+
+    for candidate in candidates:
+        bridge_name = candidate.name.split("+")[0] if "+" in candidate.name else candidate.name
+        interfaces: Dict[str, Dict[str, Any]] = {}
+
+        for mat in adjoining:
+            entry: Dict[str, Any] = {
+                "score": None, "calibrated": None, "viable": None,
+                "domain": None, "evaluated": False,
+            }
+            try:
+                res = run_compatibility_workflow(bridge_name, mat, domain=domain)
+                entry.update(
+                    score=res.scores.get("total"),
+                    calibrated=res.calibrated_probability,
+                    viable=res.viable,
+                    domain=res.domain,
+                    evaluated=True,
+                )
+            except Exception:
+                # Material pair not in the compatibility registry — leave unevaluated.
+                pass
+            interfaces[mat] = entry
+
+        evaluated = [e for e in interfaces.values() if e["evaluated"]]
+        # Bottleneck = weakest evaluated interface, by calibrated probability.
+        scored = [e for e in evaluated if e["calibrated"] is not None]
+        if scored:
+            worst = min(scored, key=lambda e: e["calibrated"])
+            bottleneck_cal = worst["calibrated"]
+            bottleneck_mat = next(m for m, e in interfaces.items() if e is worst)
+            bottleneck_viable = all(e["viable"] for e in evaluated if e["viable"] is not None)
+        else:
+            bottleneck_cal = None
+            bottleneck_mat = None
+            bottleneck_viable = None
+
+        # Rank: replacement quality, tempered by the worst-interface compatibility.
+        cell_term = bottleneck_cal if bottleneck_cal is not None else 0.5
+        combined = 0.6 * candidate.overall_score + 0.4 * cell_term
+
+        out.append({
+            "candidate": candidate,
+            "interfaces": interfaces,
+            "bottleneck_material": bottleneck_mat,
+            "bottleneck_calibrated": bottleneck_cal,
+            "bottleneck_viable": bottleneck_viable,
+            "n_evaluated": len(evaluated),
+            "combined_rank": round(combined, 4),
+        })
+
+    out.sort(key=lambda d: d["combined_rank"], reverse=True)
+    return out
+
+
 def score_replacement(
     pfas_name: str,
     replacement_name: str,

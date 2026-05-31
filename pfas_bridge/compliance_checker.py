@@ -69,8 +69,10 @@ class ComplianceResult:
         if self.pfas_substance:
             result["pfas_name"] = self.pfas_substance.name
             result["cas_number"] = self.pfas_substance.cas_number
+            result["replacement_key"] = self.pfas_substance.abbreviation
         if self.resolved_base:
             result["resolved_base"] = self.resolved_base
+            result.setdefault("replacement_key", self.resolved_base)
         if self.resolved_smiles:
             result["resolved_smiles"] = self.resolved_smiles
         return result

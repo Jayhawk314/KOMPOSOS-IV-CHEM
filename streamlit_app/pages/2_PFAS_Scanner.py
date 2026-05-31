@@ -27,7 +27,7 @@ from pfas_bridge import (
     get_pfas_by_category,
     get_epa_registry,
 )
-from pfas_bridge.replacement_scorer import UseCase, find_replacements
+from pfas_bridge.replacement_scorer import UseCase, find_replacements, find_replacements_for_cell
 from reports.pfas_report import PFASComplianceReport, MaterialInput, LI_ION_DEMO_BOM
 from reports.pfas_pdf import generate_pfas_pdf
 from streamlit_app.access_control import render_login_sidebar, require_access, consume_use
@@ -95,11 +95,16 @@ with tab1:
     with col2:
         use_case_label = st.selectbox("Application context", list(USE_CASE_OPTIONS.keys()))
 
-    adjoining_material = st.text_input(
-        "Adjoining material (optional compatibility check)",
+    adjoining_text = st.text_area(
+        "Adjoining materials in your cell (optional — one per line)",
         value="",
-        help="Enter a material to check compatibility with replacements (e.g., LiPF6 if checking a binder).",
+        height=80,
+        help="List the materials each replacement would touch (e.g. LiPF6, NMC811, "
+             "Graphite for a binder). Each PFAS-free replacement is scored for "
+             "compatibility against ALL of them — a replacement is only as good as "
+             "its weakest interface ('compatible with your cell').",
     )
+    adjoining_materials = [m.strip() for m in adjoining_text.replace(",", "\n").split("\n") if m.strip()]
 
     if st.button("Check PFAS Status", type="primary", key="single_check"):
         if not require_access():
@@ -108,7 +113,7 @@ with tab1:
 
         checker = PFASComplianceChecker()
         use_case = USE_CASE_OPTIONS[use_case_label]
-        result = checker.check(material_name, use_case=use_case, adjoining_material=adjoining_material)
+        result = checker.check(material_name, use_case=use_case)
         d = result.to_dict()
 
         # Status banner
@@ -142,49 +147,81 @@ with tab1:
         # Replacements
         replacements = d.get("replacements", [])
         if replacements:
-            st.subheader(f"Replacement Alternatives ({len(replacements)} found)")
             import pandas as pd
-            rows = []
-            
-            # Map compatibility results by material name
-            comp_map = {res["material_a"]: res for res in d.get("compatibility_results", [])}
-            
-            for r in replacements:
-                name = r.get("name", r.get("replacement", "?"))
-                # Match "CMC+SBR" to "CMC" compatibility check
-                bridge_name = name.split("+")[0] if "+" in name else name
-                comp = comp_map.get(bridge_name)
-                
-                rows.append({
-                    "Replacement": name,
-                    "Compatibility": comp.get("total") if comp else (None if adjoining_material else "N/A"),
-                    "Score": r.get("overall_score", r.get("score", 0)),
-                    "Performance": r.get("performance_match", 0),
-                    "Processability": r.get("processability", 0),
-                    "Cost Factor": r.get("cost_factor", 0),
-                    "Availability": r.get("availability", 0),
-                })
-            df = pd.DataFrame(rows).sort_values("Score", ascending=False)
-            
-            # If compatibility is checked, sort by a composite
-            if adjoining_material:
-                df["Rank"] = 0.6 * df["Score"] + 0.4 * df["Compatibility"].fillna(0.5)
-                df = df.sort_values("Rank", ascending=False).drop(columns=["Rank"])
 
-            st.dataframe(
-                df.style.format({
-                    "Compatibility": "{:.2f}" if adjoining_material else "{}",
-                    "Score": "{:.2f}",
-                    "Performance": "{:.2f}",
-                    "Processability": "{:.2f}",
-                    "Cost Factor": "{:.2f}",
-                    "Availability": "{:.2f}",
-                }).background_gradient(subset=["Score"], cmap="RdYlGn", vmin=0, vmax=1)
-                .background_gradient(subset=["Compatibility"], cmap="RdYlGn", vmin=0, vmax=1) if adjoining_material else df.style,
-                use_container_width=True,
-                hide_index=True,
-            )
-            st.caption("Evidence Levels: 'Literature Backed' (high confidence) | 'Cross-Bridge Analysis' (physics-interpolated) | 'Heuristic Prediction' (rules of thumb)")
+            if adjoining_materials:
+                # Cell-aware: score each replacement against EVERY adjoining material,
+                # surfacing the calibrated bottleneck ("compatible with your cell").
+                st.subheader(
+                    f"PFAS-free AND cell-compatible alternatives "
+                    f"({len(replacements)} candidates × {len(adjoining_materials)} interfaces)"
+                )
+                key = d.get("replacement_key") or d.get("resolved_base") or material_name
+                cell_rows = find_replacements_for_cell(key, adjoining_materials, use_case)
+
+                rows = []
+                for cr in cell_rows:
+                    c = cr["candidate"]
+                    bn = cr["bottleneck_calibrated"]
+                    row = {
+                        "Replacement": c.name,
+                        "Cell-compatible": bn,  # weakest interface (calibrated prob)
+                        "Bottleneck": cr["bottleneck_material"] or "—",
+                        "Quality": c.overall_score,
+                    }
+                    # One calibrated-probability column per adjoining material.
+                    for mat, e in cr["interfaces"].items():
+                        row[f"vs {mat}"] = e["calibrated"] if e["evaluated"] else None
+                    rows.append(row)
+
+                df = pd.DataFrame(rows)
+                pct_cols = ["Cell-compatible"] + [c for c in df.columns if c.startswith("vs ")]
+                fmt = {c: (lambda v: "—" if pd.isna(v) else f"{v:.0%}") for c in pct_cols}
+                fmt["Quality"] = "{:.2f}"
+                st.dataframe(
+                    df.style.format(fmt)
+                    .background_gradient(subset=["Cell-compatible"], cmap="RdYlGn", vmin=0, vmax=1),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.caption(
+                    "**Cell-compatible** is the *calibrated probability* of the weakest "
+                    "interface (isotonic, held-out ECE ~0.07) — a replacement is only as "
+                    "good as its worst contact. A dash means that pair isn't in the "
+                    "compatibility registry yet (not scored). Ranked by quality × cell fit."
+                )
+                if any(cr["n_evaluated"] == 0 for cr in cell_rows):
+                    st.info(
+                        "Some replacements couldn't be scored against your materials "
+                        "(not in the compatibility registry). They're still PFAS-free, "
+                        "but the cell-fit is unverified."
+                    )
+            else:
+                st.subheader(f"Replacement Alternatives ({len(replacements)} found)")
+                rows = []
+                for r in replacements:
+                    rows.append({
+                        "Replacement": r.get("name", r.get("replacement", "?")),
+                        "Score": r.get("overall_score", r.get("score", 0)),
+                        "Performance": r.get("performance_match", 0),
+                        "Processability": r.get("processability", 0),
+                        "Cost Factor": r.get("cost_factor", 0),
+                        "Availability": r.get("availability", 0),
+                    })
+                df = pd.DataFrame(rows).sort_values("Score", ascending=False)
+                st.dataframe(
+                    df.style.format({
+                        "Score": "{:.2f}", "Performance": "{:.2f}",
+                        "Processability": "{:.2f}", "Cost Factor": "{:.2f}",
+                        "Availability": "{:.2f}",
+                    }).background_gradient(subset=["Score"], cmap="RdYlGn", vmin=0, vmax=1),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.caption(
+                    "Add your cell's adjoining materials above to also rank these by "
+                    "calibrated compatibility with your specific stack."
+                )
 
         # Warnings
         warnings = d.get("warnings", [])
