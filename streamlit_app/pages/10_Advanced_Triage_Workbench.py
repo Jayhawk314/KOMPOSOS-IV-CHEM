@@ -233,8 +233,29 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
             c = next(cand for cand in candidates if cand.formula == selected_formula)
             col1, col2 = st.columns(2)
             with col1:
-                st.write("**Predicted Properties (Triage)**")
-                st.json(c.predicted_properties)
+                st.write("**Predicted Properties (With Uncertainty)**")
+                # Re-run predictor on the selected candidate to get full uncertainty bounds
+                # (Designer strips bounds for speed, we need them for transparency)
+                from composition_engine.predictor import CompositionPredictor
+                predictor = CompositionPredictor()
+                try:
+                    full_prediction = predictor.predict(c.formula, domain=c.domain)
+                    display_props = {}
+                    for prop_name, prop_data in full_prediction.properties.items():
+                        val = prop_data.value
+                        lower = prop_data.lower_bound
+                        upper = prop_data.upper_bound
+                        conf = prop_data.confidence
+                        
+                        # Format as Value [Lower - Upper] (Conf: X%)
+                        if lower is not None and upper is not None:
+                            display_props[prop_name] = f"{val:.3f}  [{lower:.3f} to {upper:.3f}]  (conf: {conf:.2f})"
+                        else:
+                            display_props[prop_name] = f"{val:.3f}  (conf: {conf:.2f})"
+                    st.json(display_props)
+                except Exception as e:
+                    st.warning(f"Could not retrieve full uncertainty bounds: {e}")
+                    st.json(c.predicted_properties)
             with col2:
                 st.write("**Verification Metadata (Precision)**")
                 st.json(c.compatibility_metadata)
