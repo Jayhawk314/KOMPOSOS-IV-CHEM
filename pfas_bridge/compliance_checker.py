@@ -105,6 +105,13 @@ class BatchComplianceResult:
         }
 
 
+# Process-wide cache for name -> SMILES resolution. Failed lookups (None) are
+# cached too: without this, an unresolvable name (e.g. a plain material label)
+# re-hits the PubChem network on every check at ~0.5s each. Shared across checker
+# instances since resolution is deterministic per name.
+_RESOLVE_CACHE: Dict[str, Optional[str]] = {}
+
+
 class PFASComplianceChecker:
     """
     Main compliance checker combining registry lookup, urgency
@@ -128,14 +135,18 @@ class PFASComplianceChecker:
         """Best-effort name -> SMILES via PubChem (cached). None on any failure."""
         if not self.resolve_unknown:
             return None
+        if name in _RESOLVE_CACHE:
+            return _RESOLVE_CACHE[name]
         try:
             from data.pubchem_loader import PubChemLoader
             if self._pubchem is None:
                 self._pubchem = PubChemLoader()
             mol = self._pubchem.fetch_by_name(name, fetch_cas=False)
-            return mol.smiles or None
+            resolved = mol.smiles or None
         except Exception:
-            return None  # no network / not found / loader unavailable
+            resolved = None  # no network / not found / loader unavailable
+        _RESOLVE_CACHE[name] = resolved
+        return resolved
 
     def _structural_result(self, material_name: str, smiles: str, tier: str) -> "ComplianceResult":
         """Build a result for a structurally-detected PFAS (not in the registry)."""
