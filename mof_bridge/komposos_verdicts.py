@@ -238,11 +238,13 @@ class LinkerVerdictEngine:
         else:
             trace_parts.append("◇ Unusual structure, synthesis pathway unclear")
 
-        trace = "; ".join(trace_parts)
-
         # Dynamic score calculation fallback for synthesizability
         complexity_penalty = (global_props['num_rings'] * 0.05) + (inconsistencies * 0.1)
         dynamic_score = max(0.2, min(0.98, 0.9 - complexity_penalty))
+
+        trace_parts.append(f"Complexity penalty {complexity_penalty:.2f} -> Score {dynamic_score:.2f}")
+
+        trace = "; ".join(trace_parts)
 
         return (dynamic_score, zfc_says, cat_says, trace)
 
