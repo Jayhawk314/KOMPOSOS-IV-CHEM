@@ -113,6 +113,30 @@ with tab1:
             hide_index=True,
         )
 
+        st.divider()
+        import json
+        import datetime
+        bundle = {
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade Explorer)",
+            "screening_conditions": conditions.to_dict() if hasattr(conditions, "to_dict") else str(conditions),
+            "mofs_audit": [
+                {
+                    "mof": get_mof(name).to_dict() if hasattr(get_mof(name), "to_dict") else name,
+                    "score_audit": score.to_dict() if hasattr(score, "to_dict") else str(score)
+                }
+                for name, score in results
+            ]
+        }
+        st.download_button(
+            "📥 Download Reproducibility Bundle (JSON)",
+            json.dumps(bundle, indent=2),
+            "mofs_screening_audit.json",
+            "application/json",
+            use_container_width=True,
+            help="Download an auditable JSON bundle containing the MOF properties, screening context, and 5-scorer verdicts."
+        )
+
 # ---------------------------------------------------------------------------
 # Tab 2: Single MOF Detail
 # ---------------------------------------------------------------------------
