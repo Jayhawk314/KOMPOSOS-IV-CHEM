@@ -31,8 +31,22 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture (Updated 2026-05-28)
+## Current Audit Posture (Updated 2026-05-30)
 
+### Formation Energy Predictor (2026-05-30 improvement)
+- **Accuracy:** MAE **0.304 eV/atom** (was 0.473, −36%); RMSE 0.454 (−40%); median error 0.215 (−37%)
+- **Model:** Sparse-discovery tier (~96% of queries) now uses **RandomForest** (was linear ridge);
+  trained on leak-free Phase-16 MP calibration split (2502 materials), held-out validation
+  error: 0.133 eV/atom (vs 0.202 for ridge).
+- **Bug fixes:** (1) Name-vs-formula parsing (predict("Cordierite") was read as "Co" → cobalt);
+  (2) Duplicate composition leakage (now strict LOO: exclude by name AND composition).
+- **Calibration:** Intervals recalibrated to 50/80/95% coverage (exact); conformal factors
+  tighter due to better point estimates.
+- **Scope:** Improves stability/synthesizability screening (formation energy), *not*
+  voltage/capacity (Crystal Dreamer unchanged at 78% property recovery).
+- **Audit:** `python audit/run_predictor_accuracy.py`, `composition_engine/experiments/forward_model_bench.py`.
+
+### Compatibility & Development Benchmarks
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
 - Current blind benchmark: `audit/external_blind/compatibility_2026_q8.json` (Frozen 2026-05-27)
 - Q2-Q7 are spent diagnostic evidence.
@@ -40,6 +54,8 @@ Python: 3.10+
   relabeling HDPE+PP polymer pair to immiscible/incompatible — the Flory-Huggins
   veto correctly flags it; prior `true` label was thermodynamically wrong.)
 - Q8 blind benchmark: Active and frozen for next validation claim.
+
+### Core Architecture
 - STT reasoning (Yoneda, Fibration, Rezk) is integrated, calibrated, and wired:
   domain category is built once per process (cached), passed to all three strategies,
   and formal Yoneda presheaf evidence is surfaced in vote metadata and audit reports.

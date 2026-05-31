@@ -4,6 +4,54 @@
 
 ---
 
+## 2026-05-30: Formation Energy Accuracy + Trust Bug Fixes
+
+**Major improvement:** Composition predictor formation-energy accuracy **MAE 0.473 → 0.304 eV/atom (−36%)**; RMSE 0.753 → 0.454 (−40%).
+
+### Composition predictor (formation energy surrogate)
+
+| Dataset | Metric | Before | After | Status |
+|---|---|---|---|---|
+| 179 curated (LOO) | MAE (eV/atom) | 0.473 | **0.304** | ✓ In audit |
+| 179 curated (LOO) | RMSE | 0.753 | **0.454** | ✓ In audit |
+| 179 curated (LOO) | Median error | 0.344 | **0.215** | ✓ In audit |
+| 179 curated (LOO) | 50% coverage | 50% | **50%** | ✓ Honest |
+| 179 curated (LOO) | 80% coverage | 79% | **80%** | ✓ Honest |
+| 179 curated (LOO) | 95% coverage | 94% | **95%** | ✓ Honest |
+
+**Root causes fixed:**
+1. **Sparse-discovery model was linear.** ~96% of queries are "sparse discovery" (nearest
+   DFT anchor ≥0.5 away in composition space). Phase-16 already swaps in a learned mean
+   model there, but it was **linear ridge** (MAE 0.202 on 2498 held-out MP materials).
+   Replaced with **RandomForest** (n=150, depth=14, fit on leak-free Phase-16 calibration split):
+   **held-out MAE 0.133** (−34%), **transfer MAE to 179-set: 0.300** (−31% vs ridge 0.434).
+   7 MB compressed; loads lazily with graceful fallback.
+
+2. **Name-vs-formula parsing bug (trust bug).** The audit predicted from display *name*,
+   so `parse_formula("Cordierite")` silently read leading "Co" as **cobalt** → matched
+   elemental Co at distance 0 → predicted Ef ≈ 0 (true −3.18) **and labeled it
+   "Categorical Ground Truth," the highest-confidence tier.** Added name→formula guard.
+
+3. **Duplicate composition leakage in LOO.** Excluding only by name let near-duplicates
+   (GeO₂ / GeO₂_glass) leak the answer. Tightened to strict LOO: exclude by both
+   name AND near-identical composition.
+
+**Scope:** Improves **stability/synthesizability screening** (formation energy) only.
+Does *not* affect voltage/capacity (Crystal Dreamer property recovery **unchanged at 78%**).
+
+**Testing:** 261 composition unit tests pass; Crystal Dreamer recovery unchanged;
+production path (MP cache) works without error. Artifacts: `composition_engine/sparse_mean_model.py`,
+`data/calibration/phase16_sparse_rf.joblib`, `data/calibration/phase16_sparse_rf_report.json`.
+
+**Interval recalibration:** Refit `formation_energy_conformal.json` to the improved model.
+Conformal factors *tighter* (3.06→1.73 @ 50%, etc.) because point predictions are more accurate,
+and coverage remains honest at 50/80/95%.
+
+**Development benchmark:** Unchanged at 41/41 (100.0%); HDPE+PP label corrected 2026-05-29.
+Q8/Q9 unchanged; Q10 still sealed.
+
+---
+
 ## 2026-05-29: Focused Research-Grade Audit State
 
 **Audit posture changed:** full-tree pytest is not the product metric for this

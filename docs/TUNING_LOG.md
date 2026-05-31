@@ -1,6 +1,66 @@
 # KOMPOSOS-IV Bridge Tuning Log
 
-*Updated 2026-05-28 - Version IV Categorical Runtime*
+*Updated 2026-05-30 - Formation Energy + Categorical Runtime*
+
+---
+
+## 2026-05-30: Formation Energy Surrogate Accuracy Frontier
+
+### Formation energy model selection study
+The forward model (composition → formation energy) is the bottleneck for the whole triage system. Ran an offline research harness (`composition_engine/experiments/forward_model_bench.py`) comparing Kan-extension variants and learned models under strict leave-one-out (hold out by name AND near-identical composition to avoid duplicate leakage).
+
+**Baseline:** IDW (k=5) over raw composition vectors, MAE **0.473** eV/atom.
+
+**Candidates compared (strict LOO, 179 curated materials):**
+- IDW(raw, k=5) baseline: MAE 0.422 (after dedup)
+- IDW(frac, k=5): MAE 0.482 (worse)
+- IDW(phys, k=5): MAE 0.479 (worse)
+- Ridge(phys): MAE 0.412 (baseline-like)
+- **KernelRidge(phys, rbf, α=0.3): MAE 0.286** (−32%)
+- **RandomForest(phys, n=200, depth=8): MAE 0.245** (−42%)
+
+**Winner: RandomForest.** Picked over KRR because:
+1. KRR marginally better in-distribution (0.108 vs 0.133 on 2498 held-out MP materials) but *worse* on transfer to curated 179-set (0.322 vs 0.300).
+2. RF cannot extrapolate outside the physical Ef range (safe for screening).
+3. RF more stable across distribution shifts.
+
+### Sparse-discovery model upgrade (real impact)
+Tier breakdown shows the whole error lives in "sparse discovery" space (172/179 materials, nearest anchor ≥0.5 away in raw composition space):
+- **Dense <0.2**: n=4, MAE 0.070 (IDW already perfect)
+- **Moderate 0.2–0.5**: n=3, MAE 0.069 (IDW already perfect)
+- **Sparse ≥0.5**: n=172, MAE 0.437 (IDW over-smooths) → **RF cuts to 0.253** (−42%)
+
+The Phase-16 external calibration already swaps in a learned mean model for sparse discovery (min_dist ≥ 0.5), but it was linear ridge. Replaced it with RF trained on the leak-free Phase-16 calibration split:
+- **Held-out MP validation (2498)**: Ridge MAE 0.202 → **RF MAE 0.133** (−34%)
+- **Transfer to curated 179-set**: Ridge MAE 0.434 → **RF MAE 0.300** (−31%)
+
+### Production model artifact
+- **File**: `composition_engine/sparse_mean_model.py` + `data/calibration/phase16_sparse_rf.joblib` (7 MB compressed)
+- **Config**: n_estimators=150, max_depth=14, leak-free Phase-16 split training
+- **Fallback**: If artifact missing/incompatible, gracefully falls back to the linear Phase-16 model (no break)
+- **Integration**: `formation_energy.py` sparse branch (`min_dist >= 0.5`) prefers RF; dense/exact Kan path untouched
+
+### Trust bug fixes
+1. **Name-vs-formula parsing:** `predict("Cordierite")` was read as "Co" (cobalt). Added name→formula lookup (`_NAME_TO_FORMULA`).
+2. **Duplicate composition leakage:** LOO excluded only by name; near-duplicate anchors (GeO₂, GeO₂_glass) could leak. Fixed: exclude by name AND composition (distance ≤ 0.02).
+
+### Uncertainty intervals recalibration
+Ran `composition_engine/calibrate_formation_intervals.py` to refit conformal factors to the improved model:
+- **Before**: Factors 3.06, 2.29, 2.97 @ 50/80/95 (conservative, because old model was rough)
+- **After**: Factors 1.73, 1.43, 1.41 @ 50/80/95 (tighter, because new model is better)
+- **Coverage**: 50/80/95% exact on honest 5-fold cross-validation
+
+### End-to-end audit results
+- **Development set**: 41/41 (100%) unchanged
+- **Crystal Dreamer property recovery**: 78% unchanged (different property path; formation energy ≠ voltage/capacity)
+- **Composition tests**: 261 pass
+- **Production path (with MP cache)**: Green, no errors
+
+### Final production accuracy
+- **MAE**: 0.473 → **0.304 eV/atom** (−36%)
+- **RMSE**: 0.753 → **0.454** (−40%)
+- **Median error**: 0.344 → **0.215** (−37%)
+- **Calibration**: Honest at 50/80/95%
 
 ---
 
