@@ -302,6 +302,12 @@ KNOWN_EF: List[KnownFormationEnergy] = [
 ]
 
 
+# Display-name -> formula map. Lets predict() accept a known material NAME (e.g.
+# "Cordierite") without parse_formula mis-reading the name as a formula (the
+# leading "Co" would otherwise parse as cobalt). Only exact name matches resolve.
+_NAME_TO_FORMULA: Dict[str, str] = {e.name: e.formula for e in KNOWN_EF if e.name != e.formula}
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # RULE-BASED FORMATION ENERGY ESTIMATORS
 # ═══════════════════════════════════════════════════════════════════════════
@@ -929,7 +935,7 @@ class FormationEnergyPredictor:
             exclude_formula: Optional material name, formula, or MP ID to exclude
                 from the Kan neighborhood for leave-one-out validation.
         """
-        resolved = SHORTHAND_MAP.get(formula, formula)
+        resolved = SHORTHAND_MAP.get(formula) or _NAME_TO_FORMULA.get(formula, formula)
         comp = parse_formula(resolved)
 
         # Step 1: Kan extension over known formation energies
@@ -980,13 +986,28 @@ class FormationEnergyPredictor:
                 if model is None:
                     calibration_status = "phase16_model_missing"
                 else:
-                    calibrated_mean = model.predict_mean(comp)
-                    # The external mean model is strongest for sparse discovery
-                    # space. Dense local interpolation should preserve the
-                    # anchored Kan value, especially for tuned battery families.
-                    if calibrated_mean is not None and min_dist >= 0.5:
-                        ef_predicted = calibrated_mean
-                        sources["phase16_mean_model"] = calibrated_mean
+                    # The mean model is used only in sparse-discovery space
+                    # (min_dist >= 0.5); dense/exact local Kan interpolation keeps
+                    # its anchored value. Prefer the nonlinear RandomForest sparse
+                    # model (roughly halves held-out MAE vs the linear phase16
+                    # mean); fall back to the linear mean if it is unavailable.
+                    if min_dist >= 0.5:
+                        sparse_mean = None
+                        source_key = "phase16_mean_model"
+                        try:
+                            from .sparse_mean_model import load_sparse_mean_model
+                            rf = load_sparse_mean_model()
+                            if rf is not None:
+                                sparse_mean = rf.predict(comp)
+                                if sparse_mean is not None:
+                                    source_key = "sparse_rf_mean_model"
+                        except Exception:
+                            sparse_mean = None
+                        if sparse_mean is None:
+                            sparse_mean = model.predict_mean(comp)
+                        if sparse_mean is not None:
+                            ef_predicted = sparse_mean
+                            sources[source_key] = sparse_mean
                     calibrated_intervals = model.intervals(total_error, chemistry_class)
                     # Post-hoc conformal rescale to honest coverage (identity if
                     # no factors file present). Point prediction is untouched.

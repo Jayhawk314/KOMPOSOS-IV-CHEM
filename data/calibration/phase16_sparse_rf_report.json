@@ -1,0 +1,12 @@
+{
+  "model": "RandomForestRegressor on Phase-16 composition descriptors",
+  "sklearn_version": "1.7.2",
+  "n_estimators": 150,
+  "random_state": 0,
+  "n_train_calibration": 2502,
+  "n_validation": 2498,
+  "validation_mae_eV": 0.135379,
+  "validation_rmse_eV": 0.199373,
+  "leak_free": "trained only on the Phase-16 calibration split; the manifest excludes every KNOWN_EF formula and mp-id, and the validation split is held out.",
+  "artifact": "C:\\Users\\JAMES\\github\\KOMPOSOS-IV-CHEM\\data\\calibration\\phase16_sparse_rf.joblib"
+}

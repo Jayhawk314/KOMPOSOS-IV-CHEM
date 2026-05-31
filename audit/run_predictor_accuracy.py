@@ -34,7 +34,11 @@ def main():
         name = entry.name
         truth = entry.ef_per_atom
         try:
-            r = p.predict(name, exclude_formula=name)
+            # Predict from the FORMULA, not the display name: a name like
+            # "Cordierite" would be mis-parsed as a formula (leading "Co" -> Co).
+            # Exclude by formula so near-duplicate anchors (e.g. GeO2/GeO2_glass)
+            # cannot leak the answer -- true leave-one-out.
+            r = p.predict(entry.formula, exclude_formula=entry.formula)
         except Exception:
             skipped += 1
             continue

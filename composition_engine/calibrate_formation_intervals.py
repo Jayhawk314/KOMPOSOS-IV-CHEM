@@ -49,7 +49,9 @@ def _collect():
     data = []
     for entry in KNOWN_EF:
         try:
-            r = p.predict(entry.name, exclude_formula=entry.name)
+            # Predict by formula (not display name) and exclude by formula, so the
+            # calibration errors match the corrected leave-one-out prediction path.
+            r = p.predict(entry.formula, exclude_formula=entry.formula)
         except Exception:
             continue
         if r.ef_per_atom is None:
