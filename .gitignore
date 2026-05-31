@@ -150,3 +150,10 @@ TRANSFORMATIVE_POSSIBILITIES.md
 MASTER_MANUAL.md
 kid-fun-adventure-math-book.md
 the-story-that-is-a-category.md
+
+# Logs and scratch (session 2026-05-30)
+*.log
+test_logs/
+discovery/fix.py
+# Large unrelated dataset (MITRE cyber)
+data/cyber/

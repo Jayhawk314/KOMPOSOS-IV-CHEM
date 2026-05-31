@@ -1,0 +1,1 @@
+{"PropertyTable": {"Properties": [{"CID": 6441, "MolecularFormula": "C3H4F4O", "MolecularWeight": "132.06", "ConnectivitySMILES": "C(C(C(F)F)(F)F)O", "InChI": "InChI=1S/C3H4F4O/c4-2(5)3(6,7)1-8/h2,8H,1H2", "IUPACName": "2,2,3,3-tetrafluoropropan-1-ol", "XLogP": 1.1, "ExactMass": "132.01982740", "Complexity": 71, "HBondDonorCount": 1, "HBondAcceptorCount": 5}]}}

@@ -1,0 +1,371 @@
+{
+  "version": "external_blind.compatibility.2026_q10.pairs_unlabeled.v1",
+  "created_at": "2026-05-29",
+  "benchmark_period": "2026_q10",
+  "frozen": true,
+  "label_status": "unlabeled_pair_list_only",
+  "description": "Q10 unlabeled future compatibility pair list. This file intentionally contains no compatibility labels and should not be scored until after the next substantive model/scorer changes are complete.",
+  "selection_policy": "Forty unlabeled candidate pairs selected across the chem/materials product domains, with extra polymer coverage for future Flory-Huggins chi-critical / molecular-weight validation. Exact Q8 and Q9 pair identities were avoided.",
+  "holdout_policy": "Predictions must not be run until the intended repair work is complete. Labels must be assigned independently in a separate labels file, with cited sources and a SHA256 hash before prediction outputs are inspected.",
+  "schema": {
+    "forbidden_fields": ["expected_compatible", "label", "correct", "verdict"],
+    "label_file": "compatibility_2026_q10_labels_hidden.json",
+    "required_pair_fields": ["id", "material_a", "material_b", "domain"],
+    "context_fields": ["role", "electrolyte", "environment", "temperature_C", "contact_type"],
+    "labeler_instruction": "Assign labels only in the separate hidden labels file, blind to model output, with citation/DOI/URL/manual_source per pair."
+  },
+  "pairs": [
+    {
+      "id": 10001,
+      "material_a": "NMC622",
+      "material_b": "LiPF6",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "electrolyte": "carbonate",
+      "source_hint": "Lithium-ion cathode/electrolyte compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10002,
+      "material_a": "NCA",
+      "material_b": "LiPF6",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "electrolyte": "carbonate",
+      "source_hint": "High-nickel cathode electrolyte compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10003,
+      "material_a": "Graphite",
+      "material_b": "LiTFSI",
+      "domain": "battery",
+      "role": "anode_electrolyte",
+      "electrolyte": "ether_or_ionic_liquid",
+      "source_hint": "Graphite electrolyte salt compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10004,
+      "material_a": "LATP",
+      "material_b": "Li_metal",
+      "domain": "battery",
+      "role": "solid_electrolyte",
+      "source_hint": "NASICON solid electrolyte / lithium metal interface literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10005,
+      "material_a": "Si",
+      "material_b": "PVDF",
+      "domain": "battery-polymer",
+      "role": "anode_binder",
+      "source_hint": "Silicon anode binder literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10006,
+      "material_a": "Graphite",
+      "material_b": "SBR",
+      "domain": "battery-polymer",
+      "role": "anode_binder",
+      "source_hint": "Graphite anode aqueous binder literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10007,
+      "material_a": "LFP",
+      "material_b": "CMC",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "source_hint": "LiFePO4 binder and aqueous processing literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10008,
+      "material_a": "NMC622",
+      "material_b": "PVDF",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "source_hint": "Layered oxide cathode binder literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10009,
+      "material_a": "LCO",
+      "material_b": "Al_foil",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "source_hint": "Lithium-ion current collector literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10010,
+      "material_a": "LFP",
+      "material_b": "Al_foil",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "source_hint": "Lithium-ion current collector literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10011,
+      "material_a": "NCA",
+      "material_b": "Al_foil",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "source_hint": "High-voltage cathode current collector literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10012,
+      "material_a": "HDPE",
+      "material_b": "PS",
+      "domain": "polymer",
+      "source_hint": "Polymer blend miscibility / solubility-parameter literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10013,
+      "material_a": "PP",
+      "material_b": "EPDM",
+      "domain": "polymer",
+      "source_hint": "Polyolefin elastomer blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10014,
+      "material_a": "PMMA",
+      "material_b": "PVC",
+      "domain": "polymer",
+      "source_hint": "Acrylic/vinyl polymer blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10015,
+      "material_a": "PMMA",
+      "material_b": "PS",
+      "domain": "polymer",
+      "source_hint": "Acrylic/styrenic polymer blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10016,
+      "material_a": "PET",
+      "material_b": "PC",
+      "domain": "polymer",
+      "source_hint": "Polyester/polycarbonate blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10017,
+      "material_a": "PA6",
+      "material_b": "PA66",
+      "domain": "polymer",
+      "source_hint": "Nylon blend miscibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10018,
+      "material_a": "PEEK",
+      "material_b": "PPS",
+      "domain": "polymer",
+      "source_hint": "High-performance thermoplastic blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10019,
+      "material_a": "NBR",
+      "material_b": "PVC",
+      "domain": "polymer",
+      "source_hint": "Elastomer/vinyl polymer blend literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10020,
+      "material_a": "AlN",
+      "material_b": "Si3N4",
+      "domain": "ceramic",
+      "source_hint": "Nitride ceramic compatibility and electronic substrate literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10021,
+      "material_a": "SiC",
+      "material_b": "TiC",
+      "domain": "ceramic",
+      "source_hint": "Carbide ceramic and cermet compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10022,
+      "material_a": "TiO2",
+      "material_b": "BaTiO3",
+      "domain": "ceramic",
+      "source_hint": "Titanate ceramic phase and dielectric ceramic literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10023,
+      "material_a": "BN_hex",
+      "material_b": "AlN",
+      "domain": "ceramic",
+      "source_hint": "Thermally conductive nitride ceramic composite literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10024,
+      "material_a": "Hydroxyapatite",
+      "material_b": "TCP",
+      "domain": "ceramic",
+      "source_hint": "Calcium phosphate bioceramic compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10025,
+      "material_a": "SS_316",
+      "material_b": "Hastelloy_C276",
+      "domain": "metal",
+      "environment": "corrosive_aqueous",
+      "source_hint": "Corrosion-resistant alloy compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10026,
+      "material_a": "Al_6061",
+      "material_b": "Cu",
+      "domain": "metal",
+      "environment": "aqueous",
+      "source_hint": "Galvanic compatibility handbook data",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10027,
+      "material_a": "Brass_C260",
+      "material_b": "Bronze_C510",
+      "domain": "metal",
+      "environment": "ambient_or_marine",
+      "source_hint": "Copper alloy compatibility handbook data",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10028,
+      "material_a": "Inconel_718",
+      "material_b": "Ti6Al4V",
+      "domain": "metal",
+      "environment": "high_temperature",
+      "source_hint": "Aerospace alloy joining and compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10029,
+      "material_a": "Mg",
+      "material_b": "Steel_1018",
+      "domain": "metal",
+      "environment": "aqueous",
+      "source_hint": "Galvanic corrosion handbook data",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10030,
+      "material_a": "Si",
+      "material_b": "SiGe",
+      "domain": "semiconductor",
+      "role": "heterostructure",
+      "source_hint": "Si/SiGe heterostructure literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10031,
+      "material_a": "GaN",
+      "material_b": "AlN",
+      "domain": "semiconductor",
+      "role": "heterostructure",
+      "source_hint": "III-nitride heterostructure literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10032,
+      "material_a": "CdTe",
+      "material_b": "ZnSe",
+      "domain": "semiconductor",
+      "role": "II-VI_interface",
+      "source_hint": "II-VI semiconductor interface literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10033,
+      "material_a": "WS2",
+      "material_b": "MoS2",
+      "domain": "semiconductor",
+      "role": "2d_semiconductor_stack",
+      "source_hint": "Transition-metal dichalcogenide heterostructure literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10034,
+      "material_a": "Pt",
+      "material_b": "Si",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "contact_type": "silicide_or_schottky_contact",
+      "source_hint": "Metal-silicon contact literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10035,
+      "material_a": "W",
+      "material_b": "Si",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "contact_type": "barrier_or_plug_contact",
+      "source_hint": "Silicon device metallization literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10036,
+      "material_a": "Ag",
+      "material_b": "ZnO",
+      "domain": "metal-semiconductor",
+      "role": "transparent_or_ohmic_contact",
+      "source_hint": "ZnO metallization contact literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10037,
+      "material_a": "Pt",
+      "material_b": "GaAs",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "source_hint": "III-V semiconductor metal contact literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10038,
+      "material_a": "Kovar",
+      "material_b": "Boro_51",
+      "domain": "glass-metal",
+      "role": "hermetic_seal",
+      "source_hint": "Glass-to-metal sealing CTE compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10039,
+      "material_a": "SS_316",
+      "material_b": "Boro_33",
+      "domain": "glass-metal",
+      "role": "hermetic_seal_or_package",
+      "source_hint": "Glass-to-metal sealing and packaging compatibility literature",
+      "used_for_tuning": false
+    },
+    {
+      "id": 10040,
+      "material_a": "PMMA",
+      "material_b": "SodaLime_Float",
+      "domain": "polymer-glass",
+      "role": "optical_or_adhesive_contact",
+      "source_hint": "Polymer-glass adhesion and optical assembly literature",
+      "used_for_tuning": false
+    }
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "version": "external_blind.compatibility.2026_q9.pairs_unlabeled.v1",
+  "created_at": "2026-05-29",
+  "benchmark_period": "2026_q9",
+  "frozen": true,
+  "label_status": "unlabeled_pair_list_only",
+  "description": "Q9 unlabeled compatibility pair list. This file intentionally contains no expected_compatible labels and must not be used for scorer tuning. Predictions should be locked before labels are revealed from a separate Q9 labels file.",
+  "selection_policy": "Forty source-backed material/interface pairs selected across battery, polymer, ceramic, metal, semiconductor, glass, and cross-domain compatibility surfaces. Exact Q8 pair identities were avoided. Materials are common engineering or product-relevant systems rather than Q8-specific patches.",
+  "holdout_policy": "Freeze this pair list before scoring. Run model predictions against this unlabeled file and save locked predictions. Only then merge labels from a separate hidden labels file for metric computation. Q8 remains a spent diagnostic set and must not be reported as a new blind result.",
+  "schema": {
+    "forbidden_fields": ["expected_compatible", "label", "correct", "verdict"],
+    "source_fields": ["citation", "doi", "url", "manual_source"],
+    "context_fields": ["role", "electrolyte", "environment", "temperature_C", "contact_type"],
+    "label_file": "compatibility_2026_q9_labels_hidden.json"
+  },
+  "pairs": [
+    {
+      "id": 9901,
+      "material_a": "LLZO",
+      "material_b": "PAN",
+      "domain": "battery-polymer",
+      "role": "hybrid_electrolyte",
+      "citation": "Composite solid polymer electrolyte literature, ceramic filler-polymer matrix systems",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9902,
+      "material_a": "LLZO",
+      "material_b": "PPS",
+      "domain": "battery-polymer",
+      "role": "solid_electrolyte_support",
+      "citation": "Solid-state battery separator/support polymer compatibility reports",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9903,
+      "material_a": "Li_metal",
+      "material_b": "PVDF",
+      "domain": "battery-polymer",
+      "role": "anode_interface",
+      "citation": "Lithium-metal polymer interface and binder compatibility literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9904,
+      "material_a": "NMC811",
+      "material_b": "PVDF",
+      "domain": "battery-polymer",
+      "role": "cathode_binder",
+      "citation": "Lithium-ion cathode binder practice and high-nickel cathode processing literature",
+      "source_type": "industrial_practice",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9905,
+      "material_a": "Graphite",
+      "material_b": "Cu_foil",
+      "domain": "battery-metal",
+      "role": "anode_collector",
+      "citation": "Lithium-ion current collector review literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9906,
+      "material_a": "NMC811",
+      "material_b": "Al_foil",
+      "domain": "battery-metal",
+      "role": "cathode_collector",
+      "citation": "Lithium-ion current collector review literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9907,
+      "material_a": "Li_metal",
+      "material_b": "Cu_foil",
+      "domain": "battery-metal",
+      "role": "anode_collector",
+      "citation": "Lithium metal anode current collector literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9908,
+      "material_a": "LFP",
+      "material_b": "LiPF6",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "electrolyte": "carbonate",
+      "citation": "Commercial LiFePO4 lithium-ion electrolyte practice",
+      "source_type": "industrial_practice",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9909,
+      "material_a": "LGPS",
+      "material_b": "Li_metal",
+      "domain": "battery",
+      "role": "solid_electrolyte",
+      "citation": "Sulfide solid electrolyte lithium-metal interface literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9910,
+      "material_a": "Li3PS4",
+      "material_b": "Li_metal",
+      "domain": "battery",
+      "role": "solid_electrolyte",
+      "citation": "Thiophosphate solid electrolyte lithium-metal interface literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9911,
+      "material_a": "LLZO",
+      "material_b": "Li_metal",
+      "domain": "battery",
+      "role": "solid_electrolyte",
+      "citation": "Garnet solid electrolyte lithium-metal interface literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9912,
+      "material_a": "PC",
+      "material_b": "ABS",
+      "domain": "polymer",
+      "citation": "Polymer Blends Handbook, PC/ABS blend systems",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9913,
+      "material_a": "HDPE",
+      "material_b": "PP",
+      "domain": "polymer",
+      "citation": "Polymer Blends Handbook, polyolefin blend systems",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9914,
+      "material_a": "PE",
+      "material_b": "PVC",
+      "domain": "polymer",
+      "citation": "Hansen Solubility Parameters and polymer blend compatibility literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9915,
+      "material_a": "PMMA",
+      "material_b": "PC",
+      "domain": "polymer",
+      "citation": "Polymer Blends Handbook, acrylic-polycarbonate blend systems",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9916,
+      "material_a": "PTFE",
+      "material_b": "PEEK",
+      "domain": "polymer",
+      "citation": "Engineering fluoropolymer and high-performance polymer compatibility literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9917,
+      "material_a": "AlN",
+      "material_b": "SiC",
+      "domain": "ceramic",
+      "citation": "Ceramic substrate and high-temperature ceramic compatibility literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9918,
+      "material_a": "Al2O3",
+      "material_b": "Mullite",
+      "domain": "ceramic",
+      "citation": "Refractory ceramic compatibility and aluminosilicate systems literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9919,
+      "material_a": "Si3N4",
+      "material_b": "ZrO2_YSZ",
+      "domain": "ceramic",
+      "citation": "Structural ceramics joining and thermal expansion compatibility literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9920,
+      "material_a": "TiN",
+      "material_b": "WC",
+      "domain": "ceramic",
+      "citation": "Cermet and hard-coating carbide/nitride compatibility literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9921,
+      "material_a": "PZT",
+      "material_b": "Al2O3",
+      "domain": "ceramic",
+      "citation": "Electronic ceramic packaging and piezoelectric ceramic compatibility literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9922,
+      "material_a": "SS_316",
+      "material_b": "Cu",
+      "domain": "metal",
+      "environment": "aqueous",
+      "citation": "ASM Handbook Volume 13B and ASTM G82 galvanic series references",
+      "source_type": "standard_or_handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9923,
+      "material_a": "SS_304",
+      "material_b": "Al_6061",
+      "domain": "metal",
+      "environment": "aqueous",
+      "citation": "ASM Handbook Volume 13B and ASTM G82 galvanic series references",
+      "source_type": "standard_or_handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9924,
+      "material_a": "Ti6Al4V",
+      "material_b": "Al_7075",
+      "domain": "metal",
+      "environment": "marine",
+      "citation": "ASM Handbook corrosion and galvanic compatibility references",
+      "source_type": "standard_or_handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9925,
+      "material_a": "Kovar",
+      "material_b": "SS_304",
+      "domain": "metal",
+      "environment": "ambient",
+      "citation": "Electronic packaging alloy compatibility and corrosion handbook references",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9926,
+      "material_a": "Inconel_625",
+      "material_b": "SS_316",
+      "domain": "metal",
+      "environment": "high_temperature",
+      "citation": "Nickel alloy and stainless steel high-temperature compatibility literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9927,
+      "material_a": "GaN",
+      "material_b": "SiC_4H",
+      "domain": "semiconductor",
+      "role": "epitaxy_substrate",
+      "citation": "Wide-bandgap semiconductor heteroepitaxy literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9928,
+      "material_a": "InP",
+      "material_b": "InGaAs",
+      "domain": "semiconductor",
+      "role": "heterostructure",
+      "citation": "III-V semiconductor heterostructure literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9929,
+      "material_a": "CdTe",
+      "material_b": "ZnO",
+      "domain": "semiconductor",
+      "role": "thin_film_contact",
+      "citation": "CdTe photovoltaic transparent-contact literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9930,
+      "material_a": "MoS2",
+      "material_b": "Si",
+      "domain": "semiconductor",
+      "role": "2d_semiconductor_stack",
+      "citation": "2D semiconductor silicon integration literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9931,
+      "material_a": "GaAs",
+      "material_b": "AlGaAs",
+      "domain": "semiconductor",
+      "role": "heterostructure",
+      "citation": "GaAs/AlGaAs heterostructure literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9932,
+      "material_a": "Ti",
+      "material_b": "Si",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "contact_type": "silicide_or_barrier_contact",
+      "citation": "Sze, Physics of Semiconductor Devices; metal-silicon contact literature",
+      "source_type": "textbook_or_handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9933,
+      "material_a": "Mo",
+      "material_b": "SiC_4H",
+      "domain": "metal-semiconductor",
+      "role": "ohmic_contact",
+      "citation": "SiC power-device metal contact literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9934,
+      "material_a": "Au",
+      "material_b": "GaAs",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "citation": "III-V semiconductor metallization literature",
+      "source_type": "textbook_or_handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9935,
+      "material_a": "Ni",
+      "material_b": "SiC_4H",
+      "domain": "metal-semiconductor",
+      "role": "ohmic_contact",
+      "citation": "SiC nickel contact and annealed ohmic-contact literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9936,
+      "material_a": "Al",
+      "material_b": "GaN",
+      "domain": "metal-semiconductor",
+      "role": "contact",
+      "citation": "GaN power-device metal contact literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9937,
+      "material_a": "Kovar",
+      "material_b": "Boro_33",
+      "domain": "glass-metal",
+      "role": "hermetic_seal",
+      "citation": "Glass-to-metal sealing handbook and borosilicate/Kovar packaging literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9938,
+      "material_a": "CP_Ti_Gr2",
+      "material_b": "Boro_33",
+      "domain": "glass-metal",
+      "role": "hermetic_seal",
+      "citation": "Glass-to-metal sealing CTE compatibility literature",
+      "source_type": "handbook",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9939,
+      "material_a": "Epoxy",
+      "material_b": "FusedSilica",
+      "domain": "polymer-glass",
+      "role": "adhesive_bond",
+      "citation": "Epoxy-silica adhesion and electronic packaging literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    },
+    {
+      "id": 9940,
+      "material_a": "PDMS",
+      "material_b": "Boro_33",
+      "domain": "polymer-glass",
+      "role": "seal_or_microfluidic_bond",
+      "citation": "PDMS-glass bonding and microfluidics literature",
+      "source_type": "literature_review",
+      "used_for_tuning": false
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "version": "external_blind.compatibility.2026_q10.labels_hidden.v1",
+  "created_at": "2026-05-29",
+  "labeled_by": "Claude (Opus) from materials-science first principles, BLIND to model output, pre-scoring",
+  "pairs_file": "compatibility_2026_q10_pairs_unlabeled.json",
+  "pairs_file_sha256": "4d5f6fd414eae277493e6b8f2ceebedfcdb8add6989c910d45959d0ded0c1003",
+  "note": "Sealed labels. Do NOT merge until model predictions on the unlabeled pairs are locked. Expert judgment, not external ground truth; borderline pairs flagged.",
+  "labels": {
+    "10001": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "NMC + LiPF6 carbonate is standard commercial Li-ion chemistry"
+    },
+    "10002": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "NCA + LiPF6 carbonate is standard (commercial NCA cells)"
+    },
+    "10003": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "ethers co-intercalate/exfoliate graphite -> carbonates used instead"
+    },
+    "10004": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "LATP (Ti4+) is reduced by Li metal -> unstable interface (well documented)"
+    },
+    "10005": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "PVDF adheres poorly to volume-changing Si; CMC/PAA preferred (borderline)"
+    },
+    "10006": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "SBR(/CMC) is the standard aqueous graphite anode binder"
+    },
+    "10007": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "CMC is a standard aqueous LFP cathode binder"
+    },
+    "10008": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PVDF is THE standard NMC cathode binder"
+    },
+    "10009": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "cathode on Al foil current collector is standard"
+    },
+    "10010": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "cathode on Al foil current collector is standard"
+    },
+    "10011": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "cathode on Al foil current collector is standard"
+    },
+    "10012": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "HDPE/PS immiscible (very different solubility parameters)"
+    },
+    "10013": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PP/EPDM is a standard impact-modified TPO blend (compatible)"
+    },
+    "10014": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "PVC/PMMA generally reported miscible/near-miscible (borderline)"
+    },
+    "10015": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PMMA/PS is the textbook immiscible blend"
+    },
+    "10016": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PET/PC blends are commercial (e.g. Xenoy), compatible via transesterification"
+    },
+    "10017": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PA6/PA66 are chemically similar polyamides -> compatible"
+    },
+    "10018": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "PEEK/PPS high-temp engineering thermoplastics, partially miscible/co-used (borderline)"
+    },
+    "10019": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "NBR/PVC is a classic compatible/miscible oil-resistant blend"
+    },
+    "10020": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "AlN/Si3N4 nitrides, similar CTE, co-used"
+    },
+    "10021": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "SiC/TiC carbides used together in composites"
+    },
+    "10022": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "TiO2/BaTiO3 titanates compatible in electronic ceramics"
+    },
+    "10023": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "BN/AlN co-used in ceramic substrates/composites"
+    },
+    "10024": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "HA/TCP biphasic calcium phosphate is a standard bioceramic composite"
+    },
+    "10025": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "SS316/Hastelloy C276 both passive Ni-Cr alloys, close galvanic"
+    },
+    "10026": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Al6061/Cu severe galvanic corrosion (Cu noble, Al anodic) in aqueous"
+    },
+    "10027": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "brass/bronze both copper alloys, low galvanic difference"
+    },
+    "10028": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "Inconel718/Ti6Al4V commonly coupled in aerospace; interdiffusion risk (borderline)"
+    },
+    "10029": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Mg/steel severe galvanic corrosion of Mg (Mg strongly anodic) in aqueous"
+    },
+    "10030": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Si/SiGe is the standard strained heterostructure"
+    },
+    "10031": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "AlN buffer for GaN is standard heteroepitaxy"
+    },
+    "10032": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "CdTe/ZnSe II-VI heterostructure, moderate mismatch, used (borderline)"
+    },
+    "10033": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "WS2/MoS2 vdW TMD heterostructure is standard"
+    },
+    "10034": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Pt forms PtSi -> standard silicide/Schottky contact"
+    },
+    "10035": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "W is the standard Si via/plug metal (WSi2), with barrier"
+    },
+    "10036": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "Ag on ZnO used as transparent/ohmic contact (borderline)"
+    },
+    "10037": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Pt is a standard GaAs contact metallization"
+    },
+    "10038": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Kovar + matched borosilicate (~5 ppm) is a standard hermetic seal"
+    },
+    "10039": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "SS316 (CTE~16) vs borosilicate (~3.3) large mismatch -> poor direct seal"
+    },
+    "10040": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PMMA/soda-lime glass optical lamination/adhesive contact is workable"
+    }
+  }
+}

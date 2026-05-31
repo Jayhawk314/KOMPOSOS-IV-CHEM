@@ -1,0 +1,1 @@
+{"PropertyTable": {"Properties": [{"CID": 180, "MolecularFormula": "C3H6O", "MolecularWeight": "58.08", "ConnectivitySMILES": "CC(=O)C", "InChI": "InChI=1S/C3H6O/c1-3(2)4/h1-2H3", "IUPACName": "propan-2-one", "XLogP": -0.1, "ExactMass": "58.041864811", "Complexity": 26, "HBondDonorCount": 0, "HBondAcceptorCount": 1}]}}
