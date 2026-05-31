@@ -321,10 +321,28 @@ if "mof_result" in st.session_state:
             )
         with c2:
             import json
+            import datetime
+            
+            bundle = {
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade Designer)",
+                "design_constraints": {
+                    "target_atoms": target_atoms,
+                    "required_donors": list(required_donors)
+                },
+                "candidates_audit": [
+                    {
+                        "candidate": c.to_dict(),
+                        "funnel_audit": next((fr for _c, fr in scored if _c.linker_smiles == c.linker_smiles), None)
+                    } for c in filtered
+                ]
+            }
+            
             st.download_button(
-                "Download JSON",
-                json.dumps([c.to_dict() for c in filtered], indent=2),
-                "ligands.json", "application/json", use_container_width=True,
+                "📥 Download Reproducibility Bundle (JSON)",
+                json.dumps(bundle, indent=2),
+                "mof_designer_audit.json", "application/json", use_container_width=True,
+                help="Download an auditable JSON bundle containing the generated linkers and their exact funnel screening history."
             )
 
         # Verdict stats
