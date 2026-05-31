@@ -73,6 +73,35 @@ Python: 3.10+
 - Rebuild: `python audit/build_compatibility_calibration.py`; measure:
   `python audit/run_compat_calibration.py`.
 
+### Role-Aware Polymer Gate & Cell-Aware PFAS Report (2026-05-31)
+- **Role-aware polymer interface gate** (`polymer_bridge/interface_validator.py`):
+  `validate*` accept `interface_role`. For coexistence/dispersion roles
+  (`COEXISTENCE_INTERFACE_ROLES`: binder, separator, coating, seal, liner, ...) the
+  Flory-Huggins **immiscibility veto is skipped** and solubility is down-weighted
+  (`coexistence_focus` weights); blend/unknown roles keep the strict veto. This fixes
+  use-inappropriate false negatives (CMC+SBR, CMC/PP — co-used as dispersions) **without**
+  changing blend behavior (HDPE/PP still vetoed) or the dev benchmark (**41/41, Brier 0.095**).
+  Role is threaded from the replacement use-case (`_USECASE_TO_INTERFACE_ROLE` in
+  `pfas_bridge/replacement_scorer.py`) and auto-passed by `compatibility_service._call_validator`.
+  Rule of thumb: **immiscibility only means incompatibility for single-phase/blend
+  interfaces** — not dispersions, coatings, or coexisting parts.
+- **Client report is now cell-aware** (`reports/pfas_report.py` + `pfas_pdf.py`, v1.3.0):
+  replacements scored against the whole clean cell via `find_replacements_for_cell`;
+  weakest-interface **bottleneck governs the verdict**; new **REVIEW** verdict (cell fit
+  unscorable → manual review; never promoted to VALIDATED on standalone score). The
+  regulatory section is **date-free** (qualitative timeframe + status) on purpose — do
+  not re-introduce hardcoded deadlines. Corrected deadline reference (for your notes, not
+  baked into deliverables): `go_to_market/pfas/COMPLIANCE_CLOCK_2026.md`.
+- **PFAS replacement *ranking* is triage, not validated** — no held-out baseline yet, and
+  the isotonic calibrator has poor resolution in the raw 0.35–0.55 band. See
+  `go_to_market/pfas/GO_TO_MARKET.md` §5 backlog.
+
+### Tests Are Now Tracked (2026-05-31)
+- The blanket `test_*.py` `.gitignore` rule (which silently kept the **whole suite**
+  out of version control) was removed; chem/compat test suites are committed. The
+  materials **bridge dirs are still gitignored** — new files there need `git add -f`
+  (see the bridges-footgun note). Cyber/mythos + aimo tests are intentionally untracked.
+
 ### MOF Directed Generation (2026-05-30)
 - `mof_bridge/linker_generator.py` `generate_candidates` accepts `strategy_weights`
   (substitution/modification/template mix), `seed_smiles` (pin to derivatives of one
