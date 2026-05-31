@@ -261,12 +261,49 @@ if st.session_state.adv_wb_candidates is not None:
                         upper = prop_data.upper_bound
                         conf = prop_data.confidence
                         
-                        # Format as Value [Lower - Upper] (Conf: X%)
+                # Format as Value [Lower - Upper] (Conf: X%)
                         if lower is not None and upper is not None:
                             display_props[prop_name] = f"{val:.3f}  [{lower:.3f} to {upper:.3f}]  (conf: {conf:.2f})"
                         else:
                             display_props[prop_name] = f"{val:.3f}  (conf: {conf:.2f})"
                     st.json(display_props)
+                    
+                    # --- REPRODUCIBILITY BUNDLE EXPORT ---
+                    import json
+                    import datetime
+                    
+                    bundle = {
+                        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                        "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade)",
+                        "candidate": {
+                            "formula": c.formula,
+                            "design_score": c.design_score,
+                            "triage_confidence": c.overall_confidence
+                        },
+                        "prediction_audit": {
+                            "method": full_prediction.method,
+                            "nearest_known_anchors": full_prediction.nearest_known,
+                            "raw_properties": {
+                                k: {"value": v.value, "lower": v.lower_bound, "upper": v.upper_bound, "confidence": v.confidence} 
+                                for k, v in full_prediction.properties.items()
+                            }
+                        },
+                        "logical_verification_audit": {
+                            "zfc_integrity_pass": c.compatibility_metadata.get("zfc_charge_balance"),
+                            "pfas_free_status": c.is_pfas_free,
+                            "safety_vetoes": c.safety_vetoes,
+                            "multi_domain_context": c.compatibility_metadata
+                        }
+                    }
+                    
+                    st.download_button(
+                        label="📥 Download Reproducibility Bundle (JSON)",
+                        data=json.dumps(bundle, indent=2),
+                        file_name=f"komposos_audit_{c.formula}.json",
+                        mime="application/json",
+                        help="Download an auditable JSON bundle containing the exact mathematical bounds, data anchors, and ZFC verification trace used for this prediction."
+                    )
+                    
                 except Exception as e:
                     st.warning(f"Could not retrieve full uncertainty bounds: {e}")
                     st.json(c.predicted_properties)
