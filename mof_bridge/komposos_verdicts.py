@@ -115,7 +115,7 @@ class LinkerVerdictEngine:
 
         # 1. Synthesizability
         synth_score, synth_zfc, synth_cat, synth_trace = self._score_synthesizability(descriptors)
-        verdict, score = self._classify_verdict(synth_zfc, synth_cat, morphism_integrity)
+        verdict, score = self._classify_verdict(synth_score, synth_zfc, synth_cat, morphism_integrity)
         verdicts['synthesizability'] = verdict
         verdict_scores['synthesizability'] = score
         reasoning_traces['synthesizability'] = synth_trace
@@ -124,7 +124,7 @@ class LinkerVerdictEngine:
 
         # 2. Toxicity
         tox_score, tox_zfc, tox_cat, tox_trace = self._score_toxicity(descriptors, linker_smiles)
-        verdict, score = self._classify_verdict(tox_zfc, tox_cat, morphism_integrity)
+        verdict, score = self._classify_verdict(tox_score, tox_zfc, tox_cat, morphism_integrity)
         verdicts['toxicity'] = verdict
         verdict_scores['toxicity'] = score
         reasoning_traces['toxicity'] = tox_trace
@@ -133,7 +133,7 @@ class LinkerVerdictEngine:
 
         # 3. Stability
         stab_score, stab_zfc, stab_cat, stab_trace = self._score_stability(descriptors)
-        verdict, score = self._classify_verdict(stab_zfc, stab_cat, morphism_integrity)
+        verdict, score = self._classify_verdict(stab_score, stab_zfc, stab_cat, morphism_integrity)
         verdicts['stability'] = verdict
         verdict_scores['stability'] = score
         reasoning_traces['stability'] = stab_trace
@@ -142,7 +142,7 @@ class LinkerVerdictEngine:
 
         # 4. Activity/Selectivity
         act_score, act_zfc, act_cat, act_trace = self._score_activity(descriptors, application_context)
-        verdict, score = self._classify_verdict(act_zfc, act_cat, morphism_integrity)
+        verdict, score = self._classify_verdict(act_score, act_zfc, act_cat, morphism_integrity)
         verdicts['activity'] = verdict
         verdict_scores['activity'] = score
         reasoning_traces['activity'] = act_trace
@@ -151,7 +151,7 @@ class LinkerVerdictEngine:
 
         # 5. Electrical Conductivity
         cond_score, cond_zfc, cond_cat, cond_trace = self._score_conductivity(descriptors)
-        verdict, score = self._classify_verdict(cond_zfc, cond_cat, morphism_integrity)
+        verdict, score = self._classify_verdict(cond_score, cond_zfc, cond_cat, morphism_integrity)
         verdicts['conductivity'] = verdict
         verdict_scores['conductivity'] = score
         reasoning_traces['conductivity'] = cond_trace
@@ -240,7 +240,11 @@ class LinkerVerdictEngine:
 
         trace = "; ".join(trace_parts)
 
-        return (zfc_score, zfc_says, cat_says, trace)
+        # Dynamic score calculation fallback for synthesizability
+        complexity_penalty = (global_props['num_rings'] * 0.05) + (inconsistencies * 0.1)
+        dynamic_score = max(0.2, min(0.98, 0.9 - complexity_penalty))
+
+        return (dynamic_score, zfc_says, cat_says, trace)
 
     def _score_toxicity(self, descriptors: Dict, smiles: str) -> tuple:
         """Score toxicity verdict.
@@ -258,39 +262,35 @@ class LinkerVerdictEngine:
         """
         atoms = descriptors['atoms']
 
-        # ZFC: Check for toxic groups (simplified - real implementation would use SMARTS)
         has_toxic_group = any(g.lower() in smiles.lower() for g in self.toxic_groups)
 
-        # ZFC: Check for heavy metals
         heavy_metals = {'Pb', 'Hg', 'Cd', 'As', 'Cr'}
-        has_heavy_metal = any(a['element'] in heavy_metals for a in atoms)
+        heavy_metal_count = sum(1 for a in atoms if a['element'] in heavy_metals)
+        has_heavy_metal = heavy_metal_count > 0
 
-        # ZFC: Check electrophilicity (high positive charges)
         max_positive_charge = max((a['partial_charge'] for a in atoms), default=0.0)
         high_electrophilicity = max_positive_charge > 0.5
 
-        # ZFC verdict
         zfc_says = (not has_toxic_group) and (not has_heavy_metal) and (not high_electrophilicity)
-        zfc_score = 0.9 if zfc_says else 0.2
 
-        # CAT: Organic molecules with aromatic rings are generally safe
         is_organic = all(a['element'] in ('C', 'H', 'N', 'O', 'S', 'P') for a in atoms)
         has_stable_rings = descriptors['global']['num_aromatic_rings'] > 0
 
         cat_says = is_organic and has_stable_rings
-        cat_score = 0.8 if cat_says else 0.5
 
-        # Reasoning trace
-        trace_parts = []
+        # Dynamic score calculation
+        heavy_atom_ratio = heavy_metal_count / max(1, len(atoms))
+        charge_penalty = min(0.4, max_positive_charge)
+        dynamic_score = max(0.1, min(0.99, 1.0 - (heavy_atom_ratio * 2.0) - charge_penalty))
+        
+        if has_toxic_group:
+            dynamic_score *= 0.3
+
+        trace_parts = [f"Electrophilic penalty: -{charge_penalty:.2f}"]
         if zfc_says:
-            trace_parts.append("✓ No known toxic groups, no heavy metals")
+            trace_parts.append("✓ No toxic groups/metals")
         else:
-            if has_toxic_group:
-                trace_parts.append("✗ Contains known toxic functional group")
-            if has_heavy_metal:
-                trace_parts.append("✗ Contains heavy metal")
-            if high_electrophilicity:
-                trace_parts.append("✗ High electrophilicity (toxic risk)")
+            trace_parts.append(f"✗ Toxic groups: {has_toxic_group}, Heavy metals: {heavy_metal_count}")
 
         if cat_says:
             trace_parts.append("✓ Organic aromatic structure (generally safe)")
@@ -299,7 +299,7 @@ class LinkerVerdictEngine:
 
         trace = "; ".join(trace_parts)
 
-        return (zfc_score, zfc_says, cat_says, trace)
+        return (dynamic_score, zfc_says, cat_says, trace)
 
     def _score_stability(self, descriptors: Dict) -> tuple:
         """Score stability verdict.
@@ -317,31 +317,27 @@ class LinkerVerdictEngine:
         bonds = descriptors['bonds']
         global_props = descriptors['global']
 
-        # ZFC: All bonds should be strong (single, double, aromatic)
         weak_bonds = [b for b in bonds if b['bond_order'] < 1.0]
         has_weak_bonds = len(weak_bonds) > 0
 
-        # ZFC: Aromatic systems provide stability
         has_aromatic = global_props['num_aromatic_rings'] > 0
 
-        # ZFC verdict
         zfc_says = (not has_weak_bonds) and has_aromatic
-        zfc_score = 0.85 if zfc_says else 0.4
 
-        # CAT: Check for stable patterns (aromatic rings, conjugation)
         has_conjugation = global_props['conjugation_length'] > 6
         cat_says = has_aromatic and has_conjugation
-        cat_score = 0.8 if cat_says else 0.5
 
-        # Reasoning trace
-        trace_parts = []
+        # Dynamic score calculation
+        aromatic_ring_density = global_props['num_aromatic_rings'] / max(1, global_props['num_rings']) if global_props['num_rings'] > 0 else 0
+        weak_bond_penalty = len(weak_bonds) * 0.1
+        
+        dynamic_score = max(0.1, min(0.99, 0.5 + (aromatic_ring_density * 0.4) - weak_bond_penalty))
+
+        trace_parts = [f"Aromatic density: {aromatic_ring_density:.0%}"]
         if zfc_says:
-            trace_parts.append("✓ Strong bonds, aromatic stabilization")
+            trace_parts.append("✓ Strong bonds")
         else:
-            if has_weak_bonds:
-                trace_parts.append(f"✗ {len(weak_bonds)} weak bonds detected")
-            if not has_aromatic:
-                trace_parts.append("✗ No aromatic rings (reduced stability)")
+            trace_parts.append(f"✗ {len(weak_bonds)} weak bonds")
 
         if cat_says:
             trace_parts.append("✓ Extended conjugation enhances stability")
@@ -350,7 +346,7 @@ class LinkerVerdictEngine:
 
         trace = "; ".join(trace_parts)
 
-        return (zfc_score, zfc_says, cat_says, trace)
+        return (dynamic_score, zfc_says, cat_says, trace)
 
     def _score_activity(self, descriptors: Dict, application: str) -> tuple:
         """Score activity/selectivity verdict (application-dependent).
@@ -360,79 +356,62 @@ class LinkerVerdictEngine:
         """
         atoms = descriptors['atoms']
         global_props = descriptors['global']
+        
+        dynamic_score = 0.5
 
-        # Application-specific rules
         if application == 'breath_VOC_sensing':
-            # ZFC: Need polar groups + aromatic rings
-            has_polar = any(a['element'] in ('O', 'N') for a in atoms)
+            polar_count = sum(1 for a in atoms if a['element'] in ('O', 'N'))
+            has_polar = polar_count > 0
             has_aromatic = global_props['num_aromatic_rings'] > 0
 
             zfc_says = has_polar and has_aromatic
-            zfc_score = 0.85 if zfc_says else 0.3
-
-            # CAT: Check for π-π interaction capability
             cat_says = has_aromatic and global_props['conjugation_length'] > 6
-            cat_score = 0.8 if cat_says else 0.4
-
-            trace = "VOC sensing: " + (
-                "✓ Polar groups + aromatics (π-π interactions)" if zfc_says
-                else "✗ Missing polar groups or aromatic rings"
-            )
+            
+            polar_density = polar_count / max(1, len(atoms))
+            dynamic_score = min(0.99, 0.4 + (polar_density * 1.5))
+            
+            trace_parts = [f"VOC sensing: Polar density {polar_density:.0%} -> Score {dynamic_score:.2f}"]
+            trace_parts.append("✓ Polar groups + aromatics (π-π interactions)" if zfc_says else "✗ Missing polar groups or aromatic rings")
 
         elif application == 'food_safety':
-            # ZFC: High H-bond donor/acceptor count
             h_donors = sum(1 for a in atoms if a['element'] in ('N', 'O') and a['num_h'] > 0)
             h_acceptors = sum(1 for a in atoms if a['element'] in ('N', 'O'))
 
             zfc_says = (h_donors + h_acceptors) >= 4
-            zfc_score = 0.8 if zfc_says else 0.3
+            cat_says = h_acceptors > h_donors
 
-            # CAT: Resembles known food safety sensors
-            cat_says = h_acceptors > h_donors  # More acceptors = better
-            cat_score = 0.75 if cat_says else 0.5
+            binding_score = min(1.0, (h_donors * 0.1) + (h_acceptors * 0.1))
+            dynamic_score = 0.3 + (binding_score * 0.6)
 
-            trace = "Food safety: " + (
-                f"✓ {h_donors} H-donors, {h_acceptors} H-acceptors (good for contaminant binding)"
-                if zfc_says else "✗ Insufficient H-bonding sites"
-            )
+            trace_parts = [f"Food safety: {h_donors} donors, {h_acceptors} acceptors -> Score {dynamic_score:.2f}"]
 
         elif application == 'PFAS_detection':
-            # ZFC: Halogen-binding sites (Lewis acidic)
             has_lewis_acid = any(
                 a['element'] in ('B', 'Al', 'Zr') or (a['partial_charge'] > 0.3)
                 for a in atoms
             )
 
             zfc_says = has_lewis_acid
-            zfc_score = 0.8 if zfc_says else 0.3
-
-            # CAT: Aromatic framework for PFAS π-stacking
             has_aromatic = global_props['num_aromatic_rings'] > 0
             cat_says = has_aromatic
-            cat_score = 0.75 if cat_says else 0.4
 
-            trace = "PFAS detection: " + (
-                "✓ Lewis acidic sites + aromatic framework" if (zfc_says and cat_says)
-                else "✗ Missing Lewis acidic sites or aromatic rings"
-            )
+            max_charge = max((a['partial_charge'] for a in atoms), default=0.0)
+            dynamic_score = min(0.95, 0.4 + max_charge)
+
+            trace_parts = [f"PFAS detection: Max partial charge {max_charge:.2f} -> Score {dynamic_score:.2f}"]
 
         else:  # custom or unknown
-            # Generic activity: aromatic + functional groups
             has_aromatic = global_props['num_aromatic_rings'] > 0
             has_heteroatom = global_props['has_heteroatom']
 
             zfc_says = has_aromatic and has_heteroatom
-            zfc_score = 0.7 if zfc_says else 0.4
-
             cat_says = has_aromatic
-            cat_score = 0.7 if cat_says else 0.4
+            dynamic_score = 0.6 if zfc_says else 0.4
 
-            trace = "Generic: " + (
-                "✓ Aromatic + heteroatoms (versatile linker)" if zfc_says
-                else "◇ Activity depends on specific application"
-            )
+            trace_parts = ["Generic activity score applied."]
+            trace_parts.append("✓ Aromatic + heteroatoms (versatile linker)" if zfc_says else "◇ Activity depends on specific application")
 
-        return (zfc_score, zfc_says, cat_says, trace)
+        return (dynamic_score, zfc_says, cat_says, "; ".join(trace_parts))
 
     def _score_conductivity(self, descriptors: Dict) -> tuple:
         """Score electrical conductivity verdict.
@@ -452,47 +431,32 @@ class LinkerVerdictEngine:
         bonds = descriptors['bonds']
         global_props = descriptors['global']
 
-        # ZFC: Extended conjugation
         conjugation_length = global_props['conjugation_length']
         has_extended_conjugation = conjugation_length > 6
 
-        # ZFC: Aromatic content
         aromatic_count = sum(1 for a in atoms if a['aromatic'])
-        aromatic_fraction = aromatic_count / len(atoms) if atoms else 0
+        aromatic_fraction = aromatic_count / max(1, len(atoms))
         high_aromatic_content = aromatic_fraction > 0.5
 
-        # ZFC: Heteroatom doping
         has_heteroatom_doping = any(a['element'] in ('N', 'S') and a['aromatic'] for a in atoms)
 
-        # ZFC verdict
         zfc_says = has_extended_conjugation and (high_aromatic_content or has_heteroatom_doping)
-        zfc_score = 0.8 if zfc_says else 0.3
 
-        # CAT: Check if conjugated bonds form continuous pathway
         conjugated_bonds = [b for b in bonds if b['conjugated']]
-        continuous_pathway = len(conjugated_bonds) > 8  # Simplified check
+        continuous_pathway = len(conjugated_bonds) > 8
 
         cat_says = continuous_pathway
-        cat_score = 0.75 if cat_says else 0.4
 
-        # Reasoning trace
-        trace_parts = []
-        if zfc_says:
-            trace_parts.append(f"✓ Extended conjugation ({conjugation_length} bonds), {aromatic_fraction:.0%} aromatic")
-        else:
-            trace_parts.append(f"✗ Limited conjugation ({conjugation_length} bonds)")
+        # Dynamic score calculation
+        dynamic_score = min(0.99, (conjugation_length * 0.03) + (aromatic_fraction * 0.4))
+        if has_heteroatom_doping:
+            dynamic_score = min(0.99, dynamic_score + 0.1)
 
+        trace_parts = [f"Conjugation length {conjugation_length}, Aromatic {aromatic_fraction:.0%} -> Score {dynamic_score:.2f}"]
         if has_heteroatom_doping:
             trace_parts.append("✓ Heteroatom doping (N/S)")
 
-        if cat_says:
-            trace_parts.append("✓ Continuous conjugated pathway")
-        else:
-            trace_parts.append("◇ Conjugation interrupted, conductivity limited")
-
-        trace = "; ".join(trace_parts)
-
-        return (zfc_score, zfc_says, cat_says, trace)
+        return (dynamic_score, zfc_says, cat_says, "; ".join(trace_parts))
 
     def _compute_morphism_integrity(self, descriptors: Dict) -> float:
         """Compute morphism integrity (CAT layer).
@@ -544,6 +508,7 @@ class LinkerVerdictEngine:
 
     def _classify_verdict(
         self,
+        dynamic_base_score: float,
         zfc_says: bool,
         cat_says: bool,
         morphism_integrity: float,
@@ -551,6 +516,7 @@ class LinkerVerdictEngine:
         """Classify verdict based on ZFC + CAT results.
 
         Args:
+            dynamic_base_score: Data-driven score calculated by the verdict method
             zfc_says: ZFC layer says yes
             cat_says: CAT layer says yes
             morphism_integrity: CAT integrity score (0-1)
@@ -558,17 +524,18 @@ class LinkerVerdictEngine:
         Returns:
             (verdict_type, confidence_score)
         """
-        # Adjust CAT based on morphism integrity
         cat_adjusted = cat_says and (morphism_integrity > 0.7)
+        
+        final_score = dynamic_base_score * morphism_integrity
 
         if zfc_says and cat_adjusted:
-            return ('AGREE', morphism_integrity * 0.95)
+            return ('AGREE', final_score)
         elif not zfc_says and cat_adjusted:
-            return ('HOLLOW', morphism_integrity * 0.6)
+            return ('HOLLOW', final_score * 0.8)
         elif zfc_says and not cat_adjusted:
-            return ('ORPHAN', 0.5)
+            return ('ORPHAN', final_score * 0.6)
         else:
-            return ('REJECT', 0.2)
+            return ('REJECT', final_score * 0.3)
 
 
 if __name__ == "__main__":
