@@ -30,6 +30,24 @@ st.markdown(
     "device compatibility verification."
 )
 
+with st.expander("ℹ️ Transparency & Accuracy (How to interpret results)"):
+    st.markdown("""
+    This workbench uses a **Mixed-Fidelity** pipeline to balance speed and accuracy:
+    
+    1. **Triage Phase (The Generator)**:
+       - Uses inverse design and stoichiometry search to generate candidate formulas based on your target properties.
+       - **Accuracy**: ~85% (LOO). These are *suggestions*, not proven physical materials. Hallucinations are possible here.
+       - **Scorecard Column**: `Triage Confidence`, `Design Score`.
+    
+    2. **Precision Phase (The Filter)**:
+       - Applies strict mathematical and physical rules to veto bad triage guesses.
+       - **ZFC Integrity**: Rejects formulas that violate fundamental chemistry (e.g., charge imbalance). 
+       - **Cell Viability**: Uses the `MultiDomainAnalyzer` (~94.6% accuracy) to verify if the candidate will survive inside the chosen reference system (e.g., won't corrode the collector). 
+       - **Scorecard Column**: `Integrity (ZFC)`, `Cell Viability`.
+       
+    **How to use:** Trust the *vetoes* (Precision Phase) more than the *suggestions* (Triage Phase). A candidate with high Triage Confidence but a ZFC failure is unphysical.
+    """)
+
 render_feature_status("workbench")
 render_login_sidebar()
 
@@ -191,21 +209,21 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
             rows.append({
                 "Formula": c.formula,
                 "Integrity (ZFC)": zfc_status,
-                "Confidence": c.overall_confidence,
+                "Triage Confidence": c.overall_confidence,
                 "Cell Viability": c.compatibility_score if c.compatibility_viable else 0.0,
                 "Bottleneck": c.compatibility_metadata.get("bottleneck", "N/A"),
-                "Design": c.design_score,
+                "Design Score": c.design_score,
                 "Safe": "✅" if c.is_pfas_free else "❌",
             })
 
         df = pd.DataFrame(rows)
         st.dataframe(
             df.style.format({
-                "Confidence": "{:.3f}", 
-                "Design": "{:.3f}",
+                "Triage Confidence": "{:.3f}", 
+                "Design Score": "{:.3f}",
                 "Cell Viability": lambda v: f"{v:.3f}" if v > 0 else "FAIL"
             })
-            .background_gradient(subset=["Confidence", "Cell Viability"], cmap="RdYlGn"),
+            .background_gradient(subset=["Triage Confidence", "Cell Viability"], cmap="RdYlGn"),
             use_container_width=True, hide_index=True
         )
 
