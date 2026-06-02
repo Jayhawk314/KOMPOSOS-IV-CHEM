@@ -31,7 +31,25 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture (Updated 2026-05-30)
+## Current Audit Posture (Updated 2026-06-02)
+
+### Physical Vetoes in Verdicts (2026-06-02)
+- **MOF pore access is now a hard veto** (`mof_bridge/interaction_scoring.py`,
+  `interface_validator.py`): a guest that physically cannot enter the pore
+  (aperture ratio < 0.8) sets `ScorerResult.veto`, which **annihilates** the
+  composite (`suitable=False`, `total=0`) instead of being diluted to 10% of a
+  25%-weighted term. Previously a pore-blocked MOF could still be ruled suitable
+  on thermal/chemical/mechanical merit. Mirrors the polymer Flory-Huggins veto:
+  **a true physical block survives composition (min/annihilator), not weighted sum.**
+- **Crystal Dreamer mandatory targets** (`composition_engine/designer.py`):
+  `PropertyTarget` gains `mandatory: bool`. A missed mandatory target zeroes
+  `overall_score` so a hard requirement can no longer be averaged away by other
+  satisfied targets. **Off by default** — existing specs/behavior unchanged.
+- **Audits re-run, all unchanged** (vetoes are off-default / fire only on true
+  physical infeasibility): MOF funnel benchmark **AUROC 0.884, recall@22 0.95**
+  (`python -m mof_bridge.benchmark.run`); Crystal Dreamer property recovery
+  **7/9 = 78%** (`python audit/run_crystal_recovery.py`); `mof_bridge` tests
+  108 pass; `composition_engine` tests 261 pass.
 
 ### Formation Energy Predictor (2026-05-30 improvement)
 - **Accuracy:** MAE **0.304 eV/atom** (was 0.473, −36%); RMSE 0.454 (−40%); median error 0.215 (−37%)
