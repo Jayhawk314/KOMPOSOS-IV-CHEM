@@ -46,6 +46,7 @@ class PropertyTarget:
     min_value: Optional[float] = None
     max_value: Optional[float] = None
     weight: float = 1.0
+    mandatory: bool = False   # hard requirement — missing it vetoes the candidate
 
     def is_met(self, value: float) -> bool:
         if self.min_value is not None and value < self.min_value:
@@ -545,11 +546,14 @@ class CompositionDesigner:
         target_scores: Dict[str, float] = {}
         targets_met: List[str] = []
         targets_missed: List[str] = []
+        mandatory_failed = False
 
         for target in spec.targets:
             if target.name not in props:
                 target_scores[target.name] = 0.0
                 targets_missed.append(target.name)
+                if target.mandatory:
+                    mandatory_failed = True
                 continue
 
             value = props[target.name].value
@@ -562,6 +566,8 @@ class CompositionDesigner:
                 dist = target.distance(value)
                 score = math.exp(-2.0 * dist) * confidence
                 targets_missed.append(target.name)
+                if target.mandatory:
+                    mandatory_failed = True
 
             target_scores[target.name] = score
 
@@ -598,6 +604,11 @@ class CompositionDesigner:
 
         overall = weighted_sum * (0.5 + 0.5 * synth) * stability_factor * (0.5 + 0.5 * avg_conf)
         overall = max(0.0, min(1.0, overall))
+
+        # Hard requirement veto: a missed mandatory target annihilates the score,
+        # so it cannot be averaged away by other satisfied targets.
+        if mandatory_failed:
+            overall = 0.0
 
         # Structure type
         struct_type = None

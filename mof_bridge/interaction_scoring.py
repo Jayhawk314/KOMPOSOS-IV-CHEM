@@ -33,6 +33,7 @@ class ScorerResult:
     score: float         # 0-1 (1 = excellent suitability)
     label: str           # Human-readable label
     details: Dict        # Breakdown / reasoning
+    veto: bool = False   # Hard physical block — annihilates the composite
 
 
 # =============================================================================
@@ -58,6 +59,7 @@ def score_pore_accessibility(
         ScorerResult with score in [0, 1]
     """
     score = 1.0
+    veto = False
     details = {
         'pore_diameter_angstrom': mof.pore_diameter_angstrom,
         'bet_surface_area_m2g': mof.bet_surface_area_m2g,
@@ -72,6 +74,7 @@ def score_pore_accessibility(
 
         if ratio < 0.8:
             score *= 0.1
+            veto = True
             details['aperture_assessment'] = 'blocked — molecule too large for pore'
         elif ratio < 1.0:
             score *= 0.4
@@ -107,7 +110,7 @@ def score_pore_accessibility(
             details['pore_volume_assessment'] = 'meets requirement'
 
     score = max(0.0, min(1.0, score))
-    return ScorerResult(score=score, label='pore_accessibility', details=details)
+    return ScorerResult(score=score, label='pore_accessibility', details=details, veto=veto)
 
 
 # =============================================================================

@@ -210,6 +210,13 @@ class MOFInterfaceValidator:
             self.weights.application * s_app.score
         )
 
+        # Hard physical veto: if the guest cannot enter the pore, no amount of
+        # thermal/chemical/mechanical merit can make the MOF suitable. The veto
+        # annihilates the composite (min-style composition, not weighted sum).
+        vetoed = s_pore.veto
+        if vetoed:
+            total = 0.0
+
         details = {
             'mof_name': mof.name,
             'pore_details': s_pore.details,
@@ -223,6 +230,8 @@ class MOFInterfaceValidator:
                 'environment': conditions.environment,
             },
         }
+        if vetoed:
+            details['veto'] = 'pore aperture too small — guest cannot enter'
 
         return MOFInterfaceScore(
             total=total,
@@ -231,7 +240,7 @@ class MOFInterfaceValidator:
             thermal_compatibility=s_therm.score,
             mechanical_compatibility=s_mech.score,
             application_suitability=s_app.score,
-            suitable=total >= self.suitability_threshold,
+            suitable=(not vetoed) and total >= self.suitability_threshold,
             details=details,
         )
 
