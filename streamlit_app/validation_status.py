@@ -144,6 +144,17 @@ FEATURE_NOTES = {
         "suitability ranking is a **model triage signal**, not a validated "
         "prediction: use it to shortlist candidates, then check the literature."
     ),
+    "synthesis_planner": (
+        "Routes are **curated from published literature with citations**, not "
+        "ML-generated. Scores (feasibility/cost/time/safety) are heuristic "
+        "rankings. The **stoichiometric validation is a formal Z3 check**: "
+        "BALANCED means an element-balanced equation exists (shown as a "
+        "minimal-byproduct witness — feasibility evidence, not a mechanism or "
+        "yield claim); UNBALANCED is a hard veto (score zeroed). Balance "
+        "cannot check redox feasibility, kinetics, or phase purity. Audit: "
+        "`python audit\\run_stoich_audit.py` — 17/17 stoichiometric routes "
+        "balanced, 0 unbalanced (2026-06-10, internal-consistency check)."
+    ),
 }
 
 

@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-06-10: Stoichiometric SMT Validation (Z3) for Synthesis Routes
+
+**New audit + runtime guard:** `synthesis_planner/stoich_solver.py` encodes
+route-level element balance (leaf precursors -> target, chemistry-gated
+byproduct escapes) as a Z3 feasibility problem.
+
+- **Audit result:** 17/17 stoichiometric routes BALANCED, 0 UNBALANCED,
+  7 SKIPPED (composite/mixture targets — balance undefined). This is an
+  **internal-consistency / development check, NOT a blind claim** (no held-out
+  dataset; not registered in `dataset_registry.json`).
+- Run: `python audit\run_stoich_audit.py [--json audit\stoich_balance_report.json]`.
+  Frozen artifact: `audit/stoich_balance_report.json`.
+- **Runtime wiring:** `SynthesisPlanner.score_route()` attaches
+  `stoichiometry` / `balanced_reaction` / `stoichiometry_notes`; UNBALANCED is
+  a **hard veto** (composite annihilated to 0 — min/annihilator, not weighted
+  sum, same principle as the MOF pore and Flory-Huggins vetoes). SKIPPED
+  carries no penalty. Without z3-solver installed the planner degrades to
+  `UNAVAILABLE` (no crash, no behavior change).
+- **No regression:** synthesis_planner tests 111 pass (94 existing + 17 new);
+  no curated route's ranking changed (none are UNBALANCED). Compatibility/MOF/
+  Crystal Dreamer/PFAS code paths untouched — their frozen numbers stand.
+- Scope honesty: SAT = element-balance feasibility only (witness equation is
+  minimal-byproduct, not a mechanism); balance cannot check redox, kinetics,
+  or phase purity. Heuristic warning flags net O2 release under inert high-T
+  atmospheres (no curated route currently triggers it).
+- UI: new `streamlit_app/pages/11_Synthesis_Planner.py` surfaces ranked routes
+  with balanced equations and veto badges; `validation_status.py` gained the
+  `synthesis_planner` feature note.
+
+---
+
 ## 2026-05-30: Compatibility Confidence Calibration (isotonic)
 
 **Improvement:** compatibility scores are now mapped to a **calibrated probability**

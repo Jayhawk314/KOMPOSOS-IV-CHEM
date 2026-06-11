@@ -33,6 +33,24 @@ from synthesis_planner.precursor_db import (
     find_hazardous_precursors, check_availability,
 )
 
+# Z3 stoichiometric validation is an optional evidence layer: the planner
+# stays fully functional without z3-solver installed (status UNAVAILABLE).
+try:
+    from synthesis_planner.stoich_solver import audit_route as _stoich_audit_route
+except ImportError:
+    _stoich_audit_route = None
+
+# Routes are static module data, so one Z3 solve per route name is enough.
+_STOICH_CACHE: Dict[str, object] = {}
+
+
+def _stoichiometry_check(route: "SynthesisRoute"):
+    if _stoich_audit_route is None:
+        return None
+    if route.name not in _STOICH_CACHE:
+        _STOICH_CACHE[route.name] = _stoich_audit_route(route)
+    return _STOICH_CACHE[route.name]
+
 
 # ============================================================================
 # Data Classes
@@ -60,6 +78,11 @@ class ScoredRoute:
     bottleneck_step: Optional[SynthesisStep]
     missing_precursors: List[str] = field(default_factory=list)
     missing_equipment: List[str] = field(default_factory=list)
+    # Z3 stoichiometric validation (see stoich_solver):
+    # BALANCED | BALANCED_UNUSED_INPUTS | UNBALANCED | SKIPPED | UNAVAILABLE
+    stoichiometry_status: str = "UNAVAILABLE"
+    balanced_reaction: str = ""
+    stoichiometry_notes: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         return {
@@ -73,6 +96,9 @@ class ScoredRoute:
             'bottleneck': self.bottleneck_step.operation if self.bottleneck_step else None,
             'missing_precursors': self.missing_precursors,
             'missing_equipment': self.missing_equipment,
+            'stoichiometry': self.stoichiometry_status,
+            'balanced_reaction': self.balanced_reaction,
+            'stoichiometry_notes': self.stoichiometry_notes,
         }
 
 
@@ -285,6 +311,25 @@ class SynthesisPlanner:
             penalty = min(len(missing_prec) * 0.05, 0.2)
             composite = max(0.0, composite - penalty)
 
+        # Stoichiometric validation (Z3). UNBALANCED means no element balance
+        # exists between precursors and target: a true physical block, so it
+        # annihilates the composite instead of being diluted by other merit.
+        stoich_status = "UNAVAILABLE"
+        balanced_reaction = ""
+        stoich_notes: List[str] = []
+        stoich = _stoichiometry_check(route)
+        if stoich is not None:
+            stoich_status = stoich.status
+            balanced_reaction = stoich.reaction
+            stoich_notes = list(stoich.warnings)
+            if stoich.status == "SKIPPED":
+                stoich_notes.append(stoich.reason)
+            elif stoich.status == "UNBALANCED":
+                stoich_notes.append(
+                    "element balance impossible for: "
+                    + ", ".join(stoich.unbalanced_elements))
+                composite = 0.0
+
         return ScoredRoute(
             route=route,
             feasibility_score=round(feas, 4),
@@ -295,6 +340,9 @@ class SynthesisPlanner:
             bottleneck_step=bottleneck,
             missing_precursors=missing_prec,
             missing_equipment=missing_eq,
+            stoichiometry_status=stoich_status,
+            balanced_reaction=balanced_reaction,
+            stoichiometry_notes=stoich_notes,
         )
 
     def plan_synthesis(
@@ -348,6 +396,12 @@ class SynthesisPlanner:
         if best.route.risk_level == "high":
             warnings.append(
                 f"Best route has HIGH risk level (hazardous materials)"
+            )
+        if best.stoichiometry_status == "UNBALANCED":
+            warnings.append(
+                "Best route FAILED stoichiometric validation (element "
+                "balance impossible) -- all routes for this target are "
+                "vetoed or unscored; do not synthesize as written"
             )
 
         precursor_cost = estimate_route_cost(best.route.precursors)

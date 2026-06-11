@@ -31,3 +31,6 @@ matplotlib>=3.7.0
 # Testing (needed for CI, harmless in deploy)
 pytest>=7.0.0
 httpx>=0.25.0
+
+# SMT solver (stoichiometric validation in synthesis_planner)
+z3-solver>=4.12.0

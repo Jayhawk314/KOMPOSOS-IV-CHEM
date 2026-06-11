@@ -1,0 +1,338 @@
+{
+  "audit": "stoichiometric_balance",
+  "solver": "z3 4.16.0",
+  "results": [
+    {
+      "route": "LFP_solid_state",
+      "target": "LFP",
+      "status": "BALANCED",
+      "target_formula": "LiFePO4",
+      "reason": "",
+      "reaction": "7 Li2CO3 + 7 Fe2O3 + 14 NH4H2PO4 -> 14 LiFePO4 + 24 H2O + 7 CO2 + 12 NH3 + 2 NO2",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LFP_sol_gel",
+      "target": "LFP",
+      "status": "BALANCED",
+      "target_formula": "LiFePO4",
+      "reason": "",
+      "reaction": "18 LiNO3 + 18 Fe(NO3)3*9H2O + 18 H3PO4 + 5 C6H8O7 -> 18 LiFePO4 + 209 H2O + 30 CO2 + 72 NO2",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LFP_hydrothermal",
+      "target": "LFP",
+      "status": "BALANCED",
+      "target_formula": "LiFePO4",
+      "reason": "",
+      "reaction": "3 LiOH + FeSO4 + H3PO4 -> LiFePO4 + 3 H2O + Li2SO4",
+      "process_aids": [
+        "DI_water (process water (wash/dispersion))"
+      ],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NMC811_coprecipitation",
+      "target": "NMC811",
+      "status": "BALANCED",
+      "target_formula": "LiNi0.8Mn0.1Co0.1O2",
+      "reason": "",
+      "reaction": "24 NiSO4*6H2O + 3 MnSO4*H2O + 3 CoSO4*7H2O + 10 NaOH + 20 NH4OH + 30 LiOH -> 30 LiNi0.8Mn0.1Co0.1O2 + 198 H2O + 15 SO2 + 5 Na2SO4 + 10 (NH4)2SO4",
+      "process_aids": [
+        "DI_water (process water (wash/dispersion))"
+      ],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NMC622_coprecipitation",
+      "target": "NMC622",
+      "status": "BALANCED",
+      "target_formula": "LiNi0.6Mn0.2Co0.2O2",
+      "reason": "",
+      "reaction": "18 NiSO4*6H2O + 6 MnSO4*H2O + 6 CoSO4*7H2O + 10 NaOH + 20 NH4OH + 30 LiOH -> 30 LiNi0.6Mn0.2Co0.2O2 + 186 H2O + 15 SO2 + 5 Na2SO4 + 10 (NH4)2SO4",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NMC111_coprecipitation",
+      "target": "NMC111",
+      "status": "BALANCED",
+      "target_formula": "LiNi1/3Mn1/3Co1/3O2",
+      "reason": "",
+      "reaction": "2 NiSO4*6H2O + 2 MnSO4*H2O + 2 CoSO4*7H2O + 2 NaOH + 4 NH4OH + 3 Li2CO3 -> 6 LiNi1/3Mn1/3Co1/3O2 + 31 H2O + 3 CO2 + 3 SO2 + Na2SO4 + 2 (NH4)2SO4",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LCO_solid_state",
+      "target": "LCO",
+      "status": "BALANCED",
+      "target_formula": "LiCoO2",
+      "reason": "",
+      "reaction": "6 Li2CO3 + 4 Co3O4 + O2 -> 12 LiCoO2 + 6 CO2",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LMO_solid_state",
+      "target": "LMO",
+      "status": "BALANCED",
+      "target_formula": "LiMn2O4",
+      "reason": "",
+      "reaction": "2 Li2CO3 + 8 MnO2 -> 4 LiMn2O4 + 2 CO2 + O2",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "graphite_anode_coating",
+      "target": "Graphite_anode_electrode",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "graphite_anode_water_based",
+      "target": "Graphite_anode_electrode_water",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LLZO_solid_state",
+      "target": "LLZO",
+      "status": "BALANCED",
+      "target_formula": "Li7La3Zr2O12",
+      "reason": "",
+      "reaction": "14 LiOH + 3 La2O3 + 4 ZrO2 -> 2 Li7La3Zr2O12 + 7 H2O",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LGPS_ball_mill",
+      "target": "LGPS",
+      "status": "BALANCED",
+      "target_formula": "Li10GeP2S12",
+      "reason": "",
+      "reaction": "5 Li2S + GeS2 + P2S5 -> Li10GeP2S12",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "Li3PS4_ball_mill",
+      "target": "Li3PS4",
+      "status": "BALANCED",
+      "target_formula": "Li3PS4",
+      "reason": "",
+      "reaction": "3 Li2S + P2S5 -> 2 Li3PS4",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NCA_coprecipitation",
+      "target": "NCA",
+      "status": "BALANCED",
+      "target_formula": "LiNi0.8Co0.15Al0.05O2",
+      "reason": "",
+      "reaction": "4/5 NiSO4*6H2O + 3/20 CoSO4*7H2O + 1/40 Al2(SO4)3*18H2O + 11/30 NaOH + 11/15 NH4OH + LiOH -> LiNi0.8Co0.15Al0.05O2 + 147/20 H2O + 19/40 SO2 + 11/60 Na2SO4 + 11/30 (NH4)2SO4",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "Al2O3_Bayer_simplified",
+      "target": "Al2O3",
+      "status": "BALANCED",
+      "target_formula": "Al2O3",
+      "reason": "",
+      "reaction": "bauxite -> Al2O3 + 3 H2O",
+      "process_aids": [
+        "NaOH_solution (Bayer liquor, regenerated in the cycle)"
+      ],
+      "approximations": [
+        "bauxite approximated as gibbsite Al2O3*3H2O"
+      ],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "Al2O3_PVD_coating",
+      "target": "Al2O3_coating",
+      "status": "BALANCED",
+      "target_formula": "Al2O3",
+      "reason": "",
+      "reaction": "4 Al + 3 O2 -> 2 Al2O3",
+      "process_aids": [
+        "substrate_metal (substrate)"
+      ],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "TiN_PVD_coating",
+      "target": "TiN_coating",
+      "status": "BALANCED",
+      "target_formula": "TiN",
+      "reason": "",
+      "reaction": "2 Ti + N2 -> 2 TiN",
+      "process_aids": [
+        "substrate_metal (substrate)"
+      ],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "SiC_Acheson",
+      "target": "SiC",
+      "status": "BALANCED",
+      "target_formula": "SiC",
+      "reason": "",
+      "reaction": "SiO2 + 2 petroleum_coke -> SiC + CO2",
+      "process_aids": [],
+      "approximations": [
+        "petroleum coke approximated as pure carbon"
+      ],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "PVDF_film_casting",
+      "target": "PVDF_film",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "PEO_electrolyte_membrane",
+      "target": "PEO_electrolyte",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "YSZ_thermal_barrier",
+      "target": "YSZ_coating",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "LFP_cathode_coating",
+      "target": "LFP_cathode_electrode",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NMC811_cathode_coating",
+      "target": "NMC811_cathode_electrode",
+      "status": "SKIPPED",
+      "target_formula": "",
+      "reason": "composite/mixture target -- no single stoichiometric formula; balance undefined",
+      "reaction": "",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    },
+    {
+      "route": "NASICON_solid_state",
+      "target": "NASICON",
+      "status": "BALANCED",
+      "target_formula": "Na3Zr2Si2PO12",
+      "reason": "",
+      "reaction": "3 Na2CO3 + 4 ZrO2 + 4 SiO2 + 2 NH4H2PO4 -> 2 Na3Zr2Si2PO12 + 3 H2O + 3 CO2 + 2 NH3",
+      "process_aids": [],
+      "approximations": [],
+      "unused_inputs": [],
+      "unbalanced_elements": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "BALANCED": 17,
+    "BALANCED_UNUSED_INPUTS": 0,
+    "UNBALANCED": 0,
+    "SKIPPED": 7
+  }
+}

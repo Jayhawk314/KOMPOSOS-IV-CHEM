@@ -105,6 +105,14 @@ Loaded via the **Bridge ABC**, providing data for 103K+ materials.
 - **Ranked Routes**: 24 routes ranked by feasibility, cost, time, and safety.
 - **Precursor Database**: 53 precursors with real price and hazard data.
 - **Equipment Mapping**: Automated identification of required lab equipment.
+- **Stoichiometric SMT Validation (Z3)**: every scored route carries a formal
+  element-balance verdict — `BALANCED` routes show their balanced equation
+  (minimal-byproduct witness); `UNBALANCED` is a hard veto (composite zeroed);
+  composite/mixture targets are `SKIPPED` honestly. Degrades to `UNAVAILABLE`
+  without z3-solver. Audit: `python audit\run_stoich_audit.py`
+  (17/17 balanced, internal-consistency check — not a blind claim).
+- **UI**: `streamlit_app/pages/11_Synthesis_Planner.py` (ranked routes,
+  equations, veto badges); also exposed via `api/routes/synthesis.py` and SDK.
 
 ---
 
