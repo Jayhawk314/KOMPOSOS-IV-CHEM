@@ -307,18 +307,19 @@ st.divider()
 st.subheader("🔬 Scientific Audit (True Leave-One-Out)")
 st.markdown(
     "Verify the system's accuracy for yourself. This mode forces the engine to **forget** "
-    "the material exists in its memory before predicting, providing a scientifically "
-    "honest 'blind' test."
+    "the selected material and same-formula anchors before predicting. This is a useful "
+    "leave-one-out development diagnostic, **not a fresh blind test**: the reference set "
+    "and model have already been inspected during development."
 )
 
 loo_formula = formula_input_with_autocomplete(
     label="Select known material to test",
     key="loo_formula",
     default_value="NMC811",
-    help_text="Choose a material that exists in the database to run a blind LOO test."
+    help_text="Choose a known material for a leave-one-out development diagnostic."
 )
 
-if st.button("Run Blind LOO Test", type="secondary"):
+if st.button("Run LOO Diagnostic", type="secondary"):
     if not require_access():
         st.stop()
     consume_use()

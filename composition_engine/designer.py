@@ -218,7 +218,11 @@ class CompositionDesigner:
             if num_evaluated >= spec.max_candidates:
                 break
             try:
-                prediction = self.predictor.predict(formula, domain=spec.domain)
+                prediction = self.predictor.predict(
+                    formula,
+                    domain=spec.domain,
+                    include_structure=False,
+                )
             except Exception:
                 continue
             num_evaluated += 1
@@ -236,14 +240,12 @@ class CompositionDesigner:
         # Rank by overall score descending
         scored.sort(key=lambda c: c.overall_score, reverse=True)
 
-        # Physical gate, applied POST-ranking: only the top candidates we would
-        # actually surface get the expensive pymatgen charge-balance check. The
-        # deep tail (never shown) is left ungated. Cheap-filters-first funnel.
-        GATE_SURFACE_CAP = 100
+        # Check every candidate returned to a caller. Previously the gate stopped
+        # after 100 accepted candidates but still returned an unchecked tail.
         kept: List[DesignCandidate] = []
         num_gated = 0
         for c in scored:
-            if len(kept) < GATE_SURFACE_CAP and not passes_physical_gates(c.formula):
+            if not passes_physical_gates(c.formula):
                 num_gated += 1
                 continue
             kept.append(c)

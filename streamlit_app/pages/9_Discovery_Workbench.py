@@ -232,6 +232,7 @@ if st.button("Start Discovery Pipeline", type="primary"):
                 "Confidence": c.overall_confidence,
                 "Depth": c.pipeline_depth,
                 "Design": c.design_score,
+                "Hard Vetoes": ", ".join(c.hard_vetoes) if c.hard_vetoes else "—",
                 "Safe": "âœ…" if c.is_pfas_free else "â Œ",
                 "Compatible": f"{c.compatibility_score:.3f}" if c.compatibility_viable else "FAIL",
                 "Synth": f"{c.synthesizability_score:.3f}",

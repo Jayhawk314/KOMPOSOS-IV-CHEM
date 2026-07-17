@@ -616,10 +616,14 @@ def find_replacements_for_cell(
           "candidate": ReplacementCandidate,
           "interfaces": {adjoining_material: {score, calibrated, viable, domain, evaluated}},
           "bottleneck_material": str | None,   # weakest interface
-          "bottleneck_calibrated": float | None,
+          "bottleneck_calibrated": float | None, # only when coverage is complete
+          "partial_bottleneck_calibrated": float | None,
           "bottleneck_viable": bool | None,
           "n_evaluated": int,                  # interfaces the engine could score
-          "combined_rank": float,              # 0.6*quality + 0.4*bottleneck
+          "n_requested": int,
+          "coverage_fraction": float,
+          "coverage_complete": bool,
+          "combined_rank": float,              # coverage-aware triage rank
         }
     sorted by combined_rank (best first).
     """
@@ -656,18 +660,27 @@ def find_replacements_for_cell(
         evaluated = [e for e in interfaces.values() if e["evaluated"]]
         # Bottleneck = weakest evaluated interface, by calibrated probability.
         scored = [e for e in evaluated if e["calibrated"] is not None]
+        partial_bottleneck = None
         if scored:
             worst = min(scored, key=lambda e: e["calibrated"])
-            bottleneck_cal = worst["calibrated"]
+            partial_bottleneck = worst["calibrated"]
             bottleneck_mat = next(m for m, e in interfaces.items() if e is worst)
-            bottleneck_viable = all(e["viable"] for e in evaluated if e["viable"] is not None)
         else:
-            bottleneck_cal = None
             bottleneck_mat = None
-            bottleneck_viable = None
 
-        # Rank: replacement quality, tempered by the worst-interface compatibility.
-        cell_term = bottleneck_cal if bottleneck_cal is not None else 0.5
+        n_requested = len(adjoining)
+        coverage_fraction = len(evaluated) / n_requested if n_requested else 0.0
+        coverage_complete = bool(n_requested) and len(evaluated) == n_requested
+        bottleneck_cal = partial_bottleneck if coverage_complete else None
+        bottleneck_viable = (
+            all(e["viable"] for e in evaluated if e["viable"] is not None)
+            if coverage_complete else None
+        )
+
+        # Unknown contacts cannot disappear from the ranking. The covered
+        # bottleneck is discounted by physical-interface coverage; zero coverage
+        # contributes zero rather than a neutral invented compatibility value.
+        cell_term = (partial_bottleneck or 0.0) * coverage_fraction
         combined = 0.6 * candidate.overall_score + 0.4 * cell_term
 
         out.append({
@@ -675,8 +688,12 @@ def find_replacements_for_cell(
             "interfaces": interfaces,
             "bottleneck_material": bottleneck_mat,
             "bottleneck_calibrated": bottleneck_cal,
+            "partial_bottleneck_calibrated": partial_bottleneck,
             "bottleneck_viable": bottleneck_viable,
             "n_evaluated": len(evaluated),
+            "n_requested": n_requested,
+            "coverage_fraction": round(coverage_fraction, 4),
+            "coverage_complete": coverage_complete,
             "combined_rank": round(combined, 4),
         })
 

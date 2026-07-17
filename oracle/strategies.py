@@ -72,6 +72,12 @@ class InferenceStrategy(ABC):
             self._shared_cache['object_map'] = {obj.name: obj for obj in self._get_objects()}
         return self._shared_cache['object_map']
 
+    def _get_object(self, name: str) -> Any:
+        """Retrieve an object through either the IV Category or III store API."""
+        if self.category:
+            return self._get_object_map().get(name)
+        return self.store.get_object(name)
+
     def _build_morphism_index(self) -> Tuple[Dict, Dict]:
         """Build outgoing and incoming morphism indices (shared across strategies)."""
         if 'morphism_index' in self._shared_cache:
@@ -320,8 +326,8 @@ class TemporalReasoningStrategy(InferenceStrategy):
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        source_obj = self.store.get_object(source)
-        target_obj = self.store.get_object(target)
+        source_obj = self._get_object(source)
+        target_obj = self._get_object(target)
 
         if not source_obj or not target_obj:
             return predictions
@@ -551,8 +557,8 @@ class TypeHeuristicStrategy(InferenceStrategy):
         predictions = []
 
         obj_map = self._get_object_map()
-        source_obj = obj_map.get(source) or self.store.get_object(source)
-        target_obj = obj_map.get(target) or self.store.get_object(target)
+        source_obj = obj_map.get(source) or self._get_object(source)
+        target_obj = obj_map.get(target) or self._get_object(target)
 
         if not source_obj or not target_obj:
             return predictions
@@ -760,8 +766,8 @@ class FibrationLiftStrategy(InferenceStrategy):
     def predict(self, source: str, target: str) -> List[Prediction]:
         predictions = []
 
-        source_obj = self.store.get_object(source)
-        target_obj = self.store.get_object(target)
+        source_obj = self._get_object(source)
+        target_obj = self._get_object(target)
 
         if not source_obj or not target_obj:
             return predictions
@@ -788,7 +794,7 @@ class FibrationLiftStrategy(InferenceStrategy):
                 obj_out = outgoing.get(obj.name, [])
 
                 for mor in obj_out:
-                    mor_target = self.store.get_object(mor.target_name)
+                    mor_target = self._get_object(mor.target_name)
                     if mor_target:
                         mor_target_fiber = (mor_target.type_name, mor_target.metadata.get("era", "unknown"))
 
@@ -856,8 +862,8 @@ class StructuralHoleStrategy(InferenceStrategy):
 
                 if mor_to_source and mor_to_target:
                     # Check type compatibility
-                    source_obj = self.store.get_object(source)
-                    target_obj = self.store.get_object(target)
+                    source_obj = self._get_object(source)
+                    target_obj = self._get_object(target)
 
                     if source_obj and target_obj:
                         type_pair = (source_obj.type_name, target_obj.type_name)

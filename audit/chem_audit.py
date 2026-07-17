@@ -43,6 +43,8 @@ IN_SCOPE_TESTS = [
     "mof_bridge/tests",
     "molecular_bridge/tests",
     "synthesis_planner/tests",
+    "discovery/tests",
+    "audit/tests",
     # chem-wired oracle / calibration / contract tests (NOT generic math)
     "tests/test_compatibility_decision_calibration.py",
     "tests/test_material_zfc.py",
@@ -50,6 +52,7 @@ IN_SCOPE_TESTS = [
     "tests/test_pfas_report.py",
     "tests/test_pfas_pdf.py",
     "api/tests/compatibility_workflow_contract_test.py",
+    "api/tests/test_monitoring_export.py",
 ]
 
 # Explicitly OUT of scope (documented so the boundary is auditable):
@@ -81,7 +84,12 @@ def run_tests() -> bool:
     missing = [p for p in IN_SCOPE_TESTS if not (ROOT / p).exists()]
     if missing:
         print(f"  NOTE: skipping non-existent in-scope paths: {missing}")
-    cmd = [sys.executable, "-m", "pytest", "-q", "--no-header", *existing]
+    # importlib mode prevents an unrelated installed `tests` package from
+    # shadowing this repository's namespace when many shards are collected.
+    cmd = [
+        sys.executable, "-m", "pytest", "-q", "--no-header",
+        "--import-mode=importlib", *existing,
+    ]
     return _run(cmd, "in-scope chem pytest shards")
 
 

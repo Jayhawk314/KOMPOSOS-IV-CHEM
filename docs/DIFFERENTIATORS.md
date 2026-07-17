@@ -1,83 +1,61 @@
-# KOMPOSOS-IV: What Makes It Different
+# What makes KOMPOSOS-IV-CHEM different
 
-## The One-Sentence Pitch
+## One-sentence description
 
-KOMPOSOS-IV is the only materials reasoning engine where **execution is a category proof**, enabling 5 tiers of cognitive verification and game-theoretic optimization without black-box AI.
+KOMPOSOS-IV-CHEM is a reproducible materials-screening workbench that keeps
+physical vetoes, evidence roles, calibration scope, provenance, and missing
+interface coverage attached to its answers.
 
----
+## Defensible differentiators
 
-## The Version IV Difference: Beyond Static ML
+### Evidence roles are part of the result
 
-Traditional Materials AI (and Version III) uses static models or simple database bridges. **KOMPOSOS-IV-CHEM** introduces the **Categorical Runtime**, where the knowledge graph is a live category ($ \infty $-cosmos).
+Development data, spent diagnostics, sealed holdouts, source records, derived
+checks, model estimates, and simulations are not interchangeable. The dataset
+registry and monitoring receipts make those roles machine-readable.
 
-### 1. Execution as Category (Infinity Cosmos)
-In KOMPOSOS-IV, every query is a mathematical process. 
-- **Proof-as-Runtime**: Finding if two materials are compatible is a search for a composing morphism.
-- **Simplicial Type Theory**: Replacing ad-hoc similarity weights with rigorous structural metrics (Yoneda similarity) and transport laws (Fibration transport).
-- **No Hallucinations**: Categorical composition enforces strict physical and chemical laws.
+### Vetoes survive composition
 
-### 2. The COG Engine (5-Tier Cognitive Audit)
-While competitors give a single black-box score, KOMPOSOS audits every result through 5 tiers:
-- **Tier 0-1**: Graph and Path consistency.
-- **Tier 2**: Sheaf coherence (local data matching global context).
-- **Tier 3**: ZFC Dual-Engine audit (independent set-theoretic verification).
-- **Tier 4**: Topological flow (Ricci curvature and Homology).
-*Why this matters:* It provides **Defense-in-Depth** for high-stakes materials decisions (Aviation, Medical, Nuclear).
+A pore-access failure, immiscibility rule, charge-balance failure, PFAS detection,
+or missing required physical-interface scorer cannot be rescued by averaging a
+different score. This applies to epistemic gaps as well as physical failures.
 
-### 3. OPTIMUS: Game-Theoretic Optimization
-Materials design is always a trade-off (e.g., Conductivity vs. Stability). 
-- **Nash Equilibrium**: OPTIMUS finds the "sweet spot" by treating material properties as players in a non-cooperative game.
-- **Intermediate Discovery**: Automatically finds "bridge materials" (factorizations) that improve system-wide viability.
+### Calibration is scoped
 
-### 4. Physics-Embedded 120D Composition Vectors
-Kan Extensions (interpolation) in Version IV are performed in a **Physics-Embedded space**. 
-- **Chemically Aware**: Vectors include Group, Period, and Stoichiometry. 
-- **Periodic Trends**: The system "understands" that Ba is more like Sr than Pb, purely from its position in the embedding space.
+The pairwise compatibility path has an isotonic development/spent calibration
+artifact (OOS ECE 0.072 on its recorded cohort). The system explicitly does not
+apply that artifact to arbitrary multi-interface aggregates. Formation-energy
+intervals have their own calibration record.
 
-### 5. ZFC Dual-Engine Grounding
-Every categorical result is cross-checked against a **ZFC Set Theory** foundation.
-- **Logical Witnesses**: Every "YES" has a ZFC witness (proof of constraint satisfaction).
-- **Gaussian Typicality**: catching physically impossible "hallucinations" by checking bond typicality against real crystallographic statistics.
+### Constraints plus a grounded referee
 
-### 6. Zero Infrastructure Cost
-Despite its mathematical complexity, KOMPOSOS-IV runs on a standard laptop. 
-- **No GPUs**: Reasons from logic and curated data, not learned weights.
-- **Local Runtime**: The entire Infinity Cosmos and COG Engine are pure Python.
+The MOF workflow deterministically enforces exact heavy-atom count and then uses
+a separately benchmarked structural funnel. On the frozen benchmark it reproduces
+0.9433 pass-all recall on held-out real linkers and AUROC 0.8843 against raw
+generator output. That is screening evidence, not a synthesis claim.
 
----
+### Inspection surfaces are first-class
 
-## Competitive Landscape
+MP and MOF explorers are not just presentation pages: they let users distinguish
+source data from derived estimates, inspect nearest-composition anchors, and see
+the evidence coverage behind downstream predictions.
 
-$2.1 billion has been invested in materials AI. Every dollar went to black-box machine learning.
+### Stable external monitoring
 
-| Company | Approach | KOMPOSOS IV Difference |
-| :--- | :--- | :--- |
-| **Orbital Materials** | ML Potentials | Simulation vs. **Logical Reasoning** |
-| **CuspAI** | Generative AI | Black-box vs. **Interpretable Proofs** |
-| **Citrine** | ML on Data | Statistical vs. **Topological (Ricci Flow)** |
-| **Google GNoME** | Large Scale ML | Discovery vs. **Composition (How things work together)** |
+Content-addressed JSON exports let an external system such as Noesis record native
+CHEM predictions without upgrading their evidence role. Frozen metric and artifact
+baselines distinguish software drift from model accuracy.
 
-KOMPOSOS occupies a gap none of them fill: **Interpretable, multi-domain, proof-based materials design.**
+## What is not a differentiator claim
 
----
+- The repository does not prove it is the only system with these properties.
+- It does not contain an ablation showing category theory increases accuracy.
+- Historical ZFC summaries derived from bridge scores are not independent
+  measurements.
+- A current strict formation-energy LOO MAE of 0.416 eV/atom is screening-grade.
+- No compatibility benchmark is currently blind.
+- Whole-cell and workbench aggregates are not calibrated probabilities.
 
-## Technical Proof Points (Version IV)
-
-- **103K+ Materials**: 205 curated + 103,671 MP DFT entries.
-- **5-Tier COG Audit**: Every prediction traces through 5 levels of rigor.
-- **Ricci Flow Analysis**: Detects bottleneck interfaces in 6-material cell designs.
-- **Kulik Challenge**: Solves the 22-atom ligand constraint exactly via categorical search.
-- **Directed MOF design**: strategy weights, seed pinning, required groups + a validated
-  grounded funnel (~94% recall on real linkers, AUROC 0.88).
-- **Calibrated, not black-box**: compatibility confidence is a real probability (isotonic,
-  honest out-of-sample ECE 0.072) — a 0.70 means ~70%, with the calibration method chosen
-  by held-out data, not asserted.
-- **PFAS → fits your cell**: replacements ranked by calibrated compatibility with the whole
-  stack (weakest-interface bottleneck), not just "not PFAS."
-- **Development benchmark**: 41/41, 100%, Brier 0.095. Formation-energy MAE 0.304 eV/atom.
-- **Honest blind posture**: no dataset currently held blind; spent diagnostics labeled as
-  such; Q10 sealed. (We don't report tuned numbers as blind claims.)
-
----
-
-*KOMPOSOS-IV-CHEM | james Hawkins | 2026*
+The category-theory implementation matters as reusable structure for typed
+composition and constraints. The public value claim should rest on observable
+behavior and reproducible audits, not mathematical vocabulary by itself.

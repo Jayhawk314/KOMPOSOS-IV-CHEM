@@ -45,7 +45,7 @@ from target properties to candidate materials before expensive lab or simulation
 | Page | What it does |
 |------|-------------|
 | **Compatibility Checker** | Check two-material compatibility with shared API/UI reasoning and audit metadata |
-| **PFAS Scanner** | Screen materials for PFAS compliance and find replacements |
+| **PFAS Scanner** | First-pass PFAS inventory and coverage-aware replacement triage |
 | **Composition Predictor** | Predict properties from a chemical formula |
 | **Cell Designer** | Design a multi-domain battery cell and find bottlenecks |
 | **Crystal Dreamer** | Inverse design: describe target properties and find candidate compositions |
@@ -83,16 +83,16 @@ The Discovery Workbench is a working **composition-first prototype**, now availa
 Chains Target Property Bounds → Element Constraints → Compatibility Context → Synthesis Planning. Best used for rapid exploration and bulk triage.
 
 **2. Advanced Triage Workbench (Mixed-Fidelity)**
-A rigorous evolution separating **Triage** from **Precision Verification**. 
+A coverage-aware review surface separating fast triage from narrower checks.
 - Highlights explicit **Calculation Uncertainty** (e.g., Voltage `[4.1 - 4.5V]`) so researchers know when the engine is guessing vs. certain.
-- Uses **ZFC Physical Gates** to immediately veto mathematically "correct" but physically impossible formulas (e.g., charge imbalance).
-- Evaluates discovered materials in a **Full-Cell Context** using the `MultiDomainAnalyzer` to catch cross-domain bottlenecks.
+- Uses a **pymatgen charge-balance gate** to veto definite oxidation-state failures; unassessable formulas receive no verdict.
+- Evaluates discovered materials in a **reference interface context** and exposes physical contacts without a native scorer.
 
 CRYSTAL-specific and MOF-specific pipeline modes are planned next.
 
 - **5 independent scorers** per bridge where available
 - **Dempster-Shafer fusion** for multi-source evidence combination
-- **ZFC dual-engine** for independent logical verification
+- **Derived logical constraints** for consistency/veto checks (not independent measurement)
 
 No GPUs required for the core reasoning path.
 """)

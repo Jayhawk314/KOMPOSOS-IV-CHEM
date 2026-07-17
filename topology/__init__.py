@@ -11,10 +11,16 @@ Provides persistent homology and TDA tools for detecting:
 - Topological signatures of complex systems
 """
 
-from .persistence import (
-    PersistentHomologyAnalyzer,
-    analyze_persistence
-)
+from .persistent_homology import PersistentHomologyComputer
+
+# Public compatibility names retained after the implementation was consolidated
+# into persistent_homology.py.
+PersistentHomologyAnalyzer = PersistentHomologyComputer
+
+
+def analyze_persistence(complex):
+    """Compute a persistence diagram for a filtered simplicial complex."""
+    return PersistentHomologyComputer().compute(complex)
 
 # Backwards-compatible alias: several geometry modules import PersistenceComputer
 PersistenceComputer = PersistentHomologyAnalyzer

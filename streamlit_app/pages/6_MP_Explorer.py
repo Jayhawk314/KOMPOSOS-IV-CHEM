@@ -8,9 +8,11 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 
 import streamlit as st
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="MP Explorer", page_icon="🔬", layout="wide")
 st.title("Materials Project Explorer")
+render_feature_status("mp_explorer")
 
 # ---------------------------------------------------------------------------
 # Check MP availability

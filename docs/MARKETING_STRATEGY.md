@@ -1,5 +1,11 @@
 # KOMPOSOS-III Chemistry: Personal Marketing Strategy
 
+> **Historical strategy, not approved product copy.** It contains unsupported
+> uniqueness, funding, deadline, "no training data," and validation claims. The
+> current evidence posture is in the root `CURRENT_STATE.md` and
+> `docs/CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md`. Do not reuse quotations or numbers
+> below without a new source and claim audit.
+
 *For James Ray Hawkins -- one person, zero budget, working product*
 
 *Created 2026-03-01*

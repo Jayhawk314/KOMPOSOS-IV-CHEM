@@ -127,8 +127,15 @@ with st.expander("Advanced"):
         "Exclude elements", all_elements, default=[],
         help="Remove candidates containing these elements."
     )
-    require_all_agree = st.checkbox("Require all 5 verdicts AGREE", value=True)
-    allow_hollow = st.checkbox("Allow HOLLOW verdicts (exploratory)", value=False)
+    require_all_agree = st.checkbox(
+        "Require all 5 legacy verdicts AGREE",
+        value=False,
+        help=(
+            "Legacy categorical descriptors are unvalidated extras for novel linkers. "
+            "The grounded funnel shown in results is the benchmarked screen."
+        ),
+    )
+    allow_hollow = st.checkbox("Allow legacy HOLLOW verdicts (exploratory)", value=False)
 
 with st.expander("Directed Generation Controls (steer the search)"):
     st.caption(

@@ -1,5 +1,10 @@
 # KOMPOSOS-III Chemistry: Business Positioning & Market Landscape
 
+> **Historical positioning exercise, not audited product copy.** Uniqueness,
+> competitor funding, “not a neural network,” and independent-ZFC statements below
+> are unsupported or superseded. Current claims live in the root `README.md`,
+> `CURRENT_STATE.md`, and `docs/DIFFERENTIATORS.md`.
+
 *Updated 2026-03-01 after Phase 7c completion and comprehensive market research*
 
 ---

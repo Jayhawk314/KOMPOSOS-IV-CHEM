@@ -31,7 +31,28 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture (Updated 2026-06-02)
+## Current Audit Posture (Updated 2026-07-17)
+
+### July 2026 executable-audit corrections
+- Current `python audit/run_predictor_accuracy.py` result is **MAE 0.416
+  eV/atom**, RMSE 0.552, median 0.340 on 179 strict formula-deduplicated LOO
+  cases. The older 0.304 headline below is a historical May result and must not
+  be presented as current performance.
+- Formation-energy conformal factors were regenerated on 2026-07-17 after
+  prediction/artifact drift. Current deployed interval coverage is 50/79/95%;
+  5-fold OOS calibration coverage is 49/80/94%.
+- Q9 is a **spent diagnostic** (initial 32/40; later 35/40 after inspected-error
+  remediation) and is now recorded in `audit/dataset_registry.json`. Q10 remains
+  sealed and unscored. There is still no current blind compatibility dataset.
+- Battery optimizer active-material pools now use `CATHODE_MATERIALS` and
+  `ANODE_MATERIALS`; the former class-based filter incorrectly admitted Al foil
+  as a cathode and Cu foil as an anode. The 103K discovery path's index/API
+  integration was also repaired.
+- Workbench "ZFC" wording was corrected: composition feasibility uses a
+  pymatgen charge-balance/oxidation-state gate. It is deterministic but is not
+  an independent ZFC proof. Multi-domain aggregate scores are no longer passed
+  through the pairwise compatibility calibrator, and missing interface coverage
+  is surfaced explicitly.
 
 ### Physical Vetoes in Verdicts (2026-06-02)
 - **MOF pore access is now a hard veto** (`mof_bridge/interaction_scoring.py`,
@@ -45,23 +66,24 @@ Python: 3.10+
   `PropertyTarget` gains `mandatory: bool`. A missed mandatory target zeroes
   `overall_score` so a hard requirement can no longer be averaged away by other
   satisfied targets. **Off by default** — existing specs/behavior unchanged.
-- **Audits re-run, all unchanged** (vetoes are off-default / fire only on true
-  physical infeasibility): MOF funnel benchmark **AUROC 0.884, recall@22 0.95**
-  (`python -m mof_bridge.benchmark.run`); Crystal Dreamer property recovery
-  **7/9 = 78%** (`python audit/run_crystal_recovery.py`); `mof_bridge` tests
-  108 pass; `composition_engine` tests 261 pass.
+- **Current audit posture:** MOF funnel benchmark reproduced at **AUROC 0.8843,
+  recall@22 0.95** (`python -m mof_bridge.benchmark.run`). The historical Crystal
+  Dreamer **7/9** recovery run did not complete within the 2026-07-17 interactive
+  audit window, so do not promote it as a current reproduced headline.
 
-### Formation Energy Predictor (2026-05-30 improvement)
-- **Accuracy:** MAE **0.304 eV/atom** (was 0.473, −36%); RMSE 0.454 (−40%); median error 0.215 (−37%)
+### Formation Energy Predictor (historical 2026-05-30 result; superseded above)
+- **Historical result:** MAE 0.304 eV/atom, RMSE 0.454, median 0.215. Do not
+  present this as the current executable-audit result; current is 0.416/0.552/0.340.
 - **Model:** Sparse-discovery tier (~96% of queries) now uses **RandomForest** (was linear ridge);
   trained on leak-free Phase-16 MP calibration split (2502 materials), held-out validation
   error: 0.133 eV/atom (vs 0.202 for ridge).
 - **Bug fixes:** (1) Name-vs-formula parsing (predict("Cordierite") was read as "Co" → cobalt);
   (2) Duplicate composition leakage (now strict LOO: exclude by name AND composition).
-- **Calibration:** Intervals recalibrated to 50/80/95% coverage (exact); conformal factors
-  tighter due to better point estimates.
+- **Calibration:** Current regenerated intervals cover 50/79/95% in the deployed
+  LOO pool and 49/80/94% in 5-fold OOS calibration.
 - **Scope:** Improves stability/synthesizability screening (formation energy), *not*
-  voltage/capacity (Crystal Dreamer unchanged at 78% property recovery).
+  voltage/capacity. Crystal Dreamer recovery remains quarantined pending a fresh
+  recorded run.
 - **Audit:** `python audit/run_predictor_accuracy.py`, `composition_engine/experiments/forward_model_bench.py`.
 
 ### Compatibility & Development Benchmarks
@@ -70,7 +92,8 @@ Python: 3.10+
   `spent_diagnostic`. Q8 was demoted from current_blind to spent_diagnostic on
   2026-05-29 (its skip/fail cases were inspected; 14/40 pairs overlap existing
   identities — never a clean holdout). **Never report any Q8 number as a blind claim.**
-  Freeze Q9 (uninspected recent-literature pairs) before the next blind validation claim.
+  Q9 is also spent diagnostic. Q10 is sealed and unscored; do not claim a
+  current blind result.
 - Development benchmark: `41/41`, `100.0%`, `0` skips, Brier 0.095. (Re-verified
   2026-05-30 after relabeling HDPE+PP polymer pair to immiscible/incompatible — the
   Flory-Huggins veto correctly flags it; prior `true` label was thermodynamically wrong.)
@@ -79,15 +102,17 @@ Python: 3.10+
 - Q10 is the sealed final exam (labels hashed/hidden); do not score until ready.
 
 ### Compatibility Confidence Calibration (2026-05-30)
-- Compatibility scores are mapped to a **calibrated probability** via a global
-  **isotonic** calibrator (chosen over raw/Platt by out-of-sample ECE in
-  `audit/fit_compat_calibration.py`). Honest k-fold **OOS ECE 0.072** (Brier 0.049),
+- Pairwise compatibility scores are mapped to a **calibrated probability** via a global
+  **isotonic** calibrator. In the deployed 98-pair artifact, its 5-fold
+  **OOS ECE is 0.072** (Brier 0.049),
   down from raw ECE ~0.194. A 0.70 now means ~70% of such pairs are compatible.
 - Built by `audit/build_compatibility_calibration.py` (dev + spent diagnostics only,
   leak-controlled; current-blind excluded), stored as monotonic (x,y) breakpoints in
   `audit/calibration/compatibility_calibration_2026_q4_dev.json`. Runtime
   (`oracle/compatibility_calibration.py`) interpolates them dependency-free and prefers
-  isotonic; binned/domain calibrators remain the fallback. Dev verdicts unchanged.
+  isotonic; binned/domain calibrators remain the fallback. This is not a fresh
+  blind or domain-specific result, and it must not be applied to multi-interface
+  aggregate scores. Dev verdicts unchanged.
 - Rebuild: `python audit/build_compatibility_calibration.py`; measure:
   `python audit/run_compat_calibration.py`.
 

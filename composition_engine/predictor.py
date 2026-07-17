@@ -120,6 +120,14 @@ class CompositionPredictor:
         print(result.properties["voltage"].value)  # ~3.85V
     """
 
+    # These helpers load immutable local model/data artifacts. Sharing them
+    # avoids rebuilding the RF/structure index (including the 103K MP-derived
+    # structure table) for every short-lived predictor in UI reruns and tests.
+    _shared_fep = None
+    _shared_stp = None
+    _shared_structure_deriver = None
+    _shared_mp_deriver_attempted = False
+
     def __init__(self, db: Optional[KnownCompositionDB] = None, k: int = 5):
         self.db = db or get_db()
         self.k = k   # Number of nearest neighbours for Kan extension
@@ -132,7 +140,8 @@ class CompositionPredictor:
     def predict(self, formula: str,
                 exclude_names: Optional[List[str]] = None,
                 domain: Optional[str] = None,
-                exclude_formula: Optional[str] = None) -> PredictedMaterial:
+                exclude_formula: Optional[str] = None,
+                include_structure: bool = True) -> PredictedMaterial:
         """
         Predict properties for a chemical formula.
 
@@ -142,6 +151,8 @@ class CompositionPredictor:
             domain: Restrict to a specific domain
             exclude_formula: Material name, formula, or MP ID to exclude from
                 formation-energy prediction for leave-one-out validation
+            include_structure: Derive crystal type and an MP-neighbor structure.
+                Batch screening can disable this expensive display enrichment.
 
         Returns:
             PredictedMaterial with per-property predictions and confidence.
@@ -172,8 +183,11 @@ class CompositionPredictor:
         # Step 5: Formation energy + synthesizability (DFT surrogate)
         try:
             if self._fep is None:
-                from .formation_energy import FormationEnergyPredictor
-                self._fep = FormationEnergyPredictor()
+                cls = type(self)
+                if cls._shared_fep is None:
+                    from .formation_energy import FormationEnergyPredictor
+                    cls._shared_fep = FormationEnergyPredictor()
+                self._fep = cls._shared_fep
             fe_exclude = exclude_formula
             if fe_exclude is None and exclude_names:
                 fe_exclude = exclude_names[0]
@@ -201,9 +215,14 @@ class CompositionPredictor:
         # Step 6: Crystal structure type prediction
         predicted_structure = None
         try:
+            if not include_structure:
+                raise RuntimeError("structure enrichment disabled for batch screening")
             if self._stp is None:
-                from .structure_predictor import StructureTypePredictor
-                self._stp = StructureTypePredictor()
+                cls = type(self)
+                if cls._shared_stp is None:
+                    from .structure_predictor import StructureTypePredictor
+                    cls._shared_stp = StructureTypePredictor()
+                self._stp = cls._shared_stp
             predicted_structure = self._stp.predict(formula)
         except Exception:
             pass  # Structure prediction is optional enhancement
@@ -211,15 +230,21 @@ class CompositionPredictor:
         # Step 7: Structure derivation (from MP data if available)
         derived_structure = None
         try:
+            if not include_structure:
+                raise RuntimeError("structure enrichment disabled for batch screening")
             if not self._mp_deriver_loaded:
                 self._mp_deriver_loaded = True
-                from .mp_loader import MPCache
-                from .structure_deriver import StructureDeriver
-                cache = MPCache()
-                if cache.is_available():
-                    mp_entries = cache.load_entries_with_lattice()
-                    if mp_entries:
-                        self._structure_deriver = StructureDeriver(mp_entries)
+                cls = type(self)
+                if not cls._shared_mp_deriver_attempted:
+                    cls._shared_mp_deriver_attempted = True
+                    from .mp_loader import MPCache
+                    from .structure_deriver import StructureDeriver
+                    cache = MPCache()
+                    if cache.is_available():
+                        mp_entries = cache.load_entries_with_lattice()
+                        if mp_entries:
+                            cls._shared_structure_deriver = StructureDeriver(mp_entries)
+                self._structure_deriver = cls._shared_structure_deriver
             if self._structure_deriver is not None:
                 derived_structure = self._structure_deriver.derive(formula)
         except Exception:

@@ -18,7 +18,8 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Any
 
 from battery_bridge.material_properties import (
-    BatteryMaterial, MaterialClass, get_material, ALL_MATERIALS as BATTERY_MATS
+    BatteryMaterial, MaterialClass, get_material, ALL_MATERIALS as BATTERY_MATS,
+    CATHODE_MATERIALS, ANODE_MATERIALS,
 )
 from polymer_bridge.material_properties import ALL_POLYMERS
 from metal_bridge.material_properties import ALL_METALS
@@ -43,8 +44,10 @@ class OptimizedCell:
     cathode_collector: str   # cathode-side current collector (e.g. Al)
     anode_collector: str     # anode-side current collector (e.g. Cu)
     energy_density: float  # Wh/kg
-    viability: float       # 0-1
+    viability: float       # 0-1 partial aggregate over interfaces with native scorers
     is_pfas_free: bool
+    interface_coverage: float = 0.0  # fraction of physical contacts with a native scorer
+    unscored_interfaces: List[str] = field(default_factory=list)
     mp_id: Optional[str] = None
     notes: str = ""
 
@@ -60,6 +63,9 @@ class OptimizedCell:
             "anode_collector": self.anode_collector,
             "energy_density": round(self.energy_density, 2),
             "viability": round(self.viability, 3),
+            "interface_coverage": round(self.interface_coverage, 3),
+            "coverage_complete": self.interface_coverage >= 1.0,
+            "unscored_interfaces": self.unscored_interfaces,
             "is_pfas_free": self.is_pfas_free,
             "mp_id": self.mp_id,
             "notes": self.notes
@@ -80,8 +86,11 @@ class BatteryOptimizer:
         self.pfas_checker = PFASComplianceChecker(resolve_unknown=False)
         
         # Categorize Elite materials
-        self.cathodes = [m for m in BATTERY_MATS.values() if m.material_class == MaterialClass.CATHODE]
-        self.anodes = [m for m in BATTERY_MATS.values() if m.material_class == MaterialClass.ANODE]
+        # Use role-specific registries. The table also contains Al/Cu foils
+        # whose historical class labels encode their electrode side; filtering
+        # by class allowed Al foil as a cathode and Cu foil as an anode.
+        self.cathodes = list(CATHODE_MATERIALS.values())
+        self.anodes = list(ANODE_MATERIALS.values())
         self.solvents = [m for m in BATTERY_MATS.values() if m.material_class == MaterialClass.ELECTROLYTE_SOLVENT]
         self.solids = [m for m in BATTERY_MATS.values() if m.material_class == MaterialClass.SOLID_ELECTROLYTE]
         self.binders = list(ALL_POLYMERS.keys())
@@ -110,19 +119,28 @@ class BatteryOptimizer:
             all_results = elite_results
             
         # Final ranking
-        # Primary: Viability > threshold, then Energy Density
-        # Secondary: Viability score itself
+        # Primary: covered-interface score > threshold, then Energy Density.
+        # `interface_coverage` prevents callers from reading this as a full-cell
+        # verdict when a physical contact lacks a native scorer.
         def _rank_key(c: OptimizedCell):
             v_boost = 1000 if c.viability >= self.viability_threshold else 0
             return (v_boost + c.energy_density, c.viability)
             
         all_results.sort(key=_rank_key, reverse=True)
         
-        # Assign ranks
-        for i, res in enumerate(all_results):
+        selected = all_results[:limit]
+        # Enabling discovery must have an observable result. A large elite pool
+        # can otherwise fill every display slot even though refinement succeeded.
+        if enable_discovery and discovery_results and selected and \
+                not any(item.type == "Discovery" for item in selected):
+            selected[-1] = max(discovery_results, key=_rank_key)
+            selected.sort(key=_rank_key, reverse=True)
+
+        # Assign ranks after the display selection is final.
+        for i, res in enumerate(selected):
             res.rank = i + 1
-            
-        return all_results[:limit]
+
+        return selected
 
     @staticmethod
     def _overall_score(scores: List[float]) -> float:
@@ -281,9 +299,26 @@ class BatteryOptimizer:
                         for cc in cath_collectors:
                             ccs = cc_scores[cc]
                             for ac in anode_collectors:
-                                viability = self._overall_score(
-                                    core_scores + bs + ccs + ac_scores[ac]
-                                )
+                                physical_contacts = [
+                                    (cat.name, d_cat, elec, d_elec),
+                                    (ano.name, d_ano, elec, d_elec),
+                                    (b, domain_of(b), cat.name, d_cat),
+                                    (b, domain_of(b), ano.name, d_ano),
+                                    (b, domain_of(b), elec, d_elec),
+                                    (cc, domain_of(cc), cat.name, d_cat),
+                                    (cc, domain_of(cc), elec, d_elec),
+                                    (ac, domain_of(ac), ano.name, d_ano),
+                                    (ac, domain_of(ac), elec, d_elec),
+                                ]
+                                scored_values = []
+                                unscored = []
+                                for left, dl, right, dr in physical_contacts:
+                                    value = pair_score(left, dl, right, dr, elec)
+                                    if value is None:
+                                        unscored.append(f"{left}<->{right}")
+                                    else:
+                                        scored_values.append(value)
+                                viability = self._overall_score(scored_values)
                                 if viability < self.viability_threshold:
                                     continue
                                 results.append(OptimizedCell(
@@ -298,6 +333,8 @@ class BatteryOptimizer:
                                     energy_density=ed,
                                     viability=viability,
                                     is_pfas_free=binder_pfas_free[b],
+                                    interface_coverage=len(scored_values) / len(physical_contacts),
+                                    unscored_interfaces=unscored,
                                 ))
 
         return results
@@ -311,7 +348,13 @@ class BatteryOptimizer:
         """Stage 2: Use 103K MP cache to find variants of top performers."""
         results = []
         try:
-            index = CompositionIndex()
+            from composition_engine.mp_loader import MPCache
+
+            cache = MPCache()
+            if not cache.is_available():
+                return []
+            entries = cache.load_entries()
+            index = CompositionIndex(entries)
             predictor = CompositionPredictor()
         except Exception:
             return []
@@ -320,31 +363,38 @@ class BatteryOptimizer:
             # Find neighbors for the cathode
             try:
                 # We need the vector for the cathode formula
-                from composition_engine.parser import parse_formula, composition_to_vector
+                from composition_engine.parser import parse_formula, composition_vector
                 base_comp = parse_formula(get_material(base.cathode).formula)
-                base_vec = composition_to_vector(base_comp)
+                base_vec = composition_vector(base_comp)
                 
                 # Search 103K cache for top 5 chemical neighbors
                 neighbors = index.nearest_k(base_vec, k=10)
                 
-                for mp_id, dist, entry in neighbors:
+                for entry, dist in neighbors:
                     if entry.formula == get_material(base.cathode).formula:
                         continue # Skip exact match
                         
                     # Predict properties for this novel cathode
-                    pred = predictor.predict(entry.formula)
+                    pred = predictor.predict(entry.formula, include_structure=False)
                     
                     # Energy Density
                     v_ano = get_material(base.anode).voltage_window.nominal if get_material(base.anode).voltage_window else 0.1
                     # predictor voltage is a list/dict usually, let's assume nominal exists
-                    pred_v = pred.predicted_properties.get("voltage", 4.0)
+                    pred_v = (
+                        pred.properties['voltage'].value
+                        if 'voltage' in pred.properties else 4.0
+                    )
                     cell_v = pred_v - v_ano
-                    ed = cell_v * pred.predicted_properties.get("theoretical_capacity", 200.0)
+                    pred_capacity = (
+                        pred.properties['theoretical_capacity'].value
+                        if 'theoretical_capacity' in pred.properties else 200.0
+                    )
+                    ed = cell_v * pred_capacity
                     
                     # Viability (assuming same compatibility as base for now, 
                     # but we could run the analyzer if we had a way to map novel materials)
                     # For discovery, we score by "Similarity * Base Viability"
-                    viability = base.viability * (1.0 - dist)
+                    viability = base.viability * max(0.0, 1.0 - dist)
                     
                     results.append(OptimizedCell(
                         rank=0,
@@ -358,7 +408,9 @@ class BatteryOptimizer:
                         energy_density=ed,
                         viability=viability,
                         is_pfas_free=base.is_pfas_free,
-                        mp_id=mp_id,
+                        interface_coverage=base.interface_coverage,
+                        unscored_interfaces=list(base.unscored_interfaces),
+                        mp_id=entry.mp_id,
                         notes=f"Structural variant of {base.cathode} (dist={dist:.3f})"
                     ))
             except Exception:

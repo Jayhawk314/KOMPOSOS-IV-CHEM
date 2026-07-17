@@ -33,6 +33,7 @@ import csv
 import gzip
 import hashlib
 import time
+from contextlib import closing
 from pathlib import Path
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional
@@ -165,7 +166,7 @@ class MOFLinkerCache:
             demo_linkers = self._generate_demo_linkers()
 
             # Insert into database
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 cursor = conn.cursor()
                 for linker in demo_linkers:
                     try:
@@ -288,7 +289,7 @@ class MOFLinkerCache:
                                     linkers_found += 1
 
                                     # Insert into database
-                                    with sqlite3.connect(self.db_path) as conn:
+                                    with closing(sqlite3.connect(self.db_path)) as conn, conn:
                                         cursor = conn.cursor()
                                         cursor.execute("""
                                             INSERT OR REPLACE INTO linkers (
@@ -328,7 +329,7 @@ class MOFLinkerCache:
                 demo_linkers = self._generate_demo_linkers()
 
                 # Insert demo linkers into database
-                with sqlite3.connect(self.db_path) as conn:
+                with closing(sqlite3.connect(self.db_path)) as conn, conn:
                     cursor = conn.cursor()
                     for linker in demo_linkers:
                         try:
@@ -432,12 +433,12 @@ class MOFLinkerCache:
         seen_smiles = set()
 
         if not reset and self.db_path.exists():
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT smiles FROM linkers")
                 seen_smiles.update(row[0] for row in cursor.fetchall())
 
-        with sqlite3.connect(self.db_path) as conn:
+        with closing(sqlite3.connect(self.db_path)) as conn, conn:
             cursor = conn.cursor()
             for record in records:
                 smiles = self._extract_smiles_field(record)
@@ -543,7 +544,7 @@ class MOFLinkerCache:
             )
 
         linkers = []
-        with sqlite3.connect(self.db_path) as conn:
+        with closing(sqlite3.connect(self.db_path)) as conn, conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM linkers ORDER BY molecular_weight")
@@ -582,7 +583,7 @@ class MOFLinkerCache:
 
     def _init_database(self):
         """Initialize SQLite database with schema."""
-        with sqlite3.connect(self.db_path) as conn:
+        with closing(sqlite3.connect(self.db_path)) as conn, conn:
             cursor = conn.cursor()
 
             # Create linkers table
@@ -615,7 +616,7 @@ class MOFLinkerCache:
         """Count cached linker rows directly from SQLite."""
         if not self.db_path.exists():
             return 0
-        with sqlite3.connect(self.db_path) as conn:
+        with closing(sqlite3.connect(self.db_path)) as conn, conn:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM linkers")
             return int(cursor.fetchone()[0])

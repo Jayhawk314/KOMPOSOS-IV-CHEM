@@ -1,5 +1,10 @@
 # MOF Linker Designer — Usage Guide
 
+> **Current scope note (2026-07-17):** exact atom count is deterministic and the
+> grounded funnel is benchmarked. The five legacy categorical verdict descriptors
+> are unvalidated extras for novel linkers and are not synthesis, toxicity,
+> activity, stability, or conductivity proof.
+
 **Generate novel MOF linkers with exact atom count control and KOMPOSOS verdicts**
 
 ---

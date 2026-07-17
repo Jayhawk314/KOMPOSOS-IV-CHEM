@@ -147,6 +147,15 @@ class MultiDomainAnalysis:
     viable: bool                # Above threshold?
     bottleneck: Optional[CrossDomainScore]
     warnings: List[str]
+    expected_interfaces: List[str] = field(default_factory=list)
+    unscored_interfaces: List[str] = field(default_factory=list)
+    coverage_fraction: float = 0.0
+
+    @property
+    def coverage_complete(self) -> bool:
+        return not self.unscored_interfaces and (
+            bool(self.expected_interfaces) or len(self.components) <= 1
+        )
 
     def to_dict(self) -> Dict:
         return {
@@ -172,6 +181,10 @@ class MultiDomainAnalysis:
                 for s in self.cross_domain_scores
             },
             'warnings': self.warnings,
+            'expected_interfaces': self.expected_interfaces,
+            'unscored_interfaces': self.unscored_interfaces,
+            'coverage_fraction': round(self.coverage_fraction, 4),
+            'coverage_complete': self.coverage_complete,
         }
 
 
@@ -228,6 +241,8 @@ class MultiDomainAnalyzer:
         """
         warnings = []
         scores = []
+        expected_interfaces: List[str] = []
+        unscored_interfaces: List[str] = []
 
         # Step 1: Identify domains for each component
         for comp in query.components:
@@ -243,13 +258,23 @@ class MultiDomainAnalyzer:
         # Step 2: Find all cross-domain pairs and score them
         for i, comp_a in enumerate(query.components):
             for comp_b in query.components[i+1:]:
-                if comp_a.domain == 'unknown' or comp_b.domain == 'unknown':
-                    continue
-
                 # Physical adjacency filter (opt-in): skip pairs that are not in
                 # contact (e.g. cathode-side collector vs anode).
                 if query.adjacency is not None and \
                         frozenset({comp_a.role, comp_b.role}) not in query.adjacency:
+                    continue
+
+                # With explicit physical adjacency, every listed contact is
+                # expected. Without it, this analyzer promises cross-domain
+                # coverage only; same-domain contacts belong to native bridges.
+                expected = query.adjacency is not None or comp_a.domain != comp_b.domain
+                interface_name = f'{comp_a.name}<->{comp_b.name}'
+                if expected:
+                    expected_interfaces.append(interface_name)
+
+                if comp_a.domain == 'unknown' or comp_b.domain == 'unknown':
+                    if expected:
+                        unscored_interfaces.append(interface_name)
                     continue
 
                 # Try each functor that applies to this domain pair
@@ -258,6 +283,8 @@ class MultiDomainAnalyzer:
                 )
                 if result is not None:
                     scores.append(result)
+                elif expected:
+                    unscored_interfaces.append(interface_name)
 
         # Step 3: Find bottleneck
         bottleneck = None
@@ -292,10 +319,25 @@ class MultiDomainAnalyzer:
             warnings.append("No cross-domain interfaces could be scored")
 
         viable = overall >= (query.viability_threshold or self.viability_threshold)
+        # A score over the interfaces we happen to implement is not a verdict
+        # over an explicitly requested physical stack. Missing contacts are an
+        # epistemic veto and cannot be averaged away.
+        if query.adjacency is not None and unscored_interfaces:
+            viable = False
 
         # Collect all warnings from individual scores
         for s in scores:
             warnings.extend(s.warnings)
+
+        if unscored_interfaces:
+            warnings.append(
+                'Coverage incomplete; no native functor for: '
+                + ', '.join(unscored_interfaces)
+            )
+
+        coverage_fraction = (
+            len(scores) / len(expected_interfaces) if expected_interfaces else 0.0
+        )
 
         return MultiDomainAnalysis(
             query_name=query.name,
@@ -306,6 +348,9 @@ class MultiDomainAnalyzer:
             viable=viable,
             bottleneck=bottleneck,
             warnings=warnings,
+            expected_interfaces=expected_interfaces,
+            unscored_interfaces=unscored_interfaces,
+            coverage_fraction=coverage_fraction,
         )
 
     def _try_score_pair(

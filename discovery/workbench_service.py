@@ -35,7 +35,11 @@ class DiscoveryCandidate:
     # Stage 2: Safety & Regulatory
     is_pfas_free: bool = True
     safety_vetoes: List[str] = field(default_factory=list)
-    zfc_witnessed: bool = False
+    # Historical field name retained for serialized compatibility.  The value
+    # is the result of a pymatgen oxidation-state/charge-balance check, not an
+    # independent ZFC proof: True/False/None (unassessable).
+    zfc_witnessed: Optional[bool] = None
+    hard_vetoes: List[str] = field(default_factory=list)
     
     # Stage 3: Interface Compatibility
     compatibility_score: float = 0.0
@@ -69,6 +73,7 @@ class DiscoveryGoal:
     # Performance
     max_candidates: int = 50
     min_overall_confidence: float = 0.45
+    apply_charge_balance_gate: bool = True
 
 class DiscoveryWorkbenchService:
     """
@@ -127,6 +132,7 @@ class DiscoveryWorkbenchService:
         # --- STAGE 2: Safety & Regulatory (PFAS/ZFC) ---
         print(f"[*] Stage 2: Screening {len(candidates)} candidates for safety...")
         from pfas_bridge.compliance_checker import PFASComplianceChecker
+        from composition_engine.physical_gates import charge_balanceable
         checker = PFASComplianceChecker()
         
         safe_candidates = []
@@ -135,12 +141,20 @@ class DiscoveryWorkbenchService:
             c.is_pfas_free = not compliance.is_pfas
             if compliance.is_pfas:
                 c.safety_vetoes.append(f"PFAS: {compliance.urgency}")
-            
-            # Simple ZFC Typicality check placeholder
-            # In real system, we'd call MaterialZFCBridge
-            c.zfc_witnessed = True # Assume physically grounded for now
-            
-            if c.is_pfas_free:
+                c.hard_vetoes.append('PFAS structural/name detection')
+
+            if goal.apply_charge_balance_gate:
+                c.zfc_witnessed = charge_balanceable(c.formula)
+                c.compatibility_metadata['charge_balance_status'] = c.zfc_witnessed
+                if c.zfc_witnessed is False:
+                    c.safety_vetoes.append('Charge balance: no common oxidation-state assignment')
+                    c.hard_vetoes.append('charge_balance')
+                elif c.zfc_witnessed is None:
+                    c.compatibility_metadata['charge_balance_note'] = (
+                        'unassessable; no charge-balance verdict emitted'
+                    )
+
+            if not c.hard_vetoes:
                 c.pipeline_depth = 2
                 safe_candidates.append(c)
         
@@ -163,7 +177,7 @@ class DiscoveryWorkbenchService:
                     )
                     c.compatibility_score = workflow.scores.get("total", 0.0)
                     c.compatibility_viable = workflow.viable
-                    c.compatibility_metadata = workflow.scores.get("ensemble", {})
+                    c.compatibility_metadata.update(workflow.scores.get("ensemble", {}))
                     c.compatibility_metadata["workflow_material"] = material_for_workflow
                     c.compatibility_metadata["generated_formula"] = c.formula
                     
@@ -201,11 +215,14 @@ class DiscoveryWorkbenchService:
         # --- FINAL: Overall Confidence Calculation ---
         for c in candidates:
             # Weighted average of Design (40%), Compat (40%), Synth (20%)
-            c.overall_confidence = (
-                (c.design_score * 0.4) +
-                (c.compatibility_score * 0.4) +
-                (c.synthesizability_score * 0.2)
-            )
+            if c.hard_vetoes:
+                c.overall_confidence = 0.0
+            else:
+                c.overall_confidence = (
+                    (c.design_score * 0.4) +
+                    (c.compatibility_score * 0.4) +
+                    (c.synthesizability_score * 0.2)
+                )
             
         # Return sorted by overall confidence
         candidates.sort(key=lambda x: x.overall_confidence, reverse=True)
@@ -222,8 +239,18 @@ class DiscoveryWorkbenchService:
         callers can judge how trustworthy a proxy-based score is (a distant proxy is
         a weak stand-in for the candidate's own chemistry).
         """
-        if candidate.proxy_material:
-            candidate.compatibility_metadata.setdefault("proxy_distance", 0.0)
+        from cross_bridge.multi_domain import _build_domain_registry
+        from composition_engine.parser import composition_distance
+
+        registry = _build_domain_registry()
+        if candidate.proxy_material in registry:
+            entry = self._predictor.db.get_by_name(candidate.proxy_material)
+            distance = None
+            if entry is not None:
+                distance = composition_distance(candidate.composition, entry.composition)
+                candidate.compatibility_metadata['proxy_distance'] = round(float(distance), 4)
+            else:
+                candidate.compatibility_metadata['proxy_distance'] = None
             return candidate.proxy_material
 
         try:
@@ -231,10 +258,10 @@ class DiscoveryWorkbenchService:
         except Exception:
             return None
 
-        if prediction.nearest_known:
-            name, distance = prediction.nearest_known[0]
-            candidate.compatibility_metadata["proxy_distance"] = round(float(distance), 4)
-            return name
+        for name, distance in prediction.nearest_known:
+            if name in registry:
+                candidate.compatibility_metadata['proxy_distance'] = round(float(distance), 4)
+                return name
         return None
 
     @staticmethod

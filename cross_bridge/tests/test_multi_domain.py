@@ -208,6 +208,33 @@ class TestSingleComponent(unittest.TestCase):
         result = a.analyze(q)
         self.assertEqual(result.overall_score, 1.0)
         self.assertTrue(result.viable)
+        self.assertTrue(result.coverage_complete)
+
+
+class TestPhysicalCoverage(unittest.TestCase):
+    """Explicit physical contacts are promises, including unsupported ones."""
+
+    def test_missing_functor_blocks_full_stack_verdict(self):
+        analyzer = MultiDomainAnalyzer()
+        query = MultiDomainQuery(
+            name="NMC811/LLZO/Al physical stack",
+            components=[
+                MultiDomainComponent(name="NMC811", role="cathode"),
+                MultiDomainComponent(name="LLZO", role="electrolyte"),
+                MultiDomainComponent(name="Al_foil", role="collector"),
+            ],
+            electrolyte="LLZO",
+            adjacency={
+                frozenset({"cathode", "electrolyte"}),
+                frozenset({"cathode", "collector"}),
+                frozenset({"electrolyte", "collector"}),
+            },
+        )
+        result = analyzer.analyze(query)
+        self.assertFalse(result.coverage_complete)
+        self.assertFalse(result.viable)
+        self.assertIn("NMC811<->LLZO", result.unscored_interfaces)
+        self.assertLess(result.coverage_fraction, 1.0)
 
 
 class TestWeightedScoringMode(unittest.TestCase):

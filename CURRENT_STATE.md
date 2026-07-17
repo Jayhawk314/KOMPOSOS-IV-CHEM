@@ -1,85 +1,82 @@
-# KOMPOSOS-IV Current State
+# KOMPOSOS-IV-CHEM current state
 
-Date: 2026-05-30 (updated: Directed MOF generation, compatibility calibration, PFAS cell-fit)
+Updated: 2026-07-17
 
-## Project Identity
+## Identity
 
-KOMPOSOS-IV is a **categorical runtime** for multi-domain discovery. It is deployed across two main tracks:
+The chemistry/materials track is an evidence-governed screening workbench. Its
+strongest general capability is not a universal chemical predictor; it is the
+ability to compose narrow screens while preserving provenance, physical vetoes,
+dataset roles, uncertainty scope, and missing coverage.
 
-- **Track A (Bio/Pharm)**: Drug repurposing over a curated drug-target-disease graph.
-- **Track C (Chem/Materials)**: Advanced material compatibility and inverse design (Batteries, Polymers, etc.).
+## Current reproducible headline numbers
 
-## 2026-05-30 Latest Frontier (3 features shipped)
+- Compatibility development regression: 41/41.
+- No compatibility dataset is currently blind. Q9 is spent (35/40 after
+  remediation); Q10 is sealed and unscored.
+- Pairwise compatibility calibration artifact: 98 development/spent rows,
+  isotonic OOS ECE 0.072 and Brier 0.049. This is not per-domain evidence and is
+  not valid for arbitrary aggregate scores.
+- Formation-energy strict-formula LOO: n=179, MAE 0.416, RMSE 0.552, median
+  absolute error 0.340 eV/atom.
+- Formation-energy interval coverage after recalibration: deployed 50/79/95%;
+  five-fold out-of-sample calibration 49/80/94%.
+- MOF funnel: held-out-real pass-all recall 0.9433; AUROC 0.8843 versus raw
+  generator decoys; exact-22 n=20 recall 0.95 and AUROC 0.9013.
+- Synthesis planner: 24 curated targets, 17 formal element-balance witnesses,
+  seven composite/mixture targets explicitly skipped.
+- Local Materials Project cache: 103,644 entries in the audited checkout.
 
-- **Directed MOF generation**: the linker generator went from random discovery to
-  directed optimization — strategy-weight sliders, seed-molecule pinning (generate only
-  derivatives of one SMILES), and required functional groups (hard SMARTS filter).
-- **Compatibility confidence calibration**: scores are now a **calibrated probability**
-  via global **isotonic** calibration. Honest out-of-sample **ECE 0.072** (Brier 0.049),
-  down from raw ~0.194 — a 0.70 now means ~70%. Dev verdicts unchanged (41/41).
-- **PFAS → cell-compatible alternatives**: each PFAS-free replacement is scored against
-  every adjoining material; the calibrated bottleneck (weakest interface) is surfaced, so
-  output is "PFAS-free AND compatible with your cell," not just "not PFAS."
+The historical 0.304 eV/atom formation-energy headline is superseded for the
+current strict-LOO executable path. Historical reports may retain it as a record
+of a previous protocol; current product copy may not use it without naming that
+protocol.
 
-## 2026-05-30 Accuracy & Stability Frontier
+## Repairs completed in the 2026-07-17 audit
 
-Formation-energy surrogate accuracy improved **36%** (MAE 0.473 → 0.304 eV/atom). Integrated nonlinear sparse-discovery model (RandomForest on leak-free MP split). Fixed name-vs-formula parsing trust bug and duplicate composition leakage. Crystal Dreamer property recovery unchanged (78%, different property path). All regression tests green.
+- Removed current collectors from battery active-material search pools.
+- Repaired the 103K discovery path's cache/index/predictor API mismatches and made
+  enabled discovery visible in returned results.
+- Added anode and separate cathode/anode collectors to manual cell design.
+- Added physical adjacency, expected-interface coverage, and an epistemic veto:
+  incomplete coverage cannot produce a full-stack viable verdict.
+- Relabeled pymatgen oxidation-state feasibility as charge balance, not
+  independent ZFC verification.
+- Replaced the Discovery Workbench's unconditional charge-balance placeholder
+  with a real hard gate.
+- Preserved charge-balance metadata through downstream compatibility calls.
+- Removed pairwise probability calibration from multi-interface aggregates.
+- Replaced zero-valued proxy assertions with actual composition distance where
+  resolvable.
+- Ensured every returned Crystal Dreamer candidate passes physical gates.
+- Recalibrated formation-energy intervals and froze a drift baseline with artifact
+  hashes.
+- Added stable monitoring exports and content-addressed drift receipts for a
+  Noesis bridge.
+- Corrected stale topology imports and Category/store adapter use in oracle
+  strategies; corrected the chemistry test harness's import collision.
+- Updated UI validation notes and the primary public documentation.
 
-### Key Accomplishments (2026-05-27 through 2026-05-30)
-- **Directed MOF Generation**: `strategy_weights`, `seed_smiles`, `required_groups` in
-  `mof_bridge/linker_generator.py`, wired to `LinkerScreeningSpec` + MOF Designer UI.
-- **Compatibility Calibration (isotonic)**: `audit/build_compatibility_calibration.py`
-  fits a global isotonic calibrator (OOS ECE 0.072); runtime interpolates dependency-free.
-- **PFAS Cell-Fit**: `find_replacements_for_cell()` ranks replacements by calibrated
-  compatibility with the user's whole stack; fixed a latent `to_dict` bug that broke the
-  old single-material compatibility column.
-- **Formation Energy Accuracy**: MAE **0.304 eV/atom** (−36%), RMSE **0.454** (−40%), median **0.215** (−37%). Sparse-discovery model upgraded from linear ridge to RandomForest; validation: 0.133 eV/atom on 2498 held-out MP materials.
-- **Trust Bug Fixed**: Name-vs-formula parsing (predict("Cordierite") was read as "Co") and duplicate LOO leakage both resolved.
-- **Interval Recalibration**: Confidence intervals now honest at 50/80/95% coverage; conformal factors tighter due to better point predictions.
-- **Simplicial Weight Calibration**: Optimized ensemble weights via grid search (`yoneda=0.75`, `transport=0.25`).
-- **Rezk Equivalence**: Enabled mathematical material substitution via isomorphic presheaf detection.
-- **Cross-Domain Functors**: Formalized inter-bridge reasoning in the core categorical architecture.
-- **UI Simplicial Visualization**: Added interactive Presheaf Overlap comparison to the Compatibility Checker.
-- **Shared Reasoning Service**: Unified `oracle/compatibility_service.py` for API/UI compatibility reasoning; the public API preserves its same-domain route contract.
-- **Backward Compatibility**: Restored seamless operation for legacy KOMPOSOS-III strategies.
-- **Polymer Thermodynamics**: Fixed HDPE+PP label to reflect immiscibility (Flory-Huggins, Robeson citation).
+## Important boundaries
 
-## Current Audit State (Verified 2026-05-30)
+- Category theory organizes the runtime. No repository ablation demonstrates an
+  accuracy gain caused by category theory.
+- A calibrated pairwise compatibility probability is not calibration evidence for
+  a whole-cell or multi-interface aggregate.
+- A generated formula scored through a known proxy inherits proxy distance and
+  applicability limits.
+- Formal stoichiometric balance is not reaction feasibility.
+- MOF funnel performance is screening evidence, not synthesis validation.
+- PFAS-free replacement ordering is triage until validated for the user's process.
 
-### Materials Compatibility (Track C)
-- **Development Set**: `41/41`, `100.0%` accuracy, Brier 0.095 (polymer label HDPE+PP corrected 2026-05-29).
-- **Blind status**: **No dataset is currently blind** (`current_blind_version: null`).
-  Q2–Q8 are all spent diagnostics. **Q8 was demoted to spent_diagnostic on 2026-05-29**
-  (skip/fail cases inspected; 14/40 identity overlap) — its numbers are coverage/error-family
-  tracking only and must NOT be reported as a blind claim. Freeze Q9 before any new blind claim.
-- **Q8 spent-diagnostic latest run**: 89.5% (TP22/TN12/FP0/FN4), MCC 0.797, Brier 0.107.
-- **Confidence calibration**: isotonic, honest out-of-sample ECE 0.072 (down from raw ~0.194).
-- **Protocol Status**: development + computational **PASS**.
-- **Q10 Sealed Holdout**: 40 unlabeled pairs; labels hidden. Do not score until ready.
+## Verification
 
-### Formation Energy Surrogate (Track C, new 2026-05-30)
-- **Training Set (179 curated, LOO)**: MAE **0.304 eV/atom**, RMSE **0.454**, median **0.215**.
-- **Held-out MP validation (2498)**: RF MAE **0.133 eV/atom** (vs ridge 0.202).
-- **Transfer to curated set**: RF MAE **0.300** (vs ridge 0.434; −31%).
-- **Calibration**: Honest 50/80/95% coverage; conformal factors tighter.
+- Focused repair set: 44 passed.
+- Bridge/orchestration set: 903 passed.
+- Oracle stale-interface regressions: 4 passed.
+- Composition parser/properties/spatial: 66 passed.
+- Structure predictor: 42 passed in 77.45 seconds.
+- Formation/calibration/predictor: 80 passed in 187.15 seconds.
 
-### Drug Repurposing (Track A)
-- **AUROC (Bio)**: `0.9008` (Confirmed via `confirm_auroc.py` on full 78x20 matrix).
-- **Provenance**: 100% citation coverage for the curated `tier1.db` graph.
-
-## What Works
-- Core **Infinity Cosmos** ($\infty$-cosmos) runtime is active.
-- **COG Engine** provides 5 tiers of deep verification.
-- **ZFC Dual-Engine** grounding is enforced.
-- **MOF Linker Designer** handles exact atom counts (Kulik 22-atom challenge).
-- **PFAS Scanner** provides auditable compliance reports.
-
-## Immediate Next Steps
-1. **Freeze Q9** (uninspected recent-literature pairs) and report it as the next blind claim with full calibration metrics. No dataset is currently blind.
-2. **Expand Workbench Pipelines**: Add CRYSTAL and MOF pipeline modes beyond the current composition-first path.
-3. **Crystal Dreamer point accuracy**: target-aware anchors for isolated chemistries (LTO, LiMnO₂).
-4. **Data Leakage Monitoring**: Continuously run `check_data_leakage.py` during dataset expansion to ensure evaluation integrity.
-
----
-
-*KOMPOSOS-IV | James Ray Hawkins | 2026*
+See `docs/CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md` for the per-feature assessment
+and `docs/PROVENANCE_CONTRACT_PROJECT.md` for the LLM/user evidence-layer design.

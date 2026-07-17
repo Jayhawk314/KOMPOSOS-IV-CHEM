@@ -1,10 +1,15 @@
 # KOMPOSOS-III Audit Trail & Provenance System
 
+> **Historical architecture document.** “Independent ZFC” and “production ready”
+> language below is not the current evidence posture. Several logical summaries
+> are derived from native bridge scores. Use `CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md`
+> and `PROVENANCE_CONTRACT_PROJECT.md` for the audited contract.
+
 **Complete Mathematical and Scientific Traceability from Input to Output**
 
 Version: 1.3.0
 Date: 2026-04-02
-Status: PRODUCTION READY
+Status: HISTORICAL / SUPERSEDED
 
 ---
 

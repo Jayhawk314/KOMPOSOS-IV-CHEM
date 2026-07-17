@@ -11,21 +11,23 @@ this file and the pages follow automatically.
 Standing rule: claims are per-domain and must show uncertainty. Never headline
 one global accuracy number.
 
-Last synced to audit state: 2026-05-29
+Last synced to audit state: 2026-07-17
 """
 
 import streamlit as st
 
-LAST_SYNCED = "2026-05-29"
+LAST_SYNCED = "2026-07-17"
 
 # The compatibility score is now mapped to a calibrated probability via an
 # isotonic calibrator fit on dev+spent diagnostics (audit/build_compatibility_
 # calibration.py). Honest held-out (k-fold OOS) ECE ~0.07, down from ~0.19 raw.
 CONFIDENCE_CAVEAT = (
-    "The **calibrated probability** is now a real probability: a 70% means roughly "
-    "7 in 10 such pairs are compatible (isotonic calibration, held-out ECE ~0.07, "
-    "down from ~0.19 uncalibrated). It is still a triage estimate, not a lab "
-    "guarantee — verify shortlisted pairs."
+    "Pairwise compatibility scores use an isotonic mapping fit on 98 allowed "
+    "development/spent-diagnostic pairs (5-fold OOS ECE 0.072 in the deployed "
+    "artifact). This is calibration evidence for that pool, not fresh blind or "
+    "domain-specific validation. A displayed 0.70 is an estimated frequency, not "
+    "a lab guarantee. Aggregate cell/workbench scores are not passed through this "
+    "pairwise calibrator."
 )
 
 # Per-domain compatibility validation.
@@ -33,16 +35,16 @@ CONFIDENCE_CAVEAT = (
 # HANDOFF_AND_STANDING_RULES_2026-05-29.md.
 COMPATIBILITY_DOMAINS = [
     {
-        "Domain": "Metals / ceramics / semiconductors / cross-domain",
-        "Accuracy": "77–100%",
-        "Basis (uncertainty)": "Q8+Q9 spent diagnostics, ~115 pairs",
-        "State": "Useful triage today",
+        "Domain": "All compatibility domains",
+        "Accuracy": "41/41 development; Q9 35/40 regression",
+        "Basis (uncertainty)": "Development is tuned; Q9 is spent diagnostic",
+        "State": "Triage only; no current blind set",
     },
     {
-        "Domain": "Polymer blends",
-        "Accuracy": "87.5%",
-        "Basis (uncertainty)": "Q9 spent diagnostic (35/40); ECE 0.15, Brier 0.099, AUROC 0.92",
-        "State": "Repaired this cycle (Flory–Huggins χc)",
+        "Domain": "Per-domain estimates",
+        "Accuracy": "Not promoted to headline metrics",
+        "Basis (uncertainty)": "Q8+Q9 contain 80 total pairs with uneven domain counts",
+        "State": "Report pair counts with any domain slice",
     },
     {
         "Domain": "Glass (single-domain)",
@@ -65,14 +67,18 @@ BLIND_STATUS = (
 FEATURE_NOTES = {
     "compatibility": None,  # rendered as the full per-domain table below
     "cell_designer": (
-        "Interface scores come from the **cross-domain compatibility engine** "
-        "(77–100% on Q8+Q9 spent diagnostics). The bottleneck and overall score "
-        "are triage signals for the weakest interface. " + CONFIDENCE_CAVEAT
+        "The manual designer and optimizer use native cross-domain functors. The UI "
+        "now reports requested-interface **coverage** and refuses a full-cell verdict "
+        "when an adjacent interface has no scorer. The aggregate score is uncalibrated. "
+        "The optimizer objective is theoretical cathode-active V×C under covered "
+        "compatibility constraints; it does not model cycle life, safety, thermal "
+        "runaway, or cost."
     ),
     "crystal_dreamer": (
-        "Crystal Dreamer is an **idea generator, not a precise predictor.** On "
-        "known battery cathodes it finds compositions matching your target "
-        "properties about **78% of the time** (leave-one-out test). But the "
+        "Crystal Dreamer is an **idea generator, not a precise predictor.** A "
+        "historical audit reported 7/9 target-property recoveries, but that run "
+        "was not re-reproduced in the 2026-07-17 pass and is not a current "
+        "headline metric. The "
         "property *values* it reports are rough estimates with honest uncertainty "
         "bands — use it to **surface leads to investigate, then verify.** It does "
         "not reliably reinvent exact or unusual chemistries."
@@ -84,8 +90,8 @@ FEATURE_NOTES = {
         "list 99.5%** of the time; brand names and the registry are also matched. "
         "Suggested replacements are rough guides (see each evidence label), but if "
         "you list your cell's adjoining materials, each replacement is also scored "
-        "for **calibrated compatibility** against them — surfacing the weakest "
-        "interface so you get 'PFAS-free AND fits your cell', not just 'not PFAS'."
+        "for pairwise compatibility against them. A full-stack value is shown only "
+        "when every requested contact is covered; otherwise coverage is explicit."
     ),
     "mof_designer": (
         "Atom-count and donor-atom constraints are **exactly enforced (100%)** — "
@@ -109,13 +115,12 @@ FEATURE_NOTES = {
         "A **mixed-fidelity** pipeline. The **triage phase** (inverse design) proposes "
         "candidate formulas — these are *suggestions* and can be hallucinations. The "
         "**precision phase** adds two checks you can trust more:\n\n"
-        "1. **ZFC charge-balance veto** — rejects compositions with no valid "
-        "oxidation-state assignment. A real, cheap physics filter (unassessable → pass, "
-        "never fabricated).\n"
-        "2. **Full-cell compatibility** — the cell number is a **calibrated probability** "
-        "(isotonic, out-of-sample ECE ~0.07) from the compatibility engine "
-        "(77–100% per domain on spent diagnostics).\n\n"
-        "**Two honesty caveats on the cell check:** (a) it scores the candidate's "
+        "1. **Charge-balance veto** — a pymatgen oxidation-state feasibility check; "
+        "unassessable formulas receive no verdict. This is not an independent ZFC proof.\n"
+        "2. **Interface coverage check** — an uncalibrated aggregate of the native "
+        "cross-domain functors that are actually available. Missing adjacent interfaces "
+        "are shown and block a full-cell verdict.\n\n"
+        "**Two honesty caveats on the interface check:** (a) it scores the candidate's "
         "**nearest known analog** (a proxy), *not* the novel formula itself — the further "
         "that analog sits in composition space, the weaker the signal, so the scorecard "
         "shows the **proxy distance** and flags far proxies; (b) the reference cell is "
@@ -125,11 +130,11 @@ FEATURE_NOTES = {
     "composition_predictor": (
         "Property values are **estimates by comparison to known materials**, not "
         "lab measurements or first-principles calculations. They are **rough** on "
-        "unfamiliar chemistry (formation energy is typically off by ~0.5 eV/atom). "
-        "The **± uncertainty band is now honestly calibrated** — checked to actually "
-        "hold ~50/80/95% of the time on held-out materials — so trust the *band*, "
-        "not the single number. Run the **Leave-One-Out test** below to see real "
-        "blind error."
+        "unfamiliar chemistry. The current 179-material true leave-one-out audit is "
+        "formation-energy MAE **0.416 eV/atom** (RMSE 0.552; median 0.340). After "
+        "recalibration on 2026-07-17, deployed 50/80/95% intervals cover "
+        "50/79/95% in-pool and 49/80/94% in 5-fold OOS calibration. These are "
+        "model-development results, not an external blind benchmark."
     ),
     "mp_explorer": (
         "Two kinds of data on this page, kept distinct: **raw Materials Project "
@@ -149,11 +154,13 @@ FEATURE_NOTES = {
         "ML-generated. Scores (feasibility/cost/time/safety) are heuristic "
         "rankings. The **stoichiometric validation is a formal Z3 check**: "
         "BALANCED means an element-balanced equation exists (shown as a "
-        "minimal-byproduct witness — feasibility evidence, not a mechanism or "
-        "yield claim); UNBALANCED is a hard veto (score zeroed). Balance "
+        "formal witness using allowed auxiliary species — not the cited route's "
+        "mechanism, redox chemistry, or yield); UNBALANCED is a hard veto "
+        "(score zeroed). Balance "
         "cannot check redox feasibility, kinetics, or phase purity. Audit: "
-        "`python audit\\run_stoich_audit.py` — 17/17 stoichiometric routes "
-        "balanced, 0 unbalanced (2026-06-10, internal-consistency check)."
+        "`python audit\\run_stoich_audit.py` — 24 curated routes total: 17 "
+        "element-balanced, 0 unbalanced, and 7 composite/mixture routes skipped "
+        "because a single-formula balance is undefined (reproduced 2026-07-17)."
     ),
 }
 

@@ -2,8 +2,8 @@
 
 **Interactive Categorical Reasoning Interface**
 
-Version: 1.7.1
-Date: 2026-05-30
+Version: 1.8.0
+Date: 2026-07-17
 Platform: Streamlit — `streamlit run streamlit_app/app.py`
 
 ---
@@ -13,7 +13,7 @@ Platform: Streamlit — `streamlit run streamlit_app/app.py`
 | Page | What it does |
 |---|---|
 | **1 — Compatibility Checker** | Two-material compatibility with full evidence chain and audit report download |
-| **2 — PFAS Scanner** | PFAS compliance screening and PDF report generation |
+| **2 — PFAS Scanner** | First-pass PFAS inventory, replacement triage, and PDF report generation |
 | **3 — Composition Predictor** | Property prediction from a chemical formula |
 | **4 — Cell Designer** | Multi-domain battery cell design and bottleneck analysis |
 | **5 — Crystal Dreamer** | Inverse design: target properties → candidate compositions |
@@ -21,7 +21,7 @@ Platform: Streamlit — `streamlit run streamlit_app/app.py`
 | **7 — MOF Explorer** | Screen 30 MOFs against operating conditions |
 | **8 — MOF Designer** | Generate novel MOF linkers with atom count and donor-atom control |
 | **9 — Discovery Workbench** | Composition-first pipeline: inverse design → PFAS → compatibility → synthesis |
-| **10 — Advanced Triage Workbench** | Mixed-fidelity: fast triage → ZFC charge-balance gates → multi-domain full-cell context, with surfaced uncertainty |
+| **10 — Advanced Triage Workbench** | Mixed-fidelity: fast triage → charge-balance gate → coverage-aware interface context, with surfaced uncertainty |
 
 ---
 
@@ -38,27 +38,29 @@ Platform: Streamlit — `streamlit run streamlit_app/app.py`
 
 ### What you get
 
-#### Dual-Engine Verdict
+#### Pairwise decision and constraint diagnostic
 
-Two independent reasoning engines are shown side by side:
+Two views of the same native bridge workflow are shown side by side. They are
+not independent experiments:
 
 | Engine | What it checks |
 |---|---|
-| **Categorical Oracle** | Weighted ensemble of structural, calibration, and transport strategies |
-| **ZFC Logic Oracle** | Hard constraint verification — logical rules derived from known chemistry |
+| **Pairwise bridge decision** | Native bridge score, physical vetoes, calibration, and ensemble metadata |
+| **Derived constraint summary** | Logical rules generated from the same bridge component scores |
 
-The result also shows a **calibrated probability of compatibility** (isotonic calibration,
-honest out-of-sample ECE ~0.07): a 70% means roughly 7 in 10 such pairs are compatible — a
-real probability now, not just a ranking signal.
+The result also shows a cohort-calibrated pairwise probability from a 98-row
+development/spent isotonic artifact (OOS ECE 0.072). That is useful reliability
+evidence for the recorded cohort; it is not a fresh blind result, is not established
+per domain, and does not calibrate multi-interface aggregates.
 
 The combined verdict is one of four states:
 
 | Verdict | Meaning |
 |---|---|
-| **AGREE** | Both engines pass. High confidence. |
-| **HOLLOW** | Categorical scores it viable; ZFC rejects it. Structurally plausible but a hard constraint (e.g. electrochemical stability window) says no. |
-| **ORPHAN** | ZFC finds no hard veto; categorical scorer falls below threshold. Weak structural evidence. |
-| **REJECT** | Both engines reject the pair. |
+| **AGREE** | Score passes and its derived constraint summary has no veto; internal agreement only. |
+| **HOLLOW** | Score passes but a derived hard constraint vetoes it. |
+| **ORPHAN** | Derived summary has no hard veto but the native score is below threshold. |
+| **REJECT** | Both native score and derived summary reject the pair. |
 
 #### Audit Report (download buttons)
 
@@ -70,7 +72,7 @@ Two buttons appear immediately after the verdict:
   - Shared interface partners table (materials that can interface with both A and B)
   - Isomorphism witness chain (if a Rezk-equivalent substitution was found)
   - Fibration transport paths (inherited compatibility via similar materials)
-  - ZFC constraint summary
+  - Derived logical-constraint summary
   - Methodology table translating every categorical term to chemistry language
   - Report ID for traceability
 
@@ -150,9 +152,10 @@ Predict properties from a chemical formula using a 120-dimensional physics embed
 Design a multi-domain battery cell and identify the weakest interface.
 
 - Specify anode, cathode, electrolyte, separator, and current collectors.
-- Runs compatibility checks across all internal interfaces.
+- Scores interfaces with available native functors and lists required contacts
+  that remain unscored.
 - Highlights the bottleneck interface (lowest compatibility score).
-- Shows the full scoring breakdown per interface.
+- Refuses a full-cell verdict when physical-interface coverage is incomplete.
 
 ---
 
@@ -228,15 +231,17 @@ A **mixed-fidelity** pipeline: fast inverse-design triage, then high-precision
 verification of each candidate.
 
 1. **Fast triage** generates candidate compositions.
-2. **ZFC verification** rejects candidates failing fundamental charge-balance checks.
-3. **Multi-domain context** evaluates each survivor in a full-cell reference system
-   (e.g. against an electrolyte and collector) to catch cross-domain bottlenecks; novel
+2. A **pymatgen oxidation-state/charge-balance check** hard-vetoes definite failures;
+   unassessable formulas receive no charge-balance verdict.
+3. **Multi-domain context** evaluates each survivor in a reference interface system
+   (e.g. against an electrolyte and collector) and reports missing scorer coverage; novel
    formulas are mapped to a known topological proxy when a registered name is required.
 4. **Uncertainty is surfaced explicitly** (e.g. `4.3 V [4.1–4.5] (conf 0.85)`), so high
    uncertainty is a visible trigger for deeper structural derivation.
 
-> Triage phase casts a wide net; the precision phase (ZFC + multi-domain) filters out
-> physically impossible hallucinations. Frame results as triage, not lab-validated design.
+> Triage casts a wide net; the later phase applies a charge-balance gate and
+> coverage-aware proxy interface checks. Missing coverage and distant proxies block
+> strong wording. Frame results as triage, not lab-validated design.
 
 ---
 
@@ -259,7 +264,8 @@ from the same pairwise validation rules used in the benchmark audit.
 Current benchmark: **41/41 development pairs, 100.0% accuracy, Brier 0.095**
 (verified 2026-05-30). Confidence is **calibrated** (isotonic, out-of-sample ECE ~0.07).
 **No dataset is currently held blind** (`current_blind_version: null`); Q2–Q8 are spent
-diagnostics (Q8 demoted 2026-05-30) — freeze Q9 before the next blind claim. Q10 is sealed.
+diagnostics through Q9; Q9 was inspected and used for remediation. Q10 is sealed
+and remains the only candidate for a future untouched evaluation.
 
 Audit commands:
 ```powershell

@@ -1,9 +1,9 @@
 {
-  "version": "dataset_registry.2026-05-21.v1",
+  "version": "dataset_registry.2026-07-17.v2",
   "created_at": "2026-05-21",
   "purpose": "Role map for compatibility benchmark files. This registry prevents development, calibration, and blind-reporting data from being mixed accidentally.",
   "current_blind_version": null,
-  "current_blind_status": "NONE. Q8 demoted to spent_diagnostic on 2026-05-29 after its skipped/failed cases were inspected during research-grade remediation. No dataset is currently blind. Freeze Q9 (uninspected recent-literature pairs) before making any new blind validation claim. Until then, run external audits only with an explicit --external-path; the default fallback is a spent diagnostic and must not be reported as blind.",
+  "current_blind_status": "NONE. Q8 and Q9 are spent diagnostics after their labels/errors were inspected and used during remediation. No dataset is currently blind. Q10 remains the sealed, unscored final exam; it is not current-blind evidence until an authorized scoring event is recorded. Run external audits only with an explicit --external-path and never report a spent diagnostic as a fresh blind claim.",
   "rules": [
     "development datasets may be used for scorer changes and calibration",
     "spent_diagnostic datasets may be used for error analysis, development, and calibration, but not as fresh blind claims",
@@ -86,7 +86,18 @@
       "used_for_tuning": false,
       "used_for_calibration": false,
       "used_for_current_blind_claim": false,
-      "notes": "Q8 first IV-CHEM diagnostic run (2026-05-29): 30/40 evaluated, 10 skipped, 70.0% accuracy, balanced 72.5%, MCC 0.424, Brier 0.259, ECE 0.256, TP13/TN8/FP2/FN7; protocol FAIL (skips) and metric FAIL. Demoted from current_blind to spent_diagnostic because its skipped/failed cases were inspected during research-grade remediation, and because 14/40 pairs overlap existing benchmark identities (never a clean holdout). NEVER report improved Q8 numbers as a blind claim. Use Q8 only for coverage and error-family regression tracking. Freeze Q9 before the next external blind claim."
+      "notes": "Q8 first IV-CHEM diagnostic run (2026-05-29): 30/40 evaluated, 10 skipped, 70.0% accuracy, balanced 72.5%, MCC 0.424, Brier 0.259, ECE 0.256, TP13/TN8/FP2/FN7; protocol FAIL (skips) and metric FAIL. Demoted from current_blind to spent_diagnostic because its skipped/failed cases were inspected during research-grade remediation, and because 14/40 pairs overlap existing benchmark identities (never a clean holdout). NEVER report improved Q8 numbers as a blind claim. Use Q8 only for coverage and error-family regression tracking."
+    },
+    {
+      "version": "external_blind.compatibility.2026_q9.v1",
+      "path": "audit/external_blind/compatibility_2026_q9.json",
+      "sha256": "d1f2385b8e60fb54b7f1ba5b2bed49dc00169bc4e637b1457d37f38be542b5be",
+      "role": "spent_diagnostic",
+      "pair_count": 40,
+      "used_for_tuning": true,
+      "used_for_calibration": false,
+      "used_for_current_blind_claim": false,
+      "notes": "Q9 initial frozen run was 32/40 (80.0%) with full coverage. Its errors were inspected and the polymer critical-chi remediation used them; the later 35/40 (87.5%) run is regression evidence only, never a fresh blind result."
     },
     {
       "version": "dev_compatibility.contextual.2026_q2.v2",

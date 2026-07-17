@@ -140,11 +140,15 @@ else:
         else:
             delta_type = "REJECT"
 
-        st.subheader("Dual-Engine Verdict")
+        st.subheader("Pairwise Decision and Derived Constraint Diagnostic")
+        st.caption(
+            "These are two views of the same native bridge workflow, not independent "
+            "experiments. The constraint summary is derived from bridge component scores."
+        )
 
         col_cat, col_zfc = st.columns(2)
         with col_cat:
-            st.markdown("**System 2: Categorical Oracle**")
+            st.markdown("**Pairwise bridge decision**")
             if cat_says:
                 st.success(f"Morphism EXISTS (score {total:.3f})")
                 st.caption("The compositional structure admits a path between these materials.")
@@ -153,9 +157,9 @@ else:
                 st.caption("Weighted scorer composition falls below viability threshold.")
 
         with col_zfc:
-            st.markdown("**System 1: ZFC Logic Oracle**")
+            st.markdown("**Derived logical-constraint summary**")
             if not zfc_available:
-                st.info("ZFC summary unavailable for this environment.")
+                st.info("Constraint summary unavailable for this environment.")
             elif zfc_says:
                 st.success(
                     f"Witness FOUND ({len(zfc.get('compatible_constraints', []))}/"
@@ -169,7 +173,7 @@ else:
                 st.error(
                     f"Witness EMPTY ({len(zfc.get('veto_constraints', []))} veto(s): {veto_names})"
                 )
-                st.caption("Hard constraint veto or failed viability witness in the ZFC layer.")
+                st.caption("Hard constraint veto or failed witness in the derived rule layer.")
 
         if md_results:
             render_md_result(md_results)
@@ -181,10 +185,10 @@ else:
             _oos_ece = calibration.get("oos_ece")
             if _calibrator == "isotonic_global" and _oos_ece is not None:
                 st.caption(
-                    f"**Calibrated probability of compatibility: {_cal_prob:.0%}** "
-                    f"(isotonic calibration, held-out ECE {_oos_ece:.3f}). "
-                    "This is now a real probability — a 70% here means roughly 7 in 10 "
-                    "such pairs are compatible — not just a ranking signal."
+                    f"**Cohort-calibrated pairwise probability: {_cal_prob:.0%}** "
+                    f"(98-row development/spent isotonic artifact; OOS ECE {_oos_ece:.3f}). "
+                    "This calibration is not fresh blind evidence, is not demonstrated "
+                    "per domain, and does not transfer to multi-interface aggregates."
                 )
             else:
                 st.caption(
@@ -245,12 +249,13 @@ else:
         if delta_type == "AGREE":
             st.success(
                 f"**AGREE** - The categorical score passes for **{mat_a} + {mat_b}** and "
-                "the ZFC constraint verifier finds no veto."
+                "the derived constraint summary finds no veto. This is internal agreement, "
+                "not independent corroboration."
             )
         elif delta_type == "HOLLOW":
             st.warning(
                 f"**HOLLOW STATE** - The categorical oracle finds a compositional path "
-                f"(score {total:.3f}), but the ZFC constraint verifier rejects the pair."
+                f"(score {total:.3f}), but the derived constraint summary rejects the pair."
             )
             with st.expander("Why this matters"):
                 st.markdown(
@@ -260,13 +265,13 @@ else:
                 )
         elif delta_type == "ORPHAN":
             st.info(
-                f"**ORPHAN** - The ZFC verifier finds no hard veto, but the categorical scorer "
+                f"**ORPHAN** - The derived constraint summary finds no hard veto, but the scorer "
                 f"composite falls below threshold (score {total:.3f})."
             )
         else:
             st.error(
                 f"**REJECT** - Both engines reject **{mat_a} + {mat_b}**. "
-                "The categorical morphism does not compose and the logical layer does not validate it."
+                "The pairwise score is below threshold and the derived constraint summary also rejects it."
             )
 
         st.subheader("Score Breakdown")
@@ -722,5 +727,4 @@ if selected_molecule:
         st.markdown(f"- **Hazard Class:** {mol.hazard_class}")
 
 show_molecule_reference()
-
 

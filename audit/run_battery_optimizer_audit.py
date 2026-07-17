@@ -1,7 +1,7 @@
 """Battery optimizer audit (honest edition).
 
 WHAT THE OPTIMIZER ACTUALLY OPTIMIZES: theoretical energy density (cathode
-V * gravimetric capacity) under cross-domain COMPATIBILITY constraints. It does
+V * gravimetric capacity) after an above-threshold PARTIAL cross-domain screen. It does
 NOT model cycle life, safety, thermal runaway, or cost -- those are not
 computable from the data we have, so claiming them would be invented precision.
 This audit therefore validates only what the objective IS, and is explicit about
@@ -13,19 +13,18 @@ Because the real-world "best" commercial cell trades energy against safety/cost/
 cycle life (e.g. LFP dominates on safety+cost despite low energy), the honest
 tests are NOT "does it rank the exact commercial cell #1". They are:
 
-  1. NO FALSE VETO: real, shipping commercial cells must pass the compatibility
-     filter (be marked viable). If the optimizer vetoes a cell that demonstrably
-     works in production, that's a false-incompatibility bug. Metric: recall on
-     a panel of known commercial designs.
+  1. NO FALSE EXCLUSION ON COVERED INTERFACES: real, shipping commercial cells
+     must remain in the shortlist. Missing native interface scorers prevent this
+     from being a full-cell viability test.
 
   2. OBJECTIVE CORRECTNESS: energy_density == (V_cathode - V_anode) * capacity
      for every returned design (the objective is computed, not fudged), and the
      chemistry ordering is physically sane (Li-S / NMC-Si high; LFP / LTO low).
 
   3. CONSTRAINED PRESENCE (Hits@K): constrained to a commercial cell's chemistry
-     palette, the real design appears in the optimizer's viable output.
+     palette, the real design appears in the above-threshold partial-score output.
 
-  4. INVARIANTS: every "viable" design clears the threshold; ranking is monotone
+  4. INVARIANTS: every returned design clears the partial-score threshold; ranking is monotone
      by the optimizer's own key; reported energy density is labelled THEORETICAL
      (cathode-active only), not cell-level.
 
@@ -81,7 +80,7 @@ def _analyze(analyzer, cathode, anode, elec, binder, cath_col, anode_col):
 
 
 def audit_no_false_veto():
-    print("\n[1] NO FALSE VETO -- real commercial cells must be marked viable")
+    print("\n[1] NO FALSE EXCLUSION -- covered-interface score keeps commercial cells")
     analyzer = MultiDomainAnalyzer(viability_threshold=VIABILITY_THRESHOLD)
     passed = 0
     for cath, ano, elec, binder, ccol, acol, _ctype, note in COMMERCIAL_CELLS:
@@ -90,7 +89,11 @@ def audit_no_false_veto():
         passed += ok
         bn = a.bottleneck
         bn_s = f"{bn.component_a}-{bn.component_b} {bn.score:.2f}" if bn else "-"
-        print(f"    [{'OK ' if ok else 'VETO'}] {note:32s} score={a.overall_score:.3f} bottleneck={bn_s}")
+        print(
+            f"    [{'OK ' if ok else 'DROP'}] {note:32s} "
+            f"partial_score={a.overall_score:.3f} coverage={a.coverage_fraction:.0%} "
+            f"bottleneck={bn_s}"
+        )
     n = len(COMMERCIAL_CELLS)
     print(f"    recall on commercial panel: {passed}/{n} = {passed / n:.3f}")
     # TODO(safety): a grounded thermal/dendrite RISK FLAG would annotate (not veto)
@@ -140,7 +143,7 @@ def audit_objective_correctness():
 
 
 def audit_constrained_hits():
-    print("\n[3] CONSTRAINED PRESENCE (Hits@K) -- real design in viable output")
+    print("\n[3] CONSTRAINED PRESENCE (Hits@K) -- real design in partial-score output")
     o = BatteryOptimizer(viability_threshold=VIABILITY_THRESHOLD)
     hits = 0
     checked = 0
@@ -156,7 +159,7 @@ def audit_constrained_hits():
         )
         checked += 1
         hits += found
-        print(f"    [{'HIT ' if found else 'MISS'}] {note:32s} (viable designs for {cath}/{elec}: {len(res)})")
+        print(f"    [{'HIT ' if found else 'MISS'}] {note:32s} (shortlisted designs for {cath}/{elec}: {len(res)})")
     print(f"    constrained recall: {hits}/{checked} = {hits / checked:.3f}")
     return hits == checked
 
@@ -167,6 +170,7 @@ def audit_invariants():
     res = o.optimize(fixed_components={"cell_type": "liquid"}, pfas_free_only=True,
                      enable_discovery=False, limit=50)
     below = [c for c in res if c.viability < VIABILITY_THRESHOLD]
+    falsely_complete = [c for c in res if c.interface_coverage >= 1.0 and c.unscored_interfaces]
     ranks_ok = [c.rank for c in res] == list(range(1, len(res) + 1))
     # ranking key: viable boost + energy density, then viability
     key = lambda c: (1000 + c.energy_density if c.viability >= VIABILITY_THRESHOLD else c.energy_density, c.viability)
@@ -174,18 +178,22 @@ def audit_invariants():
     print(f"    none below threshold:   {not below}")
     print(f"    ranks are 1..N:         {ranks_ok}")
     print(f"    monotone by rank key:   {monotone}")
+    print(f"    coverage fields agree:  {not falsely_complete}")
+    if res:
+        print(f"    top interface coverage: {res[0].interface_coverage:.0%} (partial)")
     print("    NOTE: energy density is THEORETICAL (cathode-active V*C); real")
     print("          cell-level Wh/kg is ~40-55% of this after anode+packaging.")
-    return (not below) and ranks_ok and monotone
+    return (not below) and ranks_ok and monotone and (not falsely_complete)
 
 
 def main():
     print("=" * 66)
     print("BATTERY OPTIMIZER AUDIT (honest edition)")
     print("=" * 66)
-    print("Objective = theoretical energy density under compatibility constraints.")
+    print("Objective = theoretical energy density after a covered-interface screen.")
     print("NOT modeled: cycle life, safety, thermal, cost. Tests validate the")
-    print("objective + that real commercial cells are not falsely vetoed.")
+    print("objective + that real commercial cells are not excluded by covered interfaces.")
+    print("Missing native scorers mean this audit emits no full-cell viability claim.")
 
     r1 = audit_no_false_veto()
     r2 = audit_objective_correctness()
@@ -194,7 +202,7 @@ def main():
 
     print("\n" + "=" * 66)
     print("SUMMARY")
-    print(f"  No false veto of commercial cells: {'YES' if r1 else 'NO'}")
+    print(f"  No false exclusion on covered interfaces: {'YES' if r1 else 'NO'}")
     print(f"  Objective correct + sane ordering: {'YES' if r2 else 'NO'}")
     print(f"  Constrained Hits@K (real present): {'YES' if r3 else 'NO'}")
     print(f"  Invariants hold:                   {'YES' if r4 else 'NO'}")

@@ -1,0 +1,30 @@
+{
+  "schema": "komposos-chem-prediction-baseline.v1",
+  "baseline_id": "formation_energy_strict_formula_loo.2026-07-17",
+  "created_at": "2026-07-17",
+  "evidence_role": "development_drift_baseline",
+  "note": "Detects software/data/artifact drift. It is not an external blind validation claim.",
+  "expected": {
+    "n": 179,
+    "skipped": 0,
+    "mae_eV_per_atom": 0.4159475198746357,
+    "rmse_eV_per_atom": 0.5518664385600222,
+    "median_abs_error_eV_per_atom": 0.3396751384647081,
+    "interval_coverage": {
+      "50": 0.4972067039106145,
+      "80": 0.7932960893854749,
+      "95": 0.9497206703910615
+    }
+  },
+  "tolerances": {
+    "mae_eV_per_atom": 0.03,
+    "rmse_eV_per_atom": 0.04,
+    "median_abs_error_eV_per_atom": 0.03,
+    "interval_coverage_absolute": 0.05
+  },
+  "artifact_sha256": {
+    "data/calibration/formation_energy_conformal.json": "544a9c1311283944bd8558155cc02baefc431e573a105e7f9412c8a3c330ec32",
+    "data/calibration/phase16_sparse_rf.joblib": "7333b02c1131795734ef1825ca5cfa8d276e96313f6f587737b89d920c38d106",
+    "data/calibration/phase16_calibration_model.json": "43e3aaa09c9389b46e96c65eb789e632efa312ae3f376f7be805e2f191e3c762"
+  }
+}

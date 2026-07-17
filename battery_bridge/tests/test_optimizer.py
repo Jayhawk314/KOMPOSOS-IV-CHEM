@@ -3,6 +3,11 @@ from battery_bridge.optimizer import BatteryOptimizer
 
 def test_battery_optimizer_basic():
     optimizer = BatteryOptimizer()
+
+    # Current collectors are not active materials even though old class labels
+    # encoded their electrode side.
+    assert "Al_foil" not in [m.name for m in optimizer.cathodes]
+    assert "Cu_foil" not in [m.name for m in optimizer.anodes]
     
     # Test Elite Sweep (Stage 1)
     results = optimizer.optimize(
@@ -14,6 +19,10 @@ def test_battery_optimizer_basic():
     
     assert len(results) > 0
     assert results[0].type == "Elite"
+    assert 0.0 < results[0].interface_coverage <= 1.0
+    assert results[0].to_dict()["coverage_complete"] == (
+        results[0].interface_coverage == 1.0
+    )
     print(f"Top Elite: {results[0].cathode} / {results[0].anode} / {results[0].electrolyte} (ED={results[0].energy_density})")
 
 def test_battery_optimizer_pfas_free():
@@ -32,23 +41,17 @@ def test_battery_optimizer_pfas_free():
 
 def test_battery_optimizer_discovery():
     optimizer = BatteryOptimizer()
-    
-    # Discovery might fail if cache not found, but we should test the logic
-    try:
-        results = optimizer.optimize(
-            fixed_components={"cell_type": "solid", "cathode": "NMC811"},
-            enable_discovery=True,
-            limit=10
-        )
-        
-        types = [r.type for r in results]
-        assert "Discovery" in types
-        print("Found discovery results!")
-        for r in results:
-            if r.type == "Discovery":
-                print(f"Discovery: {r.cathode} (Base={r.notes})")
-    except Exception as e:
-        print(f"Discovery skipped or failed: {e}")
+
+    results = optimizer.optimize(
+        fixed_components={"cell_type": "solid", "cathode": "NMC811"},
+        enable_discovery=True,
+        limit=10
+    )
+
+    discoveries = [r for r in results if r.type == "Discovery"]
+    assert discoveries, "enabled refinement must produce a visible discovery result"
+    assert all(r.mp_id for r in discoveries)
+    assert all(r.interface_coverage > 0 for r in discoveries)
 
 if __name__ == "__main__":
     test_battery_optimizer_basic()

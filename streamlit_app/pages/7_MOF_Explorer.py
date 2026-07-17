@@ -8,6 +8,7 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 
 import streamlit as st
+from streamlit_app.validation_status import render_feature_status
 
 st.set_page_config(page_title="MOF Explorer", page_icon="🧊", layout="wide")
 st.title("MOF Explorer")
@@ -15,6 +16,7 @@ st.markdown(
     "Screen 30 Metal-Organic Frameworks against operating conditions. "
     "MOFs are modular frameworks where metal nodes + organic linkers = tunable porosity."
 )
+render_feature_status("mof_explorer")
 
 from mof_bridge.material_properties import ALL_MOFS, MOFTopology, MOFApplication, get_mof
 from mof_bridge.interface_validator import (

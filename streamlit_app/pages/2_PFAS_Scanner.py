@@ -1,4 +1,4 @@
-"""PFAS Compliance Scanner - screen materials and find replacements."""
+"""PFAS screening tool - screen materials and triage replacements."""
 
 import sys
 from pathlib import Path
@@ -10,7 +10,7 @@ if _root not in sys.path:
 import streamlit as st
 
 st.set_page_config(page_title="PFAS Scanner", page_icon="🛡️", layout="wide")
-st.title("PFAS Compliance Scanner")
+st.title("PFAS Screening & Replacement Triage")
 st.markdown(
     "Check materials against PFAS regulations (EU REACH, US EPA, Stockholm Convention) "
     "and find drop-in replacements scored for your specific application."
@@ -165,7 +165,8 @@ with tab1:
                     bn = cr["bottleneck_calibrated"]
                     row = {
                         "Replacement": c.name,
-                        "Cell-compatible": bn,  # weakest interface (calibrated prob)
+                        "Full-stack probability": bn,
+                        "Coverage": cr["coverage_fraction"],
                         "Bottleneck": cr["bottleneck_material"] or "—",
                         "Quality": c.overall_score,
                     }
@@ -175,26 +176,25 @@ with tab1:
                     rows.append(row)
 
                 df = pd.DataFrame(rows)
-                pct_cols = ["Cell-compatible"] + [c for c in df.columns if c.startswith("vs ")]
+                pct_cols = ["Full-stack probability", "Coverage"] + [c for c in df.columns if c.startswith("vs ")]
                 fmt = {c: (lambda v: "—" if pd.isna(v) else f"{v:.0%}") for c in pct_cols}
                 fmt["Quality"] = "{:.2f}"
                 st.dataframe(
                     df.style.format(fmt)
-                    .background_gradient(subset=["Cell-compatible"], cmap="RdYlGn", vmin=0, vmax=1),
+                    .background_gradient(subset=["Full-stack probability"], cmap="RdYlGn", vmin=0, vmax=1),
                     use_container_width=True,
                     hide_index=True,
                 )
                 st.caption(
-                    "**Cell-compatible** is the *calibrated probability* of the weakest "
-                    "interface (isotonic, held-out ECE ~0.07) — a replacement is only as "
-                    "good as its worst contact. A dash means that pair isn't in the "
-                    "compatibility registry yet (not scored). Ranked by quality × cell fit."
+                    "**Full-stack probability** is shown only when every requested contact "
+                    "was evaluated. Per-interface values use the pairwise development/spent "
+                    "calibration artifact; they are not qualification evidence. A dash means "
+                    "coverage is incomplete. Ranking discounts the covered bottleneck by coverage."
                 )
-                if any(cr["n_evaluated"] == 0 for cr in cell_rows):
+                if any(not cr["coverage_complete"] for cr in cell_rows):
                     st.info(
-                        "Some replacements couldn't be scored against your materials "
-                        "(not in the compatibility registry). They're still PFAS-free, "
-                        "but the cell-fit is unverified."
+                        "Some replacements have one or more unscored contacts. They may be "
+                        "PFAS-free, but no full-stack compatibility verdict is emitted."
                     )
             else:
                 st.subheader(f"Replacement Alternatives ({len(replacements)} found)")
@@ -341,7 +341,7 @@ with tab2:
 # ---------------------------------------------------------------------------
 
 with tab3:
-    st.subheader("PFAS Compliance Report Generator")
+    st.subheader("PFAS Screening Report Generator")
     st.markdown(
         "Generate a structured, auditable compliance report for enterprise buyers. "
         "Includes PFAS detections, scored replacements with provenance, regulatory "

@@ -18,7 +18,8 @@ st.title("Solid-State Cell Designer")
 render_login_sidebar()
 st.markdown(
     "Design a battery cell spanning multiple material domains. "
-    "The cross-bridge analyzer evaluates every interface and finds the bottleneck."
+    "The analyzer scores interfaces covered by native bridges, reports the "
+    "uncovered contacts, and refuses a full-cell verdict when coverage is incomplete."
 )
 render_feature_status("cell_designer")
 
@@ -26,16 +27,25 @@ render_feature_status("cell_designer")
 # Load materials
 # ---------------------------------------------------------------------------
 
-from battery_bridge.material_properties import ALL_MATERIALS as BATTERY_MATS
+from battery_bridge.material_properties import (
+    ALL_MATERIALS as BATTERY_MATS,
+    CATHODE_MATERIALS,
+    ANODE_MATERIALS,
+)
 from polymer_bridge.material_properties import ALL_POLYMERS
 from metal_bridge.material_properties import ALL_METALS
 from ceramic_bridge.material_properties import ALL_CERAMICS
-from cross_bridge.multi_domain import MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent
+from cross_bridge.multi_domain import (
+    MultiDomainAnalyzer,
+    MultiDomainQuery,
+    MultiDomainComponent,
+    BATTERY_CELL_ADJACENCY,
+)
 from battery_bridge.optimizer import BatteryOptimizer
 
 # Categorize battery materials
-CATHODES = sorted([n for n, m in BATTERY_MATS.items() if m.material_class.name in ("CATHODE",)])
-ANODES = sorted([n for n, m in BATTERY_MATS.items() if m.material_class.name in ("ANODE",)])
+CATHODES = sorted(CATHODE_MATERIALS)
+ANODES = sorted(ANODE_MATERIALS)
 ELECTROLYTES_LIQUID = sorted([n for n, m in BATTERY_MATS.items() if m.material_class.name in ("ELECTROLYTE_SOLVENT", "ELECTROLYTE_SALT")])
 ELECTROLYTES_SOLID = sorted([n for n, m in BATTERY_MATS.items() if m.material_class.name in ("SOLID_ELECTROLYTE",)])
 BINDERS = sorted([n for n, m in ALL_POLYMERS.items()])
@@ -47,30 +57,38 @@ PRESETS = {
     "Custom": {},
     "Standard Liquid Cell (LFP + EC)": {
         "cathode": "LFP",
+        "anode": "Graphite",
         "electrolyte": "EC",
         "binder": "PVDF",
-        "collector": "Al",
+        "cathode_collector": "Al_foil",
+        "anode_collector": "Cu_foil",
         "cell_type": "liquid",
     },
     "Solid-State (NMC811 + LLZO)": {
         "cathode": "NMC811",
+        "anode": "Li_metal",
         "electrolyte": "LLZO",
         "binder": "PEO",
-        "collector": "Cu",
+        "cathode_collector": "Al_foil",
+        "anode_collector": "Cu_foil",
         "cell_type": "solid",
     },
     "Solid-State (LFP + LGPS)": {
         "cathode": "LFP",
+        "anode": "Li_metal",
         "electrolyte": "LGPS",
         "binder": "PEO",
-        "collector": "Al",
+        "cathode_collector": "Al_foil",
+        "anode_collector": "Cu_foil",
         "cell_type": "solid",
     },
     "High-Voltage (NMC622 + LLZO)": {
         "cathode": "NMC622",
+        "anode": "Li_metal",
         "electrolyte": "LLZO",
         "binder": "PVDF",
-        "collector": "Al",
+        "cathode_collector": "Al_foil",
+        "anode_collector": "Cu_foil",
         "cell_type": "solid",
     },
 }
@@ -87,7 +105,7 @@ with tab1:
 
     st.subheader("Cell Configuration")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         cathode = st.selectbox(
@@ -97,6 +115,13 @@ with tab1:
         )
 
     with col2:
+        anode = st.selectbox(
+            "Anode (battery)",
+            ANODES,
+            index=ANODES.index(p["anode"]) if p.get("anode") in ANODES else 0,
+        )
+
+    with col3:
         cell_type = st.radio(
             "Electrolyte type",
             ["Solid", "Liquid"],
@@ -112,15 +137,22 @@ with tab1:
         e_idx = electrolyte_options.index(default_e) if default_e in electrolyte_options else 0
         electrolyte = st.selectbox("Electrolyte", electrolyte_options, index=e_idx, key="manual_elec")
 
-    with col3:
+    col4, col5, col6 = st.columns(3)
+
+    with col4:
         default_b = p.get("binder", BINDERS[0] if BINDERS else "")
         b_idx = BINDERS.index(default_b) if default_b in BINDERS else 0
         binder = st.selectbox("Binder (polymer)", BINDERS, index=b_idx, key="manual_binder")
 
-    with col4:
-        default_c = p.get("collector", COLLECTORS[0] if COLLECTORS else "")
-        c_idx = COLLECTORS.index(default_c) if default_c in COLLECTORS else 0
-        collector = st.selectbox("Collector (metal)", COLLECTORS, index=c_idx, key="manual_collector")
+    with col5:
+        default_cc = p.get("cathode_collector", "Al_foil")
+        cc_idx = COLLECTORS.index(default_cc) if default_cc in COLLECTORS else 0
+        cathode_collector = st.selectbox("Cathode collector", COLLECTORS, index=cc_idx, key="manual_cathode_collector")
+
+    with col6:
+        default_ac = p.get("anode_collector", "Cu_foil")
+        ac_idx = COLLECTORS.index(default_ac) if default_ac in COLLECTORS else 0
+        anode_collector = st.selectbox("Anode collector", COLLECTORS, index=ac_idx, key="manual_anode_collector")
 
     # Advanced options
     with st.expander("Advanced options"):
@@ -144,9 +176,11 @@ with tab1:
         consume_use()
         components = [
             MultiDomainComponent(name=cathode, role="cathode"),
+            MultiDomainComponent(name=anode, role="anode"),
             MultiDomainComponent(name=electrolyte, role="electrolyte"),
             MultiDomainComponent(name=binder, role="binder"),
-            MultiDomainComponent(name=collector, role="collector"),
+            MultiDomainComponent(name=cathode_collector, role="cathode_collector"),
+            MultiDomainComponent(name=anode_collector, role="anode_collector"),
         ]
 
         # Map scoring mode
@@ -158,10 +192,11 @@ with tab1:
             mode = None  # auto
 
         query = MultiDomainQuery(
-            name=f"{cathode} + {electrolyte} + {binder} + {collector}",
+            name=f"{cathode} + {anode} + {electrolyte} + {binder} + {cathode_collector} + {anode_collector}",
             components=components,
             electrolyte=electrolyte,
             scoring_mode=mode,
+            adjacency=BATTERY_CELL_ADJACENCY,
         )
 
         analyzer = MultiDomainAnalyzer(viability_threshold=viability_threshold)
@@ -208,7 +243,14 @@ with tab1:
 
         # Overall result
         st.divider()
-        if analysis.viable:
+        if not analysis.coverage_complete:
+            st.warning(
+                f"**No full-cell verdict** — the available cross-domain functors covered "
+                f"{analysis.coverage_fraction:.0%} of the requested physical interfaces. "
+                f"The partial aggregate score is **{analysis.overall_score:.3f}**; missing "
+                "interfaces are listed below and cannot be averaged away."
+            )
+        elif analysis.viable:
             st.success(
                 f"**Cell Design Viable** — Overall score: **{analysis.overall_score:.3f}** "
                 f"(threshold: {viability_threshold})"
@@ -220,12 +262,13 @@ with tab1:
             )
 
         # Metrics row
-        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+        col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
         col_m1.metric("Overall Score", f"{analysis.overall_score:.3f}")
         col_m2.metric("Domains", ", ".join(analysis.domains_involved))
         col_m3.metric("Interfaces", len(analysis.cross_domain_scores))
+        col_m4.metric("Coverage", f"{analysis.coverage_fraction:.0%}")
         if analysis.bottleneck:
-            col_m4.metric(
+            col_m5.metric(
                 "Bottleneck",
                 f"{analysis.bottleneck.component_a}-{analysis.bottleneck.component_b}",
             )
@@ -277,6 +320,13 @@ with tab1:
             st.subheader("Warnings")
             for w in analysis.warnings:
                 st.warning(w)
+
+        if analysis.unscored_interfaces:
+            st.subheader("Unscored Physical Interfaces")
+            st.error(
+                "No native scorer is implemented for: "
+                + ", ".join(analysis.unscored_interfaces)
+            )
 
         # Raw data
         with st.expander("Raw analysis data"):
@@ -339,7 +389,16 @@ with tab2:
                 hide_index=True
             )
             
-            st.caption("Energy Density is a theoretical estimate ($V \times C$). Viability is the cross-bridge compatibility score.")
+            if any(not r.to_dict()["coverage_complete"] for r in results):
+                st.warning(
+                    "Optimizer compatibility values are partial aggregates: at least one "
+                    "physical cell interface lacks a native scorer. Coverage and missing "
+                    "interfaces are included in the table; no full-cell verdict is emitted."
+                )
+            st.caption(
+                "Energy Density is a cathode-active theoretical estimate ($V \times C$). "
+                "Viability is the aggregate over scored interfaces, not a calibrated probability."
+            )
             
             if opt_discovery:
                 st.info("💡 'Discovery' results suggest novel cathode variants from the 103K cache with higher predicted energy density.")
@@ -366,5 +425,7 @@ with st.expander("How does multi-domain analysis work?"):
     - **Weighted mode** (default for >2 interfaces): bottleneck gets 0.5x weight
       to avoid single-interface domination
 
-    A cell design is viable if the overall score exceeds the viability threshold (default 0.50).
+    A full-cell viable verdict requires both an above-threshold score and complete
+    coverage of the requested physical contacts. With missing native scorers, the
+    displayed number is only a partial aggregate.
     """)

@@ -1,5 +1,10 @@
 # PFAS Compliance BOM Screening Rubric
 
+> **Screening workflow only; not current legal advice or a compliance
+> determination.** Regulations and reporting dates change. Verify the applicable
+> jurisdiction and official rule at the time of each engagement. The replacement
+> engine is triage, and missing interface coverage blocks a full-stack claim.
+
 **For: James (KOMPOSOS Compliance Services)**
 **Version: 1.0 | 2026-04-02**
 
@@ -377,7 +382,7 @@ KOMPOSOS Compliance Services
 | Question | Your Answer |
 |----------|------------|
 | "Is this a legal opinion?" | "No. This is a technical screening and compatibility assessment. For legal compliance advice, consult your regulatory counsel. This report gives them the technical evidence they need." |
-| "How accurate are the replacement scores?" | "Replacement scores combine published material property data with **cell-aware compatibility** — each candidate is scored against your adjoining materials and the result is a **calibrated probability** (isotonic calibration, honest out-of-sample ECE ~0.07; a 70% means roughly 7 in 10 such pairs are compatible). The compatibility engine is 41/41 on our development benchmark. Scores indicate compatibility *potential* -- any replacement should be pilot-tested in your specific application before production use." |
+| "How accurate are the replacement scores?" | "Replacement scores are triage estimates. Covered pairwise interfaces use a 98-row development/spent isotonic artifact (OOS ECE 0.072), but calibration is not established per domain or for a full stack. A full-stack value is withheld if any requested contact is unscored. The 41/41 result is a development regression, not current blind evidence. Pilot and qualify any replacement in the actual process." |
 | "Can you guarantee compliance?" | "No tool can guarantee compliance because regulations change and material specifications vary. What this report does is identify PFAS exposure, quantify urgency, and provide evidence-based replacement candidates ranked by your specific application context." |
 | "Why should I trust a computational tool?" | "Every score in this report has a provenance chain -- you can trace each number back to published property data, CAS numbers, and peer-reviewed sources. Compatibility confidence is a *calibrated* probability (not a black-box number), and the engine passes a full regression + calibration test suite on every build. It's not a black box." |
 | "What if a material shows as Unknown?" | "Unknown means the material isn't in our curated database. I'll research it using the Safety Data Sheet (SDS) and add it to the analysis. This typically adds 30-60 minutes to the engagement." |
@@ -418,7 +423,7 @@ When a client has materials not in the system, track them here for future additi
 | **Replacement Candidates** | 30+ | Scored per use case (battery binder, seal, membrane, wire, coating, liner) |
 | **Composition Predictions** | Unlimited | Any chemical formula via Kan extension prediction engine |
 | **Formation Energies (DFT)** | 175 | Validated against published DFT calculations |
-| **Crystal Structure Types** | 30 | 100% accuracy on known materials |
+| **Crystal Structure Types** | 30 labels | Historical internal checks only; no current external accuracy claim |
 
 **With MP cache active**: 103,000+ materials available for crystal structure lookups
 

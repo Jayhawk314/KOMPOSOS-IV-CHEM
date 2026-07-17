@@ -20,7 +20,7 @@ Pattern follows: composition_engine/designer.py (CompositionDesigner)
 """
 
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
 from mof_bridge.mp_mof_loader import MOFLinkerCache
@@ -36,7 +36,7 @@ class LinkerScreeningSpec:
         str  # "breath_VOC_sensing", "food_safety", "PFAS_detection", "custom"
     )
     num_candidates: int  # How many to generate
-    require_all_agree: bool = True  # Filter: keep only all-AGREE
+    require_all_agree: bool = False  # legacy descriptors; grounded funnel is primary
     allow_hollow: bool = False  # Include HOLLOW verdicts
     functional_groups: Optional[List[str]] = None
     exclude_elements: Optional[List[str]] = None
@@ -45,6 +45,13 @@ class LinkerScreeningSpec:
     strategy_weights: Optional[Dict[str, float]] = None  # substitution/modification/template mix
     seed_smiles: Optional[str] = None  # pin generation to derivatives of this molecule
     required_groups: Optional[List[str]] = None  # functional groups every candidate must carry
+    # Terminal DFT verification (optional; default OFF = no behavior change).
+    # When > 0, the top-N ranked candidates are sent to the typed DFT oracle
+    # (oracle/dft_integration). DFT is a terminal stage on the shortlist only,
+    # never in generation/ranking. Requires a backend (pyscf/psi4); if absent the
+    # stage is skipped with a note rather than crashing the run.
+    dft_verify_top_n: int = 0
+    dft_level: Optional[str] = None  # LevelOfTheory label; None = oracle default
 
 
 @dataclass
@@ -58,6 +65,9 @@ class ScreeningResult:
     best_morphism_integrity: float
     generation_time_sec: float
     verdict_statistics: Dict[str, int]  # verdict_type → count
+    # Terminal DFT verdicts for the top-N shortlist (empty unless dft_verify_top_n > 0).
+    dft_verifications: List[Dict] = field(default_factory=list)
+    dft_status: str = "not_run"  # "not_run" | "completed" | "unavailable: <reason>"
 
     def to_dict(self) -> Dict:
         """Convert to dictionary for serialization."""
@@ -69,6 +79,8 @@ class ScreeningResult:
             "best_morphism_integrity": self.best_morphism_integrity,
             "generation_time_sec": self.generation_time_sec,
             "verdict_statistics": self.verdict_statistics,
+            "dft_verifications": self.dft_verifications,
+            "dft_status": self.dft_status,
         }
 
 
@@ -123,7 +135,7 @@ class LinkerScreener:
         Raises:
             ImportError: If RDKit not installed
         """
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         print(f"\n{'=' * 70}")
         print(f"KOMPOSOS-MOF Linker Screening")
@@ -180,10 +192,10 @@ class LinkerScreener:
                 if "REJECT" not in verdicts:  # No REJECT verdicts
                     filtered_candidates.append(candidate)
             else:
-                # Default: require all AGREE or allow some ORPHAN
-                verdicts = set(candidate.verdicts.values())
-                if "REJECT" not in verdicts and "HOLLOW" not in verdicts:
-                    filtered_candidates.append(candidate)
+                # Default: do not gate on the legacy categorical descriptors.
+                # The benchmarked grounded funnel is applied by the application
+                # layer and is the primary screen for novel linkers.
+                filtered_candidates.append(candidate)
 
         print(f"  Passed filter: {len(filtered_candidates)}/{len(scored_candidates)}\n")
 
@@ -294,7 +306,34 @@ class LinkerScreener:
                 ),
             }
 
-        elapsed = time.time() - start_time
+        # Step 6 (optional): terminal DFT verification of the top-N shortlist.
+        # Off by default; never affects generation/ranking above.
+        dft_verifications: List[Dict] = []
+        dft_status = "not_run"
+        if spec.dft_verify_top_n and top_candidates:
+            print(f"Step 6: DFT-verifying top {spec.dft_verify_top_n} (terminal)...")
+            try:
+                from oracle.dft_integration import verify_candidates
+                from core.level_of_theory import STANDARD_LEVELS, B3LYP_def2TZVP_D3
+                from core.errors import OracleUnavailable
+
+                level = STANDARD_LEVELS.get(spec.dft_level or "", B3LYP_def2TZVP_D3)
+                shortlist = [c.linker_smiles for c in top_candidates[: spec.dft_verify_top_n]]
+                try:
+                    verdicts = verify_candidates(shortlist, level=level)
+                    dft_verifications = [v.to_dict() for v in verdicts]
+                    dft_status = "completed"
+                    print(f"  DFT verified {len(dft_verifications)} candidates "
+                          f"at {level.label}\n")
+                except OracleUnavailable as oe:
+                    dft_status = f"unavailable: {oe.reason}"
+                    print(f"  DFT skipped (no backend): {oe.reason}")
+                    print(f"  remediation: {oe.remediation}\n")
+            except Exception as e:  # never let optional DFT crash a screening run
+                dft_status = f"error: {e}"
+                print(f"  DFT stage error (non-fatal): {e}\n")
+
+        elapsed = time.perf_counter() - start_time
 
         print(f"{'=' * 70}")
         print(f"Screening Complete")
@@ -316,6 +355,8 @@ class LinkerScreener:
             best_morphism_integrity=best_morphism,
             generation_time_sec=elapsed,
             verdict_statistics=verdict_stats,
+            dft_verifications=dft_verifications,
+            dft_status=dft_status,
         )
 
 

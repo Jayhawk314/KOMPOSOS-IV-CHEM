@@ -1,5 +1,13 @@
 # KOMPOSOS-IV Chemistry: Complete Feature Reference
 
+> **Historical feature reference (2026-05-30).** Some numbers and architectural
+> claims below are superseded. In particular, current strict formation-energy LOO
+> is 0.416 eV/atom (not 0.304), pairwise calibration does not apply to
+> multi-interface aggregates, and charge-balance/ZFC summaries derived from bridge
+> scores are not independent measurements. Use
+> `CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md` and the root `CURRENT_STATE.md` for the
+> current evidence posture.
+
 *Updated 2026-05-30 - Version IV Categorical Runtime*
 
 ---
@@ -8,11 +16,17 @@
 
 KOMPOSOS-IV is a **categorical runtime** and **compositional reasoning engine**. It transitions from static database lookups to an **Execution as Category** model ($ \infty $-cosmos).
 
-1. **"Will these materials work together?"** — Checked via Morphism Composition in the runtime category. Confidence is a **calibrated probability** (isotonic, out-of-sample ECE 0.072 — a 0.70 means ~70%).
-2. **"What properties does this composition have?"** — Predicted via Pointwise Kan Extensions (formation-energy MAE 0.304 eV/atom, honest calibrated intervals).
+1. **"Will these materials work together?"** — Pairwise screens use native bridge
+   scorers and physical vetoes. A development/spent isotonic artifact has OOS ECE
+   0.072; this does not establish per-domain or multi-interface calibration.
+2. **"What properties does this composition have?"** — Formula-based screening;
+   current strict formation-energy LOO MAE is 0.416 eV/atom with recalibrated
+   50/79/95% deployed interval coverage.
 3. **"What composition gives me these properties?"** — Optimized via OPTIMUS Game-Theoretic Search.
 
-No black-box neural networks. No training data. Tiered verification via the COG Engine.
+The runtime combines deterministic/curated scorers with trained components,
+including a RandomForest formation-energy model. Judge each output by its named
+evidence role and benchmark rather than a blanket model-type claim.
 
 ---
 
@@ -38,7 +52,7 @@ The **COG Engine** audits every claim made by the runtime through 5 levels of ri
 | **0** | Graph Lookup | Fast direct interaction retrieval. |
 | **1** | Path Composition | Finding chains of multi-material interactions. |
 | **2** | Sheaf & Kan | Sheaf coherence and property interpolation. |
-| **3** | ZFC Dual Engine | Independent set-theoretic constraint validation. |
+| **3** | Constraint summary | Logical/charge/typicality checks; independence must be established per check. |
 | **4** | Topology & Flow | Ricci curvature, Homology, and Homotopy Type Theory. |
 
 ---
@@ -116,9 +130,11 @@ Loaded via the **Bridge ABC**, providing data for 103K+ materials.
 
 ---
 
-## 8. ZFC Dual-Engine Integration
+## 8. Constraint and coherence integration
 
-- **Independent Audit**: Set-theoretic foundational checks mirroring the categorical layer.
+- **Scope warning**: several historical "ZFC" summaries are derived from the same
+  bridge scores and are not independent evidence. Charge balance is reported by
+  its physical name.
 - **Verdict States**: **AGREE** (Consensus), **HOLLOW** (Logical veto), **ORPHAN** (Morphism gap), **REJECT** (Hard fail).
 - **Gaussian Typicality**: Physically grounded bond plausibility verification.
 

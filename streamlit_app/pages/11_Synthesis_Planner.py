@@ -18,8 +18,9 @@ render_login_sidebar()
 st.markdown(
     "Pick a target material and get **ranked literature synthesis routes** "
     "(feasibility, cost, time, safety) — each one **stoichiometrically "
-    "validated by a Z3 SMT solver**: balanced routes show their element-"
-    "balanced equation; impossible routes are hard-vetoed."
+    "checked by a Z3 SMT solver**: checked routes show a formal element-"
+    "balance witness; encodings with no balance witness are hard-vetoed. "
+    "This does not prove reaction mechanism, redox, yield, or phase purity."
 )
 render_feature_status("synthesis_planner")
 
@@ -78,8 +79,13 @@ if st.button("Plan synthesis", type="primary"):
                 st.error("Stoichiometric hard veto: no element-balanced "
                          "equation exists for this route as written.")
             if sr.balanced_reaction:
-                st.markdown("**Balanced equation (Z3 witness, minimal byproducts):**")
+                st.markdown("**Formal element-balance witness (Z3):**")
                 st.code(sr.balanced_reaction, language=None)
+                st.caption(
+                    "This witness proves only that atoms can be conserved using the solver's "
+                    "allowed auxiliary species. It is not the cited paper's reaction equation "
+                    "and does not establish redox plausibility, mechanism, yield, or phase purity."
+                )
             for note in sr.stoichiometry_notes:
                 st.caption(f"⚠️ {note}")
 

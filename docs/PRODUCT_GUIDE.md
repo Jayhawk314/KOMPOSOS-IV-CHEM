@@ -381,14 +381,14 @@ The scanner works on **names**. If a client gives you "Polymer X" or "Coating 7B
 
 The scanner is a first-pass screening tool, not a lab analysis. It catches the obvious PFAS (PVDF, PTFE, FEP, Nafion) that show up in battery/industrial BOMs. For regulatory filing, the client still needs analytical testing (LC-MS/MS) to confirm.
 
-**Validation Grounding** (updated 2026-05-30): The compatibility **development set** is
-**41/41 (100%), Brier 0.095**, and confidence is now a **calibrated probability** (isotonic,
-honest out-of-sample ECE 0.072 — a 0.70 means ~70%). **No dataset is currently held blind**
-(`current_blind_version: null`); Q2–Q8 are spent diagnostics (Q8 demoted 2026-05-30, latest
-run 89.5%) — we do not report tuned numbers as blind claims. Formation-energy surrogate MAE
-**0.304 eV/atom**. Physical constraints are grounded in empirical distributions from
-crystallographic databases (Gagné & Hawthorne 2015, ICSD 2020, Vurgaftman 2001) and ColabFit
-Exchange. High-stakes validation is supported via integrated **GROMACS Molecular Dynamics**.
+**Validation grounding** (audited 2026-07-17): compatibility development regression
+is 41/41. No dataset is currently blind; Q9 is also spent (35/40 after remediation)
+and Q10 remains sealed. The deployed 98-row development/spent isotonic artifact
+reports OOS ECE 0.072, but that does not prove domain-specific calibration or
+calibrate whole-stack aggregates. Current strict-formula formation-energy LOO is
+MAE 0.416 eV/atom (n=179), with deployed interval coverage 50/79/95%. GROMACS is
+an optional verification path only when an applicable simulation is configured;
+its existence is not blanket high-stakes validation.
 
 ---
 
@@ -461,28 +461,41 @@ This is a services component -- you're adding value by curating the data for eac
 
 ### The pitch in 30 seconds
 
-"We screen your bill of materials for PFAS compliance and material compatibility in seconds, with full audit trails. Our EU PFHxA restriction deadline is October 2026. Are you ready?"
+"We provide first-pass PFAS inventory and materials-compatibility screening with
+an audit trail. Applicable PFHxA scope and dates depend on product and use; we
+verify the current official rule before any compliance statement."
 
 ### What to show in a demo
 
-1. **PFAS Scanner** (2 minutes): Enter their materials or use the demo BOM. Show the red "PFAS DETECTED" verdicts (incl. a *novel* PFAS caught by the structural rule). List their cell's adjoining materials and show each PFAS-free replacement ranked by **calibrated compatibility with their whole stack** (weakest-interface bottleneck). Download the branded PDF compliance report with their company name on it.
+1. **PFAS Scanner**: Enter materials or use the demo BOM. Show structural/name
+   detection and the evidence tier. Replacement results are triage; show pairwise
+   coverage and withhold a full-stack value when any contact is unscored.
 
-2. **Compatibility Checker** (1 minute): Pick two materials from their domain. Show the dual-engine verdict (AGREE/HOLLOW/ORPHAN/REJECT), the **calibrated probability** (a real %, not a black-box score), and the 5-scorer breakdown. Show how HOLLOW states catch failures that black-box AI would miss.
+2. **Compatibility Checker**: Show the native pairwise decision, derived constraint
+   diagnostic, scorer breakdown, and calibration cohort. Do not present the two
+   views as independent evidence.
 
 3. **Composition Predictor** (1 minute): Enter a chemical formula. Show predicted voltage, capacity, structure type, and derived crystal structure with MP provenance. This is the "wow" moment -- it predicts properties from composition alone.
 
-4. **Crystal Dreamer** (1 minute): Set target properties (e.g., voltage > 4V, no cobalt). Show 500 candidates found in 2.5 seconds. This is the "inverse design" moment -- from specs to compositions.
+4. **Crystal Dreamer**: Set target properties and show a small lead set with
+   uncertainty and physical gates. Runtime depends on candidate count and checks;
+   do not promise 500 candidates in 2.5 seconds.
 
 ### What NOT to say
 
 - Don't say "175 materials" -- say "curated materials database covering 6 industrial domains"
-- Don't say "demo" -- say "pilot deployment"
+- Call a demo a demo; call it a pilot only when a user has agreed to a scoped pilot.
 - Don't promise it replaces lab testing -- say "it prioritizes what to test first"
 - Don't claim ML/AI -- say "interpretable compositional reasoning with published data"
 
-### Pricing angle
+### Value angle
 
-The value is in the PFAS compliance report. EU ban goes live August 2026, US EPA reporting already mandatory. Every battery/chemical company needs to audit their supply chain. A PFAS compliance audit from a consulting firm costs $50K-200K. KOMPOSOS does the first-pass screening in minutes.
+The defensible value is a fast, auditable first-pass PFAS inventory plus
+replacement triage. It is not a legal compliance determination. Regulatory
+scope and dates vary by substance, product, use, and jurisdiction: the broad EU
+restriction remains under evaluation, while narrower restrictions such as
+PFHxA already have use-specific transition dates. Verify the current official
+rule for every client-facing statement.
 
 ---
 
@@ -515,8 +528,8 @@ Client says "what about Material X with Material Y?" -- you run the query and gi
 | What does sign-in do? | Limits free analyses (3 demo, custom for clients) |
 | Do you need sign-in for a demo? | No, 3 free scans is enough |
 | How does PFAS detection work? | Name match (35 substances) + brand heuristics + **OECD structural rule via PubChem** for novel PFAS; tiers exact/heuristic/structural/structural_resolved/unknown |
-| What about replacements? | Ranked by **calibrated compatibility with your whole cell** (weakest-interface bottleneck), not just "not PFAS" |
+| What about replacements? | Ranked by a coverage-aware interface screen. A full-stack bottleneck is shown only when every required contact has a native score; otherwise the missing contacts remain explicit. |
 | What does the client need to provide? | Material names (ideally chemical names, not just trade names) |
 | How do you add materials? | Add entries to `material_properties.py` in the relevant bridge |
-| What's the pricing angle? | PFAS compliance -- EU ban Aug 2026, US EPA Oct 2026 |
-| What's the deliverable? | Branded PDF compliance report with domain-specific scores, provenance, action plan, audit certificate |
+| What's the value angle? | Auditable first-pass PFAS inventory and replacement triage; never a blanket legal-compliance promise. |
+| What's the deliverable? | Branded screening report with evidence tiers, coverage, provenance, and follow-up actions. |

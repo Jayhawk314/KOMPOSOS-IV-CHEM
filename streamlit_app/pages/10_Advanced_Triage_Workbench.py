@@ -18,17 +18,15 @@ from discovery.workbench_service import DiscoveryWorkbenchService, DiscoveryGoal
 from composition_engine.designer import PropertyTarget
 from streamlit_app.validation_status import render_feature_status
 
-# --- High Fidelity Integrations ---
-from composition_engine.physical_gates import charge_balanceable
+# --- Verification integrations ---
 from cross_bridge.multi_domain import MultiDomainAnalyzer, MultiDomainQuery, MultiDomainComponent
-from oracle.compatibility_calibration import load_default_calibration
 
 st.set_page_config(page_title="Advanced Triage Workbench", page_icon="🧬", layout="wide")
 st.title("Advanced Triage Workbench")
 st.markdown(
     "A **Mixed-Fidelity** evolution of the Discovery Workbench. It combines fast "
-    "triage-grade generation with high-precision ZFC logical gates and full-stack "
-    "device compatibility verification."
+    "triage-grade generation with a deterministic charge-balance gate and "
+    "coverage-aware device-interface screening."
 )
 
 with st.expander("ℹ️ How the pipeline works (mechanics)"):
@@ -39,12 +37,13 @@ with st.expander("ℹ️ How the pipeline works (mechanics)"):
        candidate formulas from your target properties. These are *suggestions* (hallucinations
        are possible). Scorecard: `Triage Confidence`, `Design Score`.
     2. **Precision Phase (The Filter)** — strict checks that veto bad guesses:
-       - **ZFC Integrity** — rejects formulas with no valid oxidation-state assignment.
-       - **Cell Compatibility** — scores the candidate's *nearest known analog* inside the
-         chosen reference cell and reports a **calibrated probability**. The scorecard shows
+       - **Charge-Balance Gate** — rejects formulas with no common oxidation-state assignment.
+       - **Cell Interface Screen** — scores the candidate's *nearest known analog* inside the
+         chosen reference cell. The scorecard shows
          the **proxy distance**; a far proxy is a weak stand-in. Non-battery candidates are
-         not cell-scored (the reference cell is battery-only).
-       Scorecard: `Integrity (ZFC)`, `Cell Compat. (cal.)`, `Proxy (dist)`.
+         not cell-scored. Missing native interface functors are reported as incomplete coverage,
+         never silently averaged away.
+       Scorecard: `Charge Balance`, `Cell Interface Score`, `Coverage`, `Proxy (dist)`.
 
     **How to use:** trust the *vetoes* (Precision Phase) more than the *suggestions*. See the
     accuracy banner below for the honest, sourced numbers.
@@ -129,8 +128,8 @@ with st.sidebar:
 
     st.divider()
     st.header("2. High-Precision Verification")
-    use_zfc = st.checkbox("ZFC Physical Gates", value=True, help="Enable charge-balance verification.")
-    use_multi_domain = st.checkbox("Multi-Domain Cell Check", value=True, help="Verify candidate in a full-cell context.")
+    use_zfc = st.checkbox("Charge-Balance Gate", value=True, help="Use pymatgen oxidation-state feasibility; unassessable formulas receive no verdict.")
+    use_multi_domain = st.checkbox("Multi-Domain Interface Check", value=True, help="Screen covered proxy interfaces and expose missing coverage.")
 
     if use_multi_domain:
         material_names, material_registry = get_material_options()
@@ -162,26 +161,29 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
                               max_value=float(t["max"]) if t.get("use_max") else None, weight=t["weight"]) 
                for t in st.session_state.adv_wb_targets]
     
-    goal = DiscoveryGoal(targets=targets, required_elements=req_elems, max_candidates=max_cands)
+    goal = DiscoveryGoal(
+        targets=targets,
+        required_elements=req_elems,
+        max_candidates=max_cands,
+        apply_charge_balance_gate=use_zfc,
+    )
 
     with st.status("Executing Mixed-Fidelity Pipeline...", expanded=True) as status:
         # STEP 1: Fast Triage Generation
         st.write("Step 1: Running Triage (Inverse Design)...")
         candidates = service.run_discovery_pipeline(goal)
         
-        # STEP 2: ZFC Verification (High Precision)
+        # STEP 2: deterministic charge-balance verification
         if use_zfc and candidates:
-            st.write(f"Step 2: Applying ZFC Physical Gates to {len(candidates)} candidates...")
+            st.write(f"Step 2: Applying charge-balance gates to {len(candidates)} candidates...")
             for c in candidates:
-                c.compatibility_metadata["zfc_charge_balance"] = charge_balanceable(c.formula)
-                if c.compatibility_metadata["zfc_charge_balance"] is False:
-                    c.overall_confidence *= 0.1 # Severe penalty for unphysical results
-                    c.safety_vetoes.append("ZFC: Charge Imbalance")
+                c.compatibility_metadata['charge_balance_status'] = c.zfc_witnessed
+                if c.zfc_witnessed is False:
+                    c.overall_confidence = 0.0
 
         # STEP 3: Multi-Domain Context (High Precision)
         if use_multi_domain and candidates:
             st.write(f"Step 3: Running Multi-Domain Context Analysis...")
-            calibrator = load_default_calibration()
             for c in candidates:
                 try:
                     # Multi-domain bridges rely on known material properties.
@@ -207,16 +209,29 @@ if st.button("Run Advanced Discovery Pipeline", type="primary"):
                         MultiDomainComponent(name=ref_electrolyte, role="electrolyte"),
                         MultiDomainComponent(name=ref_collector, role="collector")
                     ]
-                    query = MultiDomainQuery(name=f"Context:{c.formula}", components=query_components, electrolyte=ref_electrolyte)
+                    adjacency = {
+                        frozenset({'cathode', 'electrolyte'}),
+                        frozenset({'cathode', 'collector'}),
+                        frozenset({'electrolyte', 'collector'}),
+                    }
+                    query = MultiDomainQuery(
+                        name=f"Context:{c.formula}",
+                        components=query_components,
+                        electrolyte=ref_electrolyte,
+                        adjacency=adjacency,
+                    )
                     analysis = analyzer.analyze(query)
 
-                    # Surface the CALIBRATED probability, not the raw composite score.
-                    cal = calibrator.calibrate(analysis.overall_score, "battery")
-                    c.compatibility_score = cal.get("calibrated_probability", analysis.overall_score)
-                    c.compatibility_viable = analysis.viable
+                    # This is an aggregate of cross-domain functor scores, not a
+                    # pairwise score from the compatibility calibrator. Do not
+                    # launder it into a calibrated probability.
+                    c.compatibility_score = analysis.overall_score
+                    c.compatibility_viable = analysis.viable and analysis.coverage_complete
                     c.compatibility_metadata["proxy_used"] = proxy_name
                     c.compatibility_metadata["raw_multidomain_score"] = round(analysis.overall_score, 4)
-                    c.compatibility_metadata["cell_calibrator"] = cal.get("calibrator")
+                    c.compatibility_metadata['interface_coverage'] = round(analysis.coverage_fraction, 4)
+                    c.compatibility_metadata['coverage_complete'] = analysis.coverage_complete
+                    c.compatibility_metadata['unscored_interfaces'] = analysis.unscored_interfaces
                     if analysis.bottleneck:
                         c.compatibility_metadata["bottleneck"] = f"{analysis.bottleneck.functor_used} ({analysis.bottleneck.score:.2f})"
                 except Exception as e:
@@ -237,15 +252,22 @@ if st.session_state.adv_wb_candidates is not None:
         rows = []
         for c in candidates:
             meta = c.compatibility_metadata
-            zfc_status = "✅" if meta.get("zfc_charge_balance") is True else ("❌" if meta.get("zfc_charge_balance") is False else "❔")
+            charge_status = meta.get('charge_balance_status')
+            charge_display = 'PASS' if charge_status is True else ('VETO' if charge_status is False else 'UNASSESSED')
 
-            # Cell compatibility: calibrated prob if scored; n/a if skipped (non-battery).
+            # Aggregate cross-domain score with explicit coverage; it is not a
+            # calibrated pairwise compatibility probability.
             if meta.get("cell_check_skipped"):
                 cell_display = "n/a"
+            elif meta.get('coverage_complete') is False and 'raw_multidomain_score' in meta:
+                cell_display = f"PARTIAL {c.compatibility_score:.3f}"
             elif c.compatibility_viable:
                 cell_display = round(float(c.compatibility_score), 3)
             else:
                 cell_display = "FAIL"
+
+            coverage = meta.get('interface_coverage')
+            coverage_display = f'{coverage:.0%}' if isinstance(coverage, (int, float)) else 'n/a'
 
             # Proxy + distance (flag far proxies whose cell score is a weak signal).
             proxy = meta.get("proxy_used")
@@ -260,9 +282,10 @@ if st.session_state.adv_wb_candidates is not None:
 
             rows.append({
                 "Formula": c.formula,
-                "Integrity (ZFC)": zfc_status,
+                "Charge Balance": charge_display,
                 "Triage Confidence": round(float(c.overall_confidence), 3),
-                "Cell Compat. (cal.)": cell_display,
+                "Cell Interface Score": cell_display,
+                "Coverage": coverage_display,
                 "Proxy (dist)": proxy_display,
                 "Bottleneck": meta.get("bottleneck", "N/A"),
                 "Design Score": round(float(c.design_score), 3),
@@ -275,9 +298,10 @@ if st.session_state.adv_wb_candidates is not None:
             use_container_width=True, hide_index=True
         )
         st.caption(
-            "**Cell Compat. (cal.)** is a calibrated probability of compatibility for the "
-            "candidate's nearest known battery analog in the reference cell — `n/a` = "
-            "non-battery candidate (not cell-scored), `FAIL` = below the viability threshold. "
+            "**Cell Interface Score** is an uncalibrated aggregate over the native cross-domain "
+            "functors that were available for the candidate's nearest known analog. `PARTIAL` "
+            "means at least one requested physical interface had no native scorer; it is not a "
+            "full-cell verdict. `n/a` means the battery-only context was not applicable. "
             "**Proxy (dist)** is that analog and its composition-space distance; ⚠️far (>"
             f"{_FAR_PROXY}) means the cell score is a weak stand-in for the novel formula."
         )
@@ -291,7 +315,7 @@ if st.session_state.adv_wb_candidates is not None:
             col1, col2 = st.columns(2)
             with col1:
                 st.write("**Predicted Properties (With Uncertainty)**")
-                st.caption("Shows the central triage value, followed by the rigorous [Lower to Upper] bounds. Narrow bounds indicate high calculation precision based on known topological neighbors.")
+                st.caption("Shows the central triage estimate and the model's [Lower to Upper] bounds. Formation-energy intervals are calibrated separately; other property bounds remain heuristic and should not be read as guaranteed coverage.")
                 
                 # Re-run predictor on the selected candidate to get full uncertainty bounds
                 # (Designer strips bounds for speed, we need them for transparency)
@@ -332,9 +356,10 @@ if st.session_state.adv_wb_candidates is not None:
                                 for k, v in full_prediction.properties.items()
                             }
                         },
-                        "logical_verification_audit": {
-                            "zfc_integrity_pass": c.compatibility_metadata.get("zfc_charge_balance"),
+                        "physical_gate_audit": {
+                            "charge_balance_status": c.compatibility_metadata.get("charge_balance_status"),
                             "pfas_free_status": c.is_pfas_free,
+                            "hard_vetoes": c.hard_vetoes,
                             "safety_vetoes": c.safety_vetoes,
                             "multi_domain_context": c.compatibility_metadata
                         }
@@ -345,15 +370,15 @@ if st.session_state.adv_wb_candidates is not None:
                         data=json.dumps(bundle, indent=2),
                         file_name=f"komposos_audit_{c.formula}.json",
                         mime="application/json",
-                        help="Download an auditable JSON bundle containing the exact mathematical bounds, data anchors, and ZFC verification trace used for this prediction."
+                        help="Download the model bounds, data anchors, charge-balance status, interface coverage, and proxy trace used for this prediction."
                     )
                     
                 except Exception as e:
                     st.warning(f"Could not retrieve full uncertainty bounds: {e}")
                     st.json(c.predicted_properties)
             with col2:
-                st.write("**Verification Metadata (Precision)**")
-                st.caption("Details the exact logical checks performed on this candidate. Look for 'zfc_charge_balance' failures or 'bottlenecks' discovered during the Multi-Domain reference system simulation.")
+                st.write("**Verification Metadata**")
+                st.caption("Shows the deterministic charge-balance result, proxy identity/distance, scored interfaces, missing coverage, and bottleneck. None of these are wet-lab verification.")
                 st.json(c.compatibility_metadata)
                 if c.safety_vetoes:
                     st.error(f"Vetoes: {', '.join(c.safety_vetoes)}")

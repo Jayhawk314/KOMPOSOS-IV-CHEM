@@ -1,5 +1,11 @@
 # Feature Status & Roadmap — honest assessment (2026-05-30)
 
+> **Superseded evidence snapshot.** The 2026-07-17 executable audit corrected the
+> formation-energy metrics, compatibility calibration scope, cell-interface
+> coverage, workbench charge-balance terminology, and synthesis-planner scope.
+> See `CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md`. The text below is retained as a
+> historical roadmap, not current product copy.
+
 Goal: value to researchers. We already have **triage value**; **accuracy** is what
 would lift it from "useful for ideas" to "useful for decisions." This report says,
 per feature: what it is, how good it actually is, what's *checkable fact* vs
