@@ -1,5 +1,10 @@
 # KOMPOSOS-IV Web UI — User Guide
 
+> **Superseded on 2026-07-17.** Use
+> docs/WEB_UI_DEFINITIVE_GUIDE_2026-07-17.md for the current audited interface,
+> evidence boundaries, all eleven pages, and reproducibility commands. This
+> older guide is retained only as a historical interface record.
+
 **Interactive Categorical Reasoning Interface**
 
 Version: 1.8.0

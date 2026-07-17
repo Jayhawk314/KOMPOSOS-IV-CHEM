@@ -337,15 +337,16 @@ with tab2:
             st.dataframe(df, use_container_width=True, hide_index=True)
 
 # ---------------------------------------------------------------------------
-# Tab 3: Compliance Report Generator
+# Tab 3: Screening Report Generator
 # ---------------------------------------------------------------------------
 
 with tab3:
     st.subheader("PFAS Screening Report Generator")
     st.markdown(
-        "Generate a structured, auditable compliance report for enterprise buyers. "
-        "Includes PFAS detections, scored replacements with provenance, regulatory "
-        "timeline with days-remaining, and a prioritized action plan."
+        "Generate a structured first-pass screening report. It includes PFAS "
+        "detections, replacement triage with provenance, a qualitative regulatory "
+        "landscape, and follow-up actions. It is not a legal compliance determination; "
+        "verify current primary sources before filing or making a market-access decision."
     )
 
     client_name = st.text_input(
@@ -379,7 +380,7 @@ with tab3:
                 qty = float(parts[2]) if len(parts) > 2 and parts[2] else None
                 custom_materials.append(MaterialInput(name=name, function=func, quantity_kg=qty))
 
-    if st.button("Generate Compliance Report", type="primary", key="gen_report"):
+    if st.button("Generate Screening Report", type="primary", key="gen_report"):
         if not require_access():
             st.stop()
         consume_use()

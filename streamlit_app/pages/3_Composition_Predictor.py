@@ -300,11 +300,11 @@ if st.button("Predict Properties", type="primary"):
         st.json(d)
 
 # ---------------------------------------------------------------------------
-# Scientific Audit (True LOO)
+# Strict leave-one-out development diagnostic
 # ---------------------------------------------------------------------------
 
 st.divider()
-st.subheader("🔬 Scientific Audit (True Leave-One-Out)")
+st.subheader("Strict Leave-One-Out Development Diagnostic")
 st.markdown(
     "Verify the system's accuracy for yourself. This mode forces the engine to **forget** "
     "the selected material and same-formula anchors before predicting. This is a useful "
@@ -344,7 +344,7 @@ if st.button("Run LOO Diagnostic", type="secondary"):
         )
         
         if truth:
-            st.success(f"Blind Prediction for **{loo_formula}**")
+            st.success(f"Self-excluded prediction for **{loo_formula}**")
             
             col_b1, col_b2, col_b3 = st.columns(3)
             with col_b1:
@@ -354,10 +354,13 @@ if st.button("Run LOO Diagnostic", type="secondary"):
             with col_b3:
                 err = abs(res_blind.ef_per_atom - truth.ef_per_atom)
                 rel = (err / abs(truth.ef_per_atom)) if truth.ef_per_atom != 0 else 0
-                st.metric("Blind Error", f"{rel:.1%}")
+                st.metric("Relative LOO Error", f"{rel:.1%}")
                 
             st.info(f"Uncertainty Tier: **{res_blind.uncertainty_tier.value}**")
-            st.caption("Note: This error represents true generalization to unseen chemistry.")
+            st.caption(
+                "This measures self-excluded behavior on an already inspected development "
+                "reference set. It is not a fresh blind or external generalization result."
+            )
             
             with st.expander("Show nearest neighbors (self excluded)"):
                 n_rows = [{"Neighbor": n, "Distance": d, "Known Ef": ef} 
