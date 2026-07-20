@@ -33,6 +33,30 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### MLIP (CHGNet) oracle added as a typed tier (2026-07-20)
+- `oracle/mlip_integration.py`. On 294 held-out materials **MAE 0.134 eV/atom vs
+  0.404** for the composition surrogate (3.0x lower; MLIP closer on 77.6%).
+  See `docs/MLIP_ORACLE_2026-07-20.md`;
+  `python audit\run_mlip_benchmark.py --relax`.
+- **Do NOT compare 0.134 to the 0.416 headline.** Different material sets: 0.416
+  is the 179-material strict formula-LOO benchmark; this is cubic
+  fully-determined prototypes only. The like-for-like number is the surrogate's
+  **0.404 re-scored on the same 294 materials**.
+- **An MLIP is a SURROGATE of DFT, never DFT.** Typed `Family.SURROGATE`;
+  crossing to `PBE_MP` requires the explicit `MLIP_TO_PBE_MP` conversion, which
+  adds uncertainty. Without the backend it raises `OracleUnavailable` and never
+  falls back to the composition surrogate under an MLIP label.
+- **Requires a 3D structure** — a capability boundary, not a bug. The MP cache
+  has lattice parameters but no coordinates, so only 759 of 103,644 entries have
+  a fully determined prototype. Prototypes with free internal parameters
+  (rutile/wurtzite/spinel/corundum) are excluded, not guessed.
+- **Relaxation is mandatory for a meaningful number**: unrelaxed idealized
+  prototypes gave a train residual of 0.670 eV/atom; relaxing dropped it to
+  0.117. Always run `--relax`.
+- Optional dependency (`pip install chgnet`, offline-capable). Not yet wired into
+  Crystal Dreamer, discovery, or compatibility — deliberately a separate change,
+  and no claim is made that it improves any downstream verdict.
+
 ### Category theory does NOT contribute predictive accuracy (2026-07-20)
 - Ablation over **374 development + spent-diagnostic pairs**: removing the
   categorical layer changes accuracy by **0.0000** and MCC by **0.0000**.

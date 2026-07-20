@@ -47,3 +47,9 @@ httpx>=0.25.0
 
 # SMT solver (stoichiometric validation in synthesis_planner)
 z3-solver>=4.12.0
+
+# Machine-learned interatomic potential oracle (oracle/mlip_integration.py).
+# OPTIONAL: without it the MLIP oracle raises OracleUnavailable and nothing else
+# changes -- it never falls back to the composition surrogate under an MLIP label.
+# Pretrained MPtrj weights ship inside the package, so it works offline.
+# chgnet>=0.4.0

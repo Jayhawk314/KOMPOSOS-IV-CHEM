@@ -23,6 +23,11 @@ dev = [
 demo = [
     "streamlit>=1.30",
 ]
+mlip = [
+    # Machine-learned interatomic potential oracle. Optional: absent it, the
+    # oracle raises OracleUnavailable rather than degrading silently.
+    "chgnet>=0.4.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["core*"]

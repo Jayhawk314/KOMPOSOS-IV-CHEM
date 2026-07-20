@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-07-20: MLIP (CHGNet) oracle — 3x lower formation-energy error where a structure exists
+
+Full writeup: `docs/MLIP_ORACLE_2026-07-20.md`. Module `oracle/mlip_integration.py`,
+benchmark `python audit/run_mlip_benchmark.py --relax`, 9 tests in
+`tests/test_mlip_integration.py`. Optional dependency: `pip install chgnet`
+(weights ship in-package, works offline).
+
+On **294 held-out materials** (MP PBE formation energies as ground truth,
+elemental references fitted on a disjoint 445-material train split):
+
+| model | n | MAE | RMSE | median |
+| --- | ---: | ---: | ---: | ---: |
+| CHGNet MLIP (relaxed) | 294 | **0.134** | 0.238 | 0.076 |
+| KOMPOSOS surrogate (formula only) | 294 | 0.404 | 0.530 | 0.349 |
+
+MLIP closer on 228/294 (77.6%). Train residual 0.117.
+
+- **Never compare 0.134 to the 0.416 headline** — different material sets (0.416
+  is the 179-material strict formula-LOO benchmark; this is cubic
+  fully-determined prototypes). The like-for-like figure is the surrogate's
+  **0.404 re-scored on these same 294 materials**.
+- **Typed as SURROGATE, not DFT.** CHGNet is a surrogate *of* MP PBE; crossing to
+  `PBE_MP` needs the explicit `MLIP_TO_PBE_MP` conversion, which adds the model's
+  own error rather than pretending the lift is free. Absent the backend it raises
+  `OracleUnavailable` and never falls back to the composition surrogate under an
+  MLIP label. It also refuses to extrapolate over elements with no fitted
+  reference.
+- **Structure required** (capability boundary): the MP cache has lattice
+  parameters but no coordinates, so only **759 of 103,644** entries have a fully
+  determined prototype. Prototypes with free internal parameters (rutile,
+  wurtzite, spinel, corundum) are excluded rather than guessed.
+- **Two harness bugs were found and fixed before trusting any number**, both
+  caught by the train residual: (1) fitting 63 elemental potentials from 60
+  training rows left the normal equations rank-deficient and produced MAE 7.04
+  eV/atom — fixed with an element-coverage requirement; (2) scoring unrelaxed
+  idealized prototypes, plus alphabetical perovskite A/B site assignment (which
+  put Hf on the A-site of KHfO3), left a **train residual of 0.670** — fixed by
+  MLIP relaxation and radius-ordered site assignment, dropping it to 0.117.
+- Additive and optional: **all existing benchmarks unchanged** (dev compatibility
+  still 41/41). Not yet wired into Crystal Dreamer, discovery, or compatibility —
+  deliberately separate, and no claim is made that it improves any downstream
+  verdict.
+
+---
+
 ## 2026-07-20: Category-theory ablation — no measurable accuracy contribution
 
 Full writeup: `docs/CT_ABLATION_2026-07-20.md`. New tool:
