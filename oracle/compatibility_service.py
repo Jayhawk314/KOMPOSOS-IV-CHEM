@@ -190,9 +190,14 @@ def resolve_workflow_domain(material_a: str, material_b: str) -> str:
         return "polymer-metal"
     if "ceramic" in domains and "battery" in domains:
         return "ceramic-battery"
+    if "glass" in domains and "metal" in domains:
+        return "glass-metal"
+    if "polymer" in domains and "glass" in domains:
+        return "polymer-glass"
 
-    # Default: composite string
-    return f"{domain_a}-{domain_b}"
+    # Default: composite string. Sorted so the label is deterministic rather
+    # than depending on which material was passed first.
+    return "-".join(sorted(domains))
 
 
 def resolve_same_domain(material_a: str, material_b: str) -> str:

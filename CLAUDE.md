@@ -33,6 +33,32 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### Scorer remediation + Q11 spent + Q12 frozen (2026-07-20, later same day)
+- Q11's three root causes were fixed on independent/dev pairs, then Q11 was
+  re-run **once** as regression and **demoted to `spent_diagnostic`**.
+  See `docs/SCORER_REMEDIATION_2026-07-20.md`.
+- **Correct answers did not increase: 23/40 before and after.** Four genuine
+  fixes were gained; four previously-correct answers became honest abstentions
+  (they had been right only because a constant 0.45 matched an incompatible
+  label by base rate). Errors fell 13→10, MCC 0.278→0.401, Brier 0.279→0.220.
+  **Never quote the 63.9%→69.7% accuracy rise alone** — the denominator shrank
+  from 36 to 33 because the bridge now declines organic-solvent resistance.
+- Correction to the earlier diagnosis: the polymer/solvent path was **not**
+  "inverted." It correctly implemented the *dissolution* question (PVDF+NMP,
+  CMC+water). The defect was that **resistance intent was unrepresentable**.
+  Dissolution remains the default; resistance is now explicit, answered from
+  curated water-uptake data (7/7) and **abstaining** for organic solvents,
+  because Hansen distance alone separates resistance at only 22/30.
+- **`Q12` is the current blind benchmark and is UNSCORED.** 36 pairs, **12
+  contrast groups** (two pairs sharing a material with opposite answers) —
+  the direct lesson from Q11, since a constant fallback cannot pass a contrast
+  group. Zero overlap with all 525 prior pairs. **Q10 still sealed, never used.**
+- Still broken on purpose (not patched toward Q11 labels): metal-semiconductor
+  interdiffusion (Bi2Te3+Cu == Bi2Te3+Ni), salt identity in collector
+  passivation (Al_foil+LiTFSI == Al_foil+LiPF6), polysulfide/carbonate attack,
+  non-monotonic score-vs-verdict, ceramic co-sintering reactivity, glass/metal
+  CTE sealing.
+
 ### Q11 blind result supersedes the compatibility headline (2026-07-20)
 - **There is now current blind compatibility evidence, and it is 63.9%**
   (36 evaluated, 4 skipped, MCC 0.278, Brier 0.279, ECE 0.177, protocol FAIL).

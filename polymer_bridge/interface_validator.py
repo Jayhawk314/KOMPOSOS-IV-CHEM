@@ -59,6 +59,14 @@ class PolymerInterfaceScore:
     aging_penalty: float                # Component score
     viable: bool                        # Above threshold?
     details: Dict = field(default_factory=dict)
+    # Explicit abstention. When True, this interface is OUTSIDE the validated
+    # model and `total`/`viable` carry no evidential weight — callers must
+    # surface "not assessed" rather than treating `total` as a verdict. This
+    # exists so an uncovered interface cannot masquerade as a confident score
+    # (the failure this bridge previously had: polymer-vs-solvent pairs were
+    # run through the blend model and emitted a constant 0.45).
+    not_assessed: bool = False
+    not_assessed_reason: Optional[str] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -69,6 +77,8 @@ class PolymerInterfaceScore:
             'chemical_resistance': round(self.chemical_resistance, 4),
             'aging_penalty': round(self.aging_penalty, 4),
             'viable': self.viable,
+            'not_assessed': self.not_assessed,
+            'not_assessed_reason': self.not_assessed_reason,
         }
 
 
@@ -167,6 +177,118 @@ def _is_coexistence_role(role: Optional[str]) -> bool:
     return role.strip().lower().replace("-", "_").replace(" ", "_") in COEXISTENCE_INTERFACE_ROLES
 
 
+# --- Polymer-vs-solvent interfaces: two opposite intents -------------------
+#
+# A polymer/solvent pair carries TWO opposite questions, and the same measurement
+# answers them in opposite directions:
+#
+#   dissolution intent (DEFAULT here) — "can this solvent dissolve/process this
+#       polymer?" Used for binder slurries and solution casting (PVDF+NMP,
+#       CMC+water). A solubility MATCH is success. Hansen parameters are exactly
+#       the right tool, and this bridge's original behaviour targeted this.
+#
+#   resistance intent — "will this polymer survive contact with this solvent?"
+#       A solubility match is FAILURE. This intent was previously unrepresentable:
+#       every polymer/solvent pair was answered as a dissolution/blend question,
+#       so chemical-resistance questions received systematically wrong verdicts
+#       (PTFE+toluene, POM+acetone read as failures because the solvent cannot
+#       dissolve them — which is precisely why they are resistant).
+#
+# The defect was therefore a MISSING INTENT, not an inverted formula. Resistance
+# must be requested explicitly via SOLVENT_RESISTANCE_INTERFACE_ROLES.
+#
+# Grounding for the resistance side (measured 2026-07-20 over 30 polymer/solvent
+# cases with established outcomes): Hansen distance Ra ALONE does not separate
+# resistance from attack — the best single Ra threshold scores only 22/30.
+# Counterexamples are physically explicable and not fixable by moving it:
+#   * PTFE + toluene (Ra 3.88) RESISTS  — highly crystalline fluoropolymer
+#   * PPS  + toluene (Ra 3.28) RESISTS  — semi-crystalline high-performance
+#   * CMC  + water   (Ra 22.3) DISSOLVES — ionic/H-bonding dominates
+#   * PA6  + water   (Ra 34.2) ABSORBS   — amide H-bonding dominates
+# Resistance depends on crystallinity, Tg/Tm vs service temperature, and specific
+# interactions, none of which a cohesive-energy distance captures.
+#
+# So this module does NOT invent an Ra-based resistance score. It answers a
+# resistance question only where curated per-polymer data supports one (water
+# uptake, verified 7/7) and ABSTAINS otherwise. A validated organic-solvent
+# resistance model is tracked future work, not something to approximate here.
+# Two OPPOSITE intents share the polymer/solvent interface, and the same
+# measurement means opposite things in each:
+#   * resistance intent  — the polymer must survive contact. Dissolving = FAIL.
+#   * dissolution intent — the solvent is being used to process the polymer
+#     (slurry casting, binder solution). Dissolving = the POINT; insolubility
+#     means the process does not work.
+# CMC + water is the standard example: as chemical resistance it fails, as
+# aqueous binder processing it is the industry-standard system (the Water entry's
+# own metadata records "Solvent for CMC+SBR water-based binder systems").
+SOLVENT_RESISTANCE_INTERFACE_ROLES = frozenset({
+    "solvent_exposure", "chemical_resistance", "chemical_exposure",
+    "solvent_contact", "immersion", "chemical_resistant_liner",
+})
+SOLVENT_DISSOLUTION_INTERFACE_ROLES = frozenset({
+    "processing_solvent", "slurry", "binder_processing", "casting",
+    "coating_solution", "solution", "dissolution",
+})
+
+
+def _normalize_role(role: Optional[str]) -> str:
+    if not role:
+        return ""
+    return role.strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _is_dissolution_intent(role: Optional[str]) -> bool:
+    """True if the solvent is being used to PROCESS the polymer (dissolving is desired).
+
+    This is the DEFAULT for a polymer/solvent pair in this bridge: an unqualified
+    "polymer + solvent" question here has always meant "can this solvent dissolve
+    or process this polymer" (PVDF+NMP, CMC+water binder slurries). Resistance
+    must be requested explicitly, because the same measurement means the opposite
+    thing under each intent.
+    """
+    return not _is_resistance_intent(role)
+
+
+def _is_resistance_intent(role: Optional[str]) -> bool:
+    """True if the polymer must SURVIVE contact with the solvent."""
+    return _normalize_role(role) in SOLVENT_RESISTANCE_INTERFACE_ROLES
+
+# Water-uptake bands, from curated `water_absorption_pct` (% at saturation).
+# Verified 7/7 against established outcomes (PTFE/PEEK/HDPE/PP/PVC resist;
+# PA6 hygroscopic; CMC dissolves).
+_WATER_SOLUBLE_PCT = 100.0   # CMC, PEO: dissolves outright
+_WATER_HYGROSCOPIC_PCT = 5.0  # PA6 9.5, PA66 8.0: dimensional/property loss
+_WATER_MODERATE_PCT = 1.0     # PAN 2.0, PI 1.8: usable but degraded
+
+
+def _solvent_name(material: PolymerMaterial) -> Optional[str]:
+    """Return the solvent key if `material` is a solvent, else None."""
+    from polymer_bridge.material_properties import POLYMER_SOLVENTS
+    abbrev = (material.abbreviation or "").strip()
+    for key in POLYMER_SOLVENTS:
+        if key.lower() == abbrev.lower():
+            return key
+    return None
+
+
+def _split_polymer_solvent(
+    material_a: PolymerMaterial,
+    material_b: PolymerMaterial,
+) -> Optional[Tuple[PolymerMaterial, PolymerMaterial, str]]:
+    """If exactly one of the pair is a solvent, return (polymer, solvent, name).
+
+    Returns None for polymer/polymer pairs (normal blend path) and for
+    solvent/solvent pairs (not a materials interface this bridge models).
+    """
+    sa = _solvent_name(material_a)
+    sb = _solvent_name(material_b)
+    if sa and not sb:
+        return material_b, material_a, sa
+    if sb and not sa:
+        return material_a, material_b, sb
+    return None
+
+
 class PolymerInterfaceValidator:
     """
     Validates polymer interface/blend viability.
@@ -242,6 +364,23 @@ class PolymerInterfaceValidator:
             PolymerInterfaceScore with full breakdown
         """
         conditions = conditions or PolymerConditions()
+
+        # Polymer-vs-solvent interfaces are handled by a dedicated path. The
+        # blend model is INVERTED for them (see SOLVENT_EXPOSURE_INTERFACE_ROLES
+        # notes above), so they must never reach the Flory-Huggins veto below.
+        solvent_split = _split_polymer_solvent(material_a, material_b)
+        if solvent_split is not None:
+            polymer, solvent, solvent_key = solvent_split
+            # Only take the dedicated path where it is better-grounded than the
+            # Hansen default: water (curated per-polymer uptake data) always, and
+            # any solvent when RESISTANCE is explicitly requested. Otherwise fall
+            # through to the established Hansen/blend path, which is the right
+            # tool for the default dissolution/processing question ("can this
+            # solvent dissolve this polymer") and whose behaviour is unchanged.
+            if solvent_key.lower() == 'water' or _is_resistance_intent(interface_role):
+                return self._validate_solvent_exposure(
+                    polymer, solvent, solvent_key, conditions, interface_role
+                )
 
         # Run all five scorers
         s_sol = score_solubility_compatibility(material_a, material_b)
@@ -348,6 +487,161 @@ class PolymerInterfaceValidator:
             aging_penalty=scores['aging'],
             viable=is_viable,
             details=all_details,
+        )
+
+    def _validate_solvent_exposure(
+        self,
+        polymer: PolymerMaterial,
+        solvent: PolymerMaterial,
+        solvent_key: str,
+        conditions: PolymerConditions,
+        interface_role: Optional[str],
+    ) -> PolymerInterfaceScore:
+        """Score a polymer exposed to a solvent (chemical-resistance interface).
+
+        Emits a verdict ONLY where curated data supports one. For water, the
+        per-polymer `water_absorption_pct` is curated and reliable. For organic
+        solvents this bridge has no validated resistance model, so it abstains
+        rather than emitting a number that would look like a verdict.
+        """
+        details: Dict = {
+            'interface_kind': 'polymer_solvent_exposure',
+            'polymer': polymer.abbreviation,
+            'solvent': solvent_key,
+            'interface_role': interface_role,
+            'blend_veto_applicable': False,
+            'blend_veto_note': (
+                'Flory-Huggins immiscibility veto deliberately NOT applied: for '
+                'solvent exposure a solubility mismatch indicates RESISTANCE, not '
+                'incompatibility. The blend model is inverted for this interface.'
+            ),
+            'conditions': {
+                'temperature_C': conditions.temperature_C,
+                'chemical_environment': conditions.chemical_environment,
+            },
+        }
+
+        # Report Hansen distance as context only — it is NOT used as the verdict.
+        if polymer.hansen is not None and solvent.hansen is not None:
+            ra = polymer.hansen.distance(solvent.hansen)
+            details['hansen_distance_Ra'] = round(ra, 2)
+            details['hansen_note'] = (
+                'context only; Ra alone does not separate resistance from attack '
+                '(measured 22/30 at the best single threshold)'
+            )
+
+        if solvent_key.lower() != 'water':
+            return PolymerInterfaceScore(
+                total=0.0,
+                solubility_compatibility=0.0,
+                thermal_compatibility=0.0,
+                mechanical_compatibility=0.0,
+                chemical_resistance=0.0,
+                aging_penalty=0.0,
+                viable=False,
+                details=details,
+                not_assessed=True,
+                not_assessed_reason=(
+                    f"No validated resistance model for {polymer.abbreviation} vs "
+                    f"{solvent_key}. Organic-solvent resistance depends on "
+                    "crystallinity, Tg/Tm vs service temperature, and specific "
+                    "interactions; no curated per-polymer/per-solvent data exists "
+                    "in this bridge. Abstaining rather than guessing."
+                ),
+            )
+
+        # --- Water exposure: curated water_absorption_pct ---
+        wa = polymer.water_absorption_pct
+        if wa is None:
+            return PolymerInterfaceScore(
+                total=0.0,
+                solubility_compatibility=0.0,
+                thermal_compatibility=0.0,
+                mechanical_compatibility=0.0,
+                chemical_resistance=0.0,
+                aging_penalty=0.0,
+                viable=False,
+                details=details,
+                not_assessed=True,
+                not_assessed_reason=(
+                    f"No curated water_absorption_pct for {polymer.abbreviation}; "
+                    "cannot assess water exposure."
+                ),
+            )
+
+        details['water_absorption_pct'] = wa
+        details['evidence'] = 'curated water_absorption_pct'
+
+        if _is_dissolution_intent(interface_role):
+            # The solvent is being used to process the polymer: solubility is the
+            # requirement, not the failure mode.
+            details['intent'] = 'dissolution (solvent used to process the polymer)'
+            if wa >= _WATER_SOLUBLE_PCT:
+                score, viable = 0.90, True
+                details['water_verdict'] = (
+                    'water-soluble: suitable for aqueous processing (this is the goal)'
+                )
+            elif wa > _WATER_HYGROSCOPIC_PCT:
+                score, viable = 0.55, True
+                details['water_verdict'] = (
+                    'takes up water but does not dissolve: partial aqueous processability'
+                )
+            else:
+                score, viable = 0.15, False
+                details['water_verdict'] = (
+                    'not water-soluble: cannot be processed from aqueous solution'
+                )
+            # Report the measured Hansen solubility component as-is; `total`
+            # carries the curated-data verdict. The component field must reflect
+            # the component measurement, not echo the composite.
+            return PolymerInterfaceScore(
+                total=score,
+                solubility_compatibility=score_solubility_compatibility(polymer, solvent).score,
+                thermal_compatibility=0.0,
+                mechanical_compatibility=0.0,
+                chemical_resistance=0.0,
+                aging_penalty=0.0,
+                viable=viable,
+                details=details,
+            )
+
+        details['intent'] = 'resistance (polymer must survive contact)'
+        if wa >= _WATER_SOLUBLE_PCT:
+            score, viable = 0.05, False
+            details['water_verdict'] = 'water-soluble: dissolves on water contact'
+        elif wa > _WATER_HYGROSCOPIC_PCT:
+            score, viable = 0.25, False
+            details['water_verdict'] = (
+                'strongly hygroscopic: significant dimensional/mechanical change'
+            )
+        elif wa > _WATER_MODERATE_PCT:
+            score, viable = 0.55, True
+            details['water_verdict'] = 'moderate uptake: usable, properties shift'
+        else:
+            score, viable = 0.90, True
+            details['water_verdict'] = 'negligible uptake: resistant to water'
+
+        # Hydrolysis-susceptible polymers degrade in hot water regardless of uptake.
+        from polymer_bridge.material_properties import PolymerFailureMode
+        if (
+            PolymerFailureMode.HYDROLYSIS in polymer.failure_modes
+            and conditions.temperature_C >= 60.0
+        ):
+            score = min(score, 0.40)
+            viable = False
+            details['hydrolysis_note'] = (
+                f'hydrolysis-susceptible at {conditions.temperature_C:.0f} C'
+            )
+
+        return PolymerInterfaceScore(
+            total=score,
+            solubility_compatibility=0.0,
+            thermal_compatibility=0.0,
+            mechanical_compatibility=0.0,
+            chemical_resistance=score,
+            aging_penalty=0.0,
+            viable=viable,
+            details=details,
         )
 
     def _apply_condition_modifiers(

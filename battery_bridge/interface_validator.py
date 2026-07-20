@@ -21,10 +21,21 @@ The validator combines all five interaction scorers into a weighted
 composite InterfaceScore with configurable weights and thresholds.
 """
 
+import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from battery_bridge.material_properties import BatteryMaterial, get_material
+
+
+def _element_symbols(formula: str) -> Set[str]:
+    """Element symbols in a chemical formula.
+
+    Parses capital-letter-plus-optional-lowercase tokens so that, for example,
+    'Si' yields {'Si'} (silicon) and never a spurious {'S'} (sulfur), while
+    'Li2S' correctly yields {'Li', 'S'}.
+    """
+    return set(re.findall(r"[A-Z][a-z]?", formula or ""))
 from battery_bridge.interaction_scoring import (
     score_ion_transport,
     score_electrochemical_stability,
@@ -240,10 +251,27 @@ class BatteryInterfaceValidator:
             'material_b': material_b.name,
         }
 
+        # Current-collector chemistry vetoes.
+        #
+        # The five component scorers reason about the ELECTROCHEMICAL window
+        # (oxidation/reduction potentials). Two dominant collector failure modes
+        # are not electrochemical oxidation and were therefore invisible: a
+        # collector could be scored identically whether it was the correct or the
+        # catastrophic choice (Graphite+Al_foil scored the same as
+        # Graphite+Cu_foil; S8+Cu_foil the same as S8+Al_foil).
+        collector_veto = self._collector_chemistry_veto(material_a, material_b)
+
         # Veto check: Critical instability
         # If degradation is extreme or interface doesn't passivate, it's not viable
         is_viable = total >= self.viability_threshold
-        if scores['degradation_penalty'] <= 0.4:
+        if collector_veto is not None:
+            # Physical veto: annihilates the composite rather than being diluted
+            # through the weighted sum (same principle as the MOF pore-access and
+            # polymer Flory-Huggins vetoes).
+            is_viable = False
+            total = min(total, 0.10)
+            all_details['veto'] = collector_veto
+        elif scores['degradation_penalty'] <= 0.4:
             is_viable = False
             all_details['veto'] = 'Extreme degradation risk: interface non-viable'
         elif scores['interface_compatibility'] < 0.4:
@@ -267,6 +295,57 @@ class BatteryInterfaceValidator:
             details=all_details,
         )
 
+
+    # Al-Li alloying onset vs Li/Li+. Below this, aluminium lithiates to LiAl and
+    # cannot serve as a current collector; this is why Li-ion anodes use copper.
+    # LTO (nominal 1.55 V, lower 1.0 V) sits safely above it, which is why
+    # commercial LTO cells legitimately use aluminium on BOTH electrodes.
+    _AL_LI_ALLOYING_V = 0.3
+
+    @staticmethod
+    def _is_collector(material: BatteryMaterial, element: str) -> bool:
+        """True if `material` is a metal-foil current collector of `element`."""
+        formula = (material.formula or "").strip()
+        name = (material.name or "").strip().lower()
+        return formula == element and ("foil" in name or "tab" in name)
+
+    def _collector_chemistry_veto(
+        self,
+        material_a: BatteryMaterial,
+        material_b: BatteryMaterial,
+    ) -> Optional[str]:
+        """Non-electrochemical current-collector failure modes.
+
+        Returns a veto reason, or None if no collector veto applies.
+
+        Covers two mechanisms the potential-window scorers cannot see:
+          1. Li-Al alloying: aluminium lithiates below ~0.3 V vs Li/Li+.
+          2. Sulfide corrosion: sulfur chemistry converts copper to Cu2S.
+        """
+        for collector, partner in ((material_a, material_b), (material_b, material_a)):
+            # --- 1. Aluminium collector against a low-potential (lithiating) electrode
+            if self._is_collector(collector, "Al"):
+                window = getattr(partner, "voltage_window", None)
+                lower = getattr(window, "lower", None) if window else None
+                if lower is not None and lower < self._AL_LI_ALLOYING_V:
+                    return (
+                        f"Li-Al alloying: {partner.name} operates down to {lower:.2f} V "
+                        f"vs Li, below the ~{self._AL_LI_ALLOYING_V:.1f} V aluminium "
+                        "lithiation onset. Al foil forms LiAl and fails as a collector; "
+                        "copper is used on the anode side."
+                    )
+
+            # --- 2. Copper collector against sulfur chemistry
+            if self._is_collector(collector, "Cu"):
+                formula = (partner.formula or "")
+                sulfur_bearing = "S" in _element_symbols(formula)
+                if sulfur_bearing:
+                    return (
+                        f"Sulfide corrosion: {partner.name} ({formula}) is sulfur-bearing "
+                        "and converts copper to Cu2S. Sulfur cathodes and sulfide "
+                        "chemistries use aluminium collectors, not copper."
+                    )
+        return None
 
     def _apply_condition_modifiers(
         self,

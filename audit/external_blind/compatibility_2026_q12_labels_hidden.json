@@ -1,0 +1,219 @@
+{
+  "version": "external_blind.compatibility.2026_q12.labels_hidden.v1",
+  "created_at": "2026-07-20",
+  "labeled_by": "Claude (Fable 5) from materials-science first principles, BLIND to model output, pre-scoring",
+  "pairs_file": "compatibility_2026_q12_pairs_unlabeled.json",
+  "pairs_file_sha256": "18a2c707edd7c30dbd7db3659285fa04d7dcc1429e27e609114ec1e3c07de768",
+  "note": "Sealed labels, written before any Q12 prediction was executed. Expert judgment, not external experimental ground truth; borderline pairs flagged. Independence caveat: authored by the same assistant that worked on the codebase.",
+  "label_balance": {
+    "compatible": 15,
+    "incompatible": 21
+  },
+  "borderline_count": 11,
+  "labels": {
+    "12001": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "NCA at ~3.8 V in ethylene carbonate is standard commercial Li-ion chemistry",
+      "contrast_group": "cathode_electrolyte_type"
+    },
+    "12002": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "LGPS oxidizes above ~2.5 V vs Li; a 3.8 V NCA cathode decomposes it without a coating",
+      "contrast_group": "cathode_electrolyte_type"
+    },
+    "12003": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "LATP is oxidation-stable to ~4.2 V so it can face an NMC811 cathode - BORDERLINE (interfacial resistance reported)",
+      "contrast_group": "latp_window"
+    },
+    "12004": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Si operates at 0.01-0.5 V, far below the ~2.4 V Ti(IV) reduction onset; LATP is reduced",
+      "contrast_group": "latp_window"
+    },
+    "12005": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "Al is the standard collector used with sulfide solid electrolytes on the cathode side - BORDERLINE (some interfacial resistance reported)"
+    },
+    "12006": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Cu dissolves above ~3.2 V; it cannot serve as the collector for a 4 V-class LATP cathode side"
+    },
+    "12007": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PVDF dissolves in acetone; a standard PVDF casting solvent alongside NMP/DMF",
+      "contrast_group": "dissolution"
+    },
+    "12008": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Polypropylene is not soluble in NMP; it cannot be solution-cast from it",
+      "contrast_group": "dissolution"
+    },
+    "12009": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PEO is water-soluble and routinely processed from aqueous solution",
+      "contrast_group": "water_processing"
+    },
+    "12010": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PET is not water-soluble; aqueous solution processing is not possible",
+      "contrast_group": "water_processing"
+    },
+    "12011": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PA66 absorbs ~8% water with substantial dimensional and stiffness change",
+      "contrast_group": "water_resistance"
+    },
+    "12012": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Polypropylene has negligible water uptake; standard for aqueous service",
+      "contrast_group": "water_resistance"
+    },
+    "12013": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "Both are high-Tg amorphous engineering thermoplastics but are not a known miscible pair - BORDERLINE",
+      "contrast_group": "blend"
+    },
+    "12014": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Polar PC and non-polar HDPE are strongly immiscible with negligible interfacial adhesion",
+      "contrast_group": "blend"
+    },
+    "12015": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "Zn is anodic to brass and is sacrificially consumed - BORDERLINE (protects the brass, but the Zn part degrades)",
+      "contrast_group": "galvanic"
+    },
+    "12016": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Cu is strongly cathodic to carbon steel and drives rapid steel corrosion in seawater",
+      "contrast_group": "galvanic"
+    },
+    "12017": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "Ni-Mo are mutually soluble and are joined in Ni-Mo alloy systems (Hastelloy family) - BORDERLINE",
+      "contrast_group": "weld"
+    },
+    "12018": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Al-Ti fusion welding forms brittle TiAl3 intermetallics",
+      "contrast_group": "weld"
+    },
+    "12019": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Kovar (~5.5 ppm/K) is designed to seal to borosilicate; the standard matched seal",
+      "contrast_group": "seal"
+    },
+    "12020": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Aluminium ~23 ppm/K against borosilicate 3.3 ppm/K; the seal cracks on cooling",
+      "contrast_group": "seal"
+    },
+    "12021": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "Au interdiffuses into Bi2Te3 and degrades the contact without a barrier - BORDERLINE",
+      "contrast_group": "te_contact"
+    },
+    "12022": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "Refractory Mo acts as a diffusion barrier to Bi2Te3 - BORDERLINE (less standard than Ni)",
+      "contrast_group": "te_contact"
+    },
+    "12023": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "AlAs (5.66 A) on GaP (5.45 A) is ~3.8% mismatched; not coherently epitaxial",
+      "contrast_group": "epitaxy"
+    },
+    "12024": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "ZnSe (5.669 A) and Ge (5.658 A) are lattice matched to ~0.2%; a classic matched heteropair",
+      "contrast_group": "epitaxy"
+    },
+    "12025": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Si3N4-TiN is a standard electroconductive ceramic composite; the phases coexist",
+      "contrast_group": "cosinter"
+    },
+    "12026": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "SiC and MgO react/reduce at high temperature rather than coexisting inertly - BORDERLINE",
+      "contrast_group": "cosinter"
+    },
+    "12027": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PTFE's very low surface energy makes it immiscible with polar polyamides"
+    },
+    "12028": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Si3N4 and mullite have close CTE and are chemically compatible"
+    },
+    "12029": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "HA coating on Ti6Al4V is the standard orthopaedic implant system"
+    },
+    "12030": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "W metallization on alumina is the standard co-fired ceramic package system - BORDERLINE"
+    },
+    "12031": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Mg is extremely anodic to stainless steel; severe galvanic attack of the Mg"
+    },
+    "12032": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "Tin is cathodic to steel, so a breach in tinplate accelerates steel corrosion - BORDERLINE"
+    },
+    "12033": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "InN has a much larger lattice constant than AlGaN; the mismatch precludes coherent epitaxy"
+    },
+    "12034": {
+      "expected_compatible": false,
+      "borderline": true,
+      "basis": "InP-matched InGaAs (5.87 A) against InAs (6.06 A) is ~3% mismatched - BORDERLINE"
+    },
+    "12035": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Soda-lime ~9 ppm/K vs borosilicate 3.3 ppm/K; direct sealing cracks"
+    },
+    "12036": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Both are thiophosphate sulfide electrolytes with compatible chemistry"
+    }
+  }
+}

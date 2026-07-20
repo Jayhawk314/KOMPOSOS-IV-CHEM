@@ -915,7 +915,78 @@ def _evaluate_pair_decision(
     return decision
 
 
+class NotAssessedError(RuntimeError):
+    """A bridge explicitly declined to assess this interface.
+
+    Distinct from a crash or a missing material: the interface is outside the
+    bridge's validated model, so no score is emitted. Callers must record this
+    as "not assessed" rather than converting it into a confident verdict.
+    """
+
+
+def _is_unresolved_material_error(exc: Exception) -> bool:
+    """True if `exc` means a bridge could not resolve a material name.
+
+    Deliberately narrow: only a name-resolution failure justifies re-routing.
+    A genuine scoring error must propagate unchanged.
+    """
+    text = str(exc).lower()
+    return isinstance(exc, (ValueError, KeyError)) and (
+        "unknown material" in text
+        or "unknown polymer" in text
+        or "unknown glass" in text
+        or "unknown ceramic" in text
+        or "unknown metal" in text
+        or "unknown semiconductor" in text
+        or "not found" in text
+    )
+
+
 def _evaluate_pair(
+    mat_a: str,
+    mat_b: str,
+    domain: str,
+    electrolyte: Optional[str] = None,
+    role: Optional[str] = None,
+    context: Optional[CompatibilityContext] = None,
+):
+    """Evaluate a pair, re-routing cross-domain pairs the declared domain cannot score.
+
+    The declared domain is always tried FIRST, so existing behaviour is
+    unchanged for every pair that already worked. Only when a bridge cannot
+    resolve a material name do we re-resolve from the material registry and
+    retry with the cross-domain scorer.
+
+    This ordering matters: many materials live in several bridges (AlN in both
+    ceramic and semiconductor, Si in both battery and semiconductor), so
+    re-resolving pre-emptively would reroute pairs whose declared domain was
+    correct. Without the fallback, pairs like Kovar+FusedSilica (metal+glass)
+    and Bi2Te3+Cu (semiconductor+metal) were skipped despite having dedicated
+    cross-domain scorers.
+
+    Returns:
+        (score: float, predicted_compatible: bool)
+    """
+    try:
+        return _evaluate_pair_in_domain(mat_a, mat_b, domain, electrolyte, role, context)
+    except NotAssessedError:
+        raise
+    except Exception as exc:
+        if not _is_unresolved_material_error(exc):
+            raise
+        try:
+            from oracle.compatibility_service import resolve_workflow_domain
+            rerouted = resolve_workflow_domain(mat_a, mat_b)
+        except Exception:
+            raise exc
+        if rerouted == domain:
+            raise exc
+        return _evaluate_pair_in_domain(
+            mat_a, mat_b, rerouted, electrolyte, role, context
+        )
+
+
+def _evaluate_pair_in_domain(
     mat_a: str,
     mat_b: str,
     domain: str,
@@ -1004,7 +1075,13 @@ def _evaluate_pair(
             temperature_C=context.temperature_C or 25.0,
             chemical_environment=context.environment or "air",
         )
-        result = validator.validate(mat_a, mat_b, conditions)
+        # Thread the interface role through: the role-aware gate (coexistence vs
+        # blend) and the solvent resistance-vs-dissolution intent are both
+        # role-dependent, and were previously unreachable from this path.
+        result = validator.validate(mat_a, mat_b, conditions, interface_role=role)
+        if getattr(result, "not_assessed", False):
+            # Abstention must NOT be reported as a confident "incompatible".
+            raise NotAssessedError(result.not_assessed_reason or "interface not assessed")
         return result.total, result.viable
 
     elif domain == "metal":

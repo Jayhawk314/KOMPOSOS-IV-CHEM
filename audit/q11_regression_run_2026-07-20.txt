@@ -1,0 +1,87 @@
+﻿======================================================================
+KOMPOSOS-III Scientific & Computational Audit
+Date: 2026-07-20
+Engine version: 1.2.0
+Random seed: 42
+======================================================================
+
+======================================================================
+MODULE 4: External Blind Compatibility Validation
+======================================================================
+Loaded 40 frozen external blind pairs
+Dataset version: external_blind.compatibility.2026_q11.v1
+Dataset path: C:\Users\JAMES\github\KOMPOSOS-IV-CHEM\audit\external_blind\compatibility_2026_q11.json
+Dataset SHA256: d3cb14de24244f3a95c2b4d6cca9bdcb84ce99753f53bcba9c793b6bbe9ed925
+Unique pair identities: 40
+Duplicate pair groups: 0
+Source identifier coverage: 0%
+Overlap with existing benchmark identities: 0
+Frozen manifest present: True
+  [11001] FAIL S8 + LiPF6: score=0.850 predicted=True expected=False (FP)
+  [11002] PASS S8 + LiTFSI: score=0.850 predicted=True expected=True (TP)
+  [11003] PASS S8 + Cu_foil: score=0.100 predicted=False expected=False (TN)
+  [11004] PASS S8 + Al_foil: score=0.988 predicted=True expected=True (TP)
+  [11005] FAIL Al_foil + LiTFSI: score=0.837 predicted=True expected=False (FP)
+  [11006] PASS Al_foil + LiPF6: score=0.837 predicted=True expected=True (TP)
+  [11007] PASS LGPS + Graphite: score=0.651 predicted=False expected=False (TN)
+  [11008] FAIL Li3PS4 + Graphite: score=0.703 predicted=True expected=False (FP)
+  [11009] PASS LATP + Graphite: score=0.636 predicted=False expected=False (TN)
+  [11010] PASS PEO + LiTFSI: score=0.837 predicted=True expected=True (TP)
+  [11011] PASS CMC + Water: score=0.900 predicted=True expected=True (TP)
+  [11012] PASS LGPS + LTO: score=0.647 predicted=True expected=True (TP)
+  [11013] SKIP PS + Acetone: No validated resistance model for PS vs Acetone. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11014] SKIP POM + Acetone: No validated resistance model for POM vs Acetone. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11015] SKIP PC + Acetone: No validated resistance model for PC vs Acetone. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11016] SKIP PTFE + Toluene: No validated resistance model for PTFE vs Toluene. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11017] SKIP PDMS + Toluene: No validated resistance model for PDMS vs Toluene. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11018] SKIP EPDM + Toluene: No validated resistance model for EPDM vs Toluene. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11019] SKIP PMMA + Toluene: No validated resistance model for PMMA vs Toluene. Organic-solvent resistance depends on crystallinity, Tg/Tm vs service temperature, and specific interactions; no curated per-polymer/per-solvent data exists in this bridge. Abstaining rather than guessing.
+  [11020] PASS PEEK + Water: score=0.900 predicted=True expected=True (TP)
+  [11021] PASS PPO + PS: score=0.901 predicted=True expected=True (TP)
+  [11022] PASS PC + PS: score=0.350 predicted=False expected=False (TN)
+  [11023] PASS Zn + Steel_1018: score=0.502 predicted=True expected=True (TP)
+  [11024] FAIL Al + Fe: score=0.674 predicted=True expected=False (FP)
+  [11025] PASS Mg + Fe: score=0.399 predicted=False expected=False (TN)
+  [11026] PASS Ti + Fe: score=0.574 predicted=False expected=False (TN)
+  [11027] FAIL Ni + Fe: score=0.721 predicted=False expected=True (FN)
+  [11028] PASS Ag + Sn: score=0.645 predicted=True expected=True (TP)
+  [11029] FAIL Kovar + FusedSilica: score=0.560 predicted=True expected=False (FP)
+  [11030] PASS Inconel_718 + SS_316: score=0.943 predicted=True expected=True (TP)
+  [11031] PASS Mullite + SiC: score=0.595 predicted=True expected=True (TP)
+  [11032] FAIL Hydroxyapatite + ZrO2_YSZ: score=0.660 predicted=True expected=False (FP)
+  [11033] FAIL BN_hex + Si3N4: score=0.474 predicted=False expected=True (FN)
+  [11034] FAIL SiO2 + TiO2: score=0.380 predicted=False expected=True (FN)
+  [11035] PASS MgO + TiO2: score=0.380 predicted=False expected=False (TN)
+  [11036] FAIL Bi2Te3 + Cu: score=0.600 predicted=True expected=False (FP)
+  [11037] PASS Bi2Te3 + Ni: score=0.600 predicted=True expected=True (TP)
+  [11038] PASS C_diamond + Si: score=0.472 predicted=False expected=False (TN)
+  [11039] PASS SiGe + Ge: score=0.657 predicted=True expected=True (TP)
+  [11040] PASS InN + Si: score=0.423 predicted=False expected=False (TN)
+
+  Results: 33 evaluated, 7 skipped
+  TP=14 TN=9 FP=7 FN=3
+  Accuracy:  69.7%  (external blind)
+  Balanced:  69.3%
+  Specificity: 56.2%
+  NPV:         75.0%
+  MCC:         0.401
+  Brier score: 0.220
+  ECE:         0.151
+  Failure-memory episodes: 17
+    false_negative:ceramic: 2
+    false_negative:metal: 1
+    false_positive:battery: 3
+    false_positive:ceramic: 1
+    false_positive:glass: 1
+    false_positive:metal: 1
+    false_positive:semiconductor: 1
+    no_verdict:scorer_unavailable_or_error: 7
+
+  Protocol pass: False
+  Metric pass: False
+  PASS: False
+
+======================================================================
+OVERALL: FAIL
+Report saved to: C:\Users\JAMES\github\komposos-iv-chem\audit\audit_report_2026-07-20.json
+======================================================================

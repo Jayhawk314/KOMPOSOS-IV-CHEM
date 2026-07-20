@@ -58,6 +58,19 @@ The Q11 errors are not 13 unrelated chemistry misses. They concentrate in three
 mechanisms, each confirmed with non-Q11 probe pairs so the diagnosis does not
 consume the holdout.
 
+> **CORRECTION (2026-07-20, after remediation).** Root cause 1 below was
+> originally written as "the blend model is inverted for solvent exposure." That
+> was wrong. Implementing the fix surfaced this bridge's existing test suite
+> (`test_ps_toluene_viable`, `test_pvdf_nmp_viable`, `test_water_hdpe_low_score`),
+> which shows the polymer/solvent path was deliberately answering the
+> **dissolution** question ("can this solvent process this polymer" — PVDF+NMP,
+> CMC+water binder slurries), and for that question Hansen matching is the right
+> tool and the old behaviour was correct. The real defect is that **resistance
+> intent was unrepresentable**: both questions shared one interface and only
+> dissolution was implemented, so chemical-resistance questions were answered
+> with the dissolution model. The fix adds explicit intent rather than inverting
+> a formula. See `docs/SCORER_REMEDIATION_2026-07-20.md`.
+
 ### 1. Solvent-exposure role inverts the miscibility veto (accounts for all polymer FNs)
 
 `polymer_bridge/interface_validator.py` caps `total` at 0.45 when solubility

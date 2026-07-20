@@ -1,0 +1,391 @@
+{
+  "version": "external_blind.compatibility.2026_q12.pairs_unlabeled.v1",
+  "created_at": "2026-07-20",
+  "benchmark_period": "2026_q12",
+  "frozen": true,
+  "label_status": "unlabeled_pair_list_only",
+  "description": "Q12 frozen blind compatibility pair list. No labels. Labels are sealed in compatibility_2026_q12_labels_hidden.json and were assigned before any prediction was run.",
+  "selection_policy": "36 pairs, of which 24 form 12 CONTRAST GROUPS: two pairs sharing one material whose correct answers are OPPOSITE (e.g. PVDF+NMP soluble vs PP+NMP insoluble). Q11 showed a constant fallback score can pass a set dominated by 'incompatible' labels by base rate alone; a contrast group cannot be passed that way, because any constant scores both members identically and must get one wrong. Zero material-name-pair overlap against blind_test_pairs, ground_truth, all prior external_blind (Q2-Q11), and all dev_compatibility. All names resolve in a bridge vocabulary.",
+  "holdout_policy": "Q12 is current_blind and UNSCORED. Run for reporting only. Never use for tuning or calibration. If its errors are inspected for remediation it becomes spent_diagnostic and a new blind set must be frozen. Q10 remains separately sealed.",
+  "known_limitations": [
+    "Labels are expert judgment from materials-science first principles, not curated external experimental ground truth.",
+    "Labels were authored by the same AI assistant that has worked on this codebase; weaker independence than an external labeler, disclosed deliberately.",
+    "Pairs reuse known materials in unused combinations; this does not test out-of-vocabulary materials.",
+    "Borderline pairs are flagged in the sealed label file and should be reported separately from clear-cut ones."
+  ],
+  "schema": {
+    "forbidden_fields": [
+      "expected_compatible",
+      "label",
+      "correct",
+      "verdict"
+    ],
+    "label_file": "compatibility_2026_q12_labels_hidden.json",
+    "required_pair_fields": [
+      "id",
+      "material_a",
+      "material_b",
+      "domain"
+    ],
+    "context_fields": [
+      "role",
+      "electrolyte",
+      "environment",
+      "temperature_C",
+      "contact_type",
+      "contrast_group"
+    ]
+  },
+  "pair_count": 36,
+  "contrast_group_count": 12,
+  "pairs": [
+    {
+      "id": 12001,
+      "material_a": "NCA",
+      "material_b": "EC",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "used_for_tuning": false,
+      "electrolyte": "carbonate",
+      "contrast_group": "cathode_electrolyte_type"
+    },
+    {
+      "id": 12002,
+      "material_a": "NCA",
+      "material_b": "LGPS",
+      "domain": "battery",
+      "role": "cathode_electrolyte",
+      "used_for_tuning": false,
+      "contact_type": "solid_solid",
+      "contrast_group": "cathode_electrolyte_type"
+    },
+    {
+      "id": 12003,
+      "material_a": "LATP",
+      "material_b": "NMC811",
+      "domain": "battery",
+      "role": "electrolyte_cathode",
+      "used_for_tuning": false,
+      "contact_type": "solid_solid",
+      "contrast_group": "latp_window"
+    },
+    {
+      "id": 12004,
+      "material_a": "LATP",
+      "material_b": "Si",
+      "domain": "battery",
+      "role": "electrolyte_anode",
+      "used_for_tuning": false,
+      "contact_type": "solid_solid",
+      "contrast_group": "latp_window"
+    },
+    {
+      "id": 12005,
+      "material_a": "Li3PS4",
+      "material_b": "Al_foil",
+      "domain": "battery",
+      "role": "electrolyte_collector",
+      "used_for_tuning": false,
+      "contact_type": "current_collector"
+    },
+    {
+      "id": 12006,
+      "material_a": "LATP",
+      "material_b": "Cu_foil",
+      "domain": "battery",
+      "role": "electrolyte_collector",
+      "used_for_tuning": false,
+      "contact_type": "current_collector"
+    },
+    {
+      "id": 12007,
+      "material_a": "PVDF",
+      "material_b": "Acetone",
+      "domain": "polymer",
+      "role": "processing_solvent",
+      "used_for_tuning": false,
+      "contact_type": "solution",
+      "contrast_group": "dissolution"
+    },
+    {
+      "id": 12008,
+      "material_a": "PP",
+      "material_b": "NMP",
+      "domain": "polymer",
+      "role": "processing_solvent",
+      "used_for_tuning": false,
+      "contact_type": "solution",
+      "contrast_group": "dissolution"
+    },
+    {
+      "id": 12009,
+      "material_a": "PEO",
+      "material_b": "Water",
+      "domain": "polymer",
+      "role": "processing_solvent",
+      "used_for_tuning": false,
+      "contact_type": "solution",
+      "contrast_group": "water_processing"
+    },
+    {
+      "id": 12010,
+      "material_a": "PET",
+      "material_b": "Water",
+      "domain": "polymer",
+      "role": "processing_solvent",
+      "used_for_tuning": false,
+      "contact_type": "solution",
+      "contrast_group": "water_processing"
+    },
+    {
+      "id": 12011,
+      "material_a": "PA66",
+      "material_b": "Water",
+      "domain": "polymer",
+      "role": "chemical_resistance",
+      "used_for_tuning": false,
+      "contact_type": "immersion",
+      "contrast_group": "water_resistance"
+    },
+    {
+      "id": 12012,
+      "material_a": "PP",
+      "material_b": "Water",
+      "domain": "polymer",
+      "role": "chemical_resistance",
+      "used_for_tuning": false,
+      "contact_type": "immersion",
+      "contrast_group": "water_resistance"
+    },
+    {
+      "id": 12013,
+      "material_a": "PPO",
+      "material_b": "PPSU",
+      "domain": "polymer",
+      "role": "blend",
+      "used_for_tuning": false,
+      "contact_type": "blend",
+      "contrast_group": "blend"
+    },
+    {
+      "id": 12014,
+      "material_a": "PC",
+      "material_b": "HDPE",
+      "domain": "polymer",
+      "role": "blend",
+      "used_for_tuning": false,
+      "contact_type": "blend",
+      "contrast_group": "blend"
+    },
+    {
+      "id": 12015,
+      "material_a": "Zn",
+      "material_b": "Brass_C260",
+      "domain": "metal",
+      "role": "galvanic_contact",
+      "used_for_tuning": false,
+      "environment": "marine",
+      "contrast_group": "galvanic"
+    },
+    {
+      "id": 12016,
+      "material_a": "Cu",
+      "material_b": "Steel_1018",
+      "domain": "metal",
+      "role": "galvanic_contact",
+      "used_for_tuning": false,
+      "environment": "marine",
+      "contrast_group": "galvanic"
+    },
+    {
+      "id": 12017,
+      "material_a": "Ni",
+      "material_b": "Mo",
+      "domain": "metal",
+      "role": "weld_joint",
+      "used_for_tuning": false,
+      "contact_type": "weld",
+      "contrast_group": "weld"
+    },
+    {
+      "id": 12018,
+      "material_a": "Al",
+      "material_b": "Ti",
+      "domain": "metal",
+      "role": "weld_joint",
+      "used_for_tuning": false,
+      "contact_type": "weld",
+      "contrast_group": "weld"
+    },
+    {
+      "id": 12019,
+      "material_a": "Kovar",
+      "material_b": "Boro_Neutral",
+      "domain": "glass",
+      "role": "glass_metal_seal",
+      "used_for_tuning": false,
+      "contact_type": "seal",
+      "contrast_group": "seal"
+    },
+    {
+      "id": 12020,
+      "material_a": "Al",
+      "material_b": "Boro_33",
+      "domain": "glass",
+      "role": "glass_metal_seal",
+      "used_for_tuning": false,
+      "contact_type": "seal",
+      "contrast_group": "seal"
+    },
+    {
+      "id": 12021,
+      "material_a": "Bi2Te3",
+      "material_b": "Au",
+      "domain": "semiconductor",
+      "role": "contact_metallization",
+      "used_for_tuning": false,
+      "contact_type": "metallization",
+      "contrast_group": "te_contact"
+    },
+    {
+      "id": 12022,
+      "material_a": "Bi2Te3",
+      "material_b": "Mo",
+      "domain": "semiconductor",
+      "role": "contact_metallization",
+      "used_for_tuning": false,
+      "contact_type": "metallization",
+      "contrast_group": "te_contact"
+    },
+    {
+      "id": 12023,
+      "material_a": "AlAs",
+      "material_b": "GaP",
+      "domain": "semiconductor",
+      "role": "heteroepitaxy",
+      "used_for_tuning": false,
+      "contact_type": "epitaxial",
+      "contrast_group": "epitaxy"
+    },
+    {
+      "id": 12024,
+      "material_a": "ZnSe",
+      "material_b": "Ge",
+      "domain": "semiconductor",
+      "role": "heteroepitaxy",
+      "used_for_tuning": false,
+      "contact_type": "epitaxial",
+      "contrast_group": "epitaxy"
+    },
+    {
+      "id": 12025,
+      "material_a": "Si3N4",
+      "material_b": "TiN",
+      "domain": "ceramic",
+      "role": "sintered_composite",
+      "used_for_tuning": false,
+      "temperature_C": 1500,
+      "contrast_group": "cosinter"
+    },
+    {
+      "id": 12026,
+      "material_a": "SiC",
+      "material_b": "MgO",
+      "domain": "ceramic",
+      "role": "sintered_composite",
+      "used_for_tuning": false,
+      "temperature_C": 1500,
+      "contrast_group": "cosinter"
+    },
+    {
+      "id": 12027,
+      "material_a": "PTFE",
+      "material_b": "PA66",
+      "domain": "polymer",
+      "role": "blend",
+      "used_for_tuning": false,
+      "contact_type": "blend"
+    },
+    {
+      "id": 12028,
+      "material_a": "Si3N4",
+      "material_b": "Mullite",
+      "domain": "ceramic",
+      "role": "structural_joint",
+      "used_for_tuning": false,
+      "temperature_C": 1200
+    },
+    {
+      "id": 12029,
+      "material_a": "Ti6Al4V",
+      "material_b": "Hydroxyapatite",
+      "domain": "ceramic",
+      "role": "bioactive_coating",
+      "used_for_tuning": false,
+      "temperature_C": 37
+    },
+    {
+      "id": 12030,
+      "material_a": "W",
+      "material_b": "Al2O3",
+      "domain": "ceramic",
+      "role": "metallization",
+      "used_for_tuning": false,
+      "temperature_C": 1600
+    },
+    {
+      "id": 12031,
+      "material_a": "Mg",
+      "material_b": "SS_304",
+      "domain": "metal",
+      "role": "galvanic_contact",
+      "used_for_tuning": false,
+      "environment": "humid"
+    },
+    {
+      "id": 12032,
+      "material_a": "Sn",
+      "material_b": "Steel_1018",
+      "domain": "metal",
+      "role": "galvanic_coating",
+      "used_for_tuning": false,
+      "environment": "atmospheric"
+    },
+    {
+      "id": 12033,
+      "material_a": "AlGaN",
+      "material_b": "InN",
+      "domain": "semiconductor",
+      "role": "heteroepitaxy",
+      "used_for_tuning": false,
+      "contact_type": "epitaxial"
+    },
+    {
+      "id": 12034,
+      "material_a": "InGaAs",
+      "material_b": "InAs",
+      "domain": "semiconductor",
+      "role": "heteroepitaxy",
+      "used_for_tuning": false,
+      "contact_type": "epitaxial"
+    },
+    {
+      "id": 12035,
+      "material_a": "SodaLime_Container",
+      "material_b": "Boro_33",
+      "domain": "glass",
+      "role": "glass_glass_seal",
+      "used_for_tuning": false,
+      "contact_type": "seal"
+    },
+    {
+      "id": 12036,
+      "material_a": "LGPS",
+      "material_b": "Li3PS4",
+      "domain": "battery",
+      "role": "electrolyte_electrolyte",
+      "used_for_tuning": false,
+      "contact_type": "solid_solid"
+    }
+  ]
+}

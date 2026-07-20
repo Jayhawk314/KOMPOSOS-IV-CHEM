@@ -4,6 +4,60 @@
 
 ---
 
+## 2026-07-20 (later): Scorer remediation, Q11 spent, Q12 frozen
+
+Full writeup: `docs/SCORER_REMEDIATION_2026-07-20.md`.
+
+**Honest regression reading — correct answers did NOT increase (23/40 both
+before and after).** Four genuine fixes gained (S8+Cu_foil FP→TN, PEEK+Water
+FN→TP, CMC+Water and Bi2Te3+Ni SKIP→TP); four previously-correct answers became
+honest abstentions (PS/PC+Acetone, PDMS/PMMA+Toluene were right only because a
+constant 0.45 matched an incompatible label by base rate). Errors 13→10, MCC
+0.278→0.401, Brier 0.279→0.220, ECE 0.177→0.151, evaluated 36→33.
+**The 63.9%→69.7% accuracy rise is partly a shrinking denominator; never quote
+it alone.**
+
+- **Correction to the 2026-07-20 diagnosis below:** the polymer/solvent path was
+  NOT inverted. This bridge's own tests show it deliberately answered the
+  *dissolution* question (PVDF+NMP, CMC+water binder slurries), for which Hansen
+  matching is correct. The defect was a **missing resistance intent** — both
+  questions shared one interface and only dissolution was implemented.
+  Dissolution stays the default; resistance is explicit, answered from curated
+  `water_absorption_pct` (verified 7/7) and **abstaining** for organic solvents.
+  Grounding: Hansen Ra alone separates resistance from attack at only 22/30
+  (PTFE+toluene Ra 3.88 resists — crystallinity; CMC+water Ra 22.3 dissolves —
+  H-bonding), so no Ra-based resistance score was invented.
+  New `PolymerInterfaceScore.not_assessed` + `NotAssessedError` ensure an
+  abstention is recorded as a skip, never as a confident "incompatible."
+- **Battery collector vetoes** (`battery_bridge/interface_validator.py`):
+  Li-Al alloying below ~0.3 V (grounded in per-material `voltage_window`, so it
+  correctly spares LTO, which commercially uses Al on both electrodes) and
+  sulfide corrosion of Cu (general formula-element rule, so it fires for
+  Li3PS4+Cu_foil as well as S8+Cu_foil). Validated 12/13 on independent cases;
+  the one miss is the pre-existing Si volume-expansion mechanical veto, left
+  untouched rather than weakened to pass a test.
+- **Cross-domain routing** (`audit/run_audit.py`): declared domain is tried
+  FIRST, re-resolving only on genuine name-resolution failure. An earlier
+  pre-emptive re-resolution broke AlN+TiN and Al_foil+Si, because the registry
+  maps each material to one domain though many live in several bridges. Also
+  fixed `resolve_workflow_domain`: no glass+metal or polymer+glass case, and an
+  order-dependent composite fallback. Polymer branch now threads
+  `interface_role` (the 2026-05-31 role gate was unreachable from this path).
+- **Dev unchanged: 41/41, Brier 0.095, 0 skips.** 174 bridge/audit tests pass.
+  Full suite 1256 pass / 5 fail, all 5 pre-existing (verified by stashing only
+  the changed files) — bio/repurposing DB-hash drift, unrelated.
+- **Q11 → `spent_diagnostic`** (its 63.9% first run remains its only blind
+  number). **Q12 → `current_blind`, UNSCORED**: 36 pairs, **12 contrast groups**
+  (two pairs sharing a material with opposite correct answers — a constant
+  fallback cannot pass one), zero overlap with all 525 prior pairs.
+  **Q10 remains sealed and has never been consumed.**
+- Deliberately unfixed (not patched toward Q11 labels): metal-semiconductor
+  interdiffusion, salt identity in collector passivation, polysulfide/carbonate
+  attack, non-monotonic score-vs-verdict, ceramic co-sintering reactivity,
+  glass/metal CTE sealing.
+
+---
+
 ## 2026-07-20: Q11 frozen and scored — first current-blind compatibility result (63.9%)
 
 **Q11 was frozen as `current_blind` and scored in an authorized event.** Full
