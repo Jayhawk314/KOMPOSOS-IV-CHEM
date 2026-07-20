@@ -31,7 +31,32 @@ Python: 3.10+
 5. `KOMPOSOS_COMPLETE_SYSTEM_GUIDE.md`
 6. This file
 
-## Current Audit Posture (Updated 2026-07-17)
+## Current Audit Posture (Updated 2026-07-20)
+
+### Q11 blind result supersedes the compatibility headline (2026-07-20)
+- **There is now current blind compatibility evidence, and it is 63.9%**
+  (36 evaluated, 4 skipped, MCC 0.278, Brier 0.279, ECE 0.177, protocol FAIL).
+  See `docs/Q11_BLIND_RESULT_2026-07-20.md`. **Do not lead with development
+  41/41 or the ~87–90% spent diagnostics as if they indicate generalization** —
+  Q11 shows they do not.
+- **Calibration scope narrowed:** isotonic OOS ECE 0.072 was measured on
+  dev + spent-diagnostic pairs; **blind ECE is 0.177**. Describe the calibrator
+  as calibrated *on that distribution*, not generally.
+- Known error mechanisms (each confirmed on independent probe pairs, not on Q11):
+  solvent-exposure/chemical-resistance roles are missing from
+  `COEXISTENCE_INTERFACE_ROLES` so the blend immiscibility veto fires inverted
+  (10 of 12 probe polymer+solvent pairs return an identical 0.45); battery
+  current-collector identity is ignored (Al_foil vs Cu_foil changes nothing);
+  cross-domain pairs skip on "Unknown material" when the partner lives in
+  another bridge.
+- **Q11 is still `current_blind`.** Seeing the results did not spend it;
+  remediating against them will. Fix on independent/dev pairs, then re-run Q11
+  once as regression, demote it to `spent_diagnostic` in that same commit, and
+  freeze Q12. **Q10 remains sealed and unspent.**
+- New tool: `python audit\merge_sealed_labels.py --period <p> [--check-only]`
+  verifies both SHA256 seals before merging hidden labels for scoring.
+
+## Prior Audit Posture (Updated 2026-07-17)
 
 ### July 2026 executable-audit corrections
 - Current `python audit/run_predictor_accuracy.py` result is **MAE 0.416

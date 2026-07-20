@@ -563,7 +563,23 @@ def run_external_blind_audit(external_path: Optional[Path] = None):
     print(f"Source identifier coverage: {benchmark_summary['source_identifier_coverage']:.0%}")
 
     dataset_path = Path(metadata["path"])
-    existing_identities = _load_existing_benchmark_identities({dataset_path})
+    # Exclude the dataset itself AND its same-period sibling files (the unlabeled
+    # pair list and hidden label file a sealed holdout is merged from). Without
+    # this, a split-format holdout counts its own twin as a prior benchmark and
+    # reports 100% spurious overlap.
+    period_prefix = dataset_path.stem.split(".")[0]
+    self_family = {
+        sibling.resolve()
+        for sibling in dataset_path.parent.iterdir()
+        if sibling.is_file()
+        and (
+            sibling.name == f"{period_prefix}.json"
+            or sibling.name.startswith(f"{period_prefix}_")
+            or sibling.name.startswith(f"{period_prefix}.")
+        )
+    }
+    self_family.add(dataset_path.resolve())
+    existing_identities = _load_existing_benchmark_identities(self_family)
     existing_overlaps = [
         pair for pair in pairs
         if _benchmark_identity(pair) in existing_identities

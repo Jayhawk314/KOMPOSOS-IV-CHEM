@@ -111,6 +111,23 @@
       "used_for_tuning": false,
       "used_for_calibration": false,
       "used_for_current_blind_claim": true,
+      "first_blind_run": {
+        "date": "2026-07-20",
+        "evaluated": 36,
+        "skipped": 4,
+        "accuracy": 0.639,
+        "balanced_accuracy": 0.639,
+        "mcc": 0.278,
+        "brier": 0.279,
+        "ece": 0.177,
+        "confusion": {"TP": 11, "TN": 12, "FP": 7, "FN": 6},
+        "protocol_pass": false,
+        "metric_pass": false,
+        "result_artifact": "audit/q11_blind_result_2026-07-20.json",
+        "result_artifact_sha256": "093fe0a71012c65883b2c8d4ea291f08539dd09c995687ea06b116dc952a9e41",
+        "writeup": "docs/Q11_BLIND_RESULT_2026-07-20.md",
+        "note": "First genuine current-blind compatibility result. Development 41/41 and Q9 87.5% do not predict blind performance. Errors concentrate in three mechanisms diagnosed on INDEPENDENT probe pairs: (1) solvent-exposure role missing from COEXISTENCE_INTERFACE_ROLES so the blend immiscibility veto fires inverted on chemical-resistance interfaces; (2) current-collector identity ignored in battery scoring; (3) cross-domain routing skips. Q11 is NOT yet spent - seeing results does not spend it, remediating against them does."
+      },
       "notes": "Q11 frozen 2026-07-20. Zero material-name-pair overlap against blind_test_pairs, ground_truth, all prior external_blind (Q2-Q10), and all dev_compatibility files (checked programmatically against 485 existing name-pairs). All material names resolve in a bridge vocabulary, so skips cannot be caused by out-of-vocabulary names. LIMITATION: pairs reuse known materials in unused COMBINATIONS - this tests generalization to new pairings, not to new materials. LIMITATION: labels are expert judgment authored by the same AI assistant that worked on this codebase, sealed and hashed before prediction; this is weaker independence than an external labeler and is disclosed deliberately."
     },
     {

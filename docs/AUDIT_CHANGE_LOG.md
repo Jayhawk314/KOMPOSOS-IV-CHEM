@@ -4,6 +4,74 @@
 
 ---
 
+## 2026-07-20: Q11 frozen and scored — first current-blind compatibility result (63.9%)
+
+**Q11 was frozen as `current_blind` and scored in an authorized event.** Full
+writeup: `docs/Q11_BLIND_RESULT_2026-07-20.md`.
+
+- **Result: 63.9% accuracy** on 36 evaluated / 4 skipped, MCC 0.278, Brier 0.279,
+  ECE 0.177, TP11/TN12/FP7/FN6. Protocol FAIL (skips) and metric FAIL (<85%).
+- **Development 41/41 and Q9 87.5% do not predict blind performance.** The honest
+  pairwise-compatibility headline is now the Q11 blind number, not 100%.
+- **The isotonic calibration claim does not transfer:** reported 5-fold OOS ECE
+  0.072 vs **blind ECE 0.177**. Scope that claim to the dev + spent-diagnostic
+  distribution.
+- Seal discipline: pair list + hidden labels were committed (`ce739de`) **before**
+  any prediction ran. New tool `audit/merge_sealed_labels.py` re-verifies both
+  SHA256 seals and refuses to merge a broken seal. Q10 remains sealed and unspent.
+- Freeze checks: zero name-pair overlap against all 485 existing benchmark pairs;
+  every material name resolves in a bridge vocabulary (avoids the Q8 skip storm).
+
+**Three root causes, each confirmed on INDEPENDENT probe pairs so the diagnosis
+does not consume the holdout:**
+
+1. **Solvent-exposure inverts the miscibility veto.** `chemical_resistance` /
+   `solvent_exposure` are missing from `COEXISTENCE_INTERFACE_ROLES`
+   (`polymer_bridge/interface_validator.py`), so the blend immiscibility veto
+   (`total = min(total, 0.45)`) fires on chemical-resistance interfaces — where a
+   solubility *mismatch* is precisely why the polymer resists the solvent. Probe:
+   10 of 12 chemically distinct polymer+solvent pairs return the **identical
+   0.45** (PEEK+acetone == PVC+acetone). No discrimination; correct only by base
+   rate. This is the rule CLAUDE.md already states — the role list just lacks it.
+2. **Current-collector identity is ignored.** `Graphite/LTO + Al_foil/Cu_foil` all
+   return exactly 0.9375, so S8+Cu_foil (Cu2S corrosion) scores identically to
+   S8+Al_foil, and Al_foil+LiPF6 (passivates) identically to Al_foil+LiTFSI (pits).
+3. **Cross-domain routing skips.** CMC+Water, Kovar+FusedSilica, Bi2Te3+Cu,
+   Bi2Te3+Ni die on "Unknown material" although the partner exists in another
+   bridge's vocabulary. Abstention is the safe behavior and failure-memory logged
+   it honestly, but these are real engineering interfaces.
+
+Also observed: **prediction is not monotonic in score** — Ni+Fe 0.721 predicted
+incompatible while Al+Fe 0.674 predicted compatible (a veto changes the verdict
+without changing the surfaced score).
+
+**Why dev 41/41 did not predict this — visible in the dev run itself:** 11 of the
+41 development pairs return the identical score **0.350** and *every one is
+labeled incompatible* (further constant clusters at 0.380/0.250/0.180, likewise
+all incompatible). About a quarter of the dev set therefore cannot distinguish
+"correctly identified incompatibility" from "no applicable model, returned a low
+constant that matched the label." Q11's **contrast pairs** (chemically opposite
+pairs sharing a material: S8+Cu_foil vs S8+Al_foil, Al_foil+LiTFSI vs
+Al_foil+LiPF6, POM+acetone vs PC+acetone) are what exposed it — each contrast
+pair scored **identically**. Contrast pairs are the highest-information test
+design available here and should be standard in Q12 and in the dev set, because a
+constant-fallback scorer cannot pass them by base rate.
+
+**Audit-tooling defect fixed:** the external runner reported "Overlap with
+existing benchmark identities: 40" for Q11 — entirely **self-overlap**, because
+`_load_existing_benchmark_identities` excluded only the merged file under test and
+not its same-period siblings (the unlabeled pair list). Every split-format holdout
+(Q9/Q10/Q11) was over-reported. Fixed by excluding the whole same-period file
+family; Q11 now reports 0, Q9 still correctly reports its genuine 16 and unchanged
+87.5%.
+
+**Discipline:** Q11 is still `current_blind`. Seeing these results does not spend
+it; **remediating against them does**. Fix the three causes on independent/dev
+pairs, then re-run Q11 **once** as regression and demote it to `spent_diagnostic`
+in the same commit, and freeze Q12 before any further blind claim.
+
+---
+
 ## 2026-07-19: Known limitation — funnel `azole_N` SMARTS overcounts (deliberately unfixed)
 
 **Finding:** `mof_bridge/benchmark/funnel.py` `_COORD_SMARTS["azole_N"]` is
