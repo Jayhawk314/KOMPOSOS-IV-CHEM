@@ -4,6 +4,35 @@
 
 ---
 
+## 2026-07-19: Known limitation — funnel `azole_N` SMARTS overcounts (deliberately unfixed)
+
+**Finding:** `mof_bridge/benchmark/funnel.py` `_COORD_SMARTS["azole_N"]` is
+`[n;r5]`, which also matches **N-substituted** five-ring aromatic nitrogens
+that cannot donate to a metal (their lone pair is either alkylated away or in
+the ring π-system). `azine_N` correctly requires `[n;X2;r6]`. Effect: the
+reported `recognized_coordination_sites` is inflated for N-alkylated azole
+candidates (e.g., a bis(N-alkyltriazole) with 6 ring N reports 6 sites; only
+4 are pyridinic-type donors).
+
+**Impact bound (measured 2026-07-19 against the frozen benchmark pools with a
+strict `[n;X2;r5]` variant):** seed reals 253 → 44 counts inflated, **0 G2
+pass/fail flips**; eval reals 423 → 69 inflated, **0 flips**; decoys:
+generator_raw 6 inflated / 0 flips, random_valid 0 affected,
+**perturbed_real 40/163 would newly die at G2**. The frozen recall 0.9433 /
+AUROC 0.8843 headline is therefore **unaffected on the real-linker side**, and
+a stricter pattern could only flatter AUROC by killing decoys.
+
+**Why it was NOT fixed:** (1) changing a gate after observing which eval
+decoys it kills is tuning on eval, which this benchmark forbids
+("Nothing here tunes on eval", `mof_bridge/benchmark/run.py`); (2) a naive
+`X2` restriction stops crediting deprotonatable azole N–H (imidazolate/
+pyrazolate, i.e., ZIF-type chemistry), so the correct pattern needs a
+chemistry decision, a fresh frozen benchmark run, and a new report artifact.
+Until then: **treat per-candidate site counts for N-substituted azoles as
+upper bounds**; the G2 pass/fail verdicts for real linkers stand.
+
+---
+
 ## 2026-06-10: Stoichiometric SMT Validation (Z3) for Synthesis Routes
 
 **New audit + runtime guard:** `synthesis_planner/stoich_solver.py` encodes
