@@ -1,0 +1,214 @@
+{
+  "version": "external_blind.compatibility.2026_q11.labels_hidden.v1",
+  "created_at": "2026-07-20",
+  "labeled_by": "Claude (Fable 5) from materials-science first principles, BLIND to model output, pre-scoring",
+  "pairs_file": "compatibility_2026_q11_pairs_unlabeled.json",
+  "pairs_file_sha256": "f16cbbfabe245ee28e3f06133225895d9efd018291bc981306e7ec02c95b9971",
+  "note": "Sealed labels, written before any Q11 prediction was executed. Expert judgment, not external experimental ground truth; borderline pairs are flagged. Independence caveat: authored by the same assistant that worked on the codebase.",
+  "label_balance": {
+    "compatible": 19,
+    "incompatible": 21
+  },
+  "labels": {
+    "11001": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Polysulfide intermediates nucleophilically attack carbonate solvents; Li-S cannot run in carbonate/LiPF6 - this is why Li-S uses ethers"
+    },
+    "11002": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "LiTFSI in DOL/DME is the standard Li-S electrolyte salt"
+    },
+    "11003": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Sulfur corrodes copper to Cu2S; sulfur cathodes are cast on Al, never Cu"
+    },
+    "11004": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Al is the standard current collector for sulfur cathodes"
+    },
+    "11005": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Imide salts (TFSI-) fail to passivate Al and cause pitting corrosion above ~3.7 V vs Li - the classic barrier to LiTFSI-only electrolytes"
+    },
+    "11006": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "LiPF6 forms a protective AlF3/AlF3-rich passivation layer; the standard commercial pairing"
+    },
+    "11007": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "LGPS electrochemical reduction onset is ~1.7 V vs Li; graphite operates near 0.1 V, so LGPS is continuously reduced"
+    },
+    "11008": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Thiophosphate sulfide electrolyte is reduced at graphite's operating potential"
+    },
+    "11009": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Ti(IV) in LATP is reduced to Ti(III) below ~2.4 V vs Li; graphite at 0.1 V reduces it"
+    },
+    "11010": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PEO-LiTFSI is the canonical solid polymer electrolyte system"
+    },
+    "11011": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "CMC is a water-soluble binder; aqueous slurry processing is its entire purpose"
+    },
+    "11012": {
+      "expected_compatible": true,
+      "borderline": true,
+      "basis": "LTO plateau is ~1.55 V, just below LGPS reduction onset ~1.7 V; LGPS/LTO solid cells are demonstrated but interfacial degradation is reported - BORDERLINE"
+    },
+    "11013": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Polystyrene dissolves readily in acetone"
+    },
+    "11014": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Acetal (POM) has excellent resistance to ketones and most organic solvents"
+    },
+    "11015": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Acetone crazes and dissolves polycarbonate - a textbook PC failure mode"
+    },
+    "11016": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PTFE is chemically inert to aromatic hydrocarbons"
+    },
+    "11017": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PDMS swells enormously in toluene (swelling ratio ~1.3); standard microfluidics solvent-compatibility knowledge"
+    },
+    "11018": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "EPDM has poor resistance to aromatic hydrocarbons and swells badly; EPDM is specified for glycol/brake fluid, not petroleum aromatics"
+    },
+    "11019": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PMMA is soluble in toluene"
+    },
+    "11020": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PEEK has excellent hydrolytic stability and is repeatedly steam-sterilizable"
+    },
+    "11021": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "PPO/PS is the textbook thermodynamically miscible polymer blend (commercial Noryl)"
+    },
+    "11022": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "PC and PS are immiscible with poor interfacial adhesion"
+    },
+    "11023": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Galvanizing: Zn is anodic to steel and sacrificially protects it - a galvanic couple that is deliberately beneficial"
+    },
+    "11024": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Large galvanic potential difference drives Al corrosion, plus brittle Al-Fe intermetallics on joining"
+    },
+    "11025": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Mg is extremely anodic; iron contamination is the classic cause of catastrophic Mg galvanic corrosion"
+    },
+    "11026": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Ti-Fe forms brittle TiFe/TiFe2 intermetallics; direct fusion welding is not viable"
+    },
+    "11027": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Ni-Fe show complete solid solubility (basis of Invar/Ni steels); readily joined"
+    },
+    "11028": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Ag-Sn forms Ag3Sn, the intended strengthening phase in SAC solders"
+    },
+    "11029": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Kovar CTE ~5.5 ppm/K vs fused silica ~0.55 ppm/K; Kovar is matched to borosilicate, not silica - seal cracks"
+    },
+    "11030": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Both austenitic Ni-Fe-Cr alloys with similar CTE; routinely welded in practice"
+    },
+    "11031": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Mullite and SiC have close CTE and are co-used in mullite-SiC refractory composites"
+    },
+    "11032": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Zirconia destabilizes hydroxyapatite during co-sintering (HA decomposes to TCP/CaO and zirconia is destabilized) - a well-known bioceramic incompatibility"
+    },
+    "11033": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Hexagonal BN is chemically compatible with silicon nitride and used as a release/interface phase"
+    },
+    "11034": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "SiO2/TiO2 is the standard low-index/high-index dielectric multilayer pair"
+    },
+    "11035": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "MgO and TiO2 react at sintering temperature to form magnesium titanates (MgTiO3/Mg2TiO4) rather than coexisting"
+    },
+    "11036": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Cu diffuses rapidly into Bi2Te3 and poisons the thermoelectric contact; a Ni diffusion barrier is required"
+    },
+    "11037": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Ni is the standard diffusion-barrier/contact metallization for Bi2Te3 thermoelectric legs"
+    },
+    "11038": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "Diamond-on-Si lattice mismatch is ~52%; heteroepitaxy is not viable without exotic intermediate layers"
+    },
+    "11039": {
+      "expected_compatible": true,
+      "borderline": false,
+      "basis": "Graded SiGe buffers to pure Ge are the standard route to Ge-on-Si virtual substrates"
+    },
+    "11040": {
+      "expected_compatible": false,
+      "borderline": false,
+      "basis": "InN on Si has very large lattice and thermal expansion mismatch; no coherent epitaxy"
+    }
+  }
+}
