@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-07-20: Category-theory ablation — no measurable accuracy contribution
+
+Full writeup: `docs/CT_ABLATION_2026-07-20.md`. New tool:
+`python audit/run_ct_ablation.py --json audit/ct_ablation_report.json`.
+
+Over **374 development + spent-diagnostic pairs** (365 evaluated), removing the
+categorical layer changes **accuracy by 0.0000 and MCC by 0.0000** (both arms
+0.9151 / 0.8298). Q12 was excluded — the script reads the registry to block
+whatever is currently `current_blind`, so it cannot silently spend a holdout.
+
+Two CT surfaces were ablated separately because their causal status differs:
+
+- **Yoneda transfer guard / strategy ensemble: REPORTING ONLY.**
+  `build_compatibility_ensemble` is referenced only inside
+  `_compatibility_decision_metadata`, never inside the scoring path (verified by
+  source inspection, not assumed). It cannot affect score or verdict by
+  construction, so there is no numeric ablation to run for it. The formal Yoneda
+  presheaf evidence in vote metadata is evidence, not a predictor.
+- **Typed morphisms: in the causal path, inert in practice.**
+  `apply_typed_morphism_adjustment` can overwrite score and verdict on 8 domain
+  routes, but perturbed **1 pair of 374** (GaN+SiC_4H, 0.750→0.760) and flipped
+  **zero** verdicts.
+
+**Consequence for claims:** do not say category theory improves predictive
+accuracy, that the benchmarks validate the categorical runtime, or that CT
+explains the compatibility results — the numbers come from the domain bridge
+scorers, and the physical vetoes live in the bridges, not the CT layer. Typed
+composition, provenance/receipts, transfer guards, dataset-role discipline and
+the veto algebra remain defensible as *architecture*, and are untested here.
+Not covered: cross-domain transfer gating, discovery, multi-domain aggregation,
+and the separate bio repurposing benchmark (`validation/ablation_study.py`,
+currently drifted — its manifest tests fail on a DB hash mismatch unrelated to
+this work).
+
+Note the 0.9151 baseline is a dev+spent figure and is **not** a generalization
+estimate (Q11 blind was 63.9% on the same scorers); the ablation's validity does
+not depend on that level since both arms use the identical corpus.
+
+---
+
 ## 2026-07-20 (later): Scorer remediation, Q11 spent, Q12 frozen
 
 Full writeup: `docs/SCORER_REMEDIATION_2026-07-20.md`.

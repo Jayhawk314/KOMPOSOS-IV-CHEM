@@ -33,6 +33,29 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### Category theory does NOT contribute predictive accuracy (2026-07-20)
+- Ablation over **374 development + spent-diagnostic pairs**: removing the
+  categorical layer changes accuracy by **0.0000** and MCC by **0.0000**.
+  See `docs/CT_ABLATION_2026-07-20.md`; rerun with
+  `python audit\run_ct_ablation.py --json audit\ct_ablation_report.json`.
+- **Yoneda transfer guard / strategy ensemble is REPORTING ONLY.**
+  `build_compatibility_ensemble` is called only from
+  `_compatibility_decision_metadata`, never in the scoring path — verified by
+  source inspection. It cannot affect a verdict by construction.
+- **Typed morphisms** *can* overwrite score/verdict on 8 domain routes, but on
+  this corpus they perturbed **1 pair of 374** (GaN+SiC_4H, 0.750→0.760) and
+  flipped **zero** verdicts.
+- **Never claim** that category theory improves accuracy, that the benchmarks
+  validate the categorical runtime, or that CT explains the compatibility
+  results. The numbers come from the domain bridge scorers. Physical vetoes live
+  in the **bridges**, not the CT layer.
+- Still defensible (untested by this experiment, so state them as architecture,
+  not results): typed composition, provenance/receipts, transfer guards, dataset
+  -role discipline, veto algebra. The ablation does not cover cross-domain
+  transfer, discovery, or the separate bio repurposing path.
+- Q12 was excluded; the script reads the registry to block whatever is currently
+  `current_blind` rather than a hardcoded name.
+
 ### Scorer remediation + Q11 spent + Q12 frozen (2026-07-20, later same day)
 - Q11's three root causes were fixed on independent/dev pairs, then Q11 was
   re-run **once** as regression and **demoted to `spent_diagnostic`**.

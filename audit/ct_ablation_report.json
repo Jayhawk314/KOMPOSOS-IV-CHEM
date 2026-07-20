@@ -1,0 +1,58 @@
+{
+  "scope": "development + spent_diagnostic only; current blind excluded",
+  "sources": [
+    "development (41 pairs)",
+    "compatibility_2026_q11.json (40 pairs)",
+    "compatibility_2026_q2.json (30 pairs)",
+    "compatibility_2026_q3.json (36 pairs)",
+    "compatibility_2026_q4.json (42 pairs)",
+    "compatibility_2026_q5.json (35 pairs)",
+    "compatibility_2026_q6.json (35 pairs)",
+    "compatibility_2026_q7.json (35 pairs)",
+    "compatibility_2026_q8.json (40 pairs)",
+    "compatibility_2026_q9.json (40 pairs)"
+  ],
+  "pair_count": 374,
+  "ablation_B_ensemble_reporting_only": true,
+  "baseline": {
+    "config": "baseline (typed morphisms ON)",
+    "evaluated": 365,
+    "skipped": 9,
+    "TP": 187,
+    "TN": 147,
+    "FP": 10,
+    "FN": 21,
+    "accuracy": 0.9151,
+    "mcc": 0.8298
+  },
+  "typed_morphisms_off": {
+    "config": "typed morphisms OFF",
+    "evaluated": 365,
+    "skipped": 9,
+    "TP": 187,
+    "TN": 147,
+    "FP": 10,
+    "FN": 21,
+    "accuracy": 0.9151,
+    "mcc": 0.8298
+  },
+  "delta_accuracy": 0.0,
+  "delta_mcc": 0.0,
+  "changed_pairs": [
+    {
+      "domain": "semiconductor",
+      "material_a": "GaN",
+      "material_b": "SiC_4H",
+      "source": "compatibility_2026_q9.json",
+      "baseline": [
+        0.76,
+        true
+      ],
+      "ablated": [
+        0.75,
+        true
+      ]
+    }
+  ],
+  "verdict_flips": []
+}
