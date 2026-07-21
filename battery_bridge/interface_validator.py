@@ -45,6 +45,11 @@ from battery_bridge.interaction_scoring import (
     ScorerResult,
 )
 
+#: Score ceiling applied when a physical veto fires. Well below the 0.50
+#: viability threshold, matching the ceramic/polymer bridges' vetoed band, so a
+#: vetoed pair can never surface a score that outranks a viable one.
+VETO_SCORE_CAP = 0.35
+
 
 @dataclass
 class InterfaceConditions:
@@ -271,17 +276,25 @@ class BatteryInterfaceValidator:
             is_viable = False
             total = min(total, 0.10)
             all_details['veto'] = collector_veto
+        # Each of these is a physical block, so it annihilates the composite
+        # rather than being diluted by the weighted sum -- and capping `total`
+        # keeps the surfaced score consistent with the verdict, so a vetoed pair
+        # can never report a higher score than a viable one.
         elif scores['degradation_penalty'] <= 0.4:
             is_viable = False
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = 'Extreme degradation risk: interface non-viable'
         elif scores['interface_compatibility'] < 0.4:
             is_viable = False
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = 'Interface instability: SEI/CEI cannot stabilize'
         elif scores['electrochemical_stability'] < 0.3:
             is_viable = False
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = 'Electrochemical instability: electrolyte decomposes at electrode voltage'
         elif scores['mechanical_compatibility'] < 0.3:
             is_viable = False
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = 'Mechanical incompatibility: expansion/contact loss risk'
 
         return BatteryInterfaceScore(

@@ -34,6 +34,11 @@ from metal_bridge.interaction_scoring import (
     ScorerResult,
 )
 
+#: Score ceiling applied when a physical veto fires. Well below the 0.50
+#: viability threshold, matching the ceramic/polymer bridges' vetoed band, so a
+#: vetoed pair can never surface a score that outranks a viable one.
+VETO_SCORE_CAP = 0.35
+
 
 @dataclass
 class MetalConditions:
@@ -257,6 +262,13 @@ class MetalInterfaceValidator:
         fe_base_join = elem_a == "Fe" and elem_b == "Fe"
         if scores['galvanic'] < 0.30 and not (fe_base_join and not wet_or_corrosive):
             is_viable = False
+            # A physical block survives composition (min/annihilator), it is not
+            # diluted by the weighted sum. Capping `total` also keeps the SURFACED
+            # SCORE consistent with the verdict: without this a vetoed pair could
+            # report a higher score than a non-vetoed one (Ni+Fe 0.721 -> not
+            # viable vs Al+Fe 0.674 -> viable), so the number contradicted the
+            # decision it was shown next to.
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = 'Severe galvanic mismatch (>0.5V potential difference): direct contact prohibited per MIL-STD-889D'
         elif scores['galvanic'] < 0.30:
             all_details['galvanic_veto_relaxed'] = (
@@ -267,6 +279,7 @@ class MetalInterfaceValidator:
         # Veto check: known-bad corrosion pair (MIL-STD-889D incompatible groups)
         if scores['corrosion'] < 0.55:
             is_viable = False
+            total = min(total, VETO_SCORE_CAP)
             all_details['veto'] = all_details.get('veto', '') + '; known corrosion-incompatible pair (MIL-STD-889D)'
 
         return MetalInterfaceScore(

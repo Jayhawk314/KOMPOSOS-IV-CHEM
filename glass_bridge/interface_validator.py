@@ -32,8 +32,14 @@ from glass_bridge.interaction_scoring import (
     score_degradation_penalty,
     ScorerResult,
 )
+
 from oracle.compatibility_context import CompatibilityContext
 from oracle.typed_morphisms import apply_typed_morphism_adjustment
+
+#: Score ceiling applied when a physical veto fires. Well below the 0.50
+#: viability threshold, matching the ceramic/polymer bridges' vetoed band, so a
+#: vetoed pair can never surface a score that outranks a viable one.
+VETO_SCORE_CAP = 0.35
 
 
 @dataclass
@@ -281,6 +287,10 @@ class GlassInterfaceValidator:
             cte_diff = abs(cte_a - cte_b)
             if cte_diff > 3.0 and not same_family and not pair_exempt and not optical_assembly_exempt:
                 is_viable = False
+                # A physical block survives composition (min/annihilator) and must
+                # also keep the surfaced score consistent with the verdict; a
+                # vetoed pair must never outrank a viable one.
+                total = min(total, VETO_SCORE_CAP)
                 all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 3 ppm/K: seal will crack (Shelby 2005)'
 
         # Chemical incompatibility veto: phosphate + silicate network reaction
@@ -291,6 +301,7 @@ class GlassInterfaceValidator:
             }
             if frozenset({comp_a, comp_b}) in incompat:
                 is_viable = False
+                total = min(total, VETO_SCORE_CAP)
                 all_details['veto'] = all_details.get('veto', '') + '; phosphate-silicate chemical incompatibility'
 
         morphism_adjustment = apply_typed_morphism_adjustment(

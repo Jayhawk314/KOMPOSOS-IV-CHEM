@@ -4,6 +4,50 @@
 
 ---
 
+## 2026-07-20: Vetoes now annihilate the SCORE, not just the verdict
+
+Closes the non-monotonicity noted in the Q11 writeup: prediction was not
+monotonic in the surfaced score, so a number could contradict the decision
+displayed beside it.
+
+**Root cause (systemic).** `metal` (2 vetoes), `glass` (2), `semiconductor` (1)
+and 4 of 5 `battery` vetoes set `is_viable = False` **without lowering `total`**.
+`ceramic` and `polymer` already annihilated correctly, so the codebase was
+internally inconsistent about its own documented rule that *a physical block
+survives composition (min/annihilator), not weighted sum*. The concrete symptom:
+Ni+Fe scored **0.721 -> incompatible** while Al+Fe scored **0.674 -> compatible**.
+
+**Fix.** Every bridge now caps a vetoed composite at `VETO_SCORE_CAP = 0.35`,
+below the 0.50 viability threshold and matching the band ceramic/polymer already
+used. The rule now applies to the reported score, not only the verdict.
+
+**Zero verdicts changed** — this is a reporting-consistency fix, not a threshold
+change:
+
+| | before | after |
+| --- | ---: | ---: |
+| corpus accuracy (365 dev + spent pairs) | 0.9151 | **0.9151** |
+| development benchmark | 41/41 | **41/41** |
+| score/verdict inversions | 13 | **0** |
+| min score among *compatible* | — | 0.502 |
+| max score among *incompatible* | — | 0.473 |
+| development Brier | 0.095 | **0.086** |
+| isotonic 5-fold **OOS ECE** | 0.072 | **0.045** |
+
+The calibration gain is causal rather than incidental: a high raw score attached
+to an incompatible verdict is precisely what a calibrator cannot fit, so removing
+those points improved it. The isotonic artifact was **rebuilt** because the raw
+score distribution changed (`python audit/build_compatibility_calibration.py`;
+measured with `run_compat_calibration.py` and `fit_compat_calibration.py`).
+Q10 and Q12 were not touched.
+
+Pinned by `tests/test_veto_score_consistency.py` (7 tests), including a
+corpus-wide assertion that the highest incompatible score stays below the lowest
+compatible score, so the inversion cannot silently return. Full suite: 1265
+passed, same 5 pre-existing bio/repurposing failures.
+
+---
+
 ## 2026-07-20: MLIP (CHGNet) oracle — 3x lower formation-energy error where a structure exists
 
 Full writeup: `docs/MLIP_ORACLE_2026-07-20.md`. Module `oracle/mlip_integration.py`,

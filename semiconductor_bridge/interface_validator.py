@@ -35,6 +35,11 @@ from semiconductor_bridge.interaction_scoring import (
     score_degradation_penalty,
     ScorerResult,
 )
+
+#: Score ceiling applied when a physical veto fires. Well below the 0.50
+#: viability threshold, matching the ceramic/polymer bridges' vetoed band, so a
+#: vetoed pair can never surface a score that outranks a viable one.
+VETO_SCORE_CAP = 0.35
 from oracle.compatibility_context import CompatibilityContext
 from oracle.typed_morphisms import apply_typed_morphism_adjustment
 
@@ -309,6 +314,10 @@ class SemiconductorInterfaceValidator:
                 )
             else:
                 is_viable = False
+                # A physical block survives composition (min/annihilator) and must
+                # also keep the surfaced score consistent with the verdict; a
+                # vetoed pair must never outrank a viable one.
+                total = min(total, VETO_SCORE_CAP)
                 all_details['veto'] = 'Lattice mismatch >3%: high dislocation density, incompatible without metamorphic buffer'
 
         morphism_adjustment = apply_typed_morphism_adjustment(

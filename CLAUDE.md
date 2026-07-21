@@ -33,6 +33,25 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### Vetoes now annihilate the SCORE, not just the verdict (2026-07-20)
+- Fixed a systemic inconsistency: `metal`, `glass`, `semiconductor` and 4 of 5
+  `battery` vetoes set `viable = False` **without lowering `total`**, so the
+  surfaced number contradicted the verdict next to it (Ni+Fe 0.721 -> incompatible
+  while Al+Fe 0.674 -> compatible). `ceramic` and `polymer` were already correct.
+- All bridges now cap a vetoed score via `VETO_SCORE_CAP = 0.35` (below the 0.50
+  threshold), applying the project's own rule that **a physical block survives
+  composition (min/annihilator), including in the reported score**.
+- **Zero verdicts changed.** Corpus accuracy is identical (0.9151 on 365 dev +
+  spent pairs) and dev stays 41/41; only the reported numbers moved.
+  Score/verdict inversions went **13 -> 0**; min compatible score 0.502 vs max
+  incompatible 0.473, cleanly separated by the threshold.
+- Knock-on benefit: dev Brier 0.095 -> **0.086**, and the isotonic calibrator
+  (rebuilt, since raw scores shifted) improved to **5-fold OOS ECE 0.045**
+  from 0.072. A high raw score attached to an incompatible verdict was itself a
+  calibration failure.
+- Pinned by `tests/test_veto_score_consistency.py`, including a corpus-wide
+  no-inversion test so this cannot silently regress.
+
 ### MLIP (CHGNet) oracle added as a typed tier (2026-07-20)
 - `oracle/mlip_integration.py`. On 294 held-out materials **MAE 0.134 eV/atom vs
   0.404** for the composition surrogate (3.0x lower; MLIP closer on 77.6%).
@@ -201,9 +220,10 @@ Python: 3.10+
 
 ### Compatibility Confidence Calibration (2026-05-30)
 - Pairwise compatibility scores are mapped to a **calibrated probability** via a global
-  **isotonic** calibrator. In the deployed 98-pair artifact, its 5-fold
-  **OOS ECE is 0.072** (Brier 0.049),
-  down from raw ECE ~0.194. A 0.70 now means ~70% of such pairs are compatible.
+  **isotonic** calibrator. Rebuilt 2026-07-20 after the veto-annihilation fix
+  changed the raw score distribution: 5-fold **OOS ECE is now 0.045**
+  (Brier 0.053), improved from 0.072/0.049, versus raw 0.180. A 0.70 means
+  ~70% of such pairs are compatible.
 - Built by `audit/build_compatibility_calibration.py` (dev + spent diagnostics only,
   leak-controlled; current-blind excluded), stored as monotonic (x,y) breakpoints in
   `audit/calibration/compatibility_calibration_2026_q4_dev.json`. Runtime
