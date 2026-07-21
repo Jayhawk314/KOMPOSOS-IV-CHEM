@@ -33,6 +33,27 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### Veto scores use an ORDER-PRESERVING squash, not a clamp (2026-07-20, corrected)
+- The first version of the fix below used `min(total, 0.35)`. That eliminated the
+  inversions but **collapsed 105 of 365 pairs (28.8%) onto exactly 0.35**,
+  leaving only **14 distinct scores across 168 rejected pairs** — manufacturing
+  precisely the constant, non-discriminating score this codebase treats as a
+  defect elsewhere, and flattening the ranking that PFAS/discovery triage uses.
+- Replaced with `_vetoed_score(total) = 0.35 * total`: strictly monotone, so a
+  vetoed pair strong on its other axes still outranks a weak one, while still
+  guaranteed below the threshold. Distinct scores among rejected pairs
+  **14 -> 64**; overall distinct 132 -> 182. Inversions still 0, accuracy still
+  0.9151, dev still 41/41.
+- **Correction to an overclaim:** the clamp's headline "OOS ECE 0.045" was
+  **partly an artifact** — 93 identically-scored incompatible pairs are trivially
+  easy for an isotonic calibrator to fit. Honest current figures with the squash
+  are **OOS ECE 0.055, Brier 0.054** (historical baseline was 0.072/0.049, so ECE
+  improved and Brier is marginally worse). Prefer the squash anyway: the ~0.010
+  ECE difference was illusory, the ranking information is real.
+- Follow-up not done: `ceramic` and `polymer` still hard-clamp (0.35/0.38/0.45),
+  which is why 49 pairs still tie at 0.35. Converting them would change
+  long-standing, documented, benchmarked veto values, so it needs its own change.
+
 ### Vetoes now annihilate the SCORE, not just the verdict (2026-07-20)
 - Fixed a systemic inconsistency: `metal`, `glass`, `semiconductor` and 4 of 5
   `battery` vetoes set `viable = False` **without lowering `total`**, so the
@@ -220,10 +241,12 @@ Python: 3.10+
 
 ### Compatibility Confidence Calibration (2026-05-30)
 - Pairwise compatibility scores are mapped to a **calibrated probability** via a global
-  **isotonic** calibrator. Rebuilt 2026-07-20 after the veto-annihilation fix
-  changed the raw score distribution: 5-fold **OOS ECE is now 0.045**
-  (Brier 0.053), improved from 0.072/0.049, versus raw 0.180. A 0.70 means
-  ~70% of such pairs are compatible.
+  **isotonic** calibrator. Rebuilt 2026-07-20 after the veto-score changes moved
+  the raw distribution: 5-fold **OOS ECE 0.055, Brier 0.054** (vs raw 0.159).
+  The historical baseline was 0.072/0.049 — so ECE improved and Brier is
+  marginally worse. An intermediate clamp design showed 0.045 but that was
+  partly an artifact of a 93-pair identical-score mass point; do not quote it.
+  A 0.70 means ~70% of such pairs are compatible.
 - Built by `audit/build_compatibility_calibration.py` (dev + spent diagnostics only,
   leak-controlled; current-blind excluded), stored as monotonic (x,y) breakpoints in
   `audit/calibration/compatibility_calibration_2026_q4_dev.json`. Runtime

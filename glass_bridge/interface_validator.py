@@ -41,6 +41,20 @@ from oracle.typed_morphisms import apply_typed_morphism_adjustment
 #: vetoed pair can never surface a score that outranks a viable one.
 VETO_SCORE_CAP = 0.35
 
+def _vetoed_score(total: float) -> float:
+    """Map a vetoed composite below the viability threshold, PRESERVING ORDER.
+
+    A hard clamp (``min(total, CAP)``) collapses every vetoed pair onto one
+    value, which destroys ranking information among rejected candidates and
+    manufactures exactly the kind of constant, non-discriminating score this
+    codebase treats as a defect elsewhere. Scaling instead keeps the ordering
+    (a vetoed pair that was strong on its other axes still ranks above one that
+    was weak) while guaranteeing the result sits below ``VETO_SCORE_CAP`` and
+    therefore below the viability threshold.
+    """
+    return VETO_SCORE_CAP * max(0.0, min(1.0, total))
+
+
 
 @dataclass
 class GlassConditions:
@@ -290,7 +304,7 @@ class GlassInterfaceValidator:
                 # A physical block survives composition (min/annihilator) and must
                 # also keep the surfaced score consistent with the verdict; a
                 # vetoed pair must never outrank a viable one.
-                total = min(total, VETO_SCORE_CAP)
+                total = _vetoed_score(total)
                 all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 3 ppm/K: seal will crack (Shelby 2005)'
 
         # Chemical incompatibility veto: phosphate + silicate network reaction
@@ -301,7 +315,7 @@ class GlassInterfaceValidator:
             }
             if frozenset({comp_a, comp_b}) in incompat:
                 is_viable = False
-                total = min(total, VETO_SCORE_CAP)
+                total = _vetoed_score(total)
                 all_details['veto'] = all_details.get('veto', '') + '; phosphate-silicate chemical incompatibility'
 
         morphism_adjustment = apply_typed_morphism_adjustment(

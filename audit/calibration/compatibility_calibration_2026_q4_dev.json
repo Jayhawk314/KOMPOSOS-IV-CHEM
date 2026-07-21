@@ -150,48 +150,48 @@
     "f1": 0.9703,
     "balanced_accuracy": 0.9698,
     "matthews_correlation_coefficient": 0.9389,
-    "brier_score": 0.0782,
-    "expected_calibration_error": 0.1902,
+    "brier_score": 0.0681,
+    "expected_calibration_error": 0.1692,
     "score_bins": [
       {
         "bin": "0.0-0.1",
         "lower": 0.0,
         "upper": 0.1,
-        "n": 0,
-        "mean_score": null,
-        "observed_positive_rate": null,
-        "accuracy": null,
-        "calibration_error": null
+        "n": 2,
+        "mean_score": 0.0667,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.0667
       },
       {
         "bin": "0.1-0.2",
         "lower": 0.1,
         "upper": 0.2,
-        "n": 10,
-        "mean_score": 0.156,
+        "n": 17,
+        "mean_score": 0.1566,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.156
+        "calibration_error": 0.1566
       },
       {
         "bin": "0.2-0.3",
         "lower": 0.2,
         "upper": 0.3,
-        "n": 6,
-        "mean_score": 0.25,
+        "n": 7,
+        "mean_score": 0.244,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.25
+        "calibration_error": 0.244
       },
       {
         "bin": "0.3-0.4",
         "lower": 0.3,
         "upper": 0.4,
-        "n": 32,
-        "mean_score": 0.3531,
-        "observed_positive_rate": 0.0625,
-        "accuracy": 0.9375,
-        "calibration_error": 0.2906
+        "n": 22,
+        "mean_score": 0.3546,
+        "observed_positive_rate": 0.0909,
+        "accuracy": 0.9091,
+        "calibration_error": 0.2637
       },
       {
         "bin": "0.4-0.5",
@@ -353,8 +353,8 @@
     "available": true,
     "n": 98,
     "x": [
-      0.12,
-      0.3461,
+      0.0631,
+      0.3277,
       0.35,
       0.3844,
       0.5337,
@@ -365,17 +365,17 @@
     "y": [
       0.0,
       0.0,
-      0.066667,
-      0.066667,
+      0.095238,
+      0.095238,
       0.944444,
       0.944444,
       1.0,
       1.0
     ],
-    "oos_ece": 0.0514,
-    "oos_brier": 0.0322,
+    "oos_ece": 0.052,
+    "oos_brier": 0.0321,
     "in_pool_ece": 0.0,
-    "raw_ece": 0.1902,
+    "raw_ece": 0.1692,
     "note": "Maps a raw compatibility score to a calibrated probability. Runtime interpolates linearly between (x, y) breakpoints."
   },
   "global_calibrator": {
@@ -388,41 +388,41 @@
         "bin": "0.0-0.1",
         "lower": 0.0,
         "upper": 0.1,
-        "n": 0,
-        "mean_score": null,
-        "observed_positive_rate": null,
-        "accuracy": null,
-        "calibration_error": null
+        "n": 2,
+        "mean_score": 0.0667,
+        "observed_positive_rate": 0.0,
+        "accuracy": 1.0,
+        "calibration_error": 0.0667
       },
       {
         "bin": "0.1-0.2",
         "lower": 0.1,
         "upper": 0.2,
-        "n": 10,
-        "mean_score": 0.156,
+        "n": 17,
+        "mean_score": 0.1566,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.156
+        "calibration_error": 0.1566
       },
       {
         "bin": "0.2-0.3",
         "lower": 0.2,
         "upper": 0.3,
-        "n": 6,
-        "mean_score": 0.25,
+        "n": 7,
+        "mean_score": 0.244,
         "observed_positive_rate": 0.0,
         "accuracy": 1.0,
-        "calibration_error": 0.25
+        "calibration_error": 0.244
       },
       {
         "bin": "0.3-0.4",
         "lower": 0.3,
         "upper": 0.4,
-        "n": 32,
-        "mean_score": 0.3531,
-        "observed_positive_rate": 0.0625,
-        "accuracy": 0.9375,
-        "calibration_error": 0.2906
+        "n": 22,
+        "mean_score": 0.3546,
+        "observed_positive_rate": 0.0909,
+        "accuracy": 0.9091,
+        "calibration_error": 0.2637
       },
       {
         "bin": "0.4-0.5",
@@ -505,8 +505,8 @@
         "f1": 0.0,
         "balanced_accuracy": 0.5,
         "matthews_correlation_coefficient": 0.0,
-        "brier_score": 0.1225,
-        "expected_calibration_error": 0.35,
+        "brier_score": 0.0325,
+        "expected_calibration_error": 0.1802,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -522,11 +522,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.1802,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1802
           },
           {
             "bin": "0.2-0.3",
@@ -542,11 +542,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 1,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -630,11 +630,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.1802,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1802
           },
           {
             "bin": "0.2-0.3",
@@ -650,11 +650,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 1,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -1433,8 +1433,8 @@
         "f1": 1.0,
         "balanced_accuracy": 1.0,
         "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.0675,
-        "expected_calibration_error": 0.2199,
+        "brier_score": 0.026,
+        "expected_calibration_error": 0.1332,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -1450,11 +1450,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 2,
+            "mean_score": 0.1313,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1313
           },
           {
             "bin": "0.2-0.3",
@@ -1470,11 +1470,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 2,
-            "mean_score": 0.348,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.348
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -1558,11 +1558,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 2,
+            "mean_score": 0.1313,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1313
           },
           {
             "bin": "0.2-0.3",
@@ -1578,11 +1578,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 2,
-            "mean_score": 0.348,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.348
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -1665,48 +1665,48 @@
         "f1": 1.0,
         "balanced_accuracy": 1.0,
         "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.0665,
-        "expected_calibration_error": 0.2052,
+        "brier_score": 0.0294,
+        "expected_calibration_error": 0.1247,
         "score_bins": [
           {
             "bin": "0.0-0.1",
             "lower": 0.0,
             "upper": 0.1,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 2,
+            "mean_score": 0.0667,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0667
           },
           {
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.1739,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1739
           },
           {
             "bin": "0.2-0.3",
             "lower": 0.2,
             "upper": 0.3,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.2082,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.2082
           },
           {
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 4,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -1780,41 +1780,41 @@
             "bin": "0.0-0.1",
             "lower": 0.0,
             "upper": 0.1,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 2,
+            "mean_score": 0.0667,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.0667
           },
           {
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.1739,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1739
           },
           {
             "bin": "0.2-0.3",
             "lower": 0.2,
             "upper": 0.3,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 1,
+            "mean_score": 0.2082,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.2082
           },
           {
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 4,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -2129,8 +2129,8 @@
         "f1": 1.0,
         "balanced_accuracy": 1.0,
         "matthews_correlation_coefficient": 1.0,
-        "brier_score": 0.0873,
-        "expected_calibration_error": 0.277,
+        "brier_score": 0.0585,
+        "expected_calibration_error": 0.2205,
         "score_bins": [
           {
             "bin": "0.0-0.1",
@@ -2146,11 +2146,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 3,
+            "mean_score": 0.1618,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1618
           },
           {
             "bin": "0.2-0.3",
@@ -2166,11 +2166,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 3,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -2254,11 +2254,11 @@
             "bin": "0.1-0.2",
             "lower": 0.1,
             "upper": 0.2,
-            "n": 0,
-            "mean_score": null,
-            "observed_positive_rate": null,
-            "accuracy": null,
-            "calibration_error": null
+            "n": 3,
+            "mean_score": 0.1618,
+            "observed_positive_rate": 0.0,
+            "accuracy": 1.0,
+            "calibration_error": 0.1618
           },
           {
             "bin": "0.2-0.3",
@@ -2274,11 +2274,11 @@
             "bin": "0.3-0.4",
             "lower": 0.3,
             "upper": 0.4,
-            "n": 3,
-            "mean_score": 0.35,
-            "observed_positive_rate": 0.0,
-            "accuracy": 1.0,
-            "calibration_error": 0.35
+            "n": 0,
+            "mean_score": null,
+            "observed_positive_rate": null,
+            "accuracy": null,
+            "calibration_error": null
           },
           {
             "bin": "0.4-0.5",
@@ -2356,15 +2356,15 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.35,
+      "score": 0.1802,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1802,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7337,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -2957,15 +2957,15 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.35,
+      "score": 0.0703,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.0703,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.8656,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3218,15 +3218,15 @@
       "electrolyte": null,
       "role": null,
       "context": {},
-      "score": 0.35,
+      "score": 0.1414,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1414,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7803,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3945,15 +3945,15 @@
       "context": {
         "environment": "conductive_moisture"
       },
-      "score": 0.35,
+      "score": 0.2082,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.2082,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7001,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -3976,15 +3976,15 @@
       "context": {
         "environment": "conductive_moisture"
       },
-      "score": 0.35,
+      "score": 0.1739,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1739,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7413,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4007,15 +4007,15 @@
       "context": {
         "environment": "conductive_moisture"
       },
-      "score": 0.35,
+      "score": 0.0631,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.0631,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.8743,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4255,15 +4255,15 @@
       "context": {
         "interface_type": "ii_vi_structure_mismatch"
       },
-      "score": 0.35,
+      "score": 0.1459,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1459,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7749,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4348,15 +4348,15 @@
       "context": {
         "interface_type": "chalcogenide_silicate_mismatch"
       },
-      "score": 0.3461,
+      "score": 0.1211,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.3461,
+        "score": 0.1211,
         "predicted_compatible": false,
-        "confidence": 0.5347,
+        "confidence": 0.8046,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -4946,15 +4946,15 @@
       "context": {
         "interface_type": "ii_vi_structure_mismatch"
       },
-      "score": 0.35,
+      "score": 0.1774,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1774,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7371,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -5072,15 +5072,15 @@
       "context": {
         "interface_type": "iii_v_extreme_lattice_mismatch"
       },
-      "score": 0.35,
+      "score": 0.1622,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1622,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7553,
         "missing_context": [],
         "reasons": [],
         "metadata": {
@@ -5602,15 +5602,15 @@
       "context": {
         "environment": "conductive_moisture"
       },
-      "score": 0.35,
+      "score": 0.1739,
       "predicted_compatible": false,
       "expected_compatible": false,
       "decision_status": "incompatible",
       "decision": {
         "status": "incompatible",
-        "score": 0.35,
+        "score": 0.1739,
         "predicted_compatible": false,
-        "confidence": 0.53,
+        "confidence": 0.7413,
         "missing_context": [],
         "reasons": [],
         "metadata": {

@@ -50,6 +50,20 @@ from battery_bridge.interaction_scoring import (
 #: vetoed pair can never surface a score that outranks a viable one.
 VETO_SCORE_CAP = 0.35
 
+def _vetoed_score(total: float) -> float:
+    """Map a vetoed composite below the viability threshold, PRESERVING ORDER.
+
+    A hard clamp (``min(total, CAP)``) collapses every vetoed pair onto one
+    value, which destroys ranking information among rejected candidates and
+    manufactures exactly the kind of constant, non-discriminating score this
+    codebase treats as a defect elsewhere. Scaling instead keeps the ordering
+    (a vetoed pair that was strong on its other axes still ranks above one that
+    was weak) while guaranteeing the result sits below ``VETO_SCORE_CAP`` and
+    therefore below the viability threshold.
+    """
+    return VETO_SCORE_CAP * max(0.0, min(1.0, total))
+
+
 
 @dataclass
 class InterfaceConditions:
@@ -282,19 +296,19 @@ class BatteryInterfaceValidator:
         # can never report a higher score than a viable one.
         elif scores['degradation_penalty'] <= 0.4:
             is_viable = False
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = 'Extreme degradation risk: interface non-viable'
         elif scores['interface_compatibility'] < 0.4:
             is_viable = False
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = 'Interface instability: SEI/CEI cannot stabilize'
         elif scores['electrochemical_stability'] < 0.3:
             is_viable = False
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = 'Electrochemical instability: electrolyte decomposes at electrode voltage'
         elif scores['mechanical_compatibility'] < 0.3:
             is_viable = False
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = 'Mechanical incompatibility: expansion/contact loss risk'
 
         return BatteryInterfaceScore(

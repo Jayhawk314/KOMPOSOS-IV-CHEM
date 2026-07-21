@@ -39,6 +39,20 @@ from metal_bridge.interaction_scoring import (
 #: vetoed pair can never surface a score that outranks a viable one.
 VETO_SCORE_CAP = 0.35
 
+def _vetoed_score(total: float) -> float:
+    """Map a vetoed composite below the viability threshold, PRESERVING ORDER.
+
+    A hard clamp (``min(total, CAP)``) collapses every vetoed pair onto one
+    value, which destroys ranking information among rejected candidates and
+    manufactures exactly the kind of constant, non-discriminating score this
+    codebase treats as a defect elsewhere. Scaling instead keeps the ordering
+    (a vetoed pair that was strong on its other axes still ranks above one that
+    was weak) while guaranteeing the result sits below ``VETO_SCORE_CAP`` and
+    therefore below the viability threshold.
+    """
+    return VETO_SCORE_CAP * max(0.0, min(1.0, total))
+
+
 
 @dataclass
 class MetalConditions:
@@ -268,7 +282,7 @@ class MetalInterfaceValidator:
             # report a higher score than a non-vetoed one (Ni+Fe 0.721 -> not
             # viable vs Al+Fe 0.674 -> viable), so the number contradicted the
             # decision it was shown next to.
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = 'Severe galvanic mismatch (>0.5V potential difference): direct contact prohibited per MIL-STD-889D'
         elif scores['galvanic'] < 0.30:
             all_details['galvanic_veto_relaxed'] = (
@@ -279,7 +293,7 @@ class MetalInterfaceValidator:
         # Veto check: known-bad corrosion pair (MIL-STD-889D incompatible groups)
         if scores['corrosion'] < 0.55:
             is_viable = False
-            total = min(total, VETO_SCORE_CAP)
+            total = _vetoed_score(total)
             all_details['veto'] = all_details.get('veto', '') + '; known corrosion-incompatible pair (MIL-STD-889D)'
 
         return MetalInterfaceScore(

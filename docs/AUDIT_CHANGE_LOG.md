@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-07-20 (correction): veto scores use an order-preserving squash, not a clamp
+
+The fix recorded below shipped with `min(total, 0.35)`. Reviewing it turned up a
+self-inflicted regression: the clamp collapsed **105 of 365 pairs (28.8%) onto
+exactly 0.35**, leaving only **14 distinct scores across 168 rejected pairs**.
+That is the same constant, non-discriminating score pattern this project treats
+as a defect everywhere else, and it flattens the ranking that PFAS replacement
+triage and discovery rely on. Twelve pairs labelled *compatible* were also buried
+in that mass point, making those false negatives harder to spot than when they
+carried distinctive scores.
+
+Replaced with a monotone squash, `_vetoed_score(total) = VETO_SCORE_CAP * total`,
+in `metal`, `glass`, `semiconductor` and `battery`. It guarantees the same
+sub-threshold ceiling while preserving order, so a vetoed pair that was strong on
+its other axes still ranks above one that was weak.
+
+| | clamp | squash |
+| --- | ---: | ---: |
+| distinct scores among rejected pairs | 14 | **64** |
+| overall distinct scores (of 365) | 132 | **182** |
+| pairs tied at exactly 0.35 | 105 | **49** |
+| score/verdict inversions | 0 | **0** |
+| corpus accuracy | 0.9151 | **0.9151** |
+| development benchmark | 41/41 | **41/41** |
+
+**Correction to an overclaim in the entry below.** That entry reported the
+clamp's isotonic **OOS ECE 0.045** as a clean win. It was partly an artifact: 93
+identically-scored incompatible pairs are trivially easy for isotonic to fit.
+Honest figures with the squash are **OOS ECE 0.055, Brier 0.054**, against a
+historical baseline of 0.072/0.049 — ECE improved, Brier marginally worse. The
+squash is still preferred: the ~0.010 ECE difference was illusory, the retained
+ranking information is real. Calibration artifact rebuilt again accordingly.
+
+Note the comparison to 0.072/0.049 is not cleanly attributable, since the earlier
+2026-07-20 remediation (solvent intent, collector vetoes, routing) also moved raw
+scores. Treat 0.055/0.054 as the current measured state, not as an isolated
+effect of this change.
+
+**Remaining, deliberately not done:** `ceramic` and `polymer` still hard-clamp
+(0.35/0.38/0.45), which is why 49 pairs still tie at 0.35. Converting them would
+alter long-standing documented and benchmarked veto values (including the
+Flory-Huggins veto), so it needs its own change with its own verification.
+
+---
+
 ## 2026-07-20: Vetoes now annihilate the SCORE, not just the verdict
 
 Closes the non-monotonicity noted in the Q11 writeup: prediction was not
