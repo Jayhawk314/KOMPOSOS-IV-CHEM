@@ -253,6 +253,20 @@ def _is_resistance_intent(role: Optional[str]) -> bool:
     """True if the polymer must SURVIVE contact with the solvent."""
     return _normalize_role(role) in SOLVENT_RESISTANCE_INTERFACE_ROLES
 
+
+def _vetoed_score(total: float, cap: float) -> float:
+    """Map a vetoed composite to at most ``cap``, PRESERVING ORDER within the tier.
+
+    A hard clamp (``min(total, cap)``) collapses every vetoed pair at or above
+    the cap onto one value, destroying ranking among rejected pairs. Scaling by
+    the cap keeps the ordering while still guaranteeing the result stays below
+    ``cap`` (and thus below the viability threshold). ``cap`` is passed
+    per-branch because it encodes veto CONFIDENCE: the confirmed-immiscible veto
+    uses a lower cap (0.35) than the uncertain, missing-chain-length veto (0.45),
+    and that distinction must survive.
+    """
+    return cap * max(0.0, min(1.0, total))
+
 # Water-uptake bands, from curated `water_absorption_pct` (% at saturation).
 # Verified 7/7 against established outcomes (PTFE/PEEK/HDPE/PP/PVC resist;
 # PA6 hygroscopic; CMC dissolves).
@@ -453,14 +467,14 @@ class PolymerInterfaceValidator:
             )
         elif fh.miscible is False:
             is_viable = False
-            total = min(total, 0.35)
+            total = _vetoed_score(total, 0.35)  # confirmed immiscible: firm veto
             all_details['veto'] = (
                 f"Immiscible blend (chi={fh.chi:.4g} > chi_c={fh.critical_chi:.4g}): "
                 "Flory-Huggins phase separation expected"
             )
         elif fh.miscible is None and fh.chi is not None and fh.chi > 0.15:
             is_viable = False
-            total = min(total, 0.45)
+            total = _vetoed_score(total, 0.45)  # missing chain length: uncertain veto
             all_details['veto'] = (
                 f"Immiscible blend (chi={fh.chi:.3f}; missing chain length): "
                 "phase separation expected"
@@ -473,7 +487,7 @@ class PolymerInterfaceValidator:
             # crystallinity/entropy-driven immiscibility of solubility-matched
             # polyolefins (e.g. HDPE/PP), which needs curated chi data.
             is_viable = False
-            total = min(total, 0.45)
+            total = _vetoed_score(total, 0.45)  # solubility-only fallback: uncertain veto
             all_details['veto'] = (
                 f"Immiscible (no tabulated chi; solubility={scores['solubility']:.2f} < 0.30)"
             )

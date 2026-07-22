@@ -36,6 +36,19 @@ from oracle.compatibility_context import CompatibilityContext
 from oracle.typed_morphisms import apply_typed_morphism_adjustment
 
 
+def _vetoed_score(total: float, cap: float) -> float:
+    """Map a vetoed composite to at most ``cap``, PRESERVING ORDER within the tier.
+
+    A hard clamp (``min(total, cap)``) collapses every vetoed pair at or above
+    the cap onto one value, destroying ranking among rejected pairs. Scaling by
+    the cap instead keeps the ordering while still guaranteeing the result stays
+    below ``cap`` and therefore below the viability threshold. ``cap`` is passed
+    per-branch because it encodes veto CONFIDENCE (a softer/uncertain veto uses a
+    higher cap, a confirmed one a lower cap), and that tiering must survive.
+    """
+    return cap * max(0.0, min(1.0, total))
+
+
 @dataclass
 class CeramicConditions:
     """Operating/environmental conditions that affect composite viability."""
@@ -276,13 +289,13 @@ class CeramicInterfaceValidator:
                 )
             if cte_diff > 4.0 and not pair_known_good and not silica_glass_family:
                 is_viable = False
-                total = min(total, 0.38) # Below 0.45 threshold
+                total = _vetoed_score(total, 0.38)  # softer CTE veto tier
                 all_details['veto'] = f'CTE mismatch {cte_diff:.1f} ppm/K > 4 ppm/K: thermal shock cracking risk (ASM Handbook Vol 4)'
 
         # Veto check: known-bad ceramic pairs with severe degradation
         if scores['degradation'] < 0.15:
             is_viable = False
-            total = min(total, 0.35)
+            total = _vetoed_score(total, 0.35)  # firm degradation veto tier
             all_details['veto'] = all_details.get('veto', '') + '; known-bad pairing (degradation veto)'
 
         morphism_adjustment = apply_typed_morphism_adjustment(

@@ -61,9 +61,14 @@ Python: 3.10+
   are **OOS ECE 0.055, Brier 0.054** (historical baseline was 0.072/0.049, so ECE
   improved and Brier is marginally worse). Prefer the squash anyway: the ~0.010
   ECE difference was illusory, the ranking information is real.
-- Follow-up not done: `ceramic` and `polymer` still hard-clamp (0.35/0.38/0.45),
-  which is why 49 pairs still tie at 0.35. Converting them would change
-  long-standing, documented, benchmarked veto values, so it needs its own change.
+- Follow-up done 2026-07-21: `ceramic` and `polymer` converted too, as a TIERED
+  squash `_vetoed_score(total, cap) = cap*total` preserving each branch's cap
+  (which encodes veto confidence: polymer 0.35 confirmed vs 0.45 uncertain).
+  Distinct scores among 168 rejected pairs 64 -> 104; pairs tied at 0.35 49 -> 12
+  (all incompatible). Verdicts unchanged (0.9151, dev 41/41). **Honest calibration
+  trade-off:** isotonic OOS ECE 0.055 -> 0.070 (worse) but raw OOS ECE
+  0.159 -> 0.140 (better) and dev Brier 0.080 -> 0.052 (better); the isotonic
+  move looks like per-fold overfitting on a wider distribution, not a real loss.
 
 ### Vetoes now annihilate the SCORE, not just the verdict (2026-07-20)
 - Fixed a systemic inconsistency: `metal`, `glass`, `semiconductor` and 4 of 5
@@ -253,10 +258,12 @@ Python: 3.10+
 ### Compatibility Confidence Calibration (2026-05-30)
 - Pairwise compatibility scores are mapped to a **calibrated probability** via a global
   **isotonic** calibrator. Rebuilt 2026-07-20 after the veto-score changes moved
-  the raw distribution: 5-fold **OOS ECE 0.055, Brier 0.054** (vs raw 0.159).
-  The historical baseline was 0.072/0.049 — so ECE improved and Brier is
-  marginally worse. An intermediate clamp design showed 0.045 but that was
-  partly an artifact of a 93-pair identical-score mass point; do not quote it.
+  the raw distribution. Current (after 2026-07-21 tiered squash): isotonic 5-fold
+  **OOS ECE 0.070, Brier 0.068**, with **raw** OOS ECE 0.140. History on this
+  metric is non-monotone and partly artifactual across scorer versions — clamp
+  showed 0.045 (a mass-point artifact, do not quote), 4-bridge squash 0.055,
+  tiered 0.070 — so treat the isotonic OOS as noisy at the ~0.015 level and do
+  not headline its movement. The raw-score calibration improved (0.159 -> 0.140).
   A 0.70 means ~70% of such pairs are compatible.
 - Built by `audit/build_compatibility_calibration.py` (dev + spent diagnostics only,
   leak-controlled; current-blind excluded), stored as monotonic (x,y) breakpoints in

@@ -77,10 +77,39 @@ Note the comparison to 0.072/0.049 is not cleanly attributable, since the earlie
 scores. Treat 0.055/0.054 as the current measured state, not as an isolated
 effect of this change.
 
-**Remaining, deliberately not done:** `ceramic` and `polymer` still hard-clamp
-(0.35/0.38/0.45), which is why 49 pairs still tie at 0.35. Converting them would
-alter long-standing documented and benchmarked veto values (including the
-Flory-Huggins veto), so it needs its own change with its own verification.
+**Follow-up (2026-07-21): ceramic and polymer converted too, as a TIERED squash.**
+These two kept `min(total, cap)` with cap in {0.35, 0.38, 0.45}, where the cap
+encodes veto CONFIDENCE (polymer: 0.35 confirmed-immiscible vs 0.45
+missing-chain-length/solubility-only; ceramic: 0.35 degradation vs 0.38 CTE). A
+flat `0.35*total` would erase that, so both now use `_vetoed_score(total, cap) =
+cap * total`, preserving the per-branch tier AND restoring intra-tier order.
+
+Effect across the whole veto-consistency arc:
+
+| metric | clamp | 4-bridge squash | + ceramic/polymer tiered |
+| --- | ---: | ---: | ---: |
+| distinct scores among 168 rejected | 14 | 64 | **104** |
+| overall distinct (of 365) | 132 | 182 | **222** |
+| pairs tied at 0.35 | 105 | 49 | **12** (all incompatible) |
+| score/verdict inversions | 0 | 0 | **0** |
+| corpus accuracy | 0.9151 | 0.9151 | **0.9151** |
+| development Brier | 0.086 | 0.080 | **0.052** |
+
+**Honest trade-off on calibration — not a clean win.** Rebuilt isotonic OOS:
+ECE **0.055 -> 0.070**, Brier **0.054 -> 0.068** — modestly WORSE. But the *raw*
+OOS ECE moved the other way, **0.159 -> 0.140** (better), so the underlying
+scores are more honestly calibrated; it is specifically the isotonic fit that
+degraded, consistent with per-fold overfitting on the now-wider, sparser score
+distribution rather than a real loss. On ~55 test pairs/fold a 0.015 ECE move is
+also near the noise floor. Kept because discrimination (the load-bearing property
+for triage) and raw calibration both improved, verdicts are unchanged, and the
+earlier clamp's better isotonic number was itself partly a mass-point artifact.
+Do not quote the isotonic OOS movement as a headline in either direction.
+
+The 12 residual ties at 0.35 are pairs whose pre-veto composite was ~1.0; all 12
+are incompatible-labelled, so no compatible pair is buried. Verdict-safe by
+construction: `cap*total <= cap <= min(total, cap)`, so the squash is always <=
+the old clamp and never crosses the threshold upward.
 
 ---
 
