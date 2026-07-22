@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-07-21: narrowed the copper-sulfide veto (it was firing on LiTFSI)
+
+Follow-up review of the collector veto added 2026-07-20 found it over-broad. It
+fired whenever a Cu collector met any partner with sulfur in its formula, which
+is wrong in two directions:
+
+- **False positive: Cu + LiTFSI was vetoed.** LiTFSI's sulfur is fully-oxidized
+  sulfonyl (SO2CF3); it does not sulfidize copper. LiTFSI is a standard salt, so
+  vetoing it was a flat error.
+- **Likely false negative: Cu + Li3PS4 / LGPS was vetoed.** Sulfide *solid
+  electrolytes* sit against the anode, where copper is the standard,
+  generally-stable collector. A blanket veto there suppresses a normal
+  construction.
+
+Fix (`battery_bridge/interface_validator.py`): the veto now requires the
+sulfur-bearing partner to be a **cathode active material**
+(`material_class == CATHODE`), which is the undisputed corrosion case (elemental
+sulfur / polysulfide at cathode potential converting Cu to Cu2S). Verified:
+
+| pair | before | after | correct? |
+| --- | --- | --- | --- |
+| Cu_foil + S8 | vetoed | vetoed | yes (S cathode) |
+| Cu_foil + Li3PS4 | vetoed | viable | yes (solid electrolyte) |
+| Cu_foil + LGPS | vetoed | viable | yes (solid electrolyte) |
+| Cu_foil + LiTFSI | vetoed | viable | yes (sulfonyl salt) |
+| Al_foil + S8 | viable | viable | yes (Al is correct for S) |
+
+This also corrects a mistaken expectation in my own 2026-07-20 scratch probe,
+which asserted Cu+Li3PS4 should be incompatible. Dev unchanged (41/41). No
+calibration change: none of the affected pairs are in the calibration corpus, so
+the isotonic artifact is byte-identical (0.055/0.054). The Al-Li alloying veto is
+untouched. Q10/Q12 untouched.
+
+---
+
 ## 2026-07-20 (correction): veto scores use an order-preserving squash, not a clamp
 
 The fix recorded below shipped with `min(total, 0.35)`. Reviewing it turned up a

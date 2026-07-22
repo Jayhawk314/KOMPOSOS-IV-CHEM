@@ -362,15 +362,25 @@ class BatteryInterfaceValidator:
                         "copper is used on the anode side."
                     )
 
-            # --- 2. Copper collector against sulfur chemistry
+            # --- 2. Copper collector against a SULFUR-CATHODE active material.
+            # Restricted to cathode active materials on purpose. A blanket
+            # "sulfur in the formula" rule is wrong twice over:
+            #   * LiTFSI's sulfur is fully-oxidized sulfonyl (SO2CF3); it does not
+            #     sulfidize copper -- vetoing Cu+LiTFSI is a false positive.
+            #   * sulfide SOLID ELECTROLYTES (Li3PS4, LGPS) sit against the anode,
+            #     where copper is the standard, generally-stable collector -- a
+            #     blanket veto there is a likely false negative.
+            # The undisputed case is an elemental-sulfur / polysulfide CATHODE
+            # (high potential), which does convert Cu to Cu2S.
             if self._is_collector(collector, "Cu"):
                 formula = (partner.formula or "")
-                sulfur_bearing = "S" in _element_symbols(formula)
-                if sulfur_bearing:
+                is_cathode = getattr(partner.material_class, "name", "") == "CATHODE"
+                if is_cathode and "S" in _element_symbols(formula):
                     return (
-                        f"Sulfide corrosion: {partner.name} ({formula}) is sulfur-bearing "
-                        "and converts copper to Cu2S. Sulfur cathodes and sulfide "
-                        "chemistries use aluminium collectors, not copper."
+                        f"Sulfide corrosion: {partner.name} ({formula}) is a "
+                        "sulfur-bearing cathode; at cathode potential it converts "
+                        "copper to Cu2S. Sulfur cathodes use aluminium collectors, "
+                        "not copper."
                     )
         return None
 

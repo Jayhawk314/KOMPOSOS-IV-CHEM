@@ -33,6 +33,17 @@ Python: 3.10+
 
 ## Current Audit Posture (Updated 2026-07-20)
 
+### Copper-sulfide veto narrowed to sulfur CATHODES only (2026-07-21)
+- The collector veto added 2026-07-20 fired on any Cu-collector pair whose
+  partner had sulfur in its formula. That was over-broad: it vetoed **Cu+LiTFSI**
+  (a false positive — sulfonyl sulfur does not sulfidize Cu) and **Cu+Li3PS4/LGPS**
+  (a likely false negative — Cu is the standard anode-side collector against
+  sulfide solid electrolytes).
+- Now requires the sulfur-bearing partner to be a **cathode active material**
+  (`material_class == CATHODE`), i.e. the undisputed elemental-S/polysulfide
+  case. Cu+S8 still vetoed; Cu+{Li3PS4, LGPS, LiTFSI} now viable. Dev 41/41,
+  calibration byte-identical (no affected pair is in the corpus).
+
 ### Veto scores use an ORDER-PRESERVING squash, not a clamp (2026-07-20, corrected)
 - The first version of the fix below used `min(total, 0.35)`. That eliminated the
   inversions but **collapsed 105 of 365 pairs (28.8%) onto exactly 0.35**,
