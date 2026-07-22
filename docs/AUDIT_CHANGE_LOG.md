@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-07-21: BOM ingestion — free-form input in, honest resolution out
+
+New `ingest/` package (`ingest/bom_ingest.py`, 23 tests in
+`tests/test_bom_ingest.py`). Closes the "dropdown vocabulary" product gap: users
+can now paste a real bill of materials instead of typing canonical names.
+
+- **Parses tolerantly:** CSV/TSV/semicolon/pipe, header row optional (header
+  synonyms + unit-suffix stripping, e.g. `Qty (kg)`), plain one-name-per-line,
+  comments/blank lines skipped, unparsable rows reported in warnings — never
+  silently lost. European decimal commas handled (`1,5` vs `1,500`).
+- **Resolves in a cascade:** exact vocabulary key -> unambiguous case-insensitive
+  match -> bridge alias tables -> curated free-text/brand alias table
+  (`Kynar 2801`->PVDF, `Teflon tape`->PTFE, `copper foil`->Cu_foil,
+  `alumina`->Al2O3, ...), with a brand-with-grade prefix fallback. The PFAS
+  registry is consulted independently, so a name can be vocabulary-matched AND
+  PFAS-flagged (PVDF), or PFAS-only (screenable but not interface-scoreable).
+- **Honesty contract:** unrecognized names are a first-class outcome with
+  difflib close-match **suggestions that are never auto-applied** — pinned by a
+  test that `LiFSI` suggests LiTFSI but is NOT coerced to it (different salts).
+  The alias table is tested to map only onto names the vocabulary actually
+  contains, so ingestion can never invent a material.
+- **Wired into the PFAS report path:** `IngestResult.to_material_inputs()` feeds
+  `screen_portfolio` directly, passing canonical names (raw name preserved in
+  the function text) and keeping unknowns in the report, where they are neither
+  cleared nor flagged. The PFAS Scanner page's custom-BOM input now uses this
+  (resolution preview with recognized/unrecognized counts and suggestions)
+  instead of the rigid `name | function | qty` parser; the old pipe format still
+  parses.
+- Scope note: this is input plumbing. It adds no new scoring capability and
+  changes no benchmark; dev/compat/PFAS behaviour on canonical names is
+  untouched.
+
+---
+
 ## 2026-07-21: narrowed the copper-sulfide veto (it was firing on LiTFSI)
 
 Follow-up review of the collector veto added 2026-07-20 found it over-broad. It

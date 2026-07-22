@@ -365,20 +365,57 @@ with tab3:
 
     custom_materials = []
     if report_mode.startswith("Custom"):
-        st.markdown("Enter materials (one per line, format: `name | function | quantity_kg`)")
+        st.markdown(
+            "Paste your bill of materials — CSV (with or without a header row), "
+            "`name | function | qty` lines, or just one material name per line. "
+            "Brand names (e.g. `Kynar 2801`, `Teflon tape`) and free text "
+            "(`copper foil`, `alumina`) are resolved automatically; anything "
+            "unrecognized is flagged, never guessed."
+        )
         custom_text = st.text_area(
             "Materials",
-            value="PVDF | cathode binder | 50\nPTFE | gasket seal | 10\nNMC811 | cathode | 200\nCu foil | collector | 80",
+            value=(
+                "Material,Function,Qty (kg)\n"
+                "Kynar 2801,cathode binder,50\n"
+                "Teflon tape,gasket seal,10\n"
+                "NMC811,cathode,200\n"
+                "copper foil,collector,80"
+            ),
             height=150,
             key="custom_report_materials",
         )
-        for line in custom_text.strip().split("\n"):
-            parts = [p.strip() for p in line.split("|")]
-            if parts and parts[0]:
-                name = parts[0]
-                func = parts[1] if len(parts) > 1 else None
-                qty = float(parts[2]) if len(parts) > 2 and parts[2] else None
-                custom_materials.append(MaterialInput(name=name, function=func, quantity_kg=qty))
+        from ingest import ingest_bom
+
+        ingest_result = ingest_bom(custom_text)
+        summ = ingest_result.summary()
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Recognized", summ["matched"] + summ["pfas_only"])
+        c2.metric("Unrecognized", summ["unrecognized"])
+        c3.metric("Total lines", summ["lines"])
+        if ingest_result.parse_warnings:
+            for w in ingest_result.parse_warnings:
+                st.warning(w)
+        if ingest_result.unrecognized:
+            st.warning(
+                "Unrecognized materials stay in the report as UNKNOWN — they are "
+                "neither cleared nor flagged. If a suggestion below is what you "
+                "meant, edit the input; suggestions are never auto-applied."
+            )
+            for r in ingest_result.unrecognized:
+                sugg = f" — did you mean: {', '.join(r.suggestions)}?" if r.suggestions else ""
+                st.markdown(f"- `{r.line.raw_name}`{sugg}")
+        with st.expander("Resolution detail", expanded=False):
+            st.table([
+                {
+                    "input": r.line.raw_name,
+                    "resolved to": r.canonical or ("(PFAS registry only)" if r.status == "pfas_only" else "—"),
+                    "status": r.status,
+                    "PFAS signal": "yes" if r.pfas_flag else "",
+                    "qty (kg)": r.line.quantity_kg,
+                }
+                for r in ingest_result.resolved
+            ])
+        custom_materials = ingest_result.to_material_inputs()
 
     if st.button("Generate Screening Report", type="primary", key="gen_report"):
         if not require_access():
