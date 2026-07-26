@@ -66,13 +66,11 @@ from core.typed_capabilities import TypedPluginMixin, MathCapability, MathStruct
 
 class InfinityCosmosPlugin(Plugin, TypedPluginMixin):
     """
-    Bridge âˆž-cosmos reasoning to Orion as a capability.
+    Bridge ∞-cosmos reasoning to Orion as a capability.
 
     Capabilities provided (via TypedPluginMixin):
     - INFINITY_COSMOS: Homotopy 2-category, Yoneda, Fibrations, Kan
     - TWO_CELL_BRIDGE: 2-cell reasoning
-    """
-
 
     Events published:
     - cosmos.two_cell_added: New 2-cell created
@@ -89,7 +87,7 @@ class InfinityCosmosPlugin(Plugin, TypedPluginMixin):
             core,
             name="infinity_cosmos",
             version="0.1.0",
-            description="âˆž-cosmos layer: higher categorical reasoning",
+            description="∞-cosmos layer: higher categorical reasoning",
         )
         self.math_provides = [
             MathCapability("infinity_cosmos", MathStructure.INFINITY_COSMOS, [

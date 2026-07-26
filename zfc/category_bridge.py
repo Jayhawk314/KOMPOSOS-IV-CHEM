@@ -5,7 +5,7 @@
 # 1. Apache License 2.0 (see LICENSE file), OR
 # 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
 
-"""
+r"""
 Dual Engine Bridge -- CAT-over-ZFC Architecture.
 
 ZFC proposes claims (logical entailments, transitive chains).

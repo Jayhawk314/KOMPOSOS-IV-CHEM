@@ -5,7 +5,7 @@
 # 1. Apache License 2.0 (see LICENSE file), OR
 # 2. KOMPOSOS-III Commercial License (see LICENSE-COMMERCIAL file)
 
-"""
+r"""
 Proof Bridge -- Connects ProofGraph to the Dual-Engine System.
 
 Loads a proof graph (propositions and proof steps) into the

@@ -1,0 +1,39 @@
+{
+  "benchmark": "mlip_vs_composition_surrogate_formation_energy",
+  "level_of_theory": "surrogate:CHGNet(MPtrj)",
+  "ground_truth": "Materials Project PBE formation_energy_per_atom",
+  "structure_policy": "fully-determined cubic prototypes only; no invented coordinates",
+  "seed": 20260720,
+  "n_constructible": 200,
+  "n_train": 84,
+  "n_test": 39,
+  "mlip": {
+    "n": 39,
+    "mae": 0.14989116826480586,
+    "rmse": 0.20238036625151481,
+    "median": 0.10499101835875757
+  },
+  "surrogate": {
+    "n": 39,
+    "mae": 0.3450628541571029,
+    "rmse": 0.5214289527249777,
+    "median": 0.1944810407408916
+  },
+  "paired_mlip": {
+    "n": 39,
+    "mae": 0.14989116826480586,
+    "rmse": 0.20238036625151481,
+    "median": 0.10499101835875757
+  },
+  "paired_surrogate": {
+    "n": 39,
+    "mae": 0.3450628541571029,
+    "rmse": 0.5214289527249777,
+    "median": 0.1944810407408916
+  },
+  "paired_n": 39,
+  "mlip_wins": 23,
+  "skipped_mlip": 0,
+  "skipped_surrogate": 0,
+  "scope_note": "Cubic fully-determined prototypes only. NOT comparable to the 179-material strict-LOO benchmark (0.416 eV/atom); different materials, and the MLIP requires a structure."
+}

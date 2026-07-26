@@ -1,0 +1,1 @@
+{"PropertyTable": {"Properties": [{"CID": 23688915, "MolecularFormula": "F6LiP", "MolecularWeight": "151.9", "ConnectivitySMILES": "[Li+].F[P-](F)(F)(F)(F)F", "InChI": "InChI=1S/F6P.Li/c1-7(2,3,4,5)6;/q-1;+1", "IUPACName": "lithium hexafluorophosphate", "ExactMass": "151.98018440", "Complexity": 67, "HBondDonorCount": 0, "HBondAcceptorCount": 7}]}}
