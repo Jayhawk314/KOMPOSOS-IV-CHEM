@@ -160,3 +160,9 @@ test_logs/
 discovery/fix.py
 # Large unrelated dataset (MITRE cyber)
 data/cyber/
+
+# repo-cleanup audit tool artifacts (see careerz/github-clean tooling)
+_reachability_report.csv
+_baseline_test_results.txt
+_after_quarantine_test_results.txt
+_quarantine/
