@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """API key authentication for KOMPOSOS-III Chemistry API.
 
 Keys are configured via the KOMPOSOS_API_KEYS environment variable (comma-separated).

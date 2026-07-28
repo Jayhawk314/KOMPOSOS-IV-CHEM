@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """P2 — Build the three decoy classes (negatives for AUROC).
 
 Positives are real synthesized linkers; we have no labelled negatives, so we

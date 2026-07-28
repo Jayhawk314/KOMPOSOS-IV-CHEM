@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """MOF linker generator validation benchmark.
 
 See docs/MOF_LINKER_BENCHMARK_SPEC.md for the design. This package builds a

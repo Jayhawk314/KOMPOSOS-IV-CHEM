@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """P1 — Freeze the seed/eval split (by MOF, not by linker) and hash it.
 
 A linker can appear in several MOFs and a MOF has several linkers, so a naive

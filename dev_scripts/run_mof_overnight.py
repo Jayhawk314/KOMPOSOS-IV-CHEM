@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 from mof_bridge.linker_screening import LinkerScreener, LinkerScreeningSpec
 import json
 spec = LinkerScreeningSpec(

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Enhanced Formula Input with Smart Search for 103k+ Materials
 ================================================================
 

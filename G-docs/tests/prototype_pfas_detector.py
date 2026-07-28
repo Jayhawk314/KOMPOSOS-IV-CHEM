@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """
 Prototype: Structural PFAS Detector (OECD 2021 Rule)
 Uses RDKit to identify PFAS based on the presence of fully fluorinated

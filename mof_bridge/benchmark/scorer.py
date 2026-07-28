@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Validated funnel scorer for application use (P5).
 
 Loads the *validated* funnel configuration — the seed-corpus fingerprints (for

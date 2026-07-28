@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Compatibility calibration — fit comparison (step 2).
 
 Compares calibrators by k-fold OUT-OF-SAMPLE ECE/Brier on the labeled pairs

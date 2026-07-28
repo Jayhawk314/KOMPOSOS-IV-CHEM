@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Minimal diagnostic - find exactly where the solver hangs."""
 import sys, os, time
 sys.path.insert(0, '.')

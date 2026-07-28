@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Export a MOF linker packet for external molSimplify/DFT validation.
 
 The output intentionally includes blank external-result columns. KOMPOSOS

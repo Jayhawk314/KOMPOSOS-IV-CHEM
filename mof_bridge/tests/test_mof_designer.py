@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Tests for MOF linker inverse design system.
 
 Tests the full inverse design pipeline:

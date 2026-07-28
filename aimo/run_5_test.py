@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Run 5 test problems. Simple, no framework."""
 import sys, os, time, csv
 sys.path.insert(0, '.')

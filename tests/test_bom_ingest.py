@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Tests for BOM ingestion: tolerant parsing, honest resolution.
 
 The behavioural contracts: nothing is silently dropped, unrecognized names are

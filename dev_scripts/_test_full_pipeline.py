@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Test the full MOF designer pipeline end-to-end."""
 from mof_bridge.mp_mof_loader import MOFLinkerCache
 from mof_bridge.linker_generator import LinkerGenerator

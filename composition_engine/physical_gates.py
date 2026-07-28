@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Physical plausibility gates for generated compositions (Prong B).
 
 The analogue of the MOF funnel's hard gates, in composition space. The guiding

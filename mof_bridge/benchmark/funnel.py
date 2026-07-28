@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """P3 — The grounded funnel. Each gate is a checkable signal, not a self-score.
 
 G1  chemical sanity   : RDKit sanitize + PAINS/Brenk reject            (hard)

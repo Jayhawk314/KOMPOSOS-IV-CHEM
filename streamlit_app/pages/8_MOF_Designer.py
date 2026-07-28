@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """MOF Linker Designer -- generate novel ligands with exact atom counts."""
 
 import sys

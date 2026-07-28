@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """PFAS structural detector audit (honest edition).
 
 Evaluates the active pfas_bridge OECD CF2/CF3 rule against:

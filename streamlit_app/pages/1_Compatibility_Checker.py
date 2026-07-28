@@ -1,4 +1,7 @@
-﻿"""Material Compatibility Checker - check if two materials are compatible."""
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
+"""Material Compatibility Checker - check if two materials are compatible."""
 
 import sys
 from pathlib import Path

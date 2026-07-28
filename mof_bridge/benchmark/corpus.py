@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """P0 — Build the unified, deduped real-linker corpus.
 
 Positives come from two local sources of *synthesized* MOF linkers:

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """PFAS replacement-engine audit (honest edition).
 
 The replacement engine is a curated expert database of (PFAS, use_case) ->

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 import pytest
 from pfas_bridge.replacement_scorer import find_compatible_replacements, UseCase
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Manual UI backend smoke-test helpers; excluded from pytest collection."""
 
 __test__ = False

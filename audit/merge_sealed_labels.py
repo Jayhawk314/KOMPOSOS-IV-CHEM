@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Merge a sealed hidden-label file into a scorable benchmark file.
 
 This is the *authorized scoring event* for a sealed blind holdout. It refuses to

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Head-to-head: CHGNet MLIP vs the composition-only KOMPOSOS surrogate.
 
 Both are scored against Materials Project PBE formation energies on the SAME

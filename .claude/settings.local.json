@@ -30,7 +30,16 @@
       "Bash(sqlite3:*)",
       "Bash(pip install:*)",
       "WebFetch(domain:chembl.gitbook.io)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "PowerShell(python -m pytest polymer_bridge battery_bridge audit/tests -q --import-mode=importlib 2>&1 | Select-Object -Last 15)",
+      "PowerShell(python -m pytest polymer_bridge battery_bridge audit/tests -q --import-mode=importlib 2>&1 | Select-Object -Last 10)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(python \"C:\\\\Users\\\\JAMES\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-JAMES-github-komposos-iv-chem\\\\9a3f6aa1-e05f-464b-84bd-039382558247\\\\scratchpad\\\\check_mp_cache.py\"; Write-Output \"--- grep for mp cache loader ---\"; python -c \"import sys; sys.path.insert\\(0,'.'\\); from composition_engine.formation_energy import FormationEnergyPredictor as F; import inspect; src=inspect.getsource\\(F.__init__\\); print\\(src[:1500]\\)\" 2>&1 | Select-Object -First 30)",
+      "PowerShell(python -c \"import gzip,json; f=gzip.open\\('data/cache/materials_project/mp_summaries.json.gz','rt',encoding='utf-8'\\); d=json.load\\(f\\); print\\(type\\(d\\)\\); ks=list\\(d.keys\\(\\)\\)[:3] if isinstance\\(d,dict\\) else None; print\\('n=',len\\(d\\)\\); e=\\(d[ks[0]] if ks else d[0]\\); print\\('sample keys:', sorted\\(e.keys\\(\\)\\)[:30]\\)\")",
+      "PowerShell(python audit\\\\run_mlip_benchmark.py --json audit\\\\mlip_benchmark_report.json --limit 120 2>&1 | Select-Object -Last 45)",
+      "PowerShell(python audit\\\\run_mlip_benchmark.py --json audit\\\\mlip_benchmark_report.json 2>&1 | Select-Object -Last 35)",
+      "PowerShell(python -m pytest tests/test_mlip_integration.py -q --import-mode=importlib 2>&1 | Select-Object -Last 5; Write-Output \"--- background benchmark progress ---\"; Get-Content audit\\\\mlip_benchmark_full_2026-07-20.txt -ErrorAction SilentlyContinue | Select-Object -Last 6)",
+      "PowerShell(python -m pytest tests audit/tests polymer_bridge battery_bridge -q --import-mode=importlib 2>&1 | Select-Object -Last 8)"
     ]
   }
 }

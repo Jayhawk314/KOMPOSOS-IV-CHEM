@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
-# Copyright (c) 2024-2026 James Ray Hawkins
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """Right Kan structural priors for seeding streaming categorical prediction."""
 

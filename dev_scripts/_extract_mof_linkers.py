@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Extract 22-atom MOF linkers from existing MP cache."""
 import json
 import gzip

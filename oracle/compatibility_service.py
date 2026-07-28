@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Shared compatibility reasoning workflow for API and UI surfaces."""
 
 from __future__ import annotations

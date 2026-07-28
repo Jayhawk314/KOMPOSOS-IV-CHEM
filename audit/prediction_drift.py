@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Versioned drift gate for the formation-energy prediction contract.
 
 This turns a benchmark from prose into a monitored object.  It compares the

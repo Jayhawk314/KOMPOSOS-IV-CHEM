@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: Apache-2.0 OR KOMPOSOS-III-Commercial
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """Import pre-extracted MOF linker datasets into the KOMPOSOS cache.
 

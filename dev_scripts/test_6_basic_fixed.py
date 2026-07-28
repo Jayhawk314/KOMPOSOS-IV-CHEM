@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """
 Test with the same 6 basic strategies that gave 0.8448, but with fixed composition.
 """

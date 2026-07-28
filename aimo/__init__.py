@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """AIMO3 Solver — KOMPOSOS-IV powered mathematical reasoning."""
 
 from .solver import AIMOSolver

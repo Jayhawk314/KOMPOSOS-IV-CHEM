@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 James Hawkins / Komposos-Labs
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """
 Gray-Category 3-Cell Coherence Layer

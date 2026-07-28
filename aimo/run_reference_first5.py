@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Run first 5 AIMO3 Reference Problems with DeepSeek R1."""
 import sys, os, time, csv, json
 sys.path.insert(0, '.')

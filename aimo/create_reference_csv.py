@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Create reference_test.csv from the 10 AIMO3 Reference Problems."""
 import csv, os
 

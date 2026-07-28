@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Tests for Streamlit access control module.
 
 Tests the pure logic functions without requiring a running Streamlit app.

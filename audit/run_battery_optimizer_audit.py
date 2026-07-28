@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Battery optimizer audit (honest edition).
 
 WHAT THE OPTIMIZER ACTUALLY OPTIMIZES: theoretical energy density (cathode

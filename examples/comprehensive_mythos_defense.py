@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """
 Comprehensive Mythos Attack Simulation with Full Gray Coherence Integration
 

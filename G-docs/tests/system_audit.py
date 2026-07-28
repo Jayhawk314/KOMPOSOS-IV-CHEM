@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """
 KOMPOSOS-IV-CHEM System Audit
 Verifies the architectural mandates and feature coverage.

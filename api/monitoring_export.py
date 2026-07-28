@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Stable JSON export contracts for external monitors such as noesis.
 
 The exporter preserves CHEM's native decisions.  It does not re-judge a result

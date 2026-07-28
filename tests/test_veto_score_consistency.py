@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """A vetoed pair must never surface a score that outranks a viable one.
 
 The bug this pins: several bridges set `viable = False` on a physical veto but

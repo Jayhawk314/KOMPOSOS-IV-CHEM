@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Find exactly 22-atom MOF linkers."""
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors

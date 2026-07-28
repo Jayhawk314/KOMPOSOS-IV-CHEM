@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Compatibility confidence calibration — measurement (step 1).
 
 Are the compatibility scores trustworthy as probabilities? Measures ECE / Brier /

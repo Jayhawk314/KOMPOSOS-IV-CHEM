@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Run 10 AIMO3 Reference Benchmark problems with answer checking."""
 import sys, os, time, csv, json
 sys.path.insert(0, '.')

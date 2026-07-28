@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Run 10 AIMO3 Reference Benchmark with DeepSeek R1 (best open-weight)."""
 import sys, os, time, csv, json
 sys.path.insert(0, '.')

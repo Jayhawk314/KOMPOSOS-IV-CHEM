@@ -1786,7 +1786,7 @@ KOMPOSOS is **not a black box**. Every prediction comes with:
 
 **Maintained by:** James Ray Hawkins
 **Contact:** [Your contact info]
-**License:** Dual-licensed Apache-2.0 OR KOMPOSOS-III-Commercial
+**License:** Apache-2.0
 
 ---
 

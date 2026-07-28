@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """
 Prototype: CRYSTAL Pipeline - 3D Structural Motif Prediction
 This script demonstrates how the system will map a predicted composition

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Composition Predictor ACCURACY + CALIBRATION benchmark (leave-one-out).
 
 This measures the thing recovery does NOT: are the predicted property values

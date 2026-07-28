@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Regression tests for MD verification fallback behavior."""
 
 from oracle.md_integration import GROMACSRunner

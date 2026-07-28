@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Advanced Discovery Workbench - High-Fidelity Triage + Verification.
 
 This page extends the standard Discovery Workbench with high-precision 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Shared validation-status surface for the Streamlit UI.
 
 Single source of truth for the product's per-domain accuracy + uncertainty

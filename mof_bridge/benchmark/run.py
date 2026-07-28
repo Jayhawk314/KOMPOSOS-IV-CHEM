@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """P4 — Run the benchmark and write the report.
 
 Measures, on the frozen held-out eval reals vs. each decoy class:

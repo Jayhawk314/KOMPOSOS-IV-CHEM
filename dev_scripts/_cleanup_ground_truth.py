@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """One-time script to clean up audit ground truth data.
 
 1. De-duplicate battery.json (remove entries that duplicate blind_test_pairs.json

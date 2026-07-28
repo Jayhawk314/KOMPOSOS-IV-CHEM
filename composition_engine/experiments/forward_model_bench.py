@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Offline forward-model accuracy benchmark (leave-one-out).
 
 Research harness to find what actually reduces formation-energy MAE before

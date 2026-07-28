@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Build compatibility score calibration from non-blind compatibility datasets.
 
 The builder reads audit/dataset_registry.json and uses only datasets marked

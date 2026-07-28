@@ -110,7 +110,6 @@ evidence role, not by a blanket "non-black-box" claim.
 
 ## License
 
-Dual-licensed under Apache License 2.0 or the repository's commercial license.
-See `LICENSE` and `LICENSE-COMMERCIAL`.
+Apache License 2.0. See `LICENSE`.
 
 Author: James Ray Hawkins

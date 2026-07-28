@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """In-memory rate limiting for KOMPOSOS-III Chemistry API.
 
 Simple token-bucket rate limiter keyed by API key. No external dependencies.

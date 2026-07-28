@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Compute conformal recalibration factors for formation-energy intervals.
 
 The Phase-16 calibrated intervals are systematically too narrow (LOO coverage

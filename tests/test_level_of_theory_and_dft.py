@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0 OR LicenseRef-KOMPOSOS-IV-Commercial
-# Copyright (c) 2024-2026 James Ray Hawkins
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """Tests for the level-of-theory engine and the typed DFT terminal oracle."""
 

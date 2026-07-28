@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Category-theory ablation for the chemistry compatibility path.
 
 Question: does the categorical layer change PREDICTIVE ACCURACY, or is it

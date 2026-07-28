@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0 OR LicenseRef-KOMPOSOS-IV-Commercial
-# SPDX-FileCopyrightText: 2026 James Hawkins / Komposos-Labs
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """
 Cyber Security Bridge for KOMPOSOS-IV

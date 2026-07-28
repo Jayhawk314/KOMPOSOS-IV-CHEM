@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
+
 """Test the new MaterialSearchEngine with 103k MP materials."""
 
 from streamlit_app.material_search import MaterialSearchEngine

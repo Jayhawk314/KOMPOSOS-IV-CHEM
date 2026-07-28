@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0 OR LicenseRef-KOMPOSOS-IV-Commercial
-# Copyright (c) 2024-2026 James Ray Hawkins
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 James Ray Hawkins
 
 """
 Audit: DFT active-learning selector vs real Materials Project DFT ground truth.
