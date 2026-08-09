@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-09: MOF paired review exports and partial geometry status
+
+- Added same-order conventional and evidence-governed researcher-review CSVs.
+- Evidence exports preserve funnel status, scope, missing evidence, soft flags,
+  novelty, and experimental NOT_ASSESSED status.
+- Geometry embedding failure is now PARTIAL_PASS, not displayed as clearing
+  every grounded gate. The frozen funnel implementation and benchmark scoring
+  are unchanged.
+- Added a private, Git-excluded five-candidate A/B review packet and send guide.
+  No recipient was selected and no message was sent.
+
 ## 2026-08-09: Crystal Dreamer search-strategy ablation
 
 - Compared direct labelled filtering, an explicitly non-deployable composition

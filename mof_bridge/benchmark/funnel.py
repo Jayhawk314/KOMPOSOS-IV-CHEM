@@ -3,7 +3,7 @@
 
 """P3 — The grounded funnel. Each gate is a checkable signal, not a self-score.
 
-G1  chemical sanity   : RDKit sanitize + PAINS/Brenk reject            (hard)
+G1  chemical sanity   : RDKit sanitize (hard); PAINS/Brenk flag        (soft)
 G2  coordination      : >=2 recognized coordinating groups             (hard)
 G3  synthesizability  : SAscore (Ertl) <= threshold (from seed only)   (threshold)
 G4  geometry          : 3D-embed, donors spatially separated (ditopic) (survivors)

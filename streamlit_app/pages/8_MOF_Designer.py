@@ -3,6 +3,8 @@
 
 """MOF Linker Designer -- generate novel ligands with exact atom counts."""
 
+import datetime
+import json
 import sys
 from pathlib import Path
 
@@ -31,6 +33,7 @@ render_feature_status("mof_designer")
 try:
     from mof_bridge.linker_screening import LinkerScreener, LinkerScreeningSpec
     from mof_bridge.mp_mof_loader import MOFLinkerCache
+    from mof_bridge.review_exports import build_review_exports, grounded_funnel_status
     _MOF_OK = True
 except ImportError:
     _MOF_OK = False
@@ -293,15 +296,18 @@ if "mof_result" in st.session_state:
     scored = [(c, score_linker(c.linker_smiles) if _FUNNEL_OK else None) for c in filtered]
     if _FUNNEL_OK:
         scored.sort(key=lambda cf: cf[1]["score"], reverse=True)
-    n_passed_gates = sum(1 for _, fr in scored if fr and fr["passed_all"])
+    funnel_statuses = [
+        grounded_funnel_status(fr) for _, fr in scored
+    ] if _FUNNEL_OK else []
+    n_retained = sum(status in {"ASSESSED_PASS", "PARTIAL_PASS"} for status in funnel_statuses)
+    n_fully_assessed = sum(status == "ASSESSED_PASS" for status in funnel_statuses)
+    n_partial = sum(status == "PARTIAL_PASS" for status in funnel_statuses)
 
-    m1, m2, m3 = st.columns(3)
+    m1, m2, m3, m4 = st.columns(4)
     m1.metric("Generated", res.num_generated)
-    m2.metric(
-        "Passed grounded gates" if _FUNNEL_OK else "Passed All Verdicts",
-        n_passed_gates if _FUNNEL_OK else res.num_passed_all,
-    )
-    m3.metric("After Donor Filter", len(filtered))
+    m2.metric("Funnel Retained", n_retained if _FUNNEL_OK else res.num_passed_all)
+    m3.metric("Fully Assessed Pass", n_fully_assessed if _FUNNEL_OK else "N/A")
+    m4.metric("Geometry Unassessed", n_partial if _FUNNEL_OK else "N/A")
 
     if _FUNNEL_OK:
         st.caption(
@@ -309,7 +315,9 @@ if "mof_result" in st.session_state:
             "linkers, AUROC ~0.88 vs. raw generator output "
             "(see docs/MOF_LINKER_BENCHMARK_RESULTS.md). Gates: chemical sanity, "
             ">=2 coordinating sites, SAscore, donor geometry. Novelty = 1 - similarity "
-            "to nearest known linker. A high score is NOT a synthesis guarantee."
+            "to nearest known linker. PARTIAL_PASS means implemented gates retained "
+            "the candidate but 3D geometry could not be assessed. A high score is "
+            "NOT a synthesis guarantee."
         )
 
     _GATE_LABEL = {
@@ -338,7 +346,8 @@ if "mof_result" in st.session_state:
                 "SMILES": c.linker_smiles,
             }
             if fr:
-                row["Funnel"] = _GATE_LABEL.get(fr["died_at"], fr["died_at"] or "PASS")
+                row["Funnel Status"] = grounded_funnel_status(fr)
+                row["Stopped At"] = _GATE_LABEL.get(fr["died_at"], fr["died_at"] or "retained")
                 row["Coord"] = fr["n_coord"]
                 row["SAscore"] = fr["sascore"] if fr["sascore"] is not None else "—"
                 row["Novelty"] = round(1 - fr["max_tanimoto"], 2) if fr["max_tanimoto"] is not None else "—"
@@ -370,10 +379,13 @@ if "mof_result" in st.session_state:
         with bc2:
             if best_fr:
                 st.markdown("**Grounded funnel**")
-                if best_fr["passed_all"]:
-                    st.success("PASS — clears every grounded gate")
+                _best_status = grounded_funnel_status(best_fr)
+                if _best_status == "ASSESSED_PASS":
+                    st.success("ASSESSED_PASS - all implemented gates were assessed and passed")
+                elif _best_status == "PARTIAL_PASS":
+                    st.warning("PARTIAL_PASS - retained, but 3D donor geometry was not assessed")
                 else:
-                    st.warning(f"Stopped at {_GATE_LABEL.get(best_fr['died_at'], best_fr['died_at'])}")
+                    st.warning(f"VETOED at {_GATE_LABEL.get(best_fr['died_at'], best_fr['died_at'])}")
                 st.write(f"Coordinating sites: {best_fr['n_coord']}")
                 if best_fr["sascore"] is not None:
                     st.write(f"SAscore (lower = easier to make): {best_fr['sascore']}")
@@ -397,33 +409,32 @@ if "mof_result" in st.session_state:
 
         # Export
         st.divider()
-        c1, c2 = st.columns(2)
+        conventional_rows, evidence_rows = build_review_exports(
+            scored, formula_fn=_formula, heavy_fn=_heavy, mw_fn=_mw
+        )
+        c1, c2, c3 = st.columns(3)
         with c1:
-            csv_rows = []
-            for c in filtered:
-                csv_rows.append({
-                    "SMILES": c.linker_smiles,
-                    "formula": _formula(c.linker_smiles),
-                    "heavy_atoms": _heavy(c.linker_smiles),
-                    "MW": _mw(c.linker_smiles),
-                    "N_count": _count_donor_atoms(c.linker_smiles, "N"),
-                    "O_count": _count_donor_atoms(c.linker_smiles, "O"),
-                    "S_count": _count_donor_atoms(c.linker_smiles, "S"),
-                    "morphism_integrity": c.morphism_integrity,
-                    "viable": c.overall_viable,
-                    **{k: v for k, v in c.verdicts.items()},
-                })
             st.download_button(
-                "Download CSV", pd.DataFrame(csv_rows).to_csv(index=False),
-                "ligands.csv", "text/csv", use_container_width=True,
+                "Download Conventional CSV",
+                pd.DataFrame(conventional_rows).to_csv(index=False),
+                "mof_candidates_conventional.csv", "text/csv",
+                use_container_width=True,
+                help="Ranked candidates without evidence fields, for controlled A/B review.",
             )
         with c2:
-            import json
-            import datetime
-            
+            st.download_button(
+                "Download Evidence CSV",
+                pd.DataFrame(evidence_rows).to_csv(index=False),
+                "mof_candidates_evidence.csv", "text/csv",
+                use_container_width=True,
+                help="The same candidates with status, scope, and missing evidence.",
+            )
+        with c3:
             bundle = {
-                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-                "software_version": "KOMPOSOS-IV-CHEM (Triage-Grade Designer)",
+                "schema": "mof_designer_review.v2",
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "software_version": "KOMPOSOS-IV-CHEM (screening workflow)",
+                "evidence_role": "structural_screening_estimate",
                 "design_constraints": {
                     "target_atoms": target_atoms,
                     "required_donors": list(required_donors),
@@ -431,17 +442,18 @@ if "mof_result" in st.session_state:
                 },
                 "candidates_audit": [
                     {
-                        "candidate": c.to_dict(),
-                        "funnel_audit": next((fr for _c, fr in scored if _c.linker_smiles == c.linker_smiles), None)
-                    } for c in filtered
-                ]
+                        "candidate": candidate.to_dict(),
+                        "grounded_funnel_status": grounded_funnel_status(funnel),
+                        "funnel_audit": funnel,
+                    }
+                    for candidate, funnel in scored
+                ],
             }
-            
             st.download_button(
-                "📥 Download Reproducibility Bundle (JSON)",
-                json.dumps(bundle, indent=2),
-                "mof_designer_audit.json", "application/json", use_container_width=True,
-                help="Download an auditable JSON bundle containing the generated linkers and their exact funnel screening history."
+                "Download Audit JSON", json.dumps(bundle, indent=2),
+                "mof_designer_audit.json", "application/json",
+                use_container_width=True,
+                help="Exact funnel decisions; screening evidence, not validation.",
             )
 
         # Verdict stats

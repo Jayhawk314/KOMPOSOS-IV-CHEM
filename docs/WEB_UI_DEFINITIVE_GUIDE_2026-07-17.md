@@ -577,9 +577,19 @@ The primary funnel checks:
 4. donor geometry;
 5. novelty relative to known-linker coordinates.
 
-The result view reports where a rejected candidate stopped, distinguishes
-informational drug-filter alerts from MOF-linker vetoes, and offers candidate
-and reproducibility downloads.
+The result view reports where a rejected candidate stopped and distinguishes
+informational drug-filter alerts from MOF-linker vetoes. It now preserves four
+assessment states: ASSESSED_PASS, PARTIAL_PASS, VETOED, and NOT_ASSESSED.
+PARTIAL_PASS means the implemented funnel retained the candidate but 3D donor
+geometry could not be assessed; missing geometry is not presented as a full
+pass.
+
+For researcher review, the page exports the same ranked candidates in two
+forms: a conventional CSV and an evidence-governed CSV containing funnel
+status, scope, soft flags, novelty, missing evidence, and explicit experimental
+NOT_ASSESSED status. The JSON audit export preserves candidate objects and the
+exact funnel decisions. The paired CSVs support a controlled presentation
+study; they do not create independent chemistry evidence.
 
 ### Reproduced benchmark
 
