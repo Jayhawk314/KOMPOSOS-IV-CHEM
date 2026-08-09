@@ -432,10 +432,16 @@ strategy distribution.
 ### Evidence boundary
 
 Candidate scores inherit the limits of the formula-based forward predictor.
-The historical 7-of-9 target-recovery result was not freshly reproduced during
-the 2026-07-17 audit because the full cache-heavy run exceeded the interactive
-window. It remains quarantined until that named audit completes and records a
-reproducible artifact.
+A 2026-08-09 strict leave-one-anchor-out development run completed against the
+103,850-entry local database: 7/9 top-ranked candidates landed in the target
+property windows, 2/9 targets were recovered exactly within the top 25, and 6/9
+were compositionally near within the top 25. Si was skipped because the forward
+predictor supplied no voltage/capacity target. Charge balance was assessed for
+2,527 of 2,700 candidate decisions (93.59%); 102 definite failures were vetoed
+and 71 unassessable candidates were retained without physical clearance. This is
+self-consistency against the same forward predictor and is development/spent
+evidence, not predictive accuracy, experimental recovery, or a blind result.
+Receipt: `audit/crystal_recovery_report.json`.
 
 ### Correct use
 

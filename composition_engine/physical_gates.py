@@ -17,10 +17,10 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 try:
-    from pymatgen.core import Composition
+    from pymatgen.core import Composition, Element
     _PMG = True
 except Exception:  # pragma: no cover
     _PMG = False
@@ -42,6 +42,32 @@ def _to_integer_comp(amounts: Dict[str, float], max_mult: int = 24, maxden: int 
     return scaled
 
 
+def _reachable_element_sums(states: tuple[Fraction, ...], count: int) -> Set[Fraction]:
+    """Return distinct oxidation-state sums for ``count`` equivalent atoms.
+
+    Pymatgen's full guesser enumerates and ranks every site-level combination.
+    This gate needs only existence, so dynamic programming over distinct sums
+    answers the same yes/no question without combinatorial growth.
+    """
+    reachable: Set[Fraction] = {Fraction(0)}
+    for _ in range(count):
+        reachable = {subtotal + state for subtotal in reachable for state in states}
+    return reachable
+
+
+def _common_states(symbol: str) -> Optional[tuple[Fraction, ...]]:
+    """Return the default oxidation-state set used by pymatgen's guesser."""
+    element = Element(symbol)
+    raw = element.icsd_oxidation_states or element.common_oxidation_states
+    if not raw:
+        return None
+    try:
+        states = tuple(sorted({Fraction(str(value)) for value in raw}))
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+    return states or None
+
+
 def charge_balanceable(formula: str) -> Optional[bool]:
     """Can the composition be charge-balanced with common oxidation states?
 
@@ -58,8 +84,24 @@ def charge_balanceable(formula: str) -> Optional[bool]:
         amounts = Composition(formula).get_el_amt_dict()
         scaled = _to_integer_comp(amounts)
         if scaled is not None:
-            c = Composition(" ".join(f"{e}{n}" for e, n in scaled.items()))
-            result = bool(c.oxi_state_guesses())
+            # Match pymatgen's treatment of elemental compositions.
+            if len(scaled) == 1:
+                result = True
+            else:
+                total_sums: Set[Fraction] = {Fraction(0)}
+                for symbol, count in scaled.items():
+                    states = _common_states(symbol)
+                    if states is None:
+                        result = None
+                        break
+                    element_sums = _reachable_element_sums(states, count)
+                    total_sums = {
+                        left + right
+                        for left in total_sums
+                        for right in element_sums
+                    }
+                else:
+                    result = Fraction(0) in total_sums
     except Exception:
         result = None
     _CACHE[formula] = result

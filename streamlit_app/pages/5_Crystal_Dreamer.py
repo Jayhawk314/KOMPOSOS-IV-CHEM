@@ -245,6 +245,15 @@ if st.button("Dream Crystals", type="primary"):
     m2.metric("Evaluated", result.num_evaluated)
     m3.metric("Strategies", len(result.strategies_used))
     m4.metric("Time", f"{result.elapsed_seconds:.1f}s")
+    _gate_total = result.num_physical_assessed + result.num_physical_unassessed + result.num_physical_gated
+    _coverage = result.num_physical_assessed / _gate_total if _gate_total else 0.0
+    st.caption(
+        f"Charge-balance gate: {_coverage:.0%} assessed "
+        f"({result.num_physical_assessed}/{_gate_total}); "
+        f"{result.num_physical_gated} definite failures vetoed; "
+        f"{result.num_physical_unassessed} unassessable candidates retained "
+        "without physical clearance."
+    )
 
     if not result.candidates:
         st.warning(

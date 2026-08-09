@@ -79,9 +79,11 @@ FEATURE_NOTES = {
     ),
     "crystal_dreamer": (
         "Crystal Dreamer is an **idea generator, not a precise predictor.** A "
-        "historical audit reported 7/9 target-property recoveries, but that run "
-        "was not re-reproduced in the 2026-07-17 pass and is not a current "
-        "headline metric. The "
+        "current strict leave-one-anchor-out development audit recovers 7/9 "
+        "self-consistent target-property windows. This measures inverse-search "
+        "coverage against the same forward predictor, not predictive accuracy or "
+        "experimental recovery. Charge-balance coverage and unassessable formulas "
+        "are reported separately. The "
         "property *values* it reports are rough estimates with honest uncertainty "
         "bands — use it to **surface leads to investigate, then verify.** It does "
         "not reliably reinvent exact or unusual chemistries."

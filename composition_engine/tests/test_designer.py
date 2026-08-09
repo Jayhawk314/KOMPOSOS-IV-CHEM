@@ -4,6 +4,7 @@
 """Tests for the inverse composition designer."""
 
 import unittest
+from unittest.mock import patch
 import math
 
 from composition_engine.designer import (
@@ -325,6 +326,50 @@ class TestEdgeCases(unittest.TestCase):
             for elem in elements:
                 self.assertIn(elem, ELEMENT_TABLE,
                               f"{elem} in {group_name} not in ELEMENT_TABLE")
+
+
+class TestPhysicalGateCoverage(unittest.TestCase):
+    """Charge-balance gates stay bounded and expose missing coverage."""
+
+    def test_known_positive_and_negative_examples(self):
+        from composition_engine.physical_gates import charge_balanceable
+        self.assertIs(charge_balanceable("LiCoO2"), True)
+        self.assertIs(charge_balanceable("LiFePO4"), True)
+        self.assertIs(charge_balanceable("LiNi0.8Mn0.1Co0.1O2"), True)
+        self.assertIs(charge_balanceable("Fe3O4"), True)
+        self.assertIs(charge_balanceable("LiF2"), False)
+
+    def test_gate_does_not_call_combinatorial_guesser(self):
+        from pymatgen.core import Composition
+        from composition_engine.physical_gates import _CACHE, charge_balanceable
+        _CACHE.pop("KBr", None)
+        with patch.object(Composition, "oxi_state_guesses", side_effect=AssertionError):
+            self.assertIs(charge_balanceable("KBr"), True)
+
+    def test_dynamic_program_agrees_with_pymatgen(self):
+        from pymatgen.core import Composition
+        from composition_engine.physical_gates import _to_integer_comp, charge_balanceable
+        formulas = ["LiCoO2", "LiFePO4", "Li4Ti5O12", "NaCl", "Li2O2", "LiF2", "Fe3O4"]
+        for formula in formulas:
+            scaled = _to_integer_comp(Composition(formula).get_el_amt_dict())
+            self.assertIsNotNone(scaled)
+            comp = Composition(" ".join(f"{el}{count}" for el, count in scaled.items()))
+            expected = bool(comp.oxi_state_guesses(max_sites=-40))
+            self.assertIs(charge_balanceable(formula), expected)
+
+    def test_designer_accounts_for_every_gate_decision(self):
+        result = CompositionDesigner().design(DesignSpec(
+            targets=[PropertyTarget("voltage", min_value=3.0)],
+            domain="battery",
+            max_candidates=20,
+        ))
+        self.assertEqual(
+            result.num_physical_assessed + result.num_physical_unassessed,
+            len(result.candidates),
+        )
+        payload = result.to_dict()
+        self.assertEqual(payload["num_physical_assessed"], result.num_physical_assessed)
+        self.assertEqual(payload["num_physical_unassessed"], result.num_physical_unassessed)
 
 
 if __name__ == "__main__":

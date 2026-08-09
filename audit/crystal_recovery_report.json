@@ -1,0 +1,229 @@
+{
+  "schema": "crystal_dreamer_recovery.v1",
+  "created_utc": "2026-08-09T09:13:50.854596+00:00",
+  "evidence_role": "development_spent",
+  "claim_scope": "Strict leave-one-anchor-out inverse-search coverage against windows from the same forward predictor; not predictive accuracy, experimental recovery, or blind evidence.",
+  "command": "python -u audit/run_crystal_recovery.py",
+  "python": "3.10.11",
+  "parameters": {
+    "targets": [
+      "LCO",
+      "LFP",
+      "NMC811",
+      "NMC622",
+      "NMC111",
+      "NCA",
+      "LMO",
+      "LTO",
+      "Graphite",
+      "Si"
+    ],
+    "k": 25,
+    "near_epsilon": 0.15,
+    "exact_epsilon": 0.02,
+    "property_tolerance": 0.1,
+    "max_candidates": 300,
+    "domain": "battery"
+  },
+  "inputs": {
+    "known_database_entries": 103850,
+    "materials_project_cache_present": true,
+    "materials_project_summary_sha256": "0f0b9c5ce33df323f15eb123675c2597c080cb83d5b73f00a28b32bd61017187",
+    "materials_project_metadata_sha256": "29f8df95d08825bfba4bbf9ce580880834d1a3f267d6802cdacfe95a15a80513",
+    "audit_script_sha256": "13039b95e3647225e740c78bba6763335414ace37fd319158a85b2479f8e41f8"
+  },
+  "results": [
+    {
+      "target": "LCO",
+      "status": "assessed",
+      "target_voltage": 3.92175,
+      "target_capacity": 273.92061513450676,
+      "top_formula": "LiNi0.4Mn0.1Co0.5O2",
+      "top_voltage": 3.842940898695747,
+      "top_capacity": 276.19622463542976,
+      "property_window_match": true,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": false,
+      "minimum_composition_distance": 0.16201851746019652,
+      "returned_candidates": 291,
+      "gate": {
+        "assessed": 283,
+        "vetoed": 9,
+        "unassessable": 8
+      }
+    },
+    {
+      "target": "LFP",
+      "status": "assessed",
+      "target_voltage": 3.4,
+      "target_capacity": 169.89140754639374,
+      "top_formula": "LiFePO4",
+      "top_voltage": 3.4,
+      "top_capacity": 169.89140754639374,
+      "property_window_match": true,
+      "composition_exact_at_k": true,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.0,
+      "returned_candidates": 291,
+      "gate": {
+        "assessed": 282,
+        "vetoed": 9,
+        "unassessable": 9
+      }
+    },
+    {
+      "target": "NMC811",
+      "status": "assessed",
+      "target_voltage": 3.856121168334289,
+      "target_capacity": 275.5742051618238,
+      "top_formula": "Co0.520LiMn0.120Ni0.360O2",
+      "top_voltage": 3.844835227355019,
+      "top_capacity": 276.31007481900116,
+      "property_window_match": true,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.06808434591156348,
+      "returned_candidates": 287,
+      "gate": {
+        "assessed": 280,
+        "vetoed": 13,
+        "unassessable": 7
+      }
+    },
+    {
+      "target": "NMC622",
+      "status": "assessed",
+      "target_voltage": 3.8565857381047346,
+      "target_capacity": 276.43249454799104,
+      "top_formula": "LiNi0.4Mn0.1Co0.5O2",
+      "top_voltage": 3.842940898695747,
+      "top_capacity": 276.19622463542976,
+      "property_window_match": true,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.03535533905932737,
+      "returned_candidates": 287,
+      "gate": {
+        "assessed": 279,
+        "vetoed": 13,
+        "unassessable": 8
+      }
+    },
+    {
+      "target": "NMC111",
+      "status": "assessed",
+      "target_voltage": 3.8777107906354082,
+      "target_capacity": 277.9675429763288,
+      "top_formula": "Co0.520LiMn0.120Ni0.360O2",
+      "top_voltage": 3.844835227355019,
+      "top_capacity": 276.31007481900116,
+      "property_window_match": true,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.05400617248673217,
+      "returned_candidates": 287,
+      "gate": {
+        "assessed": 279,
+        "vetoed": 13,
+        "unassessable": 8
+      }
+    },
+    {
+      "target": "NCA",
+      "status": "assessed",
+      "target_voltage": 3.8451302634407605,
+      "target_capacity": 277.4496598855434,
+      "top_formula": "Co0.520LiMn0.120Ni0.360O2",
+      "top_voltage": 3.844835227355019,
+      "top_capacity": 276.31007481900116,
+      "property_window_match": true,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.05667892024377318,
+      "returned_candidates": 289,
+      "gate": {
+        "assessed": 285,
+        "vetoed": 11,
+        "unassessable": 4
+      }
+    },
+    {
+      "target": "LMO",
+      "status": "assessed",
+      "target_voltage": 3.993416149068323,
+      "target_capacity": 208.37992949130378,
+      "top_formula": "LiMn2O4",
+      "top_voltage": 3.993416149068323,
+      "top_capacity": 208.37992949130378,
+      "property_window_match": true,
+      "composition_exact_at_k": true,
+      "composition_near_at_k": true,
+      "minimum_composition_distance": 0.0,
+      "returned_candidates": 288,
+      "gate": {
+        "assessed": 279,
+        "vetoed": 12,
+        "unassessable": 9
+      }
+    },
+    {
+      "target": "LTO",
+      "status": "assessed",
+      "target_voltage": 1.55,
+      "target_capacity": 175.0,
+      "top_formula": "FeLi0.700O4P",
+      "top_voltage": 3.4,
+      "top_capacity": 172.16388438695094,
+      "property_window_match": false,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": false,
+      "minimum_composition_distance": 0.3037030503063962,
+      "returned_candidates": 290,
+      "gate": {
+        "assessed": 281,
+        "vetoed": 10,
+        "unassessable": 9
+      }
+    },
+    {
+      "target": "Graphite",
+      "status": "assessed",
+      "target_voltage": 0.1,
+      "target_capacity": 372.0,
+      "top_formula": "Co0.500LiO",
+      "top_voltage": 3.896017858146113,
+      "top_capacity": 381.72515531988205,
+      "property_window_match": false,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": false,
+      "minimum_composition_distance": 1.1281521496355325,
+      "returned_candidates": 288,
+      "gate": {
+        "assessed": 279,
+        "vetoed": 12,
+        "unassessable": 9
+      }
+    },
+    {
+      "target": "Si",
+      "status": "skipped",
+      "reason": "missing_voltage_or_capacity"
+    }
+  ],
+  "summary": {
+    "assessed_targets": 9,
+    "property_hits": 7,
+    "property_recovery": 0.7777777777777778,
+    "exact_hits_at_k": 2,
+    "exact_recovery_at_k": 0.2222222222222222,
+    "near_hits_at_k": 6,
+    "near_recovery_at_k": 0.6666666666666666,
+    "mean_minimum_composition_distance": 0.20088872167816904,
+    "gate_totals": {
+      "assessed": 2527,
+      "vetoed": 102,
+      "unassessable": 71
+    },
+    "gate_assessment_coverage": 0.9359259259259259
+  }
+}

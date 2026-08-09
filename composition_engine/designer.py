@@ -126,6 +126,8 @@ class DesignResult:
     strategies_used: List[str]
     elapsed_seconds: float
     num_physical_gated: int = 0  # candidates rejected by physical gates (e.g. charge balance)
+    num_physical_assessed: int = 0
+    num_physical_unassessed: int = 0
 
     def to_dict(self) -> Dict:
         return {
@@ -133,6 +135,8 @@ class DesignResult:
             "num_evaluated": self.num_evaluated,
             "num_passed_filters": self.num_passed_filters,
             "num_physical_gated": self.num_physical_gated,
+            "num_physical_assessed": self.num_physical_assessed,
+            "num_physical_unassessed": self.num_physical_unassessed,
             "strategies_used": self.strategies_used,
             "elapsed_seconds": round(self.elapsed_seconds, 3),
             "candidates": [c.to_dict() for c in self.candidates],
@@ -191,7 +195,7 @@ class CompositionDesigner:
 
     def design(self, spec: DesignSpec) -> DesignResult:
         """Main entry point: search for compositions matching spec."""
-        from composition_engine.physical_gates import passes_physical_gates
+        from composition_engine.physical_gates import charge_balanceable
         t0 = time.perf_counter()
 
         # Generate candidate formulas from all strategies
@@ -240,10 +244,17 @@ class CompositionDesigner:
         # after 100 accepted candidates but still returned an unchecked tail.
         kept: List[DesignCandidate] = []
         num_gated = 0
+        num_assessed = 0
+        num_unassessed = 0
         for c in scored:
-            if not passes_physical_gates(c.formula):
+            gate_status = charge_balanceable(c.formula)
+            if gate_status is False:
                 num_gated += 1
                 continue
+            if gate_status is True:
+                num_assessed += 1
+            else:
+                num_unassessed += 1
             kept.append(c)
         scored = kept
 
@@ -257,6 +268,8 @@ class CompositionDesigner:
             strategies_used=strategies_used,
             elapsed_seconds=elapsed,
             num_physical_gated=num_gated,
+            num_physical_assessed=num_assessed,
+            num_physical_unassessed=num_unassessed,
         )
 
     # ── Candidate generation ───────────────────────────────────────────

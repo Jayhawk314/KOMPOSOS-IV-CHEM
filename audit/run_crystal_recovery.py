@@ -19,6 +19,10 @@ the SEARCH coverage / invertibility, not the predictor's absolute accuracy.
 """
 
 import sys
+import hashlib
+import json
+import platform
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,6 +39,7 @@ K = 25
 NEAR_EPS = 0.15     # fractional-composition L2 considered "near"
 EXACT_EPS = 0.02    # essentially the same composition
 PROP_TOL = 0.10     # +/-10% target window
+REPORT_PATH = ROOT / "audit" / "crystal_recovery_report.json"
 
 
 def _norm_comp(formula: str) -> dict:
@@ -55,6 +60,16 @@ def _props(pred) -> dict:
         if isinstance(v, dict) and v.get("value") is not None:
             out[k] = v["value"]
     return out
+
+
+def _sha256(path: Path):
+    if not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 class _HeldOutDB:
@@ -92,10 +107,13 @@ def main():
     n = 0
     prop_hits = exact_hits = near_hits = 0
     dist_sum = 0.0
+    rows = []
+    gate_totals = {"assessed": 0, "vetoed": 0, "unassessable": 0}
     for name in TARGETS:
         entry = by_name.get(name)
         if entry is None:
             print(f"{name:9s} [skip: not an anchor]")
+            rows.append({"target": name, "status": "skipped", "reason": "not_an_anchor"})
             continue
         truth_comp = {el: amt / (sum(entry.composition.values()) or 1.0)
                       for el, amt in entry.composition.items()}
@@ -103,6 +121,7 @@ def main():
         v, c = tprops.get("voltage"), tprops.get("theoretical_capacity")
         if v is None or c is None:
             print(f"{name:9s} [skip: no voltage/capacity]")
+            rows.append({"target": name, "status": "skipped", "reason": "missing_voltage_or_capacity"})
             continue
 
         targets = [
@@ -113,9 +132,17 @@ def main():
         heldout = CompositionDesigner(predictor=predictor, db=_HeldOutDB(db, name, truth_comp))
         spec = DesignSpec(targets=targets, domain="battery", max_candidates=300)
         result = heldout.design(spec)
+        gate = {
+            "assessed": result.num_physical_assessed,
+            "vetoed": result.num_physical_gated,
+            "unassessable": result.num_physical_unassessed,
+        }
+        for key, value in gate.items():
+            gate_totals[key] += value
         topk = result.candidates[:K]
         if not topk:
             print(f"{name:9s} [no candidates]")
+            rows.append({"target": name, "status": "assessed_no_candidates", "gate": gate})
             n += 1
             continue
 
@@ -145,6 +172,21 @@ def main():
         near_hits += near
         dist_sum += min_dist
         print(f"{name:9s} {str(prop_match):9s} {str(exact):8s} {str(near):7s} {min_dist:8.3f} {len(result.candidates):6d}")
+        rows.append({
+            "target": name,
+            "status": "assessed",
+            "target_voltage": v,
+            "target_capacity": c,
+            "top_formula": topk[0].formula,
+            "top_voltage": tv,
+            "top_capacity": tc,
+            "property_window_match": prop_match,
+            "composition_exact_at_k": exact,
+            "composition_near_at_k": near,
+            "minimum_composition_distance": min_dist,
+            "returned_candidates": len(result.candidates),
+            "gate": gate,
+        })
 
     print("-" * 64)
     if n:
@@ -153,6 +195,42 @@ def main():
         print(f"Composition near@{K}  (L2<= {NEAR_EPS}):        {near_hits}/{n} = {near_hits/n:.0%}")
         print(f"Mean min composition distance:              {dist_sum/n:.3f}")
     print("\nNotes:")
+    summary = {
+        "assessed_targets": n,
+        "property_hits": prop_hits,
+        "property_recovery": prop_hits / n if n else None,
+        "exact_hits_at_k": exact_hits,
+        "exact_recovery_at_k": exact_hits / n if n else None,
+        "near_hits_at_k": near_hits,
+        "near_recovery_at_k": near_hits / n if n else None,
+        "mean_minimum_composition_distance": dist_sum / n if n else None,
+        "gate_totals": gate_totals,
+        "gate_assessment_coverage": gate_totals["assessed"] / sum(gate_totals.values()) if sum(gate_totals.values()) else None,
+    }
+    from composition_engine.mp_loader import MPCache
+    cache = MPCache()
+    report = {
+        "schema": "crystal_dreamer_recovery.v1",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "evidence_role": "development_spent",
+        "claim_scope": "Strict leave-one-anchor-out inverse-search coverage against windows from the same forward predictor; not predictive accuracy, experimental recovery, or blind evidence.",
+        "command": "python -u audit/run_crystal_recovery.py",
+        "python": platform.python_version(),
+        "parameters": {"targets": TARGETS, "k": K, "near_epsilon": NEAR_EPS, "exact_epsilon": EXACT_EPS, "property_tolerance": PROP_TOL, "max_candidates": 300, "domain": "battery"},
+        "inputs": {
+            "known_database_entries": db.size,
+            "materials_project_cache_present": cache.is_available(),
+            "materials_project_summary_sha256": _sha256(cache.summary_path),
+            "materials_project_metadata_sha256": _sha256(cache.meta_path),
+            "audit_script_sha256": _sha256(Path(__file__)),
+        },
+        "results": rows,
+        "summary": summary,
+    }
+    REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"Receipt: {REPORT_PATH}")
+    print(f"Receipt SHA-256: {_sha256(REPORT_PATH)}")
+
     print("- True leave-one-out: each target is removed from the anchor pool, so")
     print("  recovery requires reconstructing it from OTHER materials.")
     print("- Targets derived from the forward predictor (self-consistent); this")

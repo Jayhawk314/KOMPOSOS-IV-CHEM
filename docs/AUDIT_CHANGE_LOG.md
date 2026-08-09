@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-08-09: Crystal Dreamer charge-gate runtime and recovery receipt
+
+- Replaced pymatgen's combinatorial site-level oxidation-state enumeration with
+  an existence-only dynamic program over the same default oxidation-state sets.
+  The prototype agreed with pymatgen on 240/240 tractable candidate formulas.
+- Added assessed, vetoed, and unassessable charge-balance counts to the design
+  result and rendered those counts on the Crystal Dreamer page.
+- The named strict leave-one-anchor-out development audit now completes in about
+  27 seconds rather than exceeding 30 minutes.
+- Reproduced development result: 7/9 self-consistent property-window recovery,
+  2/9 exact@25, 6/9 near@25. Si was skipped for missing voltage/capacity.
+- Gate coverage across the nine assessed targets: 2,527/2,700 assessed (93.59%),
+  102 definite failures vetoed, 71 unassessable and retained without clearance.
+- Receipt: `audit/crystal_recovery_report.json`. This is development/spent
+  inverse-search evidence, not predictor accuracy, blind evidence, or experiment.
+
 ## 2026-07-21: BOM ingestion — free-form input in, honest resolution out
 
 New `ingest/` package (`ingest/bom_ingest.py`, 23 tests in
