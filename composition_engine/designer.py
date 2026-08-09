@@ -20,7 +20,7 @@ it solves properties -> [formulas].
 import math
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Literal, Optional, Set, Tuple
 
 import numpy as np
 
@@ -98,6 +98,9 @@ class DesignCandidate:
     formation_energy: Optional[float] = None
     structure_type: Optional[str] = None
     confidence: float = 0.0
+    physical_gate_status: Literal[
+        "ASSESSED_PASS", "VETOED", "NOT_ASSESSED"
+    ] = "NOT_ASSESSED"
 
     def to_dict(self) -> Dict:
         return {
@@ -114,6 +117,7 @@ class DesignCandidate:
             "formation_energy": self.formation_energy,
             "structure_type": self.structure_type,
             "confidence": self.confidence,
+            "physical_gate_status": self.physical_gate_status,
         }
 
 
@@ -128,6 +132,7 @@ class DesignResult:
     num_physical_gated: int = 0  # candidates rejected by physical gates (e.g. charge balance)
     num_physical_assessed: int = 0
     num_physical_unassessed: int = 0
+    physical_rejections: List[DesignCandidate] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         return {
@@ -140,7 +145,30 @@ class DesignResult:
             "strategies_used": self.strategies_used,
             "elapsed_seconds": round(self.elapsed_seconds, 3),
             "candidates": [c.to_dict() for c in self.candidates],
+            "physical_rejections": [c.to_dict() for c in self.physical_rejections],
         }
+
+    def to_flat_records(self) -> List[Dict]:
+        """Flatten retained and vetoed candidates for CSV-style audit exports."""
+        records: List[Dict] = []
+        for disposition, candidates in (
+            ("lead", self.candidates),
+            ("rejected", self.physical_rejections),
+        ):
+            for candidate in candidates:
+                record = {
+                    "disposition": disposition,
+                    "formula": candidate.formula,
+                    "physical_gate_status": candidate.physical_gate_status,
+                    "overall_score": candidate.overall_score,
+                    "confidence": candidate.confidence,
+                    "synthesizability": candidate.synthesizability,
+                    "strategy": candidate.strategy,
+                    "anchor": candidate.anchor,
+                }
+                record.update(candidate.predicted_properties)
+                records.append(record)
+        return records
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -243,17 +271,22 @@ class CompositionDesigner:
         # Check every candidate returned to a caller. Previously the gate stopped
         # after 100 accepted candidates but still returned an unchecked tail.
         kept: List[DesignCandidate] = []
+        physical_rejections: List[DesignCandidate] = []
         num_gated = 0
         num_assessed = 0
         num_unassessed = 0
         for c in scored:
             gate_status = charge_balanceable(c.formula)
             if gate_status is False:
+                c.physical_gate_status = "VETOED"
                 num_gated += 1
+                physical_rejections.append(c)
                 continue
             if gate_status is True:
+                c.physical_gate_status = "ASSESSED_PASS"
                 num_assessed += 1
             else:
+                c.physical_gate_status = "NOT_ASSESSED"
                 num_unassessed += 1
             kept.append(c)
         scored = kept
@@ -270,6 +303,7 @@ class CompositionDesigner:
             num_physical_gated=num_gated,
             num_physical_assessed=num_assessed,
             num_physical_unassessed=num_unassessed,
+            physical_rejections=physical_rejections,
         )
 
     # ── Candidate generation ───────────────────────────────────────────

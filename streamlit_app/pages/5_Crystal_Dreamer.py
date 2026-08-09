@@ -6,6 +6,7 @@
 Give it target properties, it dreams candidate crystals.
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -269,6 +270,7 @@ if st.button("Dream Crystals", type="primary"):
     for c in result.candidates[:50]:
         row = {
             "Formula": c.formula,
+            "Physical Status": c.physical_gate_status,
             "Score": c.overall_score,
             "Confidence": c.confidence,
             "Synthesizability": c.synthesizability,
@@ -301,6 +303,30 @@ if st.button("Dream Crystals", type="primary"):
 
     st.dataframe(styled, use_container_width=True, hide_index=True)
 
+    if result.physical_rejections:
+        with st.expander(
+            f"Physical-gate rejections ({len(result.physical_rejections)})"
+        ):
+            st.caption(
+                "These formulas were evaluated and vetoed for definite "
+                "charge-balance failure. They are excluded from the lead list."
+            )
+            rejection_rows = [
+                {
+                    "Formula": c.formula,
+                    "Physical Status": c.physical_gate_status,
+                    "Score Before Veto": c.overall_score,
+                    "Strategy": c.strategy,
+                    "Anchor": c.anchor,
+                }
+                for c in result.physical_rejections
+            ]
+            st.dataframe(
+                pd.DataFrame(rejection_rows),
+                use_container_width=True,
+                hide_index=True,
+            )
+
     # Bar chart: top 20 scores
     st.subheader("Top Candidates by Score")
     chart_df = pd.DataFrame({
@@ -312,6 +338,13 @@ if st.button("Dream Crystals", type="primary"):
     # Detailed view of top candidate
     best = result.candidates[0]
     st.subheader(f"Top Pick: {best.formula}")
+    if best.physical_gate_status == "ASSESSED_PASS":
+        st.success("Physical status: ASSESSED_PASS - charge-balance gate passed.")
+    else:
+        st.warning(
+            "Physical status: NOT_ASSESSED - retained as a screening candidate "
+            "without charge-balance clearance."
+        )
 
     col_detail, col_targets = st.columns(2)
 
@@ -406,3 +439,24 @@ if st.button("Dream Crystals", type="primary"):
     # Raw data
     with st.expander("Raw result data"):
         st.json(result.to_dict())
+
+    export_rows = result.to_flat_records()
+    download_csv = pd.DataFrame(export_rows).to_csv(index=False)
+    download_json = json.dumps(
+        result.to_dict(),
+        indent=2,
+        default=lambda value: value.item() if hasattr(value, "item") else str(value),
+    )
+    download_col_csv, download_col_json = st.columns(2)
+    download_col_csv.download_button(
+        "Download Candidate Audit CSV",
+        data=download_csv,
+        file_name="crystal_dreamer_candidates.csv",
+        mime="text/csv",
+    )
+    download_col_json.download_button(
+        "Download Audit JSON",
+        data=download_json,
+        file_name="crystal_dreamer_result.json",
+        mime="application/json",
+    )

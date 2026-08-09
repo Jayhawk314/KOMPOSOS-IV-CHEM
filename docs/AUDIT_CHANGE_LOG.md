@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-08-09: Crystal Dreamer per-candidate physical status
+
+- Every retained candidate now carries ASSESSED_PASS or NOT_ASSESSED.
+- Definite charge-balance failures carry VETOED, remain outside the lead list,
+  and are preserved in a separate rejection collection and UI audit view.
+- JSON and flat CSV audit exports preserve candidate status and disposition.
+- The recovery receipt schema is upgraded to v2 and records top-K candidate
+  statuses plus all physical-gate rejections for each assessed target.
+
 ## 2026-08-09: Crystal Dreamer charge-gate runtime and recovery receipt
 
 - Replaced pymatgen's combinatorial site-level oxidation-state enumeration with

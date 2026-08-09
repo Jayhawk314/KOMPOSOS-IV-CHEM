@@ -443,6 +443,12 @@ self-consistency against the same forward predictor and is development/spent
 evidence, not predictive accuracy, experimental recovery, or a blind result.
 Receipt: `audit/crystal_recovery_report.json`.
 
+Every retained lead row is now labeled `ASSESSED_PASS` or `NOT_ASSESSED`.
+Definite failures are labeled `VETOED`, excluded from the lead list, and shown
+in a separate rejection view. The CSV audit download includes both retained and
+rejected rows with their disposition; the JSON download preserves the full
+nested result and aggregate coverage.
+
 ### Correct use
 
 Use Crystal Dreamer to create a small, physically filtered lead set. Do not

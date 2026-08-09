@@ -1,6 +1,6 @@
 {
-  "schema": "crystal_dreamer_recovery.v1",
-  "created_utc": "2026-08-09T09:13:50.854596+00:00",
+  "schema": "crystal_dreamer_recovery.v2",
+  "created_utc": "2026-08-09T21:11:52.084223+00:00",
   "evidence_role": "development_spent",
   "claim_scope": "Strict leave-one-anchor-out inverse-search coverage against windows from the same forward predictor; not predictive accuracy, experimental recovery, or blind evidence.",
   "command": "python -u audit/run_crystal_recovery.py",
@@ -30,7 +30,7 @@
     "materials_project_cache_present": true,
     "materials_project_summary_sha256": "0f0b9c5ce33df323f15eb123675c2597c080cb83d5b73f00a28b32bd61017187",
     "materials_project_metadata_sha256": "29f8df95d08825bfba4bbf9ce580880834d1a3f267d6802cdacfe95a15a80513",
-    "audit_script_sha256": "13039b95e3647225e740c78bba6763335414ace37fd319158a85b2479f8e41f8"
+    "audit_script_sha256": "4716ebce6060bd56a5682c510ac4b8c3df8af2ecadabf2c117055d7305a592d7"
   },
   "results": [
     {
@@ -50,7 +50,240 @@
         "assessed": 283,
         "vetoed": 9,
         "unassessable": 8
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9285110607309359,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9251443050942213,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210883794018045,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 4,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.921046705257219,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 5,
+          "formula": "Co0.180Fe0.100LiMn0.180Ni0.540O2.200P0.100",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210454895818657,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 6,
+          "formula": "Co0.070Fe0.300LiMn0.070Ni0.560O2.600P0.300",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9207279891144381,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 7,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9207053066262987,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 8,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206829419997989,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 9,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206252784941064,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 10,
+          "formula": "Co0.200Li1.150Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9205338914435676,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 11,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9200290130645571,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 12,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9198296817820574,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 13,
+          "formula": "Al0.200Co0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9190496616847599,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 14,
+          "formula": "LiMn0.200Ni0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.918935318592835,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 15,
+          "formula": "Co0.200LiNi0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188279537167591,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 16,
+          "formula": "Co0.200Li0.700Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188218734379737,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.080Fe0.200LiMn0.080Ni0.640O2.400P0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188196067499721,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 18,
+          "formula": "LiMn0.200Ni0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9187902118861914,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 19,
+          "formula": "Co0.200LiNi0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186833607369616,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 20,
+          "formula": "Al0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186666151138491,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 21,
+          "formula": "Cr0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186358086639758,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 22,
+          "formula": "Fe0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186301506748409,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.200Cr0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9185291258108493,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 24,
+          "formula": "Co0.200Fe0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9185230666312499,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 25,
+          "formula": "Co0.200LiMn0.200Ni0.600O2.300",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9185190698863819,
+          "strategy": "perturbation"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8858517000406296,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8656288208259643,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Fe0.500Li0.500O2P0.500Si0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.6791897518187573,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4984826824533084,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.466742152085619,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4417356192378853,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Fe0.100Li0.100O0.400P0.100Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.31882209788166255,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe0.200LiO0.800P0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3007917274067128,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe0.100LiO0.400P0.100",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.27353940691939704,
+          "strategy": "interpolation"
+        }
+      ]
     },
     {
       "target": "LFP",
@@ -69,7 +302,240 @@
         "assessed": 282,
         "vetoed": 9,
         "unassessable": 9
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "LiFePO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.8193186864229178,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 2,
+          "formula": "LiMn2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.6055909173767894,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "Co0.100LiMn1.800O3.800",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5997193968662435,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 4,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5929223227430116,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 5,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5924198238690986,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 6,
+          "formula": "Co0.200LiMn0.200Ni0.600O2.300",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5923583808977201,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 7,
+          "formula": "Co0.280LiMn0.080Ni0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.590287458310782,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 8,
+          "formula": "Co0.200Fe0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5901935295191332,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 9,
+          "formula": "Co0.200Li1.300Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5897075752819971,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 10,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5895221314714195,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 11,
+          "formula": "Co0.370LiMn0.070Ni0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5894625046305406,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 12,
+          "formula": "Co0.200Li1.150Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5893544105467442,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 13,
+          "formula": "Co0.200Cr0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5892147206459751,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 14,
+          "formula": "Co0.200LiNi0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5891308684592774,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 15,
+          "formula": "Co0.200LiNi0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5882306965221767,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 16,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5881557877881778,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.280LiMn0.180Ni0.540O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.587526610559977,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 18,
+          "formula": "Co0.190LiMn0.090Ni0.720O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5869806294300197,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 19,
+          "formula": "Al0.040Co0.320LiNi0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5869727428853695,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 20,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5869551006332661,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 21,
+          "formula": "LiNi0.7Mn0.1Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5863633739334233,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 22,
+          "formula": "Fe0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5861903289230905,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5861164032403179,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 24,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5860386501646796,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 25,
+          "formula": "Al0.035Co0.405LiNi0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.5859993229125279,
+          "strategy": "interpolation"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5473041483873177,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5435075979751176,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.37299103519052895,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.32600863270840513,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.29637269142276823,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2543064568596139,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.25041069378949243,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2356562315687013,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2346284257780852,
+          "strategy": "interpolation"
+        }
+      ]
     },
     {
       "target": "NMC811",
@@ -88,7 +554,264 @@
         "assessed": 280,
         "vetoed": 13,
         "unassessable": 7
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9287195282118674,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9285110607309359,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9251443050942213,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 4,
+          "formula": "Al0.025Co0.575LiNi0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9211719233659891,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 5,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210883794018045,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 6,
+          "formula": "Co0.280LiMn0.180Ni0.540O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210553568222193,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 7,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.921046705257219,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 8,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9207053066262987,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 9,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206829419997989,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 10,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206252784941064,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 11,
+          "formula": "Co0.200Li1.150Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9205338914435676,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 12,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9200290130645571,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 13,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9198296817820574,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 14,
+          "formula": "Al0.040Co0.320LiNi0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9195259632473638,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 15,
+          "formula": "Al0.200Co0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9190496616847599,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 16,
+          "formula": "LiMn0.200Ni0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.918935318592835,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.200LiNi0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188279537167591,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 18,
+          "formula": "Co0.200Li0.700Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188218734379737,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 19,
+          "formula": "LiMn0.200Ni0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9187902118861914,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 20,
+          "formula": "Co0.200LiNi0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186833607369616,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 21,
+          "formula": "Al0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186666151138491,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 22,
+          "formula": "Al0.035Co0.405LiNi0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186509624954848,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 23,
+          "formula": "Cr0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186358086639758,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 24,
+          "formula": "Fe0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186301506748409,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 25,
+          "formula": "Co0.200Cr0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9185291258108493,
+          "strategy": "substitution"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8858517000406296,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8656288208259643,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7397444375210356,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.6598711049580576,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5874340871003699,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.506990719572471,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4756223874574009,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.450488856439662,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.44027449315238704,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4288386841010965,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3713086161783174,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3512445823736393,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe2LiO4",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.0,
+          "strategy": "substitution"
+        }
+      ]
     },
     {
       "target": "NMC622",
@@ -107,7 +830,264 @@
         "assessed": 279,
         "vetoed": 13,
         "unassessable": 8
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9285110607309359,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9251443050942213,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "Co0.550LiMn0.050Ni0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9227199002902364,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 4,
+          "formula": "Al0.025Co0.575LiNi0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9211719233659891,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 5,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210883794018045,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 6,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.921046705257219,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 7,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206829419997989,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 8,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206252784941064,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 9,
+          "formula": "Co0.280LiMn0.080Ni0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9204692388217859,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 10,
+          "formula": "Co0.370LiMn0.070Ni0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9201295031671933,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 11,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9200290130645571,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 12,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9198296817820574,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 13,
+          "formula": "Al0.040Co0.320LiNi0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9195259632473638,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 14,
+          "formula": "Al0.035Co0.405LiNi0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186509624954848,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 15,
+          "formula": "Co0.190LiMn0.090Ni0.720O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9184650998370691,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 16,
+          "formula": "LiNi0.7Mn0.1Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.918433255757549,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.100LiMn0.100Ni0.680O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9183162109199404,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 18,
+          "formula": "LiNi0.7Mn0.2Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9179153382406808,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 19,
+          "formula": "Al0.050Co0.150LiNi0.680O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9172153768127158,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 20,
+          "formula": "Al0.045Co0.235LiNi0.720O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9170510827322733,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 21,
+          "formula": "LiNi0.3Mn0.2Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9155122785929742,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 22,
+          "formula": "LiNi0.3Mn0.5Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9153312484618457,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.533LiMn0.233Ni0.233O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9143209709456317,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 24,
+          "formula": "LiNi0.2Mn0.3Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9139297001578832,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 25,
+          "formula": "LiNi0.2Mn0.5Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9137197156831496,
+          "strategy": "stoichiometry"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8858517000406296,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8656288208259643,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7397444375210356,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.6616962030160551,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.588997300504075,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5060548821229333,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4749030584310709,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4498654302536947,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.44103316650376806,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.42955270071363333,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3716484044382831,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3513120515638568,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe2LiO4",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.0,
+          "strategy": "substitution"
+        }
+      ]
     },
     {
       "target": "NMC111",
@@ -126,7 +1106,264 @@
         "assessed": 279,
         "vetoed": 13,
         "unassessable": 8
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9287195282118674,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9285110607309359,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9251443050942213,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 4,
+          "formula": "Co0.550LiMn0.050Ni0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9227199002902364,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 5,
+          "formula": "Al0.025Co0.575LiNi0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9211719233659891,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 6,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210883794018045,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 7,
+          "formula": "Co0.280LiMn0.180Ni0.540O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210553568222193,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 8,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.921046705257219,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 9,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9207053066262987,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 10,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206829419997989,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 11,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206252784941064,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 12,
+          "formula": "Co0.200Li1.150Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9205338914435676,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 13,
+          "formula": "Co0.280LiMn0.080Ni0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9204692388217859,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 14,
+          "formula": "Co0.370LiMn0.070Ni0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9201295031671933,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 15,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9200290130645571,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 16,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9198296817820574,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 17,
+          "formula": "Al0.040Co0.320LiNi0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9195259632473638,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 18,
+          "formula": "Al0.200Co0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9190496616847599,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 19,
+          "formula": "LiMn0.200Ni0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.918935318592835,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 20,
+          "formula": "Co0.200LiNi0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188279537167591,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 21,
+          "formula": "Co0.200Li0.700Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188218734379737,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 22,
+          "formula": "LiMn0.200Ni0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9187902118861914,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.200LiNi0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186833607369616,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 24,
+          "formula": "Al0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186666151138491,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 25,
+          "formula": "Al0.035Co0.405LiNi0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186509624954848,
+          "strategy": "interpolation"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8858517000406296,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.8656288208259643,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7409796915988123,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7397444375210356,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.591796719170045,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.501183257109743,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.47042849003409665,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.44565781981187236,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4423983667733247,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4308378877244265,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3722624735877404,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3514350369183295,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe2LiO4",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.0,
+          "strategy": "substitution"
+        }
+      ]
     },
     {
       "target": "NCA",
@@ -145,7 +1382,252 @@
         "assessed": 285,
         "vetoed": 11,
         "unassessable": 4
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9287195282118674,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9285110607309359,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9251443050942213,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 4,
+          "formula": "Co0.550LiMn0.050Ni0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9227199002902364,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 5,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210883794018045,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 6,
+          "formula": "Co0.280LiMn0.180Ni0.540O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9210553568222193,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 7,
+          "formula": "LiNi0.5Mn0.2Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.921046705257219,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 8,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9207053066262987,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 9,
+          "formula": "LiNi0.6Mn0.3Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206829419997989,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 10,
+          "formula": "LiNi0.6Mn0.1Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9206252784941064,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 11,
+          "formula": "Co0.200Li1.150Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9205338914435676,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 12,
+          "formula": "Co0.280LiMn0.080Ni0.640O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9204692388217859,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 13,
+          "formula": "Co0.370LiMn0.070Ni0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9201295031671933,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 14,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9200290130645571,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 15,
+          "formula": "LiNi0.5Mn0.1Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9198296817820574,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 16,
+          "formula": "Al0.200Co0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9190496616847599,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 17,
+          "formula": "LiMn0.200Ni0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.918935318592835,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 18,
+          "formula": "Co0.200LiNi0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188279537167591,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 19,
+          "formula": "Co0.200Li0.700Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9188218734379737,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 20,
+          "formula": "LiMn0.200Ni0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9187902118861914,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 21,
+          "formula": "Co0.200LiNi0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186833607369616,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 22,
+          "formula": "Al0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186666151138491,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 23,
+          "formula": "Cr0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186358086639758,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 24,
+          "formula": "Fe0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9186301506748409,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 25,
+          "formula": "Co0.200Cr0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.9185291258108493,
+          "strategy": "substitution"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7409796915988123,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7397444375210356,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.590851763789033,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5068954903249755,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4759870108145563,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.45100263580403893,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.44193659896824533,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4304031345365253,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3720543927160296,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3513932113926711,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Fe2LiO4",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.0,
+          "strategy": "substitution"
+        }
+      ]
     },
     {
       "target": "LMO",
@@ -164,7 +1646,258 @@
         "assessed": 279,
         "vetoed": 12,
         "unassessable": 9
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "LiMn2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.8440643168866165,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 2,
+          "formula": "Co0.100Fe0.900LiO3.800P0.900",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.78778011,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 3,
+          "formula": "Co0.600Li2.200O6Ti2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7877007306524942,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 4,
+          "formula": "CoLiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7862802643137922,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 5,
+          "formula": "Co0.800Li1.600O4Ti",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7860967081500881,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 6,
+          "formula": "LiNiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7854980251295913,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 7,
+          "formula": "Co0.200Fe0.800LiO3.600P0.800",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7830454684059764,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 8,
+          "formula": "LiCo0.5Mn1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7735121052318131,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 9,
+          "formula": "Co0.700Li1.900O5Ti1.500",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7713730317263205,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMn0.5Co1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.767448493391223,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 11,
+          "formula": "LiCo2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7668382100324396,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 12,
+          "formula": "LiNi0.5Co1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7652265520261005,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 13,
+          "formula": "LiFe0.2Mn0.8PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7650172663120007,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 14,
+          "formula": "LiFe0.1Mn0.9PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7636940916260168,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 15,
+          "formula": "LiFe0.3Mn0.7PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7629564928010729,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 16,
+          "formula": "LiFe0.8Mn0.2PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7623406805970797,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 17,
+          "formula": "LiNi0.5Mn1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7616846724851751,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 18,
+          "formula": "LiFe0.9Mn0.1PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7614669983851399,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 19,
+          "formula": "LiMn0.5Ni1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7613081906036577,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 20,
+          "formula": "LiMnO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7608393185474405,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 21,
+          "formula": "LiFe0.7Mn0.3PO4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7604019961480352,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 22,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7599395484396387,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7598165220851925,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 24,
+          "formula": "LiCo0.5Ni1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7596832952782838,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 25,
+          "formula": "Co0.550LiMn0.050Ni0.400O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.7553593151655612,
+          "strategy": "interpolation"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.7230053415696198,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.6947952676173781,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.6008130704223701,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5882503431952315,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5384142750116844,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5207414995854338,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.5009609815495627,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4733370145144734,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3928304424766752,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3845563979169614,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.35263720881276095,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3483156206115389,
+          "strategy": "interpolation"
+        }
+      ]
     },
     {
       "target": "LTO",
@@ -177,13 +1910,252 @@
       "property_window_match": false,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
-      "minimum_composition_distance": 0.3037030503063962,
+      "minimum_composition_distance": 0.30370305030639616,
       "returned_candidates": 290,
       "gate": {
         "assessed": 281,
         "vetoed": 10,
         "unassessable": 9
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "FeLi0.700O4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 2,
+          "formula": "FeLi0.850O4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 3,
+          "formula": "Fe0.700LiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 4,
+          "formula": "Fe0.850LiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 5,
+          "formula": "FeLiO4P0.850",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 6,
+          "formula": "FeLiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.45468880939549505,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 7,
+          "formula": "FeLiO4P1.300",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.44035439935657134,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 8,
+          "formula": "FeLiO4P1.150",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.44004700343220166,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 9,
+          "formula": "Fe1.150LiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.43997465055362156,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 10,
+          "formula": "FeLi1.300O4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.43993705103810965,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 11,
+          "formula": "FeLi1.150O4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.43990124901816363,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 12,
+          "formula": "FeLiO3.400P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.438303238837286,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 13,
+          "formula": "FeLiO2.800P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.358678640356683,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 14,
+          "formula": "Fe1.300LiO4P",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3464641101653038,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 15,
+          "formula": "LiMn2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.33693360411120005,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 16,
+          "formula": "Co0.100LiMn1.800O3.800",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3282669558822461,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.200LiMn1.600O3.600",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3137789634638359,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 18,
+          "formula": "Co0.200Li0.200O0.400S6.400",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.2956323608483371,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 19,
+          "formula": "Co0.300Li0.300O0.600S5.600",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.28188521398115784,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 20,
+          "formula": "LiCo2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.2792974817711271,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 21,
+          "formula": "LiNi0.5Co1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.27855040995064345,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 22,
+          "formula": "LiCo0.5Ni1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.2762297097544236,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 23,
+          "formula": "LiNi2O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.2741035786007864,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 24,
+          "formula": "LiMn0.5Co1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.27356805464468453,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 25,
+          "formula": "LiMn0.5Ni1.5O4",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.2709268596329843,
+          "strategy": "stoichiometry"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.4550652113741392,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.452753977283564,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3374478014984291,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2185927752024534,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.19008590542085807,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.1626561062193429,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.11197594822531248,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.029058205708743165,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.021454255544140547,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.01999253722172885,
+          "strategy": "interpolation"
+        }
+      ]
     },
     {
       "target": "Graphite",
@@ -202,7 +2174,258 @@
         "assessed": 279,
         "vetoed": 12,
         "unassessable": 9
-      }
+      },
+      "top_k_candidates": [
+        {
+          "rank": 1,
+          "formula": "Co0.500LiO",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.40073337450689095,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 2,
+          "formula": "Co0.600LiO1.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.38950346286738274,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 3,
+          "formula": "Co0.400Li0.400O0.800Si0.600",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.36580211975308874,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 4,
+          "formula": "Co0.100Li0.100O0.200S7.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.35835856528435667,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 5,
+          "formula": "Co0.200LiMn0.200Ni0.420O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.326408226752545,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 6,
+          "formula": "Al0.050Co0.150LiNi0.680O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3232059637743461,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 7,
+          "formula": "Co0.100LiMn0.100Ni0.560O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.32203830730617244,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 8,
+          "formula": "Co0.100LiMn0.100Ni0.680O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3215104736820385,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 9,
+          "formula": "Al0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3214411546104249,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 10,
+          "formula": "Al0.200Co0.200LiNi0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31909549739167464,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 11,
+          "formula": "LiNi0.4Mn0.5Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31710720472653836,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 12,
+          "formula": "LiNi0.3Mn0.5Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31516098516496543,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn0.200Ni0.600O2Ti0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.315046426183871,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 14,
+          "formula": "Co0.200Li0.700Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31460687552196254,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 15,
+          "formula": "Co0.200LiMn0.200Ni0.510O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31445796020906586,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 16,
+          "formula": "LiMn0.200Ni0.600O2V0.200",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31421069600843266,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 17,
+          "formula": "Co0.520LiMn0.120Ni0.360O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3141952052278409,
+          "strategy": "interpolation"
+        },
+        {
+          "rank": 18,
+          "formula": "LiNi0.5Mn0.4Co0.1O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31418690810384603,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 19,
+          "formula": "LiNi0.2Mn0.5Co0.3O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3141522186289537,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 20,
+          "formula": "LiNi0.4Mn0.1Co0.5O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31391111230116964,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 21,
+          "formula": "Cr0.200LiMn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3138080599133614,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 22,
+          "formula": "LiNi0.1Mn0.5Co0.4O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31372369650725235,
+          "strategy": "stoichiometry"
+        },
+        {
+          "rank": 23,
+          "formula": "Co0.200Li0.850Mn0.200Ni0.600O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3136177627310152,
+          "strategy": "perturbation"
+        },
+        {
+          "rank": 24,
+          "formula": "Al0.100LiMn0.100Ni0.800O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.3134672964662271,
+          "strategy": "substitution"
+        },
+        {
+          "rank": 25,
+          "formula": "LiNi0.5Mn0.3Co0.2O2",
+          "physical_gate_status": "ASSESSED_PASS",
+          "overall_score": 0.31340302991002056,
+          "strategy": "stoichiometry"
+        }
+      ],
+      "physical_rejections": [
+        {
+          "formula": "Co0.500Li0.500OSi0.500",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.3754294198721624,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.560O2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.32365552783463264,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Al0.050Co0.150LiNi0.800O2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2794839717491879,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.700LiO2",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.2446983096143944,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "CoLiO2.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.18961065846218925,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.100Li0.100O0.200Si0.900",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.17242309795164945,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.300LiO0.600",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.16195464820523317,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "FeLiO4P0.700",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.13095029446585965,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO4.600P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.11535247272255655,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "FeLiO5.200P",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.10616609122416494,
+          "strategy": "perturbation"
+        },
+        {
+          "formula": "Co0.200LiO0.400",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.07733330279657176,
+          "strategy": "interpolation"
+        },
+        {
+          "formula": "Co0.100LiO0.200",
+          "physical_gate_status": "VETOED",
+          "overall_score": 0.0176939452289912,
+          "strategy": "interpolation"
+        }
+      ]
     },
     {
       "target": "Si",

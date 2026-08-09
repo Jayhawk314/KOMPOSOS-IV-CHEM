@@ -296,6 +296,9 @@ class TestEdgeCases(unittest.TestCase):
         self.assertIn("candidates", d)
         self.assertIn("elapsed_seconds", d)
         self.assertEqual(d["num_candidates"], len(d["candidates"]))
+        self.assertIn("physical_rejections", d)
+        for candidate in d["candidates"]:
+            self.assertIn("physical_gate_status", candidate)
 
     def test_deduplication(self):
         """Deduplication should remove near-identical compositions."""
@@ -370,6 +373,51 @@ class TestPhysicalGateCoverage(unittest.TestCase):
         payload = result.to_dict()
         self.assertEqual(payload["num_physical_assessed"], result.num_physical_assessed)
         self.assertEqual(payload["num_physical_unassessed"], result.num_physical_unassessed)
+        self.assertEqual(len(result.physical_rejections), result.num_physical_gated)
+        self.assertTrue(all(
+            candidate.physical_gate_status in {"ASSESSED_PASS", "NOT_ASSESSED"}
+            for candidate in result.candidates
+        ))
+        self.assertTrue(all(
+            candidate.physical_gate_status == "VETOED"
+            for candidate in result.physical_rejections
+        ))
+
+    def test_per_candidate_gate_status_and_rejection_serialization(self):
+        statuses = iter([True, None, False])
+        with patch(
+            "composition_engine.physical_gates.charge_balanceable",
+            side_effect=lambda _formula: next(statuses),
+        ):
+            result = CompositionDesigner().design(DesignSpec(
+                targets=[PropertyTarget("voltage", min_value=3.0)],
+                domain="battery",
+                max_candidates=3,
+            ))
+
+        self.assertEqual(
+            [candidate.physical_gate_status for candidate in result.candidates],
+            ["ASSESSED_PASS", "NOT_ASSESSED"],
+        )
+        self.assertEqual(len(result.physical_rejections), 1)
+        self.assertEqual(
+            result.physical_rejections[0].physical_gate_status,
+            "VETOED",
+        )
+        payload = result.to_dict()
+        self.assertEqual(
+            payload["physical_rejections"][0]["physical_gate_status"],
+            "VETOED",
+        )
+        flat = result.to_flat_records()
+        self.assertEqual(
+            [(row["disposition"], row["physical_gate_status"]) for row in flat],
+            [
+                ("lead", "ASSESSED_PASS"),
+                ("lead", "NOT_ASSESSED"),
+                ("rejected", "VETOED"),
+            ],
+        )
 
 
 if __name__ == "__main__":

@@ -186,6 +186,25 @@ def main():
             "minimum_composition_distance": min_dist,
             "returned_candidates": len(result.candidates),
             "gate": gate,
+            "top_k_candidates": [
+                {
+                    "rank": rank,
+                    "formula": candidate.formula,
+                    "physical_gate_status": candidate.physical_gate_status,
+                    "overall_score": candidate.overall_score,
+                    "strategy": candidate.strategy,
+                }
+                for rank, candidate in enumerate(topk, start=1)
+            ],
+            "physical_rejections": [
+                {
+                    "formula": candidate.formula,
+                    "physical_gate_status": candidate.physical_gate_status,
+                    "overall_score": candidate.overall_score,
+                    "strategy": candidate.strategy,
+                }
+                for candidate in result.physical_rejections
+            ],
         })
 
     print("-" * 64)
@@ -210,7 +229,7 @@ def main():
     from composition_engine.mp_loader import MPCache
     cache = MPCache()
     report = {
-        "schema": "crystal_dreamer_recovery.v1",
+        "schema": "crystal_dreamer_recovery.v2",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "evidence_role": "development_spent",
         "claim_scope": "Strict leave-one-anchor-out inverse-search coverage against windows from the same forward predictor; not predictive accuracy, experimental recovery, or blind evidence.",
