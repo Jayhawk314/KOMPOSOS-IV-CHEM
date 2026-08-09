@@ -1,4 +1,13 @@
-# KOMPOSOS-IV-CHEM Session Report ? 2026-08-09
+# KOMPOSOS-IV-CHEM Session Report - 2026-08-09
+
+> **Superseded as a current-state summary.** This document records the initial
+> Crystal Dreamer repair stage of the August 9 session. Work continued after it
+> was written: the repair was committed and pushed, per-candidate physical status
+> was added, the search-strategy ablation was completed, MOF evidence-governed
+> exports were implemented, and relevant tests and benchmarks were rerun. See
+> `docs/SESSION_CLOSURE_2026-08-09.md` for the final verified state and
+> recommended next steps. Historical diagnostics below are retained rather than
+> silently rewritten.
 
 ## Purpose and evidence discipline
 
