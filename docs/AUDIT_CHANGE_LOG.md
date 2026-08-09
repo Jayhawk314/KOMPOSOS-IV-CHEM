@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-08-09: Crystal Dreamer search-strategy ablation
+
+- Compared direct labelled filtering, an explicitly non-deployable composition
+  oracle, one deterministic random draw, four individual strategies, and the
+  four-strategy union under matched development targets and budgets.
+- The union tied several simpler variants at 7/9 property-window recovery.
+- The 58-formula stoichiometry grid matched 7/9, exceeded union exact@25
+  recovery (4/9 versus 2/9), tied near@25 (6/9), and had 100% gate coverage.
+- Direct MP voltage/capacity filtering was NOT_ASSESSED: zero local MP rows have
+  both required labels.
+- The union's incremental value is not established. Receipt:
+  audit/crystal_search_ablation_report.json.
+
 ## 2026-08-09: Crystal Dreamer per-candidate physical status
 
 - Every retained candidate now carries ASSESSED_PASS or NOT_ASSESSED.
