@@ -1,11 +1,11 @@
 {
   "schema": "crystal_dreamer_search_ablation.v1",
-  "created_utc": "2026-08-09T21:45:47.626047+00:00",
+  "created_utc": "2026-08-12T23:00:43.689407+00:00",
   "evidence_role": "development_spent",
   "claim_scope": "Candidate-search comparison using target windows and candidate properties from the same forward predictor; not predictive accuracy, blind evidence, or experimental validation.",
   "command": "python -u audit/run_crystal_search_ablation.py",
   "python": "3.10.11",
-  "base_revision_before_ablation_change": "3809b644a2f36b17dacc4ea77d7fb703ef42c57d",
+  "base_revision_before_ablation_change": "1eb1d04c302b575fae244ed86227f4a04aa49c8b",
   "parameters": {
     "targets": [
       "LCO",
@@ -21,6 +21,7 @@
     ],
     "variants": [
       "direct_labelled_filter",
+      "known_property_retrieval",
       "oracle_composition_neighbour",
       "random_union",
       "perturbation",
@@ -34,13 +35,25 @@
     "property_tolerance": 0.1,
     "exact_epsilon": 0.02,
     "near_epsilon": 0.15,
-    "random_seed": 20260809
+    "random_seed": 20260809,
+    "variant_seed_offsets": {
+      "direct_labelled_filter": 0,
+      "oracle_composition_neighbour": 1,
+      "random_union": 2,
+      "perturbation": 3,
+      "interpolation": 4,
+      "substitution": 5,
+      "stoichiometry": 6,
+      "four_strategy_union": 7,
+      "known_property_retrieval": 8
+    }
   },
   "data_coverage": {
     "battery_entries": 12378,
     "voltage_and_capacity_labelled_entries": 12,
     "materials_project_voltage_and_capacity_labelled_entries": 0
   },
+  "retrieval_warning": "known_property_retrieval is deployable as a retrieval policy but uses the same forward predictor that generated the target windows. The candidate formula is held out from the candidate pool, not from all forward-model training/reference artifacts.",
   "unavailable_baselines": [
     {
       "name": "direct_materials_project_voltage_capacity_filter",
@@ -53,7 +66,7 @@
     "known_database_entries": 103850,
     "materials_project_summary_sha256": "0f0b9c5ce33df323f15eb123675c2597c080cb83d5b73f00a28b32bd61017187",
     "materials_project_metadata_sha256": "29f8df95d08825bfba4bbf9ce580880834d1a3f267d6802cdacfe95a15a80513",
-    "audit_script_sha256": "976eb3a6e200d3338eb66cc6f7bf4ba6a94d3680c88a023723aed5d1986aaff8",
+    "audit_script_sha256": "932b029ec891fe61d650ccfa8bfc4d040f9c950a3e40712e6da307401157fe44",
     "recovery_receipt_sha256": "78331a0e22103a1a213f8a41001f37d704edf8ca49bbdd3478e451b03b21343b"
   },
   "rows": [
@@ -62,9 +75,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": true,
@@ -73,7 +104,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.822766467159892,
-      "elapsed_seconds": 0.04053260013461113,
+      "elapsed_seconds": 0.04054410010576248,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -162,12 +193,249 @@
     },
     {
       "target": "LCO",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2238,
+      "unique_pool_size": 2238,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4502,
+      "retrieval_predictions_computed": 4502,
+      "evaluated": 300,
+      "returned": 296,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.11785113019775792,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.3481812777237456,
+      "elapsed_seconds": 9.283214699476957,
+      "gate": {
+        "assessed": 295,
+        "vetoed": 4,
+        "unassessable": 1,
+        "assessment_coverage": 0.9833333333333333
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.6Mn0.2Co0.2O2",
+          "overall_score": 0.8949993486512063,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Mn0.1Co0.1O2",
+          "overall_score": 0.8761442619590791,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.8Co0.15Al0.05O2",
+          "overall_score": 0.8749438645109797,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "LiNi1/3Mn1/3Co1/3O2",
+          "overall_score": 0.8590557149576462,
+          "physical_gate_status": "NOT_ASSESSED",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li2MnO3",
+          "overall_score": 0.7830020351463285,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3MnO3",
+          "overall_score": 0.7761677259199716,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "Li3Mn(BO2)5",
+          "overall_score": 0.7619408170717493,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "LiMnOF2",
+          "overall_score": 0.7614888470427934,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.7600473204341479,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMnBO3",
+          "overall_score": 0.7594935545802707,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li2MnO2F",
+          "overall_score": 0.7589716778941801,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiMnO2",
+          "overall_score": 0.7546634045390769,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn(CO3)2",
+          "overall_score": 0.7522146239827695,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li4Co(OF)2",
+          "overall_score": 0.7518161703246036,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li3Mn(OF)2",
+          "overall_score": 0.751743779281441,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "LiAlNiO3",
+          "overall_score": 0.7504170808753297,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "Li3Ni(BO2)5",
+          "overall_score": 0.7503568262978594,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li2CoO3",
+          "overall_score": 0.7489512322247581,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li2(CoO2)3",
+          "overall_score": 0.7481404564208963,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3(CoO2)4",
+          "overall_score": 0.7468589657046388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "LiNiOF",
+          "overall_score": 0.7464611277890748,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li2Mn(BO2)5",
+          "overall_score": 0.7441742404896337,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.7403516260220754,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2Mn(BO3)2",
+          "overall_score": 0.7392238729602085,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.7379208610093356,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "LCO",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12339,
       "unique_pool_size": 4502,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 297,
       "top_one_property_window_match": true,
@@ -176,7 +444,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.2298291176118603,
-      "elapsed_seconds": 0.9817572999745607,
+      "elapsed_seconds": 1.136383100412786,
       "gate": {
         "assessed": 296,
         "vetoed": 3,
@@ -366,9 +634,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6256,
       "unique_pool_size": 5820,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 246,
       "top_one_property_window_match": true,
@@ -377,7 +663,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3184345447205707,
-      "elapsed_seconds": 16.6553492997773,
+      "elapsed_seconds": 17.57839939929545,
       "gate": {
         "assessed": 245,
         "vetoed": 54,
@@ -567,18 +853,36 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3428,
       "unique_pool_size": 3320,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 274,
       "top_one_property_window_match": true,
       "any_top_k_property_window_match": true,
-      "minimum_composition_distance_at_k": 0.2067750291764531,
+      "minimum_composition_distance_at_k": 0.20677502917645313,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
-      "top_k_diversity": 0.09905585004719838,
-      "elapsed_seconds": 12.575091199949384,
+      "top_k_diversity": 0.0990558500471984,
+      "elapsed_seconds": 12.785437899641693,
       "gate": {
         "assessed": 274,
         "vetoed": 26,
@@ -768,9 +1072,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 292,
       "top_one_property_window_match": true,
@@ -779,7 +1101,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.1392739269905585,
-      "elapsed_seconds": 16.802970699965954,
+      "elapsed_seconds": 18.187633499503136,
       "gate": {
         "assessed": 284,
         "vetoed": 8,
@@ -969,9 +1291,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2320,
       "unique_pool_size": 2047,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 281,
       "top_one_property_window_match": true,
@@ -980,7 +1320,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.07775299813533608,
-      "elapsed_seconds": 5.95539900008589,
+      "elapsed_seconds": 5.934764200821519,
       "gate": {
         "assessed": 281,
         "vetoed": 19,
@@ -1170,9 +1510,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -1181,7 +1539,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.09397026401399548,
-      "elapsed_seconds": 0.3772553000599146,
+      "elapsed_seconds": 0.4088760009035468,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -1371,9 +1729,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.529575,
+          "maximum": 4.313925,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 246.5285536210561,
+          "maximum": 301.31267664795746,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6256,
       "unique_pool_size": 5820,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 291,
       "top_one_property_window_match": true,
@@ -1382,7 +1758,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.08783260812904381,
-      "elapsed_seconds": 2.90185260027647,
+      "elapsed_seconds": 2.8884682999923825,
       "gate": {
         "assessed": 283,
         "vetoed": 9,
@@ -1572,9 +1948,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": false,
@@ -1583,7 +1977,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.819411742640356,
-      "elapsed_seconds": 0.032697000075131655,
+      "elapsed_seconds": 0.03403269965201616,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -1672,12 +2066,249 @@
     },
     {
       "target": "LFP",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2241,
+      "unique_pool_size": 2241,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4505,
+      "retrieval_predictions_computed": 4,
+      "evaluated": 300,
+      "returned": 293,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.08247860988423221,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.3295500517856451,
+      "elapsed_seconds": 1.3536259001120925,
+      "gate": {
+        "assessed": 293,
+        "vetoed": 7,
+        "unassessable": 0,
+        "assessment_coverage": 0.9766666666666667
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiFePHO5",
+          "overall_score": 0.8165531680617891,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "Li3Fe(PO4)2",
+          "overall_score": 0.7911039827378125,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "Li2Fe(PO3)4",
+          "overall_score": 0.7910927328838001,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li4Fe(PO3)6",
+          "overall_score": 0.7751646528780318,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "LiFeP2(HO3)2",
+          "overall_score": 0.7731110790262701,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "LiFePO4F",
+          "overall_score": 0.7336884135524245,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "LiFePH2O5",
+          "overall_score": 0.7320365534541158,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "Li2FePO5",
+          "overall_score": 0.7188439462178435,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li2FePHO5",
+          "overall_score": 0.7138521552142119,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiFe(PO3)3",
+          "overall_score": 0.7005361675858984,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li4Fe(PO4)2",
+          "overall_score": 0.6868936808318534,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiFeP(H6O5)2",
+          "overall_score": 0.6856733618442414,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "Li5Si2NiO8",
+          "overall_score": 0.6618670190106837,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3LaNiO4",
+          "overall_score": 0.6611108423878241,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li4Si3NiO9",
+          "overall_score": 0.661043919382395,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li5Ni2O2F5",
+          "overall_score": 0.6607874870395501,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "Li5NiP3O11",
+          "overall_score": 0.6606090217970662,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li2Ti3NiO8",
+          "overall_score": 0.6605304143903469,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li3Nb4NiO12",
+          "overall_score": 0.660147286942993,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li2Si3Ni2O9",
+          "overall_score": 0.6599642269658518,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li5Cr3NiO8",
+          "overall_score": 0.6586067172862811,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "LiLa4NiO8",
+          "overall_score": 0.6585112688867104,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li4Cr3NiO8",
+          "overall_score": 0.6583434758339637,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li4Ti4Cr4NiO18",
+          "overall_score": 0.6574417914961777,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li3Cr3NiO8",
+          "overall_score": 0.6565577138699902,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "LFP",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12314,
       "unique_pool_size": 4505,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 255,
       "top_one_property_window_match": true,
@@ -1686,7 +2317,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.18583730050201883,
-      "elapsed_seconds": 1.0036452999338508,
+      "elapsed_seconds": 1.0410182001069188,
       "gate": {
         "assessed": 255,
         "vetoed": 45,
@@ -1876,9 +2507,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6279,
       "unique_pool_size": 5834,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 243,
       "top_one_property_window_match": true,
@@ -1887,7 +2536,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.2855979277451293,
-      "elapsed_seconds": 9.050475599709898,
+      "elapsed_seconds": 9.810459500178695,
       "gate": {
         "assessed": 243,
         "vetoed": 57,
@@ -2077,9 +2726,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3436,
       "unique_pool_size": 3298,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 275,
       "top_one_property_window_match": false,
@@ -2088,7 +2755,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.1725279823241473,
-      "elapsed_seconds": 4.010393800213933,
+      "elapsed_seconds": 4.0144699001684785,
       "gate": {
         "assessed": 275,
         "vetoed": 25,
@@ -2278,18 +2945,36 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
       "any_top_k_property_window_match": true,
-      "minimum_composition_distance_at_k": 0.22191391409875583,
+      "minimum_composition_distance_at_k": 0.2219139140987558,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.21977999575900556,
-      "elapsed_seconds": 10.770345199853182,
+      "elapsed_seconds": 12.08108300063759,
       "gate": {
         "assessed": 263,
         "vetoed": 28,
@@ -2370,7 +3055,7 @@
         {
           "rank": 11,
           "formula": "Co0.200La2.400Li5.800O10Zr1.600",
-          "overall_score": 0.6328037369491278,
+          "overall_score": 0.6328037369491277,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -2479,9 +3164,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2335,
       "unique_pool_size": 2075,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 269,
       "top_one_property_window_match": true,
@@ -2490,7 +3193,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.33152306922803143,
-      "elapsed_seconds": 4.572173799853772,
+      "elapsed_seconds": 5.182131700217724,
       "gate": {
         "assessed": 269,
         "vetoed": 31,
@@ -2680,9 +3383,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -2691,7 +3412,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.12122281633229776,
-      "elapsed_seconds": 0.297458800021559,
+      "elapsed_seconds": 0.3197637004777789,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -2881,9 +3602,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.06,
+          "maximum": 3.74,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 152.90226679175436,
+          "maximum": 186.88054830103312,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6279,
       "unique_pool_size": 5834,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 291,
       "top_one_property_window_match": true,
@@ -2892,7 +3631,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.12519500921427035,
-      "elapsed_seconds": 2.242849300149828,
+      "elapsed_seconds": 2.287709499709308,
       "gate": {
         "assessed": 282,
         "vetoed": 9,
@@ -3082,9 +3821,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": true,
@@ -3093,7 +3850,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.8348658413984089,
-      "elapsed_seconds": 0.030719200149178505,
+      "elapsed_seconds": 0.03458030056208372,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -3182,12 +3939,249 @@
     },
     {
       "target": "NMC811",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2241,
+      "unique_pool_size": 2241,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4505,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 296,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.03061862178478973,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.34227995253240817,
+      "elapsed_seconds": 0.8910589003935456,
+      "gate": {
+        "assessed": 295,
+        "vetoed": 4,
+        "unassessable": 1,
+        "assessment_coverage": 0.9833333333333333
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.6Mn0.2Co0.2O2",
+          "overall_score": 0.8949993486512063,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Co0.15Al0.05O2",
+          "overall_score": 0.8749438645109797,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi1/3Mn1/3Co1/3O2",
+          "overall_score": 0.8590557149576462,
+          "physical_gate_status": "NOT_ASSESSED",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li2MnO3",
+          "overall_score": 0.7830020351463285,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li3MnO3",
+          "overall_score": 0.7761677259199716,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3Mn(BO2)5",
+          "overall_score": 0.7619408170717493,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "LiMnOF2",
+          "overall_score": 0.7614888470427934,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "LiCoO2",
+          "overall_score": 0.7607491785126873,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.7600473204341479,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMnBO3",
+          "overall_score": 0.7594935545802707,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li2MnO2F",
+          "overall_score": 0.7589716778941801,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiMnO2",
+          "overall_score": 0.7546634045390769,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn(CO3)2",
+          "overall_score": 0.7522146239827695,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3Mn(OF)2",
+          "overall_score": 0.751743779281441,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li2(CoO2)3",
+          "overall_score": 0.7481404564208963,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li3(CoO2)4",
+          "overall_score": 0.7468589657046388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "LiNiOF",
+          "overall_score": 0.7464611277890748,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "LiAlNiO3",
+          "overall_score": 0.746448014182325,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li2Mn(BO2)5",
+          "overall_score": 0.7441742404896337,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.7403516260220754,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.7379208610093356,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li4(NiO2)11",
+          "overall_score": 0.7375285240691813,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li2MnO2",
+          "overall_score": 0.7369512875384188,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2NiO3",
+          "overall_score": 0.7358831559364152,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li2(NiO2)3",
+          "overall_score": 0.7342244859526498,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "NMC811",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12377,
       "unique_pool_size": 4505,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 300,
       "top_one_property_window_match": true,
@@ -3196,7 +4190,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.21620788862495707,
-      "elapsed_seconds": 1.0059433998540044,
+      "elapsed_seconds": 1.011327600106597,
       "gate": {
         "assessed": 299,
         "vetoed": 0,
@@ -3386,18 +4380,36 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6275,
       "unique_pool_size": 5783,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 247,
       "top_one_property_window_match": true,
       "any_top_k_property_window_match": true,
-      "minimum_composition_distance_at_k": 0.029073585522026272,
+      "minimum_composition_distance_at_k": 0.02907358552202627,
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.28038564651876935,
-      "elapsed_seconds": 9.56703170016408,
+      "elapsed_seconds": 9.452919299714267,
       "gate": {
         "assessed": 246,
         "vetoed": 53,
@@ -3587,9 +4599,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3432,
       "unique_pool_size": 3264,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -3598,7 +4628,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.08821540797523364,
-      "elapsed_seconds": 3.31615490000695,
+      "elapsed_seconds": 3.5470049995929003,
       "gate": {
         "assessed": 272,
         "vetoed": 28,
@@ -3788,9 +4818,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -3799,7 +4847,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.20294920452730783,
-      "elapsed_seconds": 7.221974200103432,
+      "elapsed_seconds": 7.587513599544764,
       "gate": {
         "assessed": 265,
         "vetoed": 28,
@@ -3989,9 +5037,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2335,
       "unique_pool_size": 2056,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 267,
       "top_one_property_window_match": true,
@@ -4000,7 +5066,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.1005021649010298,
-      "elapsed_seconds": 4.561221299692988,
+      "elapsed_seconds": 4.768180400133133,
       "gate": {
         "assessed": 267,
         "vetoed": 33,
@@ -4190,9 +5256,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -4201,7 +5285,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09397026401399548,
-      "elapsed_seconds": 0.28491100016981363,
+      "elapsed_seconds": 0.3275033999234438,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -4391,9 +5475,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4705090515008603,
+          "maximum": 4.241733285167719,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.01678464564142,
+          "maximum": 303.1316256780062,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6275,
       "unique_pool_size": 5783,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 287,
       "top_one_property_window_match": true,
@@ -4402,7 +5504,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.08913620193714357,
-      "elapsed_seconds": 2.406162300147116,
+      "elapsed_seconds": 2.616645399481058,
       "gate": {
         "assessed": 280,
         "vetoed": 13,
@@ -4592,9 +5694,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": true,
@@ -4603,7 +5723,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.8381014878091547,
-      "elapsed_seconds": 0.03489149967208505,
+      "elapsed_seconds": 0.03579410072416067,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -4692,12 +5812,249 @@
     },
     {
       "target": "NMC622",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2241,
+      "unique_pool_size": 2241,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4505,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 296,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.06123724356957947,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.3450644622185768,
+      "elapsed_seconds": 0.8603809997439384,
+      "gate": {
+        "assessed": 295,
+        "vetoed": 4,
+        "unassessable": 1,
+        "assessment_coverage": 0.9833333333333333
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.8Mn0.1Co0.1O2",
+          "overall_score": 0.8761442619590791,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Co0.15Al0.05O2",
+          "overall_score": 0.8749438645109797,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi1/3Mn1/3Co1/3O2",
+          "overall_score": 0.8590557149576462,
+          "physical_gate_status": "NOT_ASSESSED",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li2MnO3",
+          "overall_score": 0.7830020351463285,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li3MnO3",
+          "overall_score": 0.7761677259199716,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3Mn(BO2)5",
+          "overall_score": 0.7619408170717493,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "LiMnOF2",
+          "overall_score": 0.7614888470427934,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "LiCoO2",
+          "overall_score": 0.7607491785126873,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.7600473204341479,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMnBO3",
+          "overall_score": 0.7594935545802707,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li2MnO2F",
+          "overall_score": 0.7589716778941801,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiMnO2",
+          "overall_score": 0.7546634045390769,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn(CO3)2",
+          "overall_score": 0.7522146239827695,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3Mn(OF)2",
+          "overall_score": 0.751743779281441,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li2(CoO2)3",
+          "overall_score": 0.7481404564208963,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li3(CoO2)4",
+          "overall_score": 0.7468589657046388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "LiNiOF",
+          "overall_score": 0.7464611277890748,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "LiAlNiO3",
+          "overall_score": 0.7444244695870371,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li2Mn(BO2)5",
+          "overall_score": 0.7441742404896337,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.7403516260220754,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.7379208610093356,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li4(NiO2)11",
+          "overall_score": 0.7375285240691813,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li2MnO2",
+          "overall_score": 0.7369512875384188,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2(NiO2)3",
+          "overall_score": 0.7342244859526498,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li2NiO2F",
+          "overall_score": 0.6909082679592706,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "NMC622",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12377,
       "unique_pool_size": 4505,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 300,
       "top_one_property_window_match": true,
@@ -4706,7 +6063,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.21038263687070427,
-      "elapsed_seconds": 0.8397217998281121,
+      "elapsed_seconds": 1.0356121994554996,
       "gate": {
         "assessed": 299,
         "vetoed": 0,
@@ -4896,9 +6253,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6275,
       "unique_pool_size": 5784,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 258,
       "top_one_property_window_match": true,
@@ -4907,7 +6282,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.35816808845881687,
-      "elapsed_seconds": 7.855737399775535,
+      "elapsed_seconds": 9.531536200083792,
       "gate": {
         "assessed": 258,
         "vetoed": 42,
@@ -4967,7 +6342,7 @@
         {
           "rank": 8,
           "formula": "C0.700Co0.300Li1.700Mn0.700O2.700",
-          "overall_score": 0.7484813248077138,
+          "overall_score": 0.7484813248077139,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "random_union"
         },
@@ -5097,9 +6472,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3432,
       "unique_pool_size": 3264,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -5108,7 +6501,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.0976618084086008,
-      "elapsed_seconds": 3.323989000171423,
+      "elapsed_seconds": 4.809170299209654,
       "gate": {
         "assessed": 272,
         "vetoed": 28,
@@ -5298,9 +6691,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -5309,7 +6720,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.20163625718732744,
-      "elapsed_seconds": 6.608601099811494,
+      "elapsed_seconds": 7.332486799918115,
       "gate": {
         "assessed": 264,
         "vetoed": 28,
@@ -5499,9 +6910,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2335,
       "unique_pool_size": 2056,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 267,
       "top_one_property_window_match": true,
@@ -5510,7 +6939,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09271894561351268,
-      "elapsed_seconds": 4.622254899702966,
+      "elapsed_seconds": 5.102685799822211,
       "gate": {
         "assessed": 267,
         "vetoed": 33,
@@ -5700,9 +7129,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -5711,7 +7158,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09397026401399548,
-      "elapsed_seconds": 0.2993158996105194,
+      "elapsed_seconds": 0.3444370999932289,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -5901,9 +7348,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4709271642942614,
+          "maximum": 4.242244311915209,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 248.78924509319194,
+          "maximum": 304.07574400279015,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6275,
       "unique_pool_size": 5784,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 287,
       "top_one_property_window_match": true,
@@ -5912,7 +7377,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09154361735756054,
-      "elapsed_seconds": 2.9369015996344388,
+      "elapsed_seconds": 2.8023477997630835,
       "gate": {
         "assessed": 279,
         "vetoed": 13,
@@ -6102,9 +7567,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": true,
@@ -6113,7 +7596,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.8375661031758624,
-      "elapsed_seconds": 0.03217389993369579,
+      "elapsed_seconds": 0.033247699961066246,
       "gate": {
         "assessed": 11,
         "vetoed": 0,
@@ -6202,12 +7685,249 @@
     },
     {
       "target": "NMC111",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2240,
+      "unique_pool_size": 2240,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4504,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 296,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.0816496580927726,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.34516528791356055,
+      "elapsed_seconds": 0.8670501001179218,
+      "gate": {
+        "assessed": 296,
+        "vetoed": 4,
+        "unassessable": 0,
+        "assessment_coverage": 0.9866666666666667
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.6Mn0.2Co0.2O2",
+          "overall_score": 0.8949993486512063,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Mn0.1Co0.1O2",
+          "overall_score": 0.8761442619590791,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.8Co0.15Al0.05O2",
+          "overall_score": 0.8749438645109797,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li2MnO3",
+          "overall_score": 0.7830020351463285,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li3MnO3",
+          "overall_score": 0.7761677259199716,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3Mn(BO2)5",
+          "overall_score": 0.7619408170717493,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "LiMnOF2",
+          "overall_score": 0.7614888470427934,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "LiCoO2",
+          "overall_score": 0.7607491785126873,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.7600473204341479,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMnBO3",
+          "overall_score": 0.7594935545802707,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li2MnO2F",
+          "overall_score": 0.7589716778941801,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiMnO2",
+          "overall_score": 0.7546634045390769,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn(CO3)2",
+          "overall_score": 0.7522146239827695,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3Mn(OF)2",
+          "overall_score": 0.751743779281441,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li2(CoO2)3",
+          "overall_score": 0.7481404564208963,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li3(CoO2)4",
+          "overall_score": 0.7468589657046388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "LiNiOF",
+          "overall_score": 0.7464611277890748,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li2Mn(BO2)5",
+          "overall_score": 0.7441742404896337,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "LiAlNiO3",
+          "overall_score": 0.7408660803472813,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.7403516260220754,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.7379208610093356,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li4(NiO2)11",
+          "overall_score": 0.7375285240691813,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li2MnO2",
+          "overall_score": 0.7369512875384188,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2(NiO2)3",
+          "overall_score": 0.7342244859526498,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li2NiO2F",
+          "overall_score": 0.6876180146133735,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "NMC111",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12376,
       "unique_pool_size": 4504,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 298,
       "top_one_property_window_match": true,
@@ -6216,7 +7936,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.2133076795083328,
-      "elapsed_seconds": 0.8007763996720314,
+      "elapsed_seconds": 0.8637166004627943,
       "gate": {
         "assessed": 298,
         "vetoed": 2,
@@ -6406,9 +8126,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6296,
       "unique_pool_size": 5835,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 242,
       "top_one_property_window_match": true,
@@ -6417,7 +8155,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.3281460606211403,
-      "elapsed_seconds": 8.75970850000158,
+      "elapsed_seconds": 9.76855759974569,
       "gate": {
         "assessed": 242,
         "vetoed": 58,
@@ -6607,9 +8345,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3456,
       "unique_pool_size": 3301,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -6618,7 +8374,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.0746024843721655,
-      "elapsed_seconds": 3.254939300008118,
+      "elapsed_seconds": 3.5237491000443697,
       "gate": {
         "assessed": 272,
         "vetoed": 28,
@@ -6808,9 +8564,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -6819,7 +8593,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.1674528888189907,
-      "elapsed_seconds": 6.6433803997933865,
+      "elapsed_seconds": 7.901569600217044,
       "gate": {
         "assessed": 264,
         "vetoed": 28,
@@ -6963,7 +8737,7 @@
         {
           "rank": 20,
           "formula": "Co0.800LiMn0.400O2.400",
-          "overall_score": 0.8554113762352826,
+          "overall_score": 0.8554113762352827,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -7009,9 +8783,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2332,
       "unique_pool_size": 2069,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 267,
       "top_one_property_window_match": true,
@@ -7020,7 +8812,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.07056993111111051,
-      "elapsed_seconds": 5.266449700109661,
+      "elapsed_seconds": 5.077662200666964,
       "gate": {
         "assessed": 267,
         "vetoed": 33,
@@ -7210,9 +9002,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -7221,7 +9031,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09397026401399548,
-      "elapsed_seconds": 0.2997338999994099,
+      "elapsed_seconds": 0.3610260998830199,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -7411,9 +9221,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4899397115718673,
+          "maximum": 4.26548186969895,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 250.1707886786959,
+          "maximum": 305.7642972739617,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6296,
       "unique_pool_size": 5835,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 287,
       "top_one_property_window_match": true,
@@ -7422,7 +9250,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.08506463424185083,
-      "elapsed_seconds": 2.3822898999787867,
+      "elapsed_seconds": 2.6618146002292633,
       "gate": {
         "assessed": 279,
         "vetoed": 13,
@@ -7612,9 +9440,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": true,
@@ -7623,7 +9469,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.8342946324399216,
-      "elapsed_seconds": 0.03119680006057024,
+      "elapsed_seconds": 0.035581099800765514,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -7712,12 +9558,249 @@
     },
     {
       "target": "NCA",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2240,
+      "unique_pool_size": 2240,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4504,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 296,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.03061862178478973,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.3432682685885558,
+      "elapsed_seconds": 0.8789005000144243,
+      "gate": {
+        "assessed": 295,
+        "vetoed": 4,
+        "unassessable": 1,
+        "assessment_coverage": 0.9833333333333333
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.6Mn0.2Co0.2O2",
+          "overall_score": 0.8949993486512063,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Mn0.1Co0.1O2",
+          "overall_score": 0.8761442619590791,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi1/3Mn1/3Co1/3O2",
+          "overall_score": 0.8590557149576462,
+          "physical_gate_status": "NOT_ASSESSED",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li2MnO3",
+          "overall_score": 0.7830020351463285,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li3MnO3",
+          "overall_score": 0.7761677259199716,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3Mn(BO2)5",
+          "overall_score": 0.7619408170717493,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "LiMnOF2",
+          "overall_score": 0.7614888470427934,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "LiCoO2",
+          "overall_score": 0.7607491785126873,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.7600473204341479,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "LiMnBO3",
+          "overall_score": 0.7594935545802707,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li2MnO2F",
+          "overall_score": 0.7589716778941801,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "LiMnO2",
+          "overall_score": 0.7546634045390769,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "LiMn(CO3)2",
+          "overall_score": 0.7522146239827695,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3Mn(OF)2",
+          "overall_score": 0.751743779281441,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li2(CoO2)3",
+          "overall_score": 0.7481404564208963,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li3(CoO2)4",
+          "overall_score": 0.7468589657046388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "LiNiOF",
+          "overall_score": 0.7464611277890748,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li2Mn(BO2)5",
+          "overall_score": 0.7441742404896337,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "LiAlNiO3",
+          "overall_score": 0.7420579831981196,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.7403516260220754,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.7379208610093356,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li4(NiO2)11",
+          "overall_score": 0.7375285240691813,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li2MnO2",
+          "overall_score": 0.7369512875384188,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2(NiO2)3",
+          "overall_score": 0.7342244859526498,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li2NiO2F",
+          "overall_score": 0.6887199801037551,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "NCA",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12376,
       "unique_pool_size": 4504,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 300,
       "top_one_property_window_match": true,
@@ -7726,7 +9809,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.2160951982120794,
-      "elapsed_seconds": 0.8416408002376556,
+      "elapsed_seconds": 1.5238993000239134,
       "gate": {
         "assessed": 299,
         "vetoed": 0,
@@ -7916,9 +9999,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6285,
       "unique_pool_size": 5825,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 238,
       "top_one_property_window_match": true,
@@ -7927,7 +10028,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.311265807337713,
-      "elapsed_seconds": 8.0879579000175,
+      "elapsed_seconds": 8.83498000074178,
       "gate": {
         "assessed": 238,
         "vetoed": 62,
@@ -8117,9 +10218,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3452,
       "unique_pool_size": 3299,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 274,
       "top_one_property_window_match": true,
@@ -8128,7 +10247,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.08090005952173392,
-      "elapsed_seconds": 3.192859800066799,
+      "elapsed_seconds": 3.2183647993952036,
       "gate": {
         "assessed": 274,
         "vetoed": 26,
@@ -8318,9 +10437,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -8329,7 +10466,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.17559442328833072,
-      "elapsed_seconds": 6.6814665999263525,
+      "elapsed_seconds": 7.293849300593138,
       "gate": {
         "assessed": 268,
         "vetoed": 28,
@@ -8487,7 +10624,7 @@
         {
           "rank": 22,
           "formula": "Co0.800Fe0.200LiO2.400P0.200",
-          "overall_score": 0.774352171356146,
+          "overall_score": 0.7743521713561461,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -8519,9 +10656,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2325,
       "unique_pool_size": 2064,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 267,
       "top_one_property_window_match": true,
@@ -8530,7 +10685,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.10438675320996563,
-      "elapsed_seconds": 5.138256900012493,
+      "elapsed_seconds": 5.097189599648118,
       "gate": {
         "assessed": 267,
         "vetoed": 33,
@@ -8720,9 +10875,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -8731,7 +10904,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.09397026401399548,
-      "elapsed_seconds": 0.300390399992466,
+      "elapsed_seconds": 0.32976659946143627,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -8921,9 +11094,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.4606172370966846,
+          "maximum": 4.229643289784837,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 249.70469389698906,
+          "maximum": 305.19462587409777,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6285,
       "unique_pool_size": 5825,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 289,
       "top_one_property_window_match": true,
@@ -8932,7 +11123,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.08673164483796732,
-      "elapsed_seconds": 2.601858399808407,
+      "elapsed_seconds": 2.7748197000473738,
       "gate": {
         "assessed": 285,
         "vetoed": 11,
@@ -9122,9 +11313,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": false,
@@ -9133,7 +11342,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.8141126529418856,
-      "elapsed_seconds": 0.029430399648845196,
+      "elapsed_seconds": 0.03702269960194826,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -9222,12 +11431,249 @@
     },
     {
       "target": "LMO",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2238,
+      "unique_pool_size": 2238,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4502,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 300,
+      "top_one_property_window_match": true,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.2222222222222222,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": false,
+      "top_k_diversity": 0.39271470155858695,
+      "elapsed_seconds": 1.463119300082326,
+      "gate": {
+        "assessed": 300,
+        "vetoed": 0,
+        "unassessable": 0,
+        "assessment_coverage": 1.0
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "Li2CoP2O7",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "Li2CoSiO4",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "Li2MnSi3O8",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "Li2Si2NiO6",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li2TiCoO4",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li3Al2CoO6",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "Li3CoOF3",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "Li3MnAl2O6",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li3MnB4O9",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "Li3MnBPO7",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li3MnOF4",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "Li3MnP2HO8",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "Li3MnSi2O7",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3MnSiBO7",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li3NiOF3",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li4CoOF4",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "Li4CoOF5",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li4MnOF5",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li4MnP2O9",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li4MnSi2O7",
+          "overall_score": 0.78778011,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li2CoOF3",
+          "overall_score": 0.7876974452187582,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li2MnPO5",
+          "overall_score": 0.7876301491207096,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li2NiP2O7",
+          "overall_score": 0.7875044866204273,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li2SiNiO4",
+          "overall_score": 0.7870667163536136,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li3MnP2O9",
+          "overall_score": 0.7867617213367805,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "LMO",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12359,
       "unique_pool_size": 4502,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 300,
       "top_one_property_window_match": true,
@@ -9236,7 +11682,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.20387761295241416,
-      "elapsed_seconds": 0.9699112996459007,
+      "elapsed_seconds": 1.0839613992720842,
       "gate": {
         "assessed": 300,
         "vetoed": 0,
@@ -9426,9 +11872,27 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6277,
       "unique_pool_size": 5757,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 244,
       "top_one_property_window_match": true,
@@ -9437,7 +11901,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.34324370348657013,
-      "elapsed_seconds": 7.1695420001633465,
+      "elapsed_seconds": 8.17484400048852,
       "gate": {
         "assessed": 242,
         "vetoed": 56,
@@ -9627,9 +12091,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3428,
       "unique_pool_size": 3252,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": false,
@@ -9638,7 +12120,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.08432909363624494,
-      "elapsed_seconds": 3.2156754001043737,
+      "elapsed_seconds": 3.492285500280559,
       "gate": {
         "assessed": 272,
         "vetoed": 28,
@@ -9828,9 +12310,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": true,
@@ -9839,7 +12339,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.24981016675246084,
-      "elapsed_seconds": 6.9335110001266,
+      "elapsed_seconds": 7.055746799334884,
       "gate": {
         "assessed": 263,
         "vetoed": 28,
@@ -9878,7 +12378,7 @@
         {
           "rank": 5,
           "formula": "Co0.200Fe0.800LiO3.600P0.800",
-          "overall_score": 0.7830454684059764,
+          "overall_score": 0.7830454684059766,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -10029,18 +12529,36 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2341,
       "unique_pool_size": 2044,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 271,
       "top_one_property_window_match": true,
       "any_top_k_property_window_match": true,
-      "minimum_composition_distance_at_k": 0.1748322832637586,
+      "minimum_composition_distance_at_k": 0.17483228326375863,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.22356498787487308,
-      "elapsed_seconds": 6.4856746001169086,
+      "elapsed_seconds": 4.6934442995116115,
       "gate": {
         "assessed": 271,
         "vetoed": 29,
@@ -10230,9 +12748,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": true,
@@ -10240,8 +12776,8 @@
       "minimum_composition_distance_at_k": 0.0,
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
-      "top_k_diversity": 0.22538750918233486,
-      "elapsed_seconds": 0.4503478999249637,
+      "top_k_diversity": 0.22538750918233483,
+      "elapsed_seconds": 0.31388780009001493,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -10431,9 +12967,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 3.5940745341614906,
+          "maximum": 4.392757763975156,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 187.5419365421734,
+          "maximum": 229.2179224404342,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6277,
       "unique_pool_size": 5757,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 288,
       "top_one_property_window_match": true,
@@ -10442,7 +12996,7 @@
       "composition_exact_at_k": true,
       "composition_near_at_k": true,
       "top_k_diversity": 0.23353483402258618,
-      "elapsed_seconds": 3.471936199814081,
+      "elapsed_seconds": 3.013373600319028,
       "gate": {
         "assessed": 279,
         "vetoed": 12,
@@ -10495,7 +13049,7 @@
         {
           "rank": 7,
           "formula": "Co0.200Fe0.800LiO3.600P0.800",
-          "overall_score": 0.7830454684059764,
+          "overall_score": 0.7830454684059766,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -10632,18 +13186,36 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": false,
       "any_top_k_property_window_match": false,
-      "minimum_composition_distance_at_k": 0.29354352395090366,
+      "minimum_composition_distance_at_k": 0.2935435239509036,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.8176348654777853,
-      "elapsed_seconds": 0.05410039983689785,
+      "elapsed_seconds": 0.03418669942766428,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -10732,12 +13304,249 @@
     },
     {
       "target": "LTO",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2241,
+      "unique_pool_size": 2241,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4505,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 292,
+      "top_one_property_window_match": false,
+      "any_top_k_property_window_match": true,
+      "minimum_composition_distance_at_k": 0.05415582685366582,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": true,
+      "top_k_diversity": 0.31327925336554907,
+      "elapsed_seconds": 1.105477700009942,
+      "gate": {
+        "assessed": 292,
+        "vetoed": 8,
+        "unassessable": 0,
+        "assessment_coverage": 0.9733333333333334
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiFePO4",
+          "overall_score": 0.45468880939549505,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "Li2Fe(PO3)4",
+          "overall_score": 0.4390245441694859,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "Li7Ti5O12",
+          "overall_score": 0.4365207206818017,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "LiFe(PO3)3",
+          "overall_score": 0.43579760987132454,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li4Fe(PO3)6",
+          "overall_score": 0.43018510250436487,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "Li4Ti5VO12",
+          "overall_score": 0.4201190753948779,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "Li5Si2NiO8",
+          "overall_score": 0.4191679956542143,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "Li4Si2NiO7",
+          "overall_score": 0.4191354729293512,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li4Si3NiO9",
+          "overall_score": 0.4190154884923596,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "Li7NiOF7",
+          "overall_score": 0.41900900245051165,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li5Ni2O2F5",
+          "overall_score": 0.41896809130030366,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "Li5NiP3O11",
+          "overall_score": 0.4189351374146696,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "Li2Ti3NiO8",
+          "overall_score": 0.4189206308698731,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "Li3LaNiO4",
+          "overall_score": 0.41807734806622737,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li4Cr3NiO8",
+          "overall_score": 0.4169759574693623,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li5Cr3NiO8",
+          "overall_score": 0.41687976769701246,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "Li2Ti2NiO6",
+          "overall_score": 0.41687935266174553,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li3Cr3NiO8",
+          "overall_score": 0.4161421635936712,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li4TiNi3O8",
+          "overall_score": 0.4156007131246743,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li2Cr3NiO8",
+          "overall_score": 0.41544421680847154,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3Ni2SbO6",
+          "overall_score": 0.4149192261664899,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li3TiNi3O8",
+          "overall_score": 0.4146848127529528,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "Li4VNi3O8",
+          "overall_score": 0.41445582459120095,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li6Fe5NiO12",
+          "overall_score": 0.4142311270284405,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li5Ti2Ni3O10",
+          "overall_score": 0.4141832256804675,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "LTO",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12375,
       "unique_pool_size": 4505,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 293,
       "top_one_property_window_match": true,
@@ -10746,7 +13555,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": true,
       "top_k_diversity": 0.16281290535279463,
-      "elapsed_seconds": 1.7480570999905467,
+      "elapsed_seconds": 1.1127308001741767,
       "gate": {
         "assessed": 293,
         "vetoed": 7,
@@ -10936,18 +13745,36 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6262,
       "unique_pool_size": 5818,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 241,
       "top_one_property_window_match": false,
       "any_top_k_property_window_match": false,
-      "minimum_composition_distance_at_k": 0.2318462057987418,
+      "minimum_composition_distance_at_k": 0.23184620579874177,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.28192556825661697,
-      "elapsed_seconds": 13.526943400036544,
+      "elapsed_seconds": 9.104067100211978,
       "gate": {
         "assessed": 241,
         "vetoed": 59,
@@ -11028,7 +13855,7 @@
         {
           "rank": 11,
           "formula": "Co2Li3.400MnO7",
-          "overall_score": 0.4109376641278034,
+          "overall_score": 0.41093766412780336,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "random_union"
         },
@@ -11084,7 +13911,7 @@
         {
           "rank": 19,
           "formula": "Li3Mn4O9.200",
-          "overall_score": 0.4082027537638258,
+          "overall_score": 0.40820275376382587,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "random_union"
         },
@@ -11137,18 +13964,36 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3444,
       "unique_pool_size": 3289,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 278,
       "top_one_property_window_match": false,
       "any_top_k_property_window_match": false,
-      "minimum_composition_distance_at_k": 0.3037030503063962,
+      "minimum_composition_distance_at_k": 0.30370305030639616,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.21255057144983905,
-      "elapsed_seconds": 5.561573100276291,
+      "elapsed_seconds": 3.0879188999533653,
       "gate": {
         "assessed": 278,
         "vetoed": 22,
@@ -11338,9 +14183,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": false,
@@ -11349,7 +14212,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.34339499414807967,
-      "elapsed_seconds": 10.598451599944383,
+      "elapsed_seconds": 7.143763799220324,
       "gate": {
         "assessed": 263,
         "vetoed": 28,
@@ -11539,9 +14402,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2310,
       "unique_pool_size": 2062,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 271,
       "top_one_property_window_match": false,
@@ -11550,7 +14431,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3552426404122105,
-      "elapsed_seconds": 6.479144599754363,
+      "elapsed_seconds": 5.368704100139439,
       "gate": {
         "assessed": 271,
         "vetoed": 29,
@@ -11740,9 +14621,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": false,
@@ -11751,7 +14650,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.22663668672170126,
-      "elapsed_seconds": 0.47023799968883395,
+      "elapsed_seconds": 0.3287968998774886,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -11941,18 +14840,36 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 1.395,
+          "maximum": 1.7050000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 157.5,
+          "maximum": 192.50000000000003,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6262,
       "unique_pool_size": 5818,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 290,
       "top_one_property_window_match": false,
       "any_top_k_property_window_match": false,
-      "minimum_composition_distance_at_k": 0.3037030503063962,
+      "minimum_composition_distance_at_k": 0.30370305030639616,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3438971943906718,
-      "elapsed_seconds": 3.4443350001238286,
+      "elapsed_seconds": 2.41918780002743,
       "gate": {
         "assessed": 281,
         "vetoed": 10,
@@ -12142,9 +15059,27 @@
       "variant": "direct_labelled_filter",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 11,
       "unique_pool_size": 11,
       "labelled_pool_size": 11,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 11,
       "returned": 11,
       "top_one_property_window_match": false,
@@ -12152,8 +15087,8 @@
       "minimum_composition_distance_at_k": 1.1547005383792515,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
-      "top_k_diversity": 0.695344453894652,
-      "elapsed_seconds": 0.0422041998244822,
+      "top_k_diversity": 0.6953444538946522,
+      "elapsed_seconds": 0.03128580003976822,
       "gate": {
         "assessed": 10,
         "vetoed": 0,
@@ -12242,12 +15177,249 @@
     },
     {
       "target": "Graphite",
+      "variant": "known_property_retrieval",
+      "status": "assessed",
+      "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
+      "raw_pool_size": 2241,
+      "unique_pool_size": 2241,
+      "labelled_pool_size": 0,
+      "retrieval_scanned": 4505,
+      "retrieval_predictions_computed": 0,
+      "evaluated": 300,
+      "returned": 269,
+      "top_one_property_window_match": false,
+      "any_top_k_property_window_match": false,
+      "minimum_composition_distance_at_k": 1.0101525445522108,
+      "composition_exact_at_k": false,
+      "composition_near_at_k": false,
+      "top_k_diversity": 0.28304912702797824,
+      "elapsed_seconds": 1.29172969982028,
+      "gate": {
+        "assessed": 268,
+        "vetoed": 31,
+        "unassessable": 1,
+        "assessment_coverage": 0.8933333333333333
+      },
+      "top_k": [
+        {
+          "rank": 1,
+          "formula": "LiNi0.6Mn0.2Co0.2O2",
+          "overall_score": 0.3040557358574308,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 2,
+          "formula": "LiNi0.8Co0.15Al0.05O2",
+          "overall_score": 0.2934235754408471,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 3,
+          "formula": "LiNi0.8Mn0.1Co0.1O2",
+          "overall_score": 0.2906371986960173,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 4,
+          "formula": "LiNi1/3Mn1/3Co1/3O2",
+          "overall_score": 0.29048050837841927,
+          "physical_gate_status": "NOT_ASSESSED",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 5,
+          "formula": "Li(NiO2)2",
+          "overall_score": 0.21063013410207962,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 6,
+          "formula": "LiNiOF",
+          "overall_score": 0.2018713976132808,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 7,
+          "formula": "Li2(NiO2)3",
+          "overall_score": 0.1926961978706581,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 8,
+          "formula": "Li3(NiO2)4",
+          "overall_score": 0.18465488188264648,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 9,
+          "formula": "Li2NiO2F",
+          "overall_score": 0.18232314869212005,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 10,
+          "formula": "Li3Ni(OF)2",
+          "overall_score": 0.18181268736995784,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 11,
+          "formula": "Li4(NiO2)11",
+          "overall_score": 0.17695451238756993,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 12,
+          "formula": "Li3Ni(BO2)5",
+          "overall_score": 0.17622410084177076,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 13,
+          "formula": "Li3NiO3",
+          "overall_score": 0.17579500732045578,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 14,
+          "formula": "LiNiBO3",
+          "overall_score": 0.17544460174155102,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 15,
+          "formula": "Li3NiO2F",
+          "overall_score": 0.17498254394719068,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 16,
+          "formula": "Li2NiO3",
+          "overall_score": 0.1744771186687649,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 17,
+          "formula": "Li5(NiO2)4",
+          "overall_score": 0.17095081411428428,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 18,
+          "formula": "Li2Ni(CO3)2",
+          "overall_score": 0.16784686468359838,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 19,
+          "formula": "Li6(NiO2)11",
+          "overall_score": 0.16429512921996747,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 20,
+          "formula": "Li3Ni(BO3)2",
+          "overall_score": 0.163170539643058,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 21,
+          "formula": "Li3Mg(NiO2)4",
+          "overall_score": 0.1621319120826388,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 22,
+          "formula": "Li7(NiO2)10",
+          "overall_score": 0.16127233844920852,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 23,
+          "formula": "KLiNiO2",
+          "overall_score": 0.16070229610063247,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 24,
+          "formula": "Li4Ni(BO3)2",
+          "overall_score": 0.16052084656824522,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        },
+        {
+          "rank": 25,
+          "formula": "Li5NiO4",
+          "overall_score": 0.15799516649198592,
+          "physical_gate_status": "ASSESSED_PASS",
+          "strategy": "known_property_retrieval"
+        }
+      ]
+    },
+    {
+      "target": "Graphite",
       "variant": "oracle_composition_neighbour",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 12377,
       "unique_pool_size": 4505,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 297,
       "top_one_property_window_match": false,
@@ -12256,7 +15428,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3401944783752857,
-      "elapsed_seconds": 2.8157892995513976,
+      "elapsed_seconds": 1.5365773001685739,
       "gate": {
         "assessed": 295,
         "vetoed": 3,
@@ -12446,18 +15618,36 @@
       "variant": "random_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6310,
       "unique_pool_size": 5817,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 240,
       "top_one_property_window_match": false,
       "any_top_k_property_window_match": false,
-      "minimum_composition_distance_at_k": 0.8565791327430803,
+      "minimum_composition_distance_at_k": 0.8565791327430804,
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3389347059160124,
-      "elapsed_seconds": 10.959079100284725,
+      "elapsed_seconds": 8.20256550051272,
       "gate": {
         "assessed": 240,
         "vetoed": 60,
@@ -12647,9 +15837,27 @@
       "variant": "perturbation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 3448,
       "unique_pool_size": 3280,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": false,
@@ -12658,7 +15866,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.10290021992663913,
-      "elapsed_seconds": 5.397941800300032,
+      "elapsed_seconds": 4.029579400084913,
       "gate": {
         "assessed": 272,
         "vetoed": 28,
@@ -12848,9 +16056,27 @@
       "variant": "interpolation",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 450,
       "unique_pool_size": 450,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 272,
       "top_one_property_window_match": false,
@@ -12859,7 +16085,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.3839998038725103,
-      "elapsed_seconds": 6.356197699904442,
+      "elapsed_seconds": 7.1479579992592335,
       "gate": {
         "assessed": 263,
         "vetoed": 28,
@@ -12870,7 +16096,7 @@
         {
           "rank": 1,
           "formula": "Co0.500LiO",
-          "overall_score": 0.40073337450689095,
+          "overall_score": 0.400733374506891,
           "physical_gate_status": "ASSESSED_PASS",
           "strategy": "interpolation"
         },
@@ -13049,9 +16275,27 @@
       "variant": "substitution",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 2354,
       "unique_pool_size": 2075,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 269,
       "top_one_property_window_match": false,
@@ -13060,7 +16304,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.09020693874632123,
-      "elapsed_seconds": 4.5972764999605715,
+      "elapsed_seconds": 6.040388500317931,
       "gate": {
         "assessed": 269,
         "vetoed": 31,
@@ -13250,9 +16494,27 @@
       "variant": "stoichiometry",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 58,
       "unique_pool_size": 58,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 58,
       "returned": 58,
       "top_one_property_window_match": false,
@@ -13261,7 +16523,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.0903440124355206,
-      "elapsed_seconds": 0.3312156000174582,
+      "elapsed_seconds": 0.37541949935257435,
       "gate": {
         "assessed": 58,
         "vetoed": 0,
@@ -13451,9 +16713,27 @@
       "variant": "four_strategy_union",
       "status": "assessed",
       "candidate_budget": 300,
+      "target_windows": [
+        {
+          "property": "voltage",
+          "minimum": 0.09000000000000001,
+          "maximum": 0.11000000000000001,
+          "weight": 1.0,
+          "mandatory": false
+        },
+        {
+          "property": "theoretical_capacity",
+          "minimum": 334.8,
+          "maximum": 409.20000000000005,
+          "weight": 1.0,
+          "mandatory": false
+        }
+      ],
       "raw_pool_size": 6310,
       "unique_pool_size": 5817,
       "labelled_pool_size": 0,
+      "retrieval_scanned": 0,
+      "retrieval_predictions_computed": 0,
       "evaluated": 300,
       "returned": 288,
       "top_one_property_window_match": false,
@@ -13462,7 +16742,7 @@
       "composition_exact_at_k": false,
       "composition_near_at_k": false,
       "top_k_diversity": 0.2268398007485684,
-      "elapsed_seconds": 2.1969783999957144,
+      "elapsed_seconds": 2.5118383998051286,
       "gate": {
         "assessed": 279,
         "vetoed": 12,
@@ -13664,13 +16944,31 @@
       "mean_top_k_diversity": 0.8126775829931021,
       "mean_evaluated": 11,
       "mean_returned": 11,
-      "total_elapsed_seconds": 0.3279459993354976,
+      "total_elapsed_seconds": 0.31627519987523556,
       "gate_totals": {
         "assessed": 91,
         "vetoed": 0,
         "unassessable": 8
       },
       "gate_assessment_coverage": 0.9191919191919192
+    },
+    "known_property_retrieval": {
+      "assessed_targets": 9,
+      "top_one_property_hits": 7,
+      "any_top_k_property_hits": 8,
+      "exact_hits_at_k": 0,
+      "near_hits_at_k": 7,
+      "mean_minimum_composition_distance_at_k": 0.18788716432689118,
+      "mean_top_k_diversity": 0.3380613758571785,
+      "mean_evaluated": 300,
+      "mean_returned": 292.6666666666667,
+      "total_elapsed_seconds": 17.994557799771428,
+      "gate_totals": {
+        "assessed": 2629,
+        "vetoed": 66,
+        "unassessable": 5
+      },
+      "gate_assessment_coverage": 0.9737037037037037
     },
     "oracle_composition_neighbour": {
       "assessed_targets": 9,
@@ -13682,7 +16980,7 @@
       "mean_top_k_diversity": 0.21983831311227192,
       "mean_evaluated": 300,
       "mean_returned": 293.3333333333333,
-      "total_elapsed_seconds": 11.00724269868806,
+      "total_elapsed_seconds": 10.345226500183344,
       "gate_totals": {
         "assessed": 2634,
         "vetoed": 60,
@@ -13700,7 +16998,7 @@
       "mean_top_k_diversity": 0.3162335614512599,
       "mean_evaluated": 300,
       "mean_returned": 244.33333333333334,
-      "total_elapsed_seconds": 91.6318248999305,
+      "total_elapsed_seconds": 90.45832860097289,
       "gate_totals": {
         "assessed": 2195,
         "vetoed": 501,
@@ -13718,7 +17016,7 @@
       "mean_top_k_diversity": 0.11252705307353363,
       "mean_evaluated": 300,
       "mean_returned": 273.44444444444446,
-      "total_elapsed_seconds": 43.848618301097304,
+      "total_elapsed_seconds": 42.507980798371136,
       "gate_totals": {
         "assessed": 2461,
         "vetoed": 239,
@@ -13736,7 +17034,7 @@
       "mean_top_k_diversity": 0.23154351792717462,
       "mean_evaluated": 300,
       "mean_returned": 274.22222222222223,
-      "total_elapsed_seconds": 78.61689849942923,
+      "total_elapsed_seconds": 81.73160439822823,
       "gate_totals": {
         "assessed": 2397,
         "vetoed": 232,
@@ -13754,7 +17052,7 @@
       "mean_top_k_diversity": 0.16071871435915455,
       "mean_evaluated": 300,
       "mean_returned": 269.8888888888889,
-      "total_elapsed_seconds": 47.677851299289614,
+      "total_elapsed_seconds": 47.26515080127865,
       "gate_totals": {
         "assessed": 2429,
         "vetoed": 271,
@@ -13772,7 +17070,7 @@
       "mean_top_k_diversity": 0.12593803830464798,
       "mean_evaluated": 58,
       "mean_returned": 58,
-      "total_elapsed_seconds": 3.1108667994849384,
+      "total_elapsed_seconds": 3.1094770999625325,
       "gate_totals": {
         "assessed": 522,
         "vetoed": 0,
@@ -13790,7 +17088,7 @@
       "mean_top_k_diversity": 0.15219728276440697,
       "mean_evaluated": 300,
       "mean_returned": 288.6666666666667,
-      "total_elapsed_seconds": 24.58516369992867,
+      "total_elapsed_seconds": 23.976205099374056,
       "gate_totals": {
         "assessed": 2527,
         "vetoed": 102,

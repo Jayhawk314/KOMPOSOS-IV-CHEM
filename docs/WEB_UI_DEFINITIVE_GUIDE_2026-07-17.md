@@ -447,6 +447,18 @@ self-consistency against the same forward predictor and is development/spent
 evidence, not predictive accuracy, experimental recovery, or a blind result.
 Receipt: `audit/crystal_recovery_report.json`.
 
+A matched search-mechanics ablation was rerun on 2026-08-12. A deployable
+known-material property-retrieval policy found a target-window match within the
+top 25 for 8/9 assessed targets. The four-strategy union, one fixed random-union
+draw, and the compact stoichiometry grid each reached 7/9; stoichiometry recovered
+4/9 exact compositions versus 2/9 for the union. Direct Materials Project
+voltage/capacity filtering remains `NOT_ASSESSED` because the local MP summary
+cache has zero rows carrying both labels. The retrieval and candidates use the
+same forward predictor that defines the windows, so this is spent development
+self-consistency, not property accuracy or experimental validation. It shows no
+demonstrated incremental value from four-way generation. Receipt:
+`audit/crystal_search_ablation_report.json`.
+
 Every retained lead row is now labeled `ASSESSED_PASS` or `NOT_ASSESSED`.
 Definite failures are labeled `VETOED`, excluded from the lead list, and shown
 in a separate rejection view. The CSV audit download includes both retained and

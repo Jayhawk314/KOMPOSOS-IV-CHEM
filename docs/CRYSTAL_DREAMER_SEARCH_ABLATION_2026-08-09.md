@@ -1,4 +1,4 @@
-# Crystal Dreamer Search Ablation - 2026-08-09
+# Crystal Dreamer Search Ablation - 2026-08-09, extended 2026-08-12
 
 ## Evidence status
 
@@ -29,6 +29,7 @@ target after strict holdout removal.
 ## Compared variants
 
 - Direct filtering over the remaining labelled battery records.
+- Known-material property retrieval without access to the hidden target formula.
 - Hidden-composition nearest neighbour.
 - One deterministic random sample from the four-strategy candidate union.
 - Perturbation only.
@@ -38,23 +39,28 @@ target after strict holdout removal.
 - Four-strategy round-robin union.
 
 The hidden-composition neighbour is an oracle diagnostic. It uses the held-out
-target formula and is not available in a real inverse-design request.
+target formula and is not available in a real inverse-design request. The
+known-property retrieval policy is deployable, but its audit remains same-model
+self-consistency: the target is removed from the candidate pool, not from every
+forward-predictor reference artifact.
 
 ## Reproduced results
 
-| Variant | Top-1 property hits | Exact@25 | Near@25 | Mean top-25 diversity | Gate coverage |
+| Variant | Top-1 hits | Any top-25 hit | Exact@25 | Near@25 | Gate coverage |
 |---|---:|---:|---:|---:|---:|
-| Direct labelled filter | 5/9 | 0/9 | 4/9 | 0.8127 | 91.92% |
-| Oracle composition neighbour | 8/9 | 0/9 | 8/9 | 0.2198 | 97.56% |
-| Random union, one seed | 7/9 | 1/9 | 4/9 | 0.3162 | 81.30% |
-| Perturbation only | 5/9 | 0/9 | 4/9 | 0.1125 | 91.15% |
-| Interpolation only | 7/9 | 0/9 | 4/9 | 0.2315 | 88.78% |
-| Substitution only | 7/9 | 1/9 | 5/9 | 0.1607 | 89.96% |
-| Stoichiometry only | 7/9 | 4/9 | 6/9 | 0.1259 | 100.00% |
-| Four-strategy union | 7/9 | 2/9 | 6/9 | 0.1522 | 93.59% |
+| Direct labelled filter | 5/9 | 5/9 | 0/9 | 4/9 | 91.92% |
+| Known-property retrieval | 7/9 | 8/9 | 0/9 | 7/9 | 97.44% |
+| Oracle composition neighbour | 8/9 | 8/9 | 0/9 | 8/9 | 97.56% |
+| Random union, one seed | 7/9 | 7/9 | 1/9 | 4/9 | 81.30% |
+| Perturbation only | 5/9 | 5/9 | 0/9 | 4/9 | 91.15% |
+| Interpolation only | 7/9 | 7/9 | 0/9 | 4/9 | 88.78% |
+| Substitution only | 7/9 | 7/9 | 1/9 | 5/9 | 89.96% |
+| Stoichiometry only | 7/9 | 7/9 | 4/9 | 6/9 | 100.00% |
+| Four-strategy union | 7/9 | 7/9 | 2/9 | 6/9 | 93.59% |
 
-All deployable variants missed LTO and Graphite. The oracle neighbour recovered
-the property window for LTO but not Graphite.
+Known-property retrieval recovered LTO within the top 25, although not at rank
+one. It and the oracle missed Graphite. The generated variants missed both LTO
+and Graphite.
 
 ## Finding
 
@@ -66,6 +72,8 @@ spent target set:
   composition recoveries than the union (4 versus 2), tied near recovery
   (6 versus 6), and had complete charge-gate assessment.
 - The union did not beat one deterministic random draw on property hits.
+- Deployable known-property retrieval reached 8/9 within the top 25, one more
+  target than the union, without formula generation.
 - Direct filtering over the sparse labelled records reached only 5/9.
 - The oracle result shows that closer composition retrieval helps on eight
   targets, but it uses unavailable hidden information.
@@ -95,6 +103,8 @@ definite failures were excluded as VETOED.
 - Candidate-pool sizes differ, although prediction evaluation is capped at 300.
 - The direct labelled filter is limited by only 12 total labelled records.
 - The oracle baseline is intentionally non-deployable.
+- Known-property retrieval is deployable as a policy but not a strict predictive
+  holdout; the forward predictor can still use inspected reference artifacts.
 - Exact and near recovery are secondary diagnostics, not experimental outcomes.
 
 ## Decision
@@ -111,8 +121,10 @@ Before investing in new search or representation machinery:
 5. Run the evidence-presentation A/B study with per-candidate status.
 6. Define the battery-electrode data contract before model development.
 
-The existing union may remain as a diversity mechanism, but its incremental
-value is currently NOT_ESTABLISHED.
+The existing union may remain as an explicitly experimental diversity mechanism,
+but its incremental value is currently NOT_ESTABLISHED. External evaluation
+should use known retrieval and the transparent stoichiometry template as the
+conservative comparison arms.
 
 ## Reproduction
 
@@ -124,8 +136,8 @@ Artifact:
 
 - Report: audit/crystal_search_ablation_report.json
 - Report SHA-256:
-  5bb4541a45c336efc6560e587cb72fae5155da080a6b34f9c3a723315855392b
+  c167b3f369987b1f9cf8dbbf36934e51a4765daf5a2e955fab6bdde36c66e1a1
 - Script SHA-256:
-  976eb3a6e200d3338eb66cc6f7bf4ba6a94d3680c88a023723aed5d1986aaff8
+  932b029ec891fe61d650ccfa8bfc4d040f9c950a3e40712e6da307401157fe44
 - Evidence role: development_spent
 - Random seed: 20260809

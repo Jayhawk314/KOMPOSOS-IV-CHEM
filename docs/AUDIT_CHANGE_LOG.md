@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-08-12: Deployable retrieval baseline and triage decision
+
+- Extended the executable Crystal Dreamer ablation with known-material property
+  retrieval that does not use the hidden target composition.
+- Froze exact target windows and name-stable per-variant seed offsets in the
+  report; added focused cache/seed regressions.
+- Known-property retrieval achieved 8/9 top-25 window hits (7/9 top-1), while
+  the four-strategy union, one fixed random draw, and stoichiometry each achieved
+  7/9. Stoichiometry retained the stronger exact@25 result (4/9 versus 2/9 for
+  the union) with 100% physical-gate assessment.
+- This is development/spent same-predictor evidence. It rejects a current claim
+  of demonstrated four-strategy search lift; it does not validate voltage,
+  capacity, synthesis, or experimental outcomes.
+- Direct Materials Project voltage/capacity filtering remains `NOT_ASSESSED`
+  because the local cache has zero MP rows with both labels.
+- Receipt: `audit/crystal_search_ablation_report.json`; SHA-256
+  `c167b3f369987b1f9cf8dbbf36934e51a4765daf5a2e955fab6bdde36c66e1a1`.
+
 ## 2026-08-12: Public compatibility evidence state synchronized
 
 - Corrected current public/UI copy that still predated the July 20 Q11/Q12

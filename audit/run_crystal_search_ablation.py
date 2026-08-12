@@ -12,6 +12,11 @@ The hidden-composition neighbour is an oracle diagnostic because it uses the
 held-out target formula. It is not a deployable inverse-design baseline.
 Direct Materials Project voltage/capacity filtering is recorded as unavailable
 because the local MP summary cache has no such labels.
+
+The known-property retrieval baseline is deployable as a search method but is
+still same-model self-consistency: it scans held-out known formulas using the
+same forward predictor that defines the target windows. It tests whether formula
+generation adds search value; it does not test the predictor's accuracy.
 """
 
 from __future__ import annotations
@@ -56,6 +61,7 @@ RANDOM_SEED = 20260809
 
 VARIANTS = (
     "direct_labelled_filter",
+    "known_property_retrieval",
     "oracle_composition_neighbour",
     "random_union",
     "perturbation",
@@ -64,6 +70,18 @@ VARIANTS = (
     "stoichiometry",
     "four_strategy_union",
 )
+
+VARIANT_SEED_OFFSETS = {
+    "direct_labelled_filter": 0,
+    "oracle_composition_neighbour": 1,
+    "random_union": 2,
+    "perturbation": 3,
+    "interpolation": 4,
+    "substitution": 5,
+    "stoichiometry": 6,
+    "four_strategy_union": 7,
+    "known_property_retrieval": 8,
+}
 
 
 def _sha256(path: Path) -> Optional[str]:
@@ -118,6 +136,8 @@ def _topk_diversity(candidates: List[DesignCandidate]) -> Optional[float]:
 class VariantDesigner(CompositionDesigner):
     """CompositionDesigner with one frozen candidate-pool policy."""
 
+    _retrieval_prediction_cache = {}
+
     def __init__(
         self,
         variant: str,
@@ -135,6 +155,8 @@ class VariantDesigner(CompositionDesigner):
         self.raw_pool_size = 0
         self.unique_pool_size = 0
         self.labelled_pool_size = 0
+        self.retrieval_scanned = 0
+        self.retrieval_predictions_computed = 0
 
     def _generate_candidates(
         self,
@@ -161,6 +183,44 @@ class VariantDesigner(CompositionDesigner):
             raw = [
                 (entry.formula, "direct_labelled_filter", entry.name)
                 for entry in labelled
+            ]
+        elif self.variant == "known_property_retrieval":
+            # Deduplicate by composition before prediction. The target and
+            # exact-composition aliases are already absent from the held-out DB.
+            unique_known = self._deduplicate([
+                (entry.formula, "known_property_retrieval", entry.name)
+                for entry in entries
+            ])
+            ranked = []
+            for formula, _strategy, name in unique_known:
+                try:
+                    cache_key = (id(self.predictor), spec.domain, formula)
+                    prediction = self._retrieval_prediction_cache.get(cache_key)
+                    if prediction is None:
+                        prediction = self.predictor.predict(
+                            formula,
+                            domain=spec.domain,
+                            include_structure=False,
+                        )
+                        self._retrieval_prediction_cache[cache_key] = prediction
+                        self.retrieval_predictions_computed += 1
+                except Exception:
+                    continue
+                self.retrieval_scanned += 1
+                distance = 0.0
+                missing = False
+                for target in spec.targets:
+                    prop = prediction.properties.get(target.name)
+                    if prop is None:
+                        missing = True
+                        break
+                    distance += target.weight * target.distance(prop.value)
+                if not missing:
+                    ranked.append((distance, formula, name))
+            ranked.sort(key=lambda item: (item[0], item[1], item[2]))
+            raw = [
+                (formula, "known_property_retrieval", name)
+                for _distance, formula, name in ranked
             ]
         elif self.variant == "oracle_composition_neighbour":
             ordered = sorted(
@@ -238,9 +298,21 @@ def _evaluate_variant(
         "variant": variant,
         "status": "assessed",
         "candidate_budget": MAX_CANDIDATES,
+        "target_windows": [
+            {
+                "property": target.name,
+                "minimum": target.min_value,
+                "maximum": target.max_value,
+                "weight": target.weight,
+                "mandatory": target.mandatory,
+            }
+            for target in targets
+        ],
         "raw_pool_size": designer.raw_pool_size,
         "unique_pool_size": designer.unique_pool_size,
         "labelled_pool_size": designer.labelled_pool_size,
+        "retrieval_scanned": designer.retrieval_scanned,
+        "retrieval_predictions_computed": designer.retrieval_predictions_computed,
         "evaluated": result.num_evaluated,
         "returned": len(result.candidates),
         "top_one_property_window_match": bool(topk and _in_window(topk[0], targets)),
@@ -374,7 +446,7 @@ def main() -> None:
             ),
         ]
         heldout = _HeldOutDB(db, target_name, target_comp)
-        for variant_index, variant in enumerate(VARIANTS):
+        for variant in VARIANTS:
             row = _evaluate_variant(
                 variant=variant,
                 target_name=target_name,
@@ -382,7 +454,7 @@ def main() -> None:
                 targets=targets,
                 predictor=predictor,
                 heldout=heldout,
-                seed=RANDOM_SEED + target_index * 100 + variant_index,
+                seed=RANDOM_SEED + target_index * 100 + VARIANT_SEED_OFFSETS[variant],
             )
             rows.append(row)
             print(
@@ -417,12 +489,19 @@ def main() -> None:
             "exact_epsilon": EXACT_EPS,
             "near_epsilon": NEAR_EPS,
             "random_seed": RANDOM_SEED,
+            "variant_seed_offsets": VARIANT_SEED_OFFSETS,
         },
         "data_coverage": {
             "battery_entries": len(battery_entries),
             "voltage_and_capacity_labelled_entries": len(labelled_battery),
             "materials_project_voltage_and_capacity_labelled_entries": len(labelled_mp),
         },
+        "retrieval_warning": (
+            "known_property_retrieval is deployable as a retrieval policy but uses "
+            "the same forward predictor that generated the target windows. The "
+            "candidate formula is held out from the candidate pool, not from all "
+            "forward-model training/reference artifacts."
+        ),
         "unavailable_baselines": [
             {
                 "name": "direct_materials_project_voltage_capacity_filter",

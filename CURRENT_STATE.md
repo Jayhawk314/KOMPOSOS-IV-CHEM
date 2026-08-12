@@ -33,6 +33,7 @@ dataset roles, uncertainty scope, and missing coverage.
   seven composite/mixture targets explicitly skipped.
 - Local Materials Project cache: 103,644 entries in the audited checkout.
 - Fast-triage local development diagnostic: 30 candidates requested, 29 unique formulas returned in 10.859643 seconds, and 18 route-library matches. The pre-repair run took 69.630 seconds. This is latency and functional evidence, not accuracy or external workflow validation.
+- Crystal Dreamer spent search ablation: known-material property retrieval found a target-window match within the top 25 for 8/9 assessed targets; the four-strategy union, a single random-union draw, and the compact stoichiometry grid each reached 7/9. Stoichiometry recovered 4/9 exact compositions versus 2/9 for the union. These are same-forward-predictor search-mechanics results, not predictor accuracy or experimental evidence.
 
 The historical 0.304 eV/atom formation-energy headline is superseded for the
 current strict-LOO executable path. Historical reports may retain it as a record
@@ -76,6 +77,7 @@ protocol.
 - MOF funnel performance is screening evidence, not synthesis validation.
 - PFAS-free replacement ordering is triage until validated for the user's process.
 - Formula-only PFAS screening is tri-state. Lack of carbon or fluorine can rule a PFAS structure out for that formula; C/F co-occurrence requires structure or verified identity and remains not assessed.
+- Four-way Crystal Dreamer generation has no demonstrated incremental value over simpler retrieval/template baselines on the current spent targets. Keep it as an explicitly experimental diversity mechanism, not a validated advantage.
 
 ## Verification
 
@@ -87,6 +89,7 @@ protocol.
 - Formation/calibration/predictor: 80 passed in 187.15 seconds.
 - 2026-08-12 connected triage regression: 295 passed with one `mp_api` dependency warning; this suite overlaps prior groups and must not be added to their counts.
 - Both changed triage pages loaded in Streamlit AppTest with zero exceptions; the running health endpoint returned HTTP 200.
+- Crystal search audit/designer focused suite: 40 passed. The expanded ablation reran to completion with fixed per-variant seeds, exact target windows in the report, and receipt SHA-256 `c167b3f369987b1f9cf8dbbf36934e51a4765daf5a2e955fab6bdde36c66e1a1`.
 
 See `docs/CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md` for the per-feature assessment
 and `docs/PROVENANCE_CONTRACT_PROJECT.md` for the LLM/user evidence-layer design.

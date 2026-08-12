@@ -100,7 +100,8 @@ Previously reproduced evidence, with its original scope:
 
 Not yet established:
 
-- that triage beats direct database filtering or a simple notebook baseline;
+- that evidence-governed triage changes a research decision or saves time versus
+  a direct database filter or simple notebook on externally supplied cases;
 - that the ranking predicts experimental outcomes;
 - that researchers save meaningful time or change decisions;
 - that users will supply data, adopt the workflow, or pay for it;
@@ -143,20 +144,50 @@ Verification:
 
 ## Phase 2: benchmark triage value
 
-Compare under the same target, candidate budget, and physical gates:
+Status: internal search-mechanics comparison completed on 2026-08-12. External
+workflow value remains unassessed and moves to Phase 3.
 
-- direct filtering of known Materials Project entries;
-- nearest-known retrieval;
+Compared under the same spent target windows, top-25 rule, forward predictor,
+and physical-gate path:
+
+- direct filtering of the remaining labelled battery records;
+- deployable known-material property retrieval;
+- an explicitly non-deployable hidden-composition oracle;
 - random candidates from the same generator;
 - individual Crystal Dreamer strategies;
-- the combined discovery/triage pipeline.
+- the four-strategy union.
+
+Direct Materials Project voltage/capacity filtering was `NOT_ASSESSED`: the
+local MP summary cache contains zero entries carrying both labels. The direct
+labelled-record baseline had only 11 eligible records after target removal.
+
+Observed development/spent results:
+
+| Variant | Top-1 window hits | Any top-25 hit | Exact@25 | Near@25 | Gate coverage |
+|---|---:|---:|---:|---:|---:|
+| Direct labelled filter | 5/9 | 5/9 | 0/9 | 4/9 | 91.9% |
+| Known-property retrieval | 7/9 | 8/9 | 0/9 | 7/9 | 97.4% |
+| Hidden-composition oracle | 8/9 | 8/9 | 0/9 | 8/9 | 97.6% |
+| Random union, one fixed seed | 7/9 | 7/9 | 1/9 | 4/9 | 81.3% |
+| Stoichiometry grid | 7/9 | 7/9 | 4/9 | 6/9 | 100.0% |
+| Four-strategy union | 7/9 | 7/9 | 2/9 | 6/9 | 93.6% |
+
+Receipt: `audit/crystal_search_ablation_report.json`; SHA-256
+`c167b3f369987b1f9cf8dbbf36934e51a4765daf5a2e955fab6bdde36c66e1a1`.
+The report freezes exact target windows and name-stable variant seeds.
 
 Decision rules:
 
-- if direct filtering or nearest-known retrieval matches the combined pipeline on useful outcomes, simplify or stop the combined path;
-- if one search strategy supplies nearly all useful candidates, retain that strategy and remove ornamental orchestration;
-- continue the combined path only if it improves at least one externally relevant outcome without hiding vetoes or increasing review burden unacceptably;
-- local performance cannot establish user value; Phase 3 external cases remain required.
+- The four-strategy union has no demonstrated incremental search value on these
+  spent targets. Do not market the orchestration as an advantage.
+- Keep known-material retrieval as the conservative comparison arm and the
+  stoichiometry grid as a transparent family-template arm for external cases.
+- Keep four-way generation only as an explicitly experimental diversity arm
+  until an external target shows an outcome the simpler methods miss.
+- Do not implement Bayesian, vector, tensor, MLIP, or new-database expansion to
+  repair this result. Those are separate data/model hypotheses.
+- Local self-consistency cannot establish user value; Phase 3 is now the active
+  gate.
 
 Measure:
 
@@ -168,8 +199,11 @@ Measure:
 - higher-fidelity calculations avoided or prioritized;
 - performance on externally supplied known failures.
 
-Self-generated target windows must remain labeled development self-consistency.
-They cannot establish experimental or prospective accuracy.
+The target windows and candidate values came from the same forward predictor.
+Known retrieval is deployable as a search policy, but its 8/9 result is still
+same-model self-consistency: the target formula was removed from the candidate
+pool, not from all predictor reference artifacts. None of these numbers
+establish experimental or prospective accuracy.
 
 ## Phase 3: external researcher test
 
@@ -214,8 +248,13 @@ labels exists. Twelve joint labels cannot support a competitive broad model.
 
 ## Immediate sequence
 
-1. Freeze the completed Phase 1 repair and benchmark receipt.
-2. Build direct-filter, nearest-neighbor, random, and strategy baselines.
-3. Select one externally understandable triage packet.
-4. Recruit independent researchers and collect their own cases.
-5. Make the 30-to-45-day go/no-go decision before expanding models or pages.
+1. Preserve the completed Phase 2 audit, tests, receipt, and decision.
+2. Select one externally understandable battery/interface packet and the existing
+   MOF evidence packet; do not introduce all eleven pages.
+3. Recruit independent researchers and obtain at least three cases they supplied,
+   not cases chosen by this project.
+4. Compare conservative retrieval/template output with four-way generation, and
+   compare conventional CSV presentation with evidence-governed presentation.
+5. Measure decisions changed, unsupported leads caught, missing work identified,
+   review time, and willingness to pilot.
+6. Make the 30-to-45-day go/no-go decision before expanding models or pages.
