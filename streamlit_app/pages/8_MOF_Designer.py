@@ -311,7 +311,7 @@ if "mof_result" in st.session_state:
 
     if _FUNNEL_OK:
         st.caption(
-            "Grounded funnel (validated): ~94% recall on held-out real synthesized "
+            "Grounded funnel (benchmarked): ~94% recall on held-out real synthesized "
             "linkers, AUROC ~0.88 vs. raw generator output "
             "(see docs/MOF_LINKER_BENCHMARK_RESULTS.md). Gates: chemical sanity, "
             ">=2 coordinating sites, SAscore, donor geometry. Novelty = 1 - similarity "

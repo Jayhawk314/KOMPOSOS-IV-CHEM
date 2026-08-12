@@ -1,9 +1,11 @@
 # MOF Linker Designer — Usage Guide
 
-> **Current scope note (2026-07-17):** exact atom count is deterministic and the
-> grounded funnel is benchmarked. The five legacy categorical verdict descriptors
-> are unvalidated extras for novel linkers and are not synthesis, toxicity,
-> activity, stability, or conductivity proof.
+> **Current scope note (updated 2026-08-12):** exact atom count is deterministic
+> and the grounded funnel is benchmarked (see numbers below). The five legacy
+> categorical verdict descriptors are unvalidated extras for novel linkers and
+> are not synthesis, toxicity, activity, stability, or conductivity proof. No
+> generated candidate has experimental validation; every candidate's
+> experimental status is `NOT_ASSESSED` until a lab says otherwise.
 
 **Generate novel MOF linkers with exact atom count control and KOMPOSOS verdicts**
 
@@ -21,7 +23,7 @@
 8. [Understanding Verdicts](#understanding-verdicts)
 9. [Application Contexts](#application-contexts)
 10. [Advanced Usage](#advanced-usage)
-11. [Academic Partnership](#academic-partnership)
+11. [External Use and Claim Scope](#external-use-and-claim-scope)
 
 ---
 
@@ -34,20 +36,28 @@ The MOF Linker Designer is an **inverse design system** for generating novel org
 - **5 verdicts**: Synthesizability, Toxicity, Stability, Activity, Conductivity
 - **Application-specific scoring**: CO2 capture, gas storage, catalysis, sensing
 - **Donor atom filtering**: Post-filter by coordinating atoms (N, O, S)
-- **Validation Grounding**: The internal literature benchmark (215 unique pairs) reports **100% accuracy** on tuned pairs and **92.0% accuracy** on held-out generalization. Structure prediction achieved **96% accuracy** after Phase 12 physics refinements.
+- **Grounded funnel (the benchmarked screen)**: gates for chemical sanity,
+  ≥2 coordinating sites, synthetic accessibility (SAscore), and donor geometry.
+  Benchmark (`python -m mof_bridge.benchmark.run`, reproduced 2026-08-12):
+  **0.9433 pass-all recall** on 423 held-out real linkers and **AUROC 0.8843**
+  versus raw-generator decoys; on the exact-22-atom subset (n=20), recall 0.95,
+  AUROC 0.9013. This measures retention/ranking of recorded real linkers versus
+  constructed decoys — it does **not** establish synthesis, metal coordination,
+  framework topology, stability, or application performance for any generated
+  candidate.
 - **Physical Constraints**: Verdicts grounded in live empirical distributions from ColabFit Exchange
 
 **Exact atom count control**:
 Set exact heavy atom count (5-60, default 22). Generator guarantees ONLY molecules with that exact count — no approximation.
 
 **Why 22 atoms as default?**
-The 22-atom default comes from **Prof. Heather Kulik's challenge** at MIT:
-> "I just ask it, please design me a ligand that has 22 atoms. I can never get an answer that has 22 atoms."
+The 22-atom default follows a publicly discussed challenge in the computational
+MOF literature: generative models often cannot obey an exact heavy-atom count.
 
-- Computationally tractable for DFT validation
+- Computationally tractable for DFT follow-up
 - Large enough for diverse chemistry
 - Small enough to avoid combinatorial explosion
-- KOMPOSOS solves this with exact count guarantee
+- KOMPOSOS guarantees the exact count by construction
 
 ---
 
@@ -338,7 +348,7 @@ Navigate to **"Page 8: MOF Designer"** in the sidebar.
 **Exact Heavy Atom Count** (5-60, default 22):
 - Type the exact number of non-hydrogen atoms you want
 - Generator produces ONLY molecules with this exact count
-- Example: 22 (Kulik's sweet spot for DFT validation)
+- Example: 22 (a common size target for DFT follow-up)
 
 **Candidates to Generate** (20-500, default 100):
 - How many novel molecules to generate and score
@@ -346,7 +356,7 @@ Navigate to **"Page 8: MOF Designer"** in the sidebar.
 - Typical: 100 candidates → ~10-20 pass all verdicts
 
 **Application Context**:
-Select from 5 Kulik-optimized contexts:
+Select from 5 application contexts:
 - **CO2 Capture**: Lewis acid sites, polar groups, CO2 selectivity
 - **Gas Storage / Separation**: High pore volume, thermal/chemical stability
 - **Catalysis**: Active sites, substrate pockets, redox groups
@@ -374,14 +384,16 @@ Select from 5 Kulik-optimized contexts:
 1. Click **"GENERATE LIGANDS"** button
 
 2. **Metrics** appear:
-   - Generated: How many candidates were created
-   - Passed All Verdicts: How many got AGREE on all 5
-   - After Donor Filter: How many match donor atom requirements
+   - Generated: how many candidates were created
+   - Funnel Retained: how many the grounded funnel kept (`ASSESSED_PASS` +
+     `PARTIAL_PASS`)
+   - Fully Assessed Pass: passed every implemented gate including 3D geometry
+   - Geometry Unassessed: retained, but 3D geometry could not be evaluated
 
-3. **Results Table** (up to 50 candidates):
-   | Formula | Atoms | MW | SMILES | Viable | N | O | S | Verdicts |
-   |---------|-------|-----|--------|--------|---|---|---|----------|
-   | C15H11NO4 | 22 | 269.3 | c1ccc(cc1)... | Yes | 1 | 4 | 0 | 5/5 AGREE |
+3. **Results Table** (up to 50 candidates) includes funnel evidence columns:
+   Funnel Status (`ASSESSED_PASS` / `PARTIAL_PASS` / gate-failure label),
+   SAscore (lower = easier to make), and Novelty (1 − similarity to the
+   nearest known linker), alongside formula, SMILES, and donor counts.
 
 4. **Top Candidate Detail**:
    - Full SMILES (copyable)
@@ -395,8 +407,10 @@ Select from 5 Kulik-optimized contexts:
    - Helps understand where filtering is most restrictive
 
 6. **Export**:
-   - **Download CSV**: All candidates with verdict columns
-   - **Download JSON**: Full data with reasoning traces
+   - **Conventional CSV**: rank/score view of all candidates
+   - **Evidence CSV**: adds funnel status, gate results, SAscore, novelty, and
+     explicit `NOT_ASSESSED` experimental-status fields
+   - **Download JSON**: full data with reasoning traces
 
 ### Seed Linker Database (collapsed expander at bottom)
 
@@ -490,7 +504,7 @@ morphism_integrity = 1.0 - (contradictions / total_bonds)
 
 ## Application Contexts
 
-Application contexts select functional group templates and scoring criteria. Optimized for **Prof. Heather Kulik's MOF research areas** (CO2 capture, gas storage, catalysis).
+Application contexts select functional group templates and scoring criteria for common MOF research areas (CO2 capture, gas storage, catalysis, sensing).
 
 ### 1. CO2 Capture
 **Target**: Capture and store CO2 from air or flue gas
@@ -621,19 +635,23 @@ with open("batch_results.json", "w") as f:
 
 ---
 
-## Academic Partnership
+## External Use and Claim Scope
 
-This system was designed to support **Prof. Heather Kulik's research** at MIT on MOF inverse design and computational materials discovery.
-
-**Kulik Group**: [hjkgrp.mit.edu](http://hjkgrp.mit.edu)
+This system is intended as a pre-screen for computational MOF research: use it
+to narrow a candidate set **before** expensive DFT calculations or lab work,
+never as a substitute for them.
 
 **Use Cases**:
 - Generate novel MOF linkers for specific applications
 - Screen candidate linkers before expensive DFT calculations
 - Discover unexpected chemical combinations
-- Validate synthesis feasibility before lab work
+- Flag likely synthesis problems before lab work
 
-**Publications**: The dual-engine verdict system (ZFC + CAT) checks that generated linkers are both **internally constraint-consistent** (ZFC) and **compositionally plausible** (CAT), reducing false positives from purely ML-based generation. It should be paired with external molSimplify/DFT or experimental follow-up before making chemistry claims.
+**Claim scope**: The grounded funnel is benchmarked on retention/ranking of
+recorded real linkers versus constructed decoys (numbers in the Overview). The
+dual-engine verdict system (ZFC + CAT) is architecture, not validated accuracy.
+Pair any candidate with DFT or experimental follow-up before making chemistry
+claims; every generated candidate is `NOT_ASSESSED` experimentally.
 
 ---
 
@@ -706,7 +724,6 @@ Passed all: 2
 ## References
 
 - **Materials Project**: [materialsproject.org](https://materialsproject.org)
-- **Heather Kulik Group**: [hjkgrp.mit.edu](http://hjkgrp.mit.edu)
 - **RDKit**: [rdkit.org](https://www.rdkit.org)
 - **KOMPOSOS**: Category theory + ZFC for materials reasoning
 - **ZFC Set Theory**: Zermelo-Fraenkel with Choice (axiomatic foundation)
