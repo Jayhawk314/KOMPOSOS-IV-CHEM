@@ -122,6 +122,9 @@ eleven-page product has market value.
 
 Phase 3 is now the active gate for 30 to 45 days:
 
+The detailed execution protocol is
+`docs/EXTERNAL_RESEARCHER_TEST_PROTOCOL_2026-08-12.md`.
+
 1. Use one battery/interface packet and the existing MOF paired-review packet;
    do not introduce all eleven pages.
 2. Obtain at least three cases supplied by independent researchers.

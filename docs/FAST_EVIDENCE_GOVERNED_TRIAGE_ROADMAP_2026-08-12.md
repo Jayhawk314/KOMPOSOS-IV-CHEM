@@ -209,6 +209,9 @@ establish experimental or prospective accuracy.
 
 Time box: 30 to 45 days. Freeze unrelated feature expansion.
 
+Detailed packet, recruitment, randomization, scoring, and decision protocol:
+`docs/EXTERNAL_RESEARCHER_TEST_PROTOCOL_2026-08-12.md`.
+
 1. Obtain at least three real candidate lists, substitution questions, or stack
    failures from independent researchers.
 2. Present a conventional shortlist and an evidence-governed triage shortlist.
