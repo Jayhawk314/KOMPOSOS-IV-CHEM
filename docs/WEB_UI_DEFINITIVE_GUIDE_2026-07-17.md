@@ -57,11 +57,12 @@ incomplete.
 
 ### Calibration is scoped
 
-The pairwise compatibility probability is tied to a 98-row
-development/spent-diagnostic cohort. Its recorded out-of-sample ECE is about
-0.072 and its Brier score is about 0.049. This does not establish per-domain
-calibration and does not calibrate cell-wide or other multi-interface
-aggregates.
+The runtime pairwise compatibility probability is tied to a deployed 98-row
+development/spent-diagnostic artifact. That artifact records out-of-sample ECE
+0.0549 and Brier 0.0337. A separate, broader post-squash five-fold study reports
+OOS ECE 0.070 and Brier 0.068; Q11 blind ECE was 0.177. These measurements use
+different cohorts and procedures. None establishes per-domain calibration or
+calibrates cell-wide or other multi-interface aggregates.
 
 ### Evidence roles matter
 
@@ -72,9 +73,12 @@ reported as a fresh blind result.
 
 ### Current blind status
 
-No compatibility dataset is currently blind. Q9 is spent: its initial frozen
-score was 32 of 40, and its post-remediation regression score was 35 of 40.
-Q10 remains sealed and unscored.
+Q11's first blind compatibility run was 63.9% on 36 evaluated pairs, with four
+no-verdicts. Its labels had no external source identifiers and were authored by
+the same AI assistant that worked on the code, which limits independence. Q11
+was then used for remediation and is now spent; its post-fix 69.7% is regression
+evidence only and total correct remained 23/40. Q12 is the current frozen,
+unscored blind set. Q10 remains sealed and unconsumed.
 
 ## Navigation summary
 
@@ -827,8 +831,9 @@ They do not convert a generated structure into a synthesized material.
 | Capability | Current recorded evidence | Interpretation |
 | --- | --- | --- |
 | Pairwise compatibility | 41 of 41 development regression | Code-path regression, not blind accuracy |
-| Compatibility Q9 | 32 of 40 initial; 35 of 40 after remediation | Spent diagnostic |
-| Pairwise calibration | 98 development/spent rows; ECE 0.072; Brier 0.049 | Cohort-scoped reliability evidence |
+| Compatibility Q11 | First blind run: 63.9% of 36 evaluated; 4 no-verdicts | Internally authored labels with no source identifiers; now spent |
+| Compatibility Q12 | Frozen 36-pair/12-contrast-group set; unscored | Current blind set; not-yet-assessed |
+| Pairwise calibration | Deployed 98-row artifact: ECE 0.0549, Brier 0.0337; broader study: ECE 0.070, Brier 0.068 | Different development/spent cohorts; neither is domain-specific or blind |
 | Formation energy | Strict LOO n=179; MAE 0.416; RMSE 0.552 | Screening-grade development result |
 | Formation intervals | Deployed coverage 50, 79, 95 percent | Recalibrated interval behavior |
 | MOF linker funnel | AUROC 0.8843; held-out recall 0.9433 | Structural funnel evidence |

@@ -14,23 +14,24 @@ this file and the pages follow automatically.
 Standing rule: claims are per-domain and must show uncertainty. Never headline
 one global accuracy number.
 
-Last synced to audit state: 2026-07-17
+Last synced to audit state: 2026-08-12
 """
 
 import streamlit as st
 
-LAST_SYNCED = "2026-07-17"
+LAST_SYNCED = "2026-08-12"
 
 # The compatibility score is now mapped to a calibrated probability via an
 # isotonic calibrator fit on dev+spent diagnostics (audit/build_compatibility_
 # calibration.py). Honest held-out (k-fold OOS) ECE ~0.07, down from ~0.19 raw.
 CONFIDENCE_CAVEAT = (
-    "Pairwise compatibility scores use an isotonic mapping fit on 98 allowed "
-    "development/spent-diagnostic pairs (5-fold OOS ECE 0.072 in the deployed "
-    "artifact). This is calibration evidence for that pool, not fresh blind or "
-    "domain-specific validation. A displayed 0.70 is an estimated frequency, not "
-    "a lab guarantee. Aggregate cell/workbench scores are not passed through this "
-    "pairwise calibrator."
+    "Runtime pairwise probabilities use the deployed 98-row development/spent "
+    "isotonic artifact (artifact OOS ECE 0.055, Brier 0.034). A broader "
+    "post-squash five-fold study reports OOS ECE 0.070 and Brier 0.068; Q11 "
+    "blind ECE was 0.177. These are different cohorts and procedures, not "
+    "general or domain-specific validation. A displayed 0.70 is an estimated "
+    "frequency on the calibration cohort, not a lab guarantee. Aggregate "
+    "cell/workbench scores are not passed through this pairwise calibrator."
 )
 
 # Per-domain compatibility validation.
@@ -39,9 +40,9 @@ CONFIDENCE_CAVEAT = (
 COMPATIBILITY_DOMAINS = [
     {
         "Domain": "All compatibility domains",
-        "Accuracy": "41/41 development; Q9 35/40 regression",
-        "Basis (uncertainty)": "Development is tuned; Q9 is spent diagnostic",
-        "State": "Triage only; no current blind set",
+        "Accuracy": "Q11 blind: 63.9% of 36 evaluated; 4 no-verdicts",
+        "Basis (uncertainty)": "Internally authored labels; no source identifiers",
+        "State": "Q11 spent after remediation; Q12 current blind, unscored",
     },
     {
         "Domain": "Per-domain estimates",
@@ -57,13 +58,15 @@ COMPATIBILITY_DOMAINS = [
     },
 ]
 
-# Honest blind-claim posture (audit/dataset_registry.json: current_blind_version is null).
+# Honest blind-claim posture from audit/dataset_registry.json v3.
 BLIND_STATUS = (
-    "**No dataset is currently blind.** Q2–Q9 are spent diagnostics (used for "
-    "error analysis / calibration), not fresh blind claims. Q10 is the sealed "
-    "final exam — its labels are hashed and held out, and it has **not been "
-    "scored** yet. The development set is 41/41 (Brier 0.095) but it is *tuned*, "
-    "so it is not a blind result."
+    "**Q12 is the current frozen blind compatibility set and is unscored.** "
+    "Q11's first run was 63.9% on 36 evaluated pairs with four no-verdicts "
+    "(MCC 0.278, Brier 0.279, ECE 0.177). Its labels had no external source "
+    "identifiers and were authored by the same AI assistant that worked on the "
+    "code. Q11 was then used for remediation and is now spent; the post-fix "
+    "69.7% is regression evidence only, with total correct unchanged at 23/40. "
+    "Q10 remains sealed and unconsumed. Development 41/41 is tuned, not blind."
 )
 
 # Per-feature validation notes. Keep each one short and honest.

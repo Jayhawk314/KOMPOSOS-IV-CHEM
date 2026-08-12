@@ -31,7 +31,7 @@ natural place to implement constraints and evidence flow.
 
 | Feature | What the code actually does | Reproduced evidence | Honest value and boundary |
 | --- | --- | --- | --- |
-| Compatibility Checker | Runs native bridge scorers, physical vetoes, an ensemble, and a calibrated pairwise decision workflow. | Development regression 41/41. Q9 is spent: initial 32/40, post-remediation 35/40. The deployed 98-row development/spent isotonic artifact reports OOS ECE 0.072 and Brier 0.049. | The workhorse: a traceable pairwise second opinion. No dataset is currently blind; calibration is not demonstrated per domain and does not transfer to arbitrary multi-interface aggregates. |
+| Compatibility Checker | Runs native bridge scorers, physical vetoes, an ensemble, and a calibrated pairwise decision workflow. | Q11 first blind run: 63.9% on 36 evaluated with four no-verdicts, MCC 0.278, Brier 0.279, ECE 0.177. Q11 labels had no external source identifiers and were authored by the same AI assistant. Q11 is now spent; Q12 is current blind and unscored. Development remains 41/41. | The workhorse: a traceable pairwise second opinion. Q11 demonstrates a real generalization gap. Calibration is not established per domain and does not transfer to arbitrary multi-interface aggregates. |
 | PFAS Scanner | Registry/name/structure screening plus use-case replacement ranking and coverage-aware interface bottleneck checks. | Replacement audit: 18/18 returned suggestions PFAS-free; seven PFAS/use-case panels ranked monotonically and interface scores discriminated. Regression tests confirm that an unknown required contact blocks a full-stack verdict and zero coverage is not converted to a neutral 0.5. | Detection is the strongest checkable feature. Replacement ordering is useful triage, not experimentally validated substitution advice. |
 | Composition Predictor | Formula parsing, nearest-material reasoning, a RandomForest formation-energy model, other property estimates, and uncertainty tiers. | Current strict-formula LOO on 179 curated entries: MAE 0.416, RMSE 0.552, median absolute error 0.340 eV/atom. Recalibrated deployed interval coverage: 50/79/95%; five-fold out-of-sample calibration: 49/80/94%. | A fast screening/sanity check. The older 0.304 MAE headline is not reproduced by the current strict LOO path. Other property intervals are heuristic unless separately documented. |
 | Cell Designer and Optimizer | Models cathode, anode, electrolyte, binder, and separate current collectors with physical adjacency; sweeps curated stacks and optionally refines cathodes through the local MP cache. | Role pools now exclude `Al_foil` as cathode and `Cu_foil` as anode. The repaired discovery path loads 103,644 MP entries and returned 30 direct refinements in the audit. Missing native interface scorers are now reported. | Real orchestration and useful constrained ranking. Energy density is cathode-active `V*C`, not pack energy. The compatibility aggregate is partial whenever physical contacts lack native functors, so it is not a full-cell probability. |
@@ -77,8 +77,9 @@ language.
 1. Add native scorers or explicit user-supplied evidence for the central unscored
    battery contacts (battery/ceramic, battery/battery electrode-electrolyte, and
    polymer/ceramic where applicable).
-2. Freeze and preserve a genuinely new compatibility holdout before inspecting
-   labels. Q9 is spent; Q10 remains sealed and unscored.
+2. Preserve Q12 as the current unscored blind holdout and keep Q10 sealed and
+   unconsumed. Obtain externally supplied, source-backed cases before another
+   compatibility claim.
 3. Improve and externally validate the formation-energy point model; calibration
    makes uncertainty honest but does not lower MAE.
 4. Expand linker seed diversity and seek chemist review or experimental validation

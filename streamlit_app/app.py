@@ -72,7 +72,7 @@ dual-engine constraints.
 - **{_mat_count:,} composition records loaded locally**; optional Materials Project cache expands discovery and structure lookup when available
 - **Physics-embedded search**: composition vectors combine stoichiometry with periodic-table features for chemically aware neighbor selection
 - **Active verification**: compatibility checks can run GROMACS when a real `.gro`/`.top` input bundle is supplied; missing inputs return an explicit no-verdict readiness state
-- **Validation grounding**: accuracy is reported *per domain* with uncertainty (see the Validation Status panel below). No single global accuracy number is headlined, and no dataset is currently blind — the Q10 sealed exam has not been scored
+- **Validation grounding**: evidence roles and uncertainty are shown below. Q11's first blind run was 63.9% on 36 evaluated pairs with four no-verdicts; its internally authored, uncited labels limit independence. Q11 is now spent after remediation, Q12 is current blind and unscored, and Q10 remains sealed and unconsumed
 - **Materials Project integration**: optional 103K+ DFT-computed structure cache with lattice parameters, formation energies, and convex hull distances when installed
 - **Empirical bond constraints**: local bond distributions with optional ColabFit cache/API support; not a live dynamic potential service in this build
 

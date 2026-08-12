@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-08-12: Public compatibility evidence state synchronized
+
+- Corrected current public/UI copy that still predated the July 20 Q11/Q12
+  registry transition.
+- Q11 first blind result is 63.9% on 36 evaluated pairs with four no-verdicts;
+  its labels had zero source-identifier coverage and were authored by the same
+  AI assistant that worked on the code, so independence is limited.
+- Q11 is now spent after remediation. The post-fix 69.7% is regression evidence
+  only; total correct remained 23/40.
+- Q12 remains current blind and unscored. Q10 remains sealed and unconsumed.
+- The deployed 98-row development/spent artifact records OOS ECE 0.0549 and
+  Brier 0.0337; the separate broader post-squash study reports OOS ECE 0.070
+  and Brier 0.068; Q11 blind ECE was 0.177. These are different cohorts and
+  procedures. No per-domain or aggregate calibration claim was added.
+- Neither Q12 nor Q10 was scored or opened during this synchronization.
+
 ## 2026-08-09: MOF paired review exports and partial geometry status
 
 - Added same-order conventional and evidence-governed researcher-review CSVs.

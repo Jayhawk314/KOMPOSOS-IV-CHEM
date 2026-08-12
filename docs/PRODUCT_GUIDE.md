@@ -381,11 +381,14 @@ The scanner works on **names**. If a client gives you "Polymer X" or "Coating 7B
 
 The scanner is a first-pass screening tool, not a lab analysis. It catches the obvious PFAS (PVDF, PTFE, FEP, Nafion) that show up in battery/industrial BOMs. For regulatory filing, the client still needs analytical testing (LC-MS/MS) to confirm.
 
-**Validation grounding** (audited 2026-07-17): compatibility development regression
-is 41/41. No dataset is currently blind; Q9 is also spent (35/40 after remediation)
-and Q10 remains sealed. The deployed 98-row development/spent isotonic artifact
-reports OOS ECE 0.072, but that does not prove domain-specific calibration or
-calibrate whole-stack aggregates. Current strict-formula formation-energy LOO is
+**Validation grounding** (synced 2026-08-12): Q11's first blind compatibility run
+was 63.9% on 36 evaluated pairs with four no-verdicts, but its labels were
+internally authored and had no external source identifiers. Q11 is now spent after
+remediation; its 69.7% rerun is regression evidence only. Q12 is current blind and
+unscored, while Q10 remains sealed and unconsumed. The current post-squash
+development/spent isotonic study reports OOS ECE 0.070 and Brier 0.068, but that
+does not prove domain-specific calibration or calibrate whole-stack aggregates.
+Current strict-formula formation-energy LOO is
 MAE 0.416 eV/atom (n=179), with deployed interval coverage 50/79/95%. GROMACS is
 an optional verification path only when an applicable simulation is configured;
 its existence is not blanket high-stakes validation.

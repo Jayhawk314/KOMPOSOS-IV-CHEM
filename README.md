@@ -22,15 +22,19 @@ reaction expertise, regulatory counsel, or process qualification.
 
 | Capability | Current reproducible result | Boundary |
 | --- | --- | --- |
-| Pairwise compatibility | 41/41 development regression; deployed 98-row development/spent isotonic calibration reports OOS ECE 0.072, Brier 0.049 | No current blind dataset; not calibrated per domain or for multi-interface aggregates |
+| Pairwise compatibility | Q11 first blind run: 63.9% on 36 evaluated, 4 no-verdicts; 41/41 development regression | Q11 labels had no external source identifiers and were authored by the same AI assistant; Q11 is now spent, Q12 is current blind and unscored, and calibration is not established per domain or for multi-interface aggregates |
 | Formation energy | Strict formula LOO, n=179: MAE 0.416, RMSE 0.552, median absolute error 0.340 eV/atom | Screening-grade point model; older 0.304 headline is superseded for this executable path |
 | Formation intervals | Deployed coverage 50/79/95%; five-fold calibration 49/80/94% | Calibrated on the curated development corpus, not experimental deployment outcomes |
 | MOF linker funnel | Held-out-real recall 0.9433; AUROC 0.8843 vs raw generator; exact-22 recall 0.95 | Structural screening of known/generated linkers, not synthesis proof |
 | PFAS replacements | 18/18 audited suggestions PFAS-free; use-case and interface ranking checks pass | Replacement ranking is triage, not qualified substitution advice |
 | Synthesis routes | 24 curated targets; 17 element-balanced witnesses; 7 composite targets skipped | Proves encoded atom conservation only, not mechanism, redox, yield, or phase purity |
 
-Dataset roles matter. Q9 has been inspected and used for remediation, so it is a
-**spent diagnostic**, not blind evidence. Q10 remains sealed and unscored. See
+Dataset roles matter. Q11's first run is the current genuine blind compatibility
+result (63.9% on 36 evaluated pairs, with four no-verdicts), but its labels were
+internally authored without external source identifiers. Q11 was then used for
+remediation and is now **spent**; its post-fix 69.7% is regression evidence only
+and total correct remained 23/40. Q12 is the current frozen, unscored blind set.
+Q10 remains sealed and unconsumed. See
 [`audit/dataset_registry.json`](audit/dataset_registry.json).
 
 ## Application surfaces

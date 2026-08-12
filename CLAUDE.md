@@ -197,7 +197,9 @@ Python: 3.10+
   5-fold OOS calibration coverage is 49/80/94%.
 - Q9 is a **spent diagnostic** (initial 32/40; later 35/40 after inspected-error
   remediation) and is now recorded in `audit/dataset_registry.json`. Q10 remains
-  sealed and unscored. There is still no current blind compatibility dataset.
+  sealed and unscored. **Superseded by the July 20 Q11/Q12 state above:** Q11
+  produced the 63.9% first blind result and is now spent; Q12 is current blind
+  and unscored; Q10 remains sealed and unconsumed.
 - Battery optimizer active-material pools now use `CATHODE_MATERIALS` and
   `ANODE_MATERIALS`; the former class-based filter incorrectly admitted Al foil
   as a cathode and Cu foil as an anode. The 103K discovery path's index/API
@@ -242,12 +244,13 @@ Python: 3.10+
 
 ### Compatibility & Development Benchmarks
 - `audit/dataset_registry.json` is the source of truth for external blind roles.
-- **No dataset is currently blind** (`current_blind_version: null`). Q2–Q8 are all
-  `spent_diagnostic`. Q8 was demoted from current_blind to spent_diagnostic on
+- **Superseded historical posture:** Q2–Q8 are all `spent_diagnostic`. Q8 was
+  demoted from current_blind to spent_diagnostic on
   2026-05-29 (its skip/fail cases were inspected; 14/40 pairs overlap existing
   identities — never a clean holdout). **Never report any Q8 number as a blind claim.**
-  Q9 is also spent diagnostic. Q10 is sealed and unscored; do not claim a
-  current blind result.
+  Q9 is also spent diagnostic. Current registry state is Q11 spent after its
+  63.9% first blind run, Q12 current blind and unscored, and Q10 sealed and
+  unconsumed.
 - Development benchmark: `41/41`, `100.0%`, `0` skips, Brier 0.095. (Re-verified
   2026-05-30 after relabeling HDPE+PP polymer pair to immiscible/incompatible — the
   Flory-Huggins veto correctly flags it; prior `true` label was thermodynamically wrong.)

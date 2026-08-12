@@ -281,8 +281,9 @@ unsupported leads or the next calculation. Do not show both conditions first.
 ### Priority 3 - obtain externally supplied compatibility cases
 
 Ask a materials engineer for one difficult pair or known stack failure before
-the system sees the answer. Preserve it as sealed input. Keep Q10 sealed until
-an explicitly authorized scoring event.
+the system sees the answer. Preserve it as sealed input. Keep Q12 current blind
+and unscored, and keep Q10 sealed and unconsumed, until explicitly authorized
+scoring events.
 
 ### Priority 4 - close interface coverage
 

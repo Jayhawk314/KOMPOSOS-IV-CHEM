@@ -1,6 +1,6 @@
 # KOMPOSOS-IV-CHEM current state
 
-Updated: 2026-07-17
+Updated: 2026-08-12
 
 ## Identity
 
@@ -11,12 +11,18 @@ dataset roles, uncertainty scope, and missing coverage.
 
 ## Current reproducible headline numbers
 
-- Compatibility development regression: 41/41.
-- No compatibility dataset is currently blind. Q9 is spent (35/40 after
-  remediation); Q10 is sealed and unscored.
-- Pairwise compatibility calibration artifact: 98 development/spent rows,
-  isotonic OOS ECE 0.072 and Brier 0.049. This is not per-domain evidence and is
-  not valid for arbitrary aggregate scores.
+- Compatibility Q11 first blind run: 63.9% on 36 evaluated pairs, with four
+  no-verdicts, MCC 0.278, Brier 0.279, and ECE 0.177. Its labels had no external
+  source identifiers and were authored by the same AI assistant that worked on
+  the code, so this is weaker than externally labelled validation.
+- Q11 was used for remediation and is now spent. Its post-fix 69.7% is regression
+  evidence only; total correct remained 23/40. Q12 is current blind and unscored.
+  Q10 remains sealed and unconsumed. Development regression remains 41/41.
+- The deployed 98-row development/spent isotonic artifact records OOS ECE
+  0.0549 and Brier 0.0337. A broader post-squash five-fold study reports OOS ECE
+  0.070 and Brier 0.068; blind Q11 ECE was 0.177. These are different cohorts
+  and procedures. None establishes per-domain calibration or applies to
+  aggregate scores.
 - Formation-energy strict-formula LOO: n=179, MAE 0.416, RMSE 0.552, median
   absolute error 0.340 eV/atom.
 - Formation-energy interval coverage after recalibration: deployed 50/79/95%;

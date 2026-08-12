@@ -22,10 +22,12 @@ different score. This applies to epistemic gaps as well as physical failures.
 
 ### Calibration is scoped
 
-The pairwise compatibility path has an isotonic development/spent calibration
-artifact (OOS ECE 0.072 on its recorded cohort). The system explicitly does not
-apply that artifact to arbitrary multi-interface aggregates. Formation-energy
-intervals have their own calibration record.
+The runtime pairwise path uses a 98-row development/spent isotonic artifact
+(artifact OOS ECE 0.0549, Brier 0.0337). A broader post-squash five-fold study
+reports OOS ECE 0.070 and Brier 0.068, while Q11 blind ECE was 0.177. These
+measurements use different cohorts and procedures. The system explicitly does
+not apply the pairwise artifact to arbitrary multi-interface aggregates.
+Formation-energy intervals have their own calibration record.
 
 ### Constraints plus a grounded referee
 

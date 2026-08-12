@@ -17,8 +17,10 @@
 KOMPOSOS-IV is a **categorical runtime** and **compositional reasoning engine**. It transitions from static database lookups to an **Execution as Category** model ($ \infty $-cosmos).
 
 1. **"Will these materials work together?"** — Pairwise screens use native bridge
-   scorers and physical vetoes. A development/spent isotonic artifact has OOS ECE
-   0.072; this does not establish per-domain or multi-interface calibration.
+   scorers and physical vetoes. The deployed 98-row development/spent isotonic
+   artifact records OOS ECE 0.0549; a broader post-squash study reports 0.070,
+   and Q11 blind ECE was 0.177. These different measurements do not establish
+   per-domain or multi-interface calibration.
 2. **"What properties does this composition have?"** — Formula-based screening;
    current strict formation-energy LOO MAE is 0.416 eV/atom with recalibrated
    50/79/95% deployed interval coverage.

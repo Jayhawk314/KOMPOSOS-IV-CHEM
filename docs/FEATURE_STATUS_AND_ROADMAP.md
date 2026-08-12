@@ -65,13 +65,12 @@ forward predictor genuinely accurate (a hard, open problem) — not a quick fix.
 - **How good:** 77–100% per domain on Q8+Q9 (spent diagnostics, ~115 pairs).
   Genuinely useful triage.
 - **Grounded?** The *scorers* are real physics (beyond heuristics). The *limits*:
-  the combination weights are hand-set, **confidence is not calibrated (ECE ~0.15)**,
-  and there is **no current blind benchmark** (Q8/Q9 are spent).
-- **Do next:** (1) **calibrate confidence** — apply the same conformal recalibration
-  we just used for formation energy so a 0.8 means ~0.8; (2) freeze a fresh blind
-  benchmark and report it; (3) consider learning the combination weights honestly.
-- **UI:** already states "confidence is a ranking signal, not a probability" — keep
-  that until calibrated, then update.
+  combination weights are hand-set; development/spent calibration is not
+  domain-specific; and Q11 blind ECE was 0.177. Q11's internally authored labels
+  had no external source identifiers, so it is not strong external validation.
+- **Do next:** keep Q12 frozen and unscored until an authorized event, obtain
+  externally supplied and sourced cases, and establish per-domain calibration.
+- **UI:** report the Q11/Q12 evidence roles and preserve abstention/no-verdict counts.
 
 ### MOF Designer — genuinely good at what it claims
 - **What:** generates novel linker candidates with exact atom counts; scores them
