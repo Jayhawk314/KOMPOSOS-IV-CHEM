@@ -27,10 +27,11 @@ FARADAY = 96485.0
 
 @dataclass
 class PropertyEstimate:
-    """A single property estimate with confidence."""
+    """A single property estimate with internal confidence and evidence."""
     value: float
-    confidence: float   # 0-1, how reliable this estimate is
-    method: str         # Which rule produced it
+    confidence: float   # 0-1 internal source confidence, not empirical coverage
+    method: str         # Which rule or interpolation produced it
+    evidence: Dict[str, object] = field(default_factory=dict)
 
 
 @dataclass

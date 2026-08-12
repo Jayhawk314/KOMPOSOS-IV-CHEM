@@ -255,6 +255,12 @@ if st.button("Dream Crystals", type="primary"):
         f"{result.num_physical_unassessed} unassessable candidates retained "
         "without physical clearance."
     )
+    st.warning(
+        "Voltage/capacity confidence is internal agreement between sparse "
+        "nearest-neighbour interpolation and chemistry rules. It is not an "
+        "empirically calibrated probability, and its displayed bounds are "
+        "heuristic unless the property evidence explicitly says otherwise."
+    )
 
     if not result.candidates:
         st.warning(
@@ -272,7 +278,7 @@ if st.button("Dream Crystals", type="primary"):
             "Formula": c.formula,
             "Physical Status": c.physical_gate_status,
             "Score": c.overall_score,
-            "Confidence": c.confidence,
+            "Internal Confidence": c.confidence,
             "Synthesizability": c.synthesizability,
             "Strategy": c.strategy,
         }
@@ -288,8 +294,8 @@ if st.button("Dream Crystals", type="primary"):
     df = pd.DataFrame(rows)
 
     # Style: gradient on Score and Confidence columns
-    style_cols = ["Score", "Confidence", "Synthesizability"]
-    format_dict = {"Score": "{:.3f}", "Confidence": "{:.1%}", "Synthesizability": "{:.2f}"}
+    style_cols = ["Score", "Internal Confidence", "Synthesizability"]
+    format_dict = {"Score": "{:.3f}", "Internal Confidence": "{:.1%}", "Synthesizability": "{:.2f}"}
     for t in targets:
         label = _PROP_META.get(t.name, (t.name, ""))[0]
         format_dict[label] = "{:.3f}"
@@ -376,9 +382,15 @@ if st.button("Dream Crystals", type="primary"):
             score = best.target_scores.get(t.name, 0)
             met = t.name in best.targets_met
             value = best.predicted_properties.get(t.name, None)
+            detail = best.property_evidence.get(t.name, {})
+            evidence = detail.get("evidence", {})
+            kan = evidence.get("kan", {})
             target_rows.append({
                 "Property": label,
                 "Value": value if value is not None else "—",
+                "Internal Confidence": detail.get("confidence"),
+                "Neighbour Labels": kan.get("label_support_n"),
+                "Interval Status": evidence.get("interval_status", "unknown"),
                 "Target Score": score,
                 "Met": "Yes" if met else "No",
             })
@@ -386,6 +398,7 @@ if st.button("Dream Crystals", type="primary"):
         st.dataframe(
             target_df.style.format({
                 "Value": "{:.3f}",
+                "Internal Confidence": "{:.1%}",
                 "Target Score": "{:.3f}",
             }, na_rep="—").background_gradient(
                 subset=["Target Score"], cmap="RdYlGn", vmin=0, vmax=1
@@ -395,6 +408,12 @@ if st.button("Dream Crystals", type="primary"):
         )
 
     st.markdown(f"**Strategy:** {best.strategy} | **Anchor:** {best.anchor or '—'}")
+    with st.expander("Top-pick property evidence"):
+        st.caption(
+            "Bounds and confidence retain their evidence role. "
+            "heuristic_not_calibrated is not predictive interval coverage."
+        )
+        st.json(best.property_evidence)
 
     # Derived crystal structure for top pick (single predict call, ~1ms cached)
     try:

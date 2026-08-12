@@ -409,7 +409,15 @@ class TestPhysicalGateCoverage(unittest.TestCase):
             payload["physical_rejections"][0]["physical_gate_status"],
             "VETOED",
         )
+        self.assertIn("property_evidence", payload["candidates"][0])
+        voltage_evidence = payload["candidates"][0]["property_evidence"]["voltage"]
+        self.assertEqual(
+            voltage_evidence["evidence"]["interval_status"],
+            "heuristic_not_calibrated",
+        )
         flat = result.to_flat_records()
+        self.assertIn("voltage__confidence", flat[0])
+        self.assertIn("voltage__evidence", flat[0])
         self.assertEqual(
             [(row["disposition"], row["physical_gate_status"]) for row in flat],
             [

@@ -52,12 +52,13 @@ def _auto_detect_domain(comp: Dict[str, float]) -> Optional[str]:
 
 @dataclass
 class PredictedProperty:
-    """A single predicted property with uncertainty bounds."""
+    """A predicted property with an explicit evidence-role boundary."""
     value: float
-    confidence: float           # 0-1
-    lower_bound: float          # Conservative estimate
-    upper_bound: float          # Optimistic estimate
+    confidence: float           # 0-1 internal agreement, not empirical coverage
+    lower_bound: float
+    upper_bound: float
     sources: Dict[str, float]   # source_name -> its estimate
+    evidence: Dict[str, object] = field(default_factory=dict)
 
 
 @dataclass
@@ -83,6 +84,7 @@ class PredictedMaterial:
                     "lower_bound": v.lower_bound,
                     "upper_bound": v.upper_bound,
                     "sources": v.sources,
+                    "evidence": v.evidence,
                 }
                 for k, v in self.properties.items()
             },
@@ -189,6 +191,7 @@ class CompositionPredictor:
                 fe_exclude = exclude_names[0]
             fe_result = self._fep.predict(formula, exclude_formula=fe_exclude)
             interval = fe_result.calibrated_intervals_eV.get("80")
+            interval_is_calibrated = interval is not None
             if interval is None:
                 interval = abs(fe_result.error_estimate_eV)
             properties["formation_energy"] = PredictedProperty(
@@ -197,6 +200,17 @@ class CompositionPredictor:
                 lower_bound=fe_result.ef_per_atom - interval,
                 upper_bound=fe_result.ef_per_atom + interval,
                 sources=fe_result.sources,
+                evidence={
+                    "evidence_role": "development_screening_estimate",
+                    "confidence_role": "formation_model_internal_confidence",
+                    "interval_status": (
+                        "development_calibrated_80_percent"
+                        if interval_is_calibrated
+                        else "heuristic_not_calibrated"
+                    ),
+                    "calibration_status": fe_result.calibration_status,
+                    "uncertainty_tier": fe_result.uncertainty_tier.value,
+                },
             )
             properties["synthesizability"] = PredictedProperty(
                 value=fe_result.synthesizability_score,
@@ -204,6 +218,11 @@ class CompositionPredictor:
                 lower_bound=max(0.0, fe_result.synthesizability_score - 0.15),
                 upper_bound=min(1.0, fe_result.synthesizability_score + 0.15),
                 sources={"formation_energy": fe_result.ef_per_atom},
+                evidence={
+                    "evidence_role": "heuristic_screening_estimate",
+                    "confidence_role": "formation_model_internal_confidence",
+                    "interval_status": "heuristic_not_calibrated",
+                },
             )
         except Exception:
             pass  # Formation energy is optional enhancement
@@ -348,11 +367,16 @@ class CompositionPredictor:
         for prop_name in all_props:
             values = []
             prop_weights = []
+            contributors = []
 
             for (entry, dist), w in zip(neighbours, weights):
                 if prop_name in entry.properties:
                     values.append(entry.properties[prop_name])
                     prop_weights.append(w)
+                    contributors.append({
+                        "name": entry.name,
+                        "distance": float(dist),
+                    })
 
             if not values:
                 continue
@@ -389,6 +413,13 @@ class CompositionPredictor:
                 value=predicted_value,
                 confidence=confidence,
                 method="kan_extension_idw",
+                evidence={
+                    "label_support_n": n_contrib,
+                    "nearest_label_distance": min(
+                        item["distance"] for item in contributors
+                    ),
+                    "contributors": contributors,
+                },
             )
 
         return estimates
@@ -411,6 +442,27 @@ class CompositionPredictor:
 
         results: Dict[str, PredictedProperty] = {}
 
+        def evidence_for(kan_val=None, rule_val=None, *, exact=False):
+            methods = []
+            payload = {
+                "evidence_role": (
+                    "deterministic_derived_value" if exact
+                    else "heuristic_screening_estimate"
+                ),
+                "confidence_role": "internal_source_agreement",
+                "interval_status": (
+                    "deterministic" if exact else "heuristic_not_calibrated"
+                ),
+            }
+            if kan_val is not None:
+                methods.append(kan_val.method)
+                payload["kan"] = dict(kan_val.evidence)
+            if rule_val is not None:
+                methods.append(rule_val.method)
+                payload["rule"] = {"method": rule_val.method}
+            payload["source_methods"] = methods
+            return payload
+
         for prop_name in all_props:
             if prop_name in skip_props:
                 # Pass through directly
@@ -420,6 +472,7 @@ class CompositionPredictor:
                         value=est.value, confidence=est.confidence,
                         lower_bound=est.value, upper_bound=est.value,
                         sources={"kan": est.value},
+                        evidence=evidence_for(kan_val=est),
                     )
                 elif rule_est and prop_name in rule_est.properties:
                     est = rule_est.properties[prop_name]
@@ -427,6 +480,7 @@ class CompositionPredictor:
                         value=est.value, confidence=est.confidence,
                         lower_bound=est.value, upper_bound=est.value,
                         sources={"rule": est.value},
+                        evidence=evidence_for(rule_val=est, exact=True),
                     )
                 continue
 
@@ -454,6 +508,7 @@ class CompositionPredictor:
                     lower_bound=lo,
                     upper_bound=hi,
                     sources={"kan": kan_val.value, "rule": rule_val.value},
+                    evidence=evidence_for(kan_val=kan_val, rule_val=rule_val),
                 )
 
             elif kan_val:
@@ -465,6 +520,7 @@ class CompositionPredictor:
                     lower_bound=kan_val.value - spread,
                     upper_bound=kan_val.value + spread,
                     sources={"kan": kan_val.value},
+                    evidence=evidence_for(kan_val=kan_val),
                 )
 
             elif rule_val:
@@ -476,6 +532,7 @@ class CompositionPredictor:
                     lower_bound=rule_val.value - spread,
                     upper_bound=rule_val.value + spread,
                     sources={"rule": rule_val.value},
+                    evidence=evidence_for(rule_val=rule_val),
                 )
 
         return results

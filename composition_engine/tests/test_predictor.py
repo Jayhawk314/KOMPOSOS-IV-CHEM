@@ -127,6 +127,12 @@ class TestCompositionPredictor(unittest.TestCase):
         self.assertIn("formula", d)
         self.assertIn("properties", d)
         self.assertIn("nearest_known", d)
+        voltage = d["properties"]["voltage"]
+        self.assertIn("evidence", voltage)
+        self.assertEqual(
+            voltage["evidence"]["interval_status"],
+            "heuristic_not_calibrated",
+        )
 
     def test_predict_nmc532(self):
         """NMC532 is well-studied but not in our DB -- should still predict."""
@@ -262,6 +268,8 @@ class TestDempsterShaferFusion(unittest.TestCase):
         for name, prop in result.properties.items():
             self.assertIsInstance(prop.sources, dict)
             self.assertGreater(len(prop.sources), 0)
+            self.assertIn("evidence_role", prop.evidence)
+            self.assertIn("interval_status", prop.evidence)
 
     def test_two_source_fusion(self):
         """For NMC cathodes, voltage should have both kan and rule sources."""
@@ -270,6 +278,9 @@ class TestDempsterShaferFusion(unittest.TestCase):
             sources = result.properties["voltage"].sources
             # Should have at least one source
             self.assertGreater(len(sources), 0)
+            evidence = result.properties["voltage"].evidence
+            self.assertGreater(evidence["kan"]["label_support_n"], 0)
+            self.assertGreater(len(evidence["kan"]["contributors"]), 0)
 
 
 if __name__ == "__main__":

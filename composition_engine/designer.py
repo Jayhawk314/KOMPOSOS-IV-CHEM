@@ -17,6 +17,7 @@ This is the "inverse" of predict(): instead of formula -> properties,
 it solves properties -> [formulas].
 """
 
+import json
 import math
 import time
 from dataclasses import dataclass, field
@@ -98,6 +99,7 @@ class DesignCandidate:
     formation_energy: Optional[float] = None
     structure_type: Optional[str] = None
     confidence: float = 0.0
+    property_evidence: Dict[str, Dict[str, object]] = field(default_factory=dict)
     physical_gate_status: Literal[
         "ASSESSED_PASS", "VETOED", "NOT_ASSESSED"
     ] = "NOT_ASSESSED"
@@ -117,6 +119,7 @@ class DesignCandidate:
             "formation_energy": self.formation_energy,
             "structure_type": self.structure_type,
             "confidence": self.confidence,
+            "property_evidence": self.property_evidence,
             "physical_gate_status": self.physical_gate_status,
         }
 
@@ -167,6 +170,17 @@ class DesignResult:
                     "anchor": candidate.anchor,
                 }
                 record.update(candidate.predicted_properties)
+                for name, evidence in candidate.property_evidence.items():
+                    prefix = f"{name}__"
+                    record[prefix + "confidence"] = evidence.get("confidence")
+                    record[prefix + "lower_bound"] = evidence.get("lower_bound")
+                    record[prefix + "upper_bound"] = evidence.get("upper_bound")
+                    record[prefix + "sources"] = json.dumps(
+                        evidence.get("sources", {}), sort_keys=True
+                    )
+                    record[prefix + "evidence"] = json.dumps(
+                        evidence.get("evidence", {}), sort_keys=True
+                    )
                 records.append(record)
         return records
 
@@ -585,8 +599,16 @@ class CompositionDesigner:
         """Score a predicted material against the design spec."""
         props = prediction.properties
         pred_values: Dict[str, float] = {}
+        property_evidence: Dict[str, Dict[str, object]] = {}
         for pname, pprop in props.items():
             pred_values[pname] = pprop.value
+            property_evidence[pname] = {
+                "confidence": pprop.confidence,
+                "lower_bound": pprop.lower_bound,
+                "upper_bound": pprop.upper_bound,
+                "sources": dict(pprop.sources),
+                "evidence": dict(pprop.evidence),
+            }
 
         target_scores: Dict[str, float] = {}
         targets_met: List[str] = []
@@ -674,6 +696,7 @@ class CompositionDesigner:
             formation_energy=fe_value,
             structure_type=struct_type,
             confidence=avg_conf,
+            property_evidence=property_evidence,
         )
 
     # ── Helpers ────────────────────────────────────────────────────────
