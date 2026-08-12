@@ -33,7 +33,7 @@ class DiscoveryCandidate:
     design_score: float = 0.0
     
     # Stage 2: Safety & Regulatory
-    is_pfas_free: bool = True
+    is_pfas_free: Optional[bool] = None
     safety_vetoes: List[str] = field(default_factory=list)
     # Historical field name retained for serialized compatibility.  The value
     # is the result of a pymatgen oxidation-state/charge-balance check, not an
@@ -131,17 +131,34 @@ class DiscoveryWorkbenchService:
 
         # --- STAGE 2: Safety & Regulatory (PFAS/ZFC) ---
         print(f"[*] Stage 2: Screening {len(candidates)} candidates for safety...")
-        from pfas_bridge.compliance_checker import PFASComplianceChecker
         from composition_engine.physical_gates import charge_balanceable
-        checker = PFASComplianceChecker()
         
         safe_candidates = []
         for c in candidates:
-            compliance = checker.check(c.formula)
-            c.is_pfas_free = not compliance.is_pfas
-            if compliance.is_pfas:
-                c.safety_vetoes.append(f"PFAS: {compliance.urgency}")
+            # Generated candidates are chemical formulas, not material names or
+            # SMILES. Sending them through the general PFAS checker triggered
+            # PubChem name resolution and RDKit SMILES parsing for every row.
+            # It was both slow and epistemically wrong: formula-only C/F
+            # co-occurrence cannot establish the carbon-fluorine connectivity
+            # required by a structural PFAS definition.
+            pfas_status = self._screen_formula_pfas(c.formula)
+            c.is_pfas_free = pfas_status
+            if pfas_status is False:
+                c.compatibility_metadata['pfas_status'] = 'VETOED'
+                c.safety_vetoes.append('PFAS: exact registry match')
                 c.hard_vetoes.append('PFAS structural/name detection')
+            elif pfas_status is True:
+                c.compatibility_metadata['pfas_status'] = 'ASSESSED_PASS'
+                c.compatibility_metadata['pfas_note'] = (
+                    'formula contains no carbon/fluorine co-occurrence; '
+                    'a PFAS structure is impossible for this formula'
+                )
+            else:
+                c.compatibility_metadata['pfas_status'] = 'NOT_ASSESSED'
+                c.compatibility_metadata['pfas_note'] = (
+                    'formula-only input cannot establish carbon-fluorine '
+                    'connectivity; a molecular structure or verified identity is required'
+                )
 
             if goal.apply_charge_balance_gate:
                 c.zfc_witnessed = charge_balanceable(c.formula)
@@ -231,6 +248,31 @@ class DiscoveryWorkbenchService:
         print(f"[+] Discovery Pipeline complete in {end_time - start_time:.2f}s. Found {len(candidates)} candidates.")
         
         return candidates
+
+    @staticmethod
+    def _screen_formula_pfas(formula: str) -> Optional[bool]:
+        """Return a formula-scoped PFAS result without network resolution.
+
+        ``False`` means an exact registered PFAS identity was supplied.
+        ``True`` means the valid formula lacks either carbon or fluorine, so a
+        PFAS structure is impossible. ``None`` means structure is required.
+        This is a triage gate, not a regulatory compliance determination.
+        """
+        from pfas_bridge.pfas_registry import get_pfas
+
+        if get_pfas(formula) is not None:
+            return False
+
+        try:
+            from pymatgen.core import Composition
+
+            elements = {element.symbol for element in Composition(formula).elements}
+        except Exception:
+            return None
+
+        if 'C' not in elements or 'F' not in elements:
+            return True
+        return None
 
     def _resolve_known_proxy(self, candidate: DiscoveryCandidate) -> Optional[str]:
         """Return a known material name for services that cannot score arbitrary formulas.

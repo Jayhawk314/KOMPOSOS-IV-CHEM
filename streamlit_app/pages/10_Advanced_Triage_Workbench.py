@@ -292,7 +292,11 @@ if st.session_state.adv_wb_candidates is not None:
                 "Proxy (dist)": proxy_display,
                 "Bottleneck": meta.get("bottleneck", "N/A"),
                 "Design Score": round(float(c.design_score), 3),
-                "Safe": "✅" if c.is_pfas_free else "❌",
+                "PFAS Formula Screen": (
+                    "ASSESSED PASS" if c.is_pfas_free is True
+                    else "VETOED" if c.is_pfas_free is False
+                    else "NOT ASSESSED"
+                ),
             })
 
         df = pd.DataFrame(rows)
@@ -306,7 +310,10 @@ if st.session_state.adv_wb_candidates is not None:
             "means at least one requested physical interface had no native scorer; it is not a "
             "full-cell verdict. `n/a` means the battery-only context was not applicable. "
             "**Proxy (dist)** is that analog and its composition-space distance; ⚠️far (>"
-            f"{_FAR_PROXY}) means the cell score is a weak stand-in for the novel formula."
+            f"{_FAR_PROXY}) means the cell score is a weak stand-in for the novel formula. "
+            "**PFAS Formula Screen** can rule PFAS out when carbon and fluorine do not "
+            "co-occur, but formula-only C/F candidates remain `NOT ASSESSED` until a "
+            "molecular structure or verified identity is supplied."
         )
 
         # --- DEEP DIVE ---
@@ -361,7 +368,7 @@ if st.session_state.adv_wb_candidates is not None:
                         },
                         "physical_gate_audit": {
                             "charge_balance_status": c.compatibility_metadata.get("charge_balance_status"),
-                            "pfas_free_status": c.is_pfas_free,
+                            "pfas_formula_status": c.compatibility_metadata.get("pfas_status"),
                             "hard_vetoes": c.hard_vetoes,
                             "safety_vetoes": c.safety_vetoes,
                             "multi_domain_context": c.compatibility_metadata

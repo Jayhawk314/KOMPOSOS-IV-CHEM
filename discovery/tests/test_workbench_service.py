@@ -77,3 +77,23 @@ def test_charge_balance_status_survives_compatibility_metadata_update(monkeypatc
 
     assert result[0].compatibility_metadata["charge_balance_status"] is True
     assert result[0].compatibility_metadata["agreement"] == 0.7
+
+
+def test_formula_pfas_screen_rules_out_impossible_formula_without_network():
+    service = DiscoveryWorkbenchService()
+
+    assert service._screen_formula_pfas("LiFePO4") is True
+    assert service._screen_formula_pfas("LiNi0.8Mn0.1Co0.1O2") is True
+
+
+def test_formula_pfas_screen_abstains_when_connectivity_is_required():
+    service = DiscoveryWorkbenchService()
+
+    assert service._screen_formula_pfas("C2F4") is None
+    assert service._screen_formula_pfas("not-a-formula") is None
+
+
+def test_formula_pfas_screen_preserves_exact_registry_veto():
+    service = DiscoveryWorkbenchService()
+
+    assert service._screen_formula_pfas("PVDF") is False

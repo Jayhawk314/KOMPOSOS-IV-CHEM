@@ -55,7 +55,7 @@ from target properties to candidate materials before expensive lab or simulation
 | **MP Explorer** | Browse optional Materials Project data and derive crystal structures |
 | **MOF Explorer** | Screen 30 Metal-Organic Frameworks against operating conditions with a 5-scorer breakdown |
 | **MOF Designer** | Generate novel MOF linkers with exact atom count control, donor atom filtering, and 5 KOMPOSOS verdicts |
-| **Discovery Workbench** | Run the current composition-first pipeline: inverse design, element constraints, PFAS screening, compatibility context, and synthesis planning |
+| **Discovery Workbench** | Run the current composition-first pipeline: inverse design, element constraints, tri-state formula PFAS screening, compatibility context, and synthesis planning |
 | **Advanced Triage Workbench** | **NEW:** A mixed-fidelity pipeline separating fast discovery (triage) from strict logical verification (ZFC charge balance and Multi-Domain cell bottlenecks), explicitly surfacing calculation uncertainty. |
 
 ---

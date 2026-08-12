@@ -1,0 +1,117 @@
+{
+  "schema": "komposos-triage-readiness.v1",
+  "created_utc": "2026-08-12T20:04:08.849998+00:00",
+  "evidence_role": "development_diagnostic",
+  "claim_scope": "Functional coverage and wall-clock latency for one local battery-triage scenario; not predictive accuracy, experimental validation, or a comparison with an external professional workflow.",
+  "command": "python audit/run_triage_readiness.py --max-candidates 30",
+  "python": "3.10.11",
+  "scenario": {
+    "property": "voltage",
+    "minimum": 3.0,
+    "maximum": 4.5,
+    "required_elements": [
+      "Li"
+    ],
+    "requested_candidates": 30
+  },
+  "observed": {
+    "elapsed_seconds": 10.859643,
+    "returned_candidates": 29,
+    "unique_formulas": 29,
+    "hard_vetoed": 0,
+    "charge_balance": {
+      "pass": 29,
+      "veto": 0,
+      "not_assessed": 0
+    },
+    "pfas_formula_screen": {
+      "assessed_pass": 29,
+      "veto": 0,
+      "not_assessed": 0
+    },
+    "with_synthesis_route": 18,
+    "top_candidates": [
+      {
+        "formula": "LiNi0.1Mn0.5Co0.4O2",
+        "overall_confidence": 0.529558,
+        "design_score": 0.900194,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "LiNi0.1Mn0.4Co0.5O2",
+        "overall_confidence": 0.529358,
+        "design_score": 0.899695,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "LiNi0.1Mn0.6Co0.3O2",
+        "overall_confidence": 0.50688,
+        "design_score": 0.843501,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "LiNi0.1Mn0.3Co0.6O2",
+        "overall_confidence": 0.503452,
+        "design_score": 0.83493,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.200Fe0.800LiO3.600P0.800",
+        "overall_confidence": 0.492447,
+        "design_score": 0.761977,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.300Fe0.700LiO3.400P0.700",
+        "overall_confidence": 0.48822,
+        "design_score": 0.757326,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.400Fe0.600LiO3.200P0.600",
+        "overall_confidence": 0.487034,
+        "design_score": 0.756021,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.800Fe0.200LiO2.400P0.200",
+        "overall_confidence": 0.484759,
+        "design_score": 0.753517,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.700Fe0.300LiO2.600P0.300",
+        "overall_confidence": 0.482025,
+        "design_score": 0.750508,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      },
+      {
+        "formula": "Co0.900Fe0.100LiO2.200P0.100",
+        "overall_confidence": 0.482007,
+        "design_score": 0.750489,
+        "charge_balance": true,
+        "pfas_formula_status": "ASSESSED_PASS",
+        "hard_vetoes": []
+      }
+    ]
+  },
+  "receipt_id": "0cb2c460212a2a6255c565b9b364d47341c4f4573339b75e4043ff5d2b5ad271"
+}

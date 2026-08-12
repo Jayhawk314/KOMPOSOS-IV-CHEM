@@ -32,6 +32,7 @@ dataset roles, uncertainty scope, and missing coverage.
 - Synthesis planner: 24 curated targets, 17 formal element-balance witnesses,
   seven composite/mixture targets explicitly skipped.
 - Local Materials Project cache: 103,644 entries in the audited checkout.
+- Fast-triage local development diagnostic: 30 candidates requested, 29 unique formulas returned in 10.859643 seconds, and 18 route-library matches. The pre-repair run took 69.630 seconds. This is latency and functional evidence, not accuracy or external workflow validation.
 
 The historical 0.304 eV/atom formation-energy headline is superseded for the
 current strict-LOO executable path. Historical reports may retain it as a record
@@ -74,6 +75,7 @@ protocol.
 - Formal stoichiometric balance is not reaction feasibility.
 - MOF funnel performance is screening evidence, not synthesis validation.
 - PFAS-free replacement ordering is triage until validated for the user's process.
+- Formula-only PFAS screening is tri-state. Lack of carbon or fluorine can rule a PFAS structure out for that formula; C/F co-occurrence requires structure or verified identity and remains not assessed.
 
 ## Verification
 
@@ -83,6 +85,8 @@ protocol.
 - Composition parser/properties/spatial: 66 passed.
 - Structure predictor: 42 passed in 77.45 seconds.
 - Formation/calibration/predictor: 80 passed in 187.15 seconds.
+- 2026-08-12 connected triage regression: 295 passed with one `mp_api` dependency warning; this suite overlaps prior groups and must not be added to their counts.
+- Both changed triage pages loaded in Streamlit AppTest with zero exceptions; the running health endpoint returned HTTP 200.
 
 See `docs/CHEM_SYSTEM_VALUE_AUDIT_2026-07-17.md` for the per-feature assessment
 and `docs/PROVENANCE_CONTRACT_PROJECT.md` for the LLM/user evidence-layer design.

@@ -1,7 +1,7 @@
 # KOMPOSOS-IV-CHEM Definitive Web UI Guide
 
 Version: 2.0
-Evidence sync date: 2026-07-17
+Behavior sync date: 2026-08-12; scientific evidence dates remain stated per claim
 Interface: Streamlit
 Scope: all eleven numbered application pages
 
@@ -641,7 +641,7 @@ independent predictor.
 The service performs:
 
 - inverse formula design;
-- PFAS screening;
+- formula-scoped PFAS screening with tri-state status;
 - oxidation-state and charge-balance feasibility where assessable;
 - proxy selection for a registered material when needed;
 - compatibility screening in the requested context;
@@ -654,8 +654,13 @@ A definite charge-balance failure is a hard veto. The previous placeholder that
 marked every candidate as witnessed has been removed. An unassessable formula
 does not receive a positive charge-balance verdict.
 
-PFAS detection and other configured safety vetoes remain visible in the
-candidate record.
+The generated-formula PFAS check is tri-state:
+
+- `ASSESSED PASS` when the valid formula lacks carbon or fluorine, making a PFAS structure impossible for that formula;
+- `VETOED` for an exact registered PFAS identity;
+- `NOT ASSESSED` when carbon and fluorine co-occur or the formula is invalid, because molecular connectivity or verified identity is required.
+
+This formula screen performs no PubChem name lookup. PFAS status and other configured safety vetoes remain visible in the candidate record. It is not a regulatory compliance determination.
 
 ### Proxy behavior
 
@@ -693,8 +698,9 @@ real-world success.
 
 ### Purpose
 
-Advanced Triage exposes the mixed fidelity of candidate assessment more
-explicitly than Page 9.
+Advanced Triage exposes the mixed fidelity of candidate assessment more explicitly than Page 9.
+
+A versioned 2026-08-12 local development diagnostic requested 30 Li-bearing candidates in a 3.0-to-4.5 V target window and returned 29 unique formulas in 10.859643 seconds; 18 received a route-library match. The pre-repair run took 69.630 seconds because generated inorganic formulas were sent through inappropriate name/SMILES resolution. These are latency and functional-coverage observations, not accuracy, experimental validation, an external workflow comparison, or a service-level guarantee. The receipt is `audit/triage_readiness_report.json`.
 
 ### Triage controls
 
@@ -736,7 +742,8 @@ is not applied to the multi-interface aggregate.
 ### Uncertainty display
 
 The candidate deep dive shows central estimates, lower and upper bounds,
-confidence, charge metadata, proxy information, and interface evidence.
+confidence, charge metadata, tri-state formula PFAS status, proxy information,
+and interface evidence.
 Formation-energy intervals are separately calibrated. Bounds for other
 properties remain heuristic unless a feature-specific status says otherwise.
 

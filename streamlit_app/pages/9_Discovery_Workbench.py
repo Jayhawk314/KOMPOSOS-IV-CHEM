@@ -230,17 +230,22 @@ if st.button("Start Discovery Pipeline", type="primary"):
         
         rows = []
         for c in candidates:
-            rows.append({
+            row = {
                 "Formula": c.formula,
                 "Confidence": c.overall_confidence,
                 "Depth": c.pipeline_depth,
                 "Design": c.design_score,
                 "Hard Vetoes": ", ".join(c.hard_vetoes) if c.hard_vetoes else "—",
-                "Safe": "âœ…" if c.is_pfas_free else "â Œ",
                 "Compatible": f"{c.compatibility_score:.3f}" if c.compatibility_viable else "FAIL",
                 "Synth": f"{c.synthesizability_score:.3f}",
                 "Cost": f"${c.estimated_cost:.2f}" if c.estimated_cost > 0 else "N/A"
-            })
+            }
+            row["PFAS Formula Screen"] = (
+                "ASSESSED PASS" if c.is_pfas_free is True
+                else "VETOED" if c.is_pfas_free is False
+                else "NOT ASSESSED"
+            )
+            rows.append(row)
             
         df = pd.DataFrame(rows)
         st.dataframe(

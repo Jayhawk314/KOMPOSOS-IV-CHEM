@@ -115,19 +115,28 @@ FEATURE_NOTES = {
     ),
     "workbench": (
         "This is a **composition-first prototype** that chains inverse design → "
-        "PFAS screening → compatibility context → synthesis planning. Crystal- and "
-        "MOF-specific pipeline modes are planned next. Outputs are triage "
-        "candidates for screening, not lab-validated designs. " + CONFIDENCE_CAVEAT
+        "formula-scoped PFAS screening → compatibility context → synthesis planning. "
+        "The PFAS formula screen is tri-state: `ASSESSED PASS` when a valid formula "
+        "cannot contain a PFAS because carbon and fluorine do not co-occur, `VETOED` "
+        "for an exact registered PFAS identity, and `NOT ASSESSED` when connectivity "
+        "or identity is still required. Outputs are triage candidates for screening, "
+        "not lab-validated designs. " + CONFIDENCE_CAVEAT
     ),
     "advanced_workbench": (
         "A **mixed-fidelity** pipeline. The **triage phase** (inverse design) proposes "
-        "candidate formulas — these are *suggestions* and can be hallucinations. The "
-        "**precision phase** adds two checks you can trust more:\n\n"
+        "candidate formulas — these are *suggestions* and can be hallucinations. A "
+        "versioned local development diagnostic requested 30 Li-bearing candidates "
+        "and returned 29 unique formulas in **10.860 seconds** after the PFAS-path "
+        "repair. That is one local latency/functional run, not an accuracy result, "
+        "service-level guarantee, or comparison with an external professional workflow. "
+        "The **precision phase** adds two checks you can trust more:\n\n"
         "1. **Charge-balance veto** — a pymatgen oxidation-state feasibility check; "
         "unassessable formulas receive no verdict. This is not an independent ZFC proof.\n"
         "2. **Interface coverage check** — an uncalibrated aggregate of the native "
         "cross-domain functors that are actually available. Missing adjacent interfaces "
         "are shown and block a full-cell verdict.\n\n"
+        "Formula-only PFAS status remains tri-state; C/F co-occurrence requires structure "
+        "or verified identity before a PFAS-free conclusion. "
         "**Two honesty caveats on the interface check:** (a) it scores the candidate's "
         "**nearest known analog** (a proxy), *not* the novel formula itself — the further "
         "that analog sits in composition space, the weaker the signal, so the scorecard "
