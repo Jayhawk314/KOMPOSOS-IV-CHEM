@@ -166,3 +166,6 @@ _reachability_report.csv
 _baseline_test_results.txt
 _after_quarantine_test_results.txt
 _quarantine/
+
+# Private outreach material - never commit
+.private_outreach/
