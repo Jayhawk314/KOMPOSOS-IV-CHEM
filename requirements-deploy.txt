@@ -1,7 +1,9 @@
-# KOMPOSOS-III-LAMBDA-max-3D-chem  - Deployment Requirements (Render free tier)
-# Excludes heavy deps (rdkit-pypi, pymatgen, mp-api) that need >512MB RAM to install
-# TODO: Re-add rdkit-pypi, mp-api, pymatgen when upgrading to Render paid tier
-#       This enables MOF Designer (page 8) and MP Explorer (page 6)
+# KOMPOSOS-IV-CHEM - Deployment Requirements
+# rdkit enables MOF Designer (page 8); needs a paid instance with >=1GB RAM
+# (512MB free tier cannot hold rdkit + streamlit). Verified 2026-08-12: a
+# tracked-files-only clone generates MOF linkers end-to-end with rdkit present;
+# the seed cache auto-builds in demo mode on first use.
+# Still excluded (heavy, only needed by MP Explorer page 6): pymatgen, mp-api
 # Python >=3.10
 
 # Core dependencies
@@ -21,6 +23,9 @@ uvicorn[standard]>=0.24.0
 
 # Web UI
 streamlit>=1.30.0
+
+# Chemistry engine (MOF Designer, page 8)
+rdkit>=2023.9.1
 
 # PDF report generation
 fpdf2>=2.7.0
