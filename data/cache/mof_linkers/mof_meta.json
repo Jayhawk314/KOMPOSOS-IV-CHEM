@@ -1,7 +1,16 @@
 {
-  "version": "1.0",
-  "linker_count": 3,
-  "created": 1781573188,
-  "source": "Demo mode (synthetic 22-atom linkers)",
-  "description": "Real MOF linkers: terphenyl, anthracene, stilbene derivatives"
+  "version": "1.0.0",
+  "linker_count": 11,
+  "created": 1786593967,
+  "source": "Imported pre-extracted linker dataset: benchmark_split_seed",
+  "dataset_path": "C:\\Users\\JAMES\\AppData\\Local\\Temp\\claude\\C--Users-JAMES-github-clean-komposos-iv-chem\\69b0dfcd-40cf-488a-8036-ab30b31e64a0\\scratchpad\\seed_safe_linkers.csv",
+  "records_seen": 253,
+  "imported_this_run": 11,
+  "skipped_missing_smiles": 0,
+  "skipped_invalid_smiles": 0,
+  "skipped_wrong_size": 242,
+  "skipped_non_linker_like": 0,
+  "exact_heavy_atoms": 22,
+  "reset": true,
+  "require_linker_like": true
 }
